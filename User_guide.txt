@@ -1,3 +1,13 @@
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC GINETTE CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C AUCUNE MODIFICATION DU CODE N'IMPLIQUE LES DEVELLOPEURS AGNES RIVIERE JULIO GONCALVES ANNE JOST         C
+C contacts agnes.riviere@mines_paristech.fr                                                               C
+C          goncalves@cerege.fr                                                                            C
+c          anne.jost@upmc.fr                                                                              C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+Pour toutes utilisation de ce code, les références suivantes doivent être citées:
+Rivière, A., Jost, A., Gonçalvès, J., and Font, M. (2019) – Experimental and numerical studies of pore-water pressure variations in sub-permafrost groundwater. Cold Regions Science and Technology, 158, 76-94. ⟨10.1016/j.coldregions.2018.11.005⟩. 
+Rivière, A., Gonçalvès, J., Jost, A. and Font, M. (2014) – Experimental and numerical assessment of stream-aquifer exchanges during disconnection. Journal of Hydrology, 517, 574-583. ⟨10.1016/j.jhydrol.2014.05.040⟩.
+
 ---------------------------------FICHIER ENTREE -------------------------------------------------------------------------------------------------
 A REMPLIR :
 E_cdt_aux_limites.dat
