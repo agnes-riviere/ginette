@@ -1,14 +1,18 @@
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC GINETTE CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C AUCUNE MODIFICATION DU CODE N'IMPLIQUE LES DEVELLOPEURS AGNES RIVIERE JULIO GONCALVES ANNE JOST         C
-C contacts agnes.riviere@mines_paristech.fr                                                               C
-C          goncalves@cerege.fr                                                                            C
-c          anne.jost@upmc.fr                                                                              C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-Pour toutes utilisation de ce code, les références suivantes doivent être citées:
-Rivière, A., Jost, A., Gonçalvès, J., and Font, M. (2019) – Experimental and numerical studies of pore-water pressure variations in sub-permafrost groundwater. Cold Regions Science and Technology, 158, 76-94. ⟨10.1016/j.coldregions.2018.11.005⟩. 
-Rivière, A., Gonçalvès, J., Jost, A. and Font, M. (2014) – Experimental and numerical assessment of stream-aquifer exchanges during disconnection. Journal of Hydrology, 517, 574-583. ⟨10.1016/j.jhydrol.2014.05.040⟩.
+## GINETTE User guide
+AUCUNE MODIFICATION DU CODE N'IMPLIQUE LES DEVELLOPEURS AGNES RIVIERE JULIO GONCALVES ANNE JOST
 
----------------------------------FICHIER ENTREE -------------------------------------------------------------------------------------------------
+_Authors contacts_
+- agnes.riviere@mines_paristech.fr
+- goncalves@cerege.fr
+- anne.jost@upmc.fr
+
+Pour toutes utilisation de ce code, les références suivantes doivent être citées:
+
+    Rivière, A., Jost, A., Gonçalvès, J., and Font, M. (2019) – Experimental and numerical studies of pore-water pressure variations in sub-permafrost groundwater. Cold Regions Science and Technology, 158, 76-94. ⟨10.1016/j.coldregions.2018.11.005⟩. 
+
+    Rivière, A., Gonçalvès, J., Jost, A. and Font, M. (2014) – Experimental and numerical assessment of stream-aquifer exchanges during disconnection. Journal of Hydrology, 517, 574-583. ⟨10.1016/j.jhydrol.2014.05.040⟩.
+
+### FICHIER ENTREE
 A REMPLIR :
 E_cdt_aux_limites.dat
 E_cdt_initiale.dat
@@ -48,20 +52,20 @@ E_chargeT_Riv.dat      valeur charge des mailles E_BordRD en fonction du temps
 
 
 
----------------------------------To compile-----------------------------------------------------------------------------------------------------------
+#### To compile 
 gfortran ginette_V2.f -o ginette
----------------------------------to run
+#### to run
 ./ginette
----------------------------------create model-----------------------------------------------------------------------------------------------------------
+#### create model 
  gfortran traite_geom.f90 -o treat_geom
 ./treat_geom
----------------------------------to debug
+#### to debug
 gfortran -g -fbacktrace -ffpe-trap=zero,overflow,underflow ginette_V2.f -o ginette
 gdb ./ginette
 run
----------------------------------PARAMETER AND SET UP -------------------------------------------------------------------------------------------------
----------------------------------Flow model-----------------------------------------------------------------------------------------------------------
----------------------------------E_parametre.dat
+#### PARAMETER AND SET UP  
+#### Flow model 
+#### E_parametre.dat
 ec=1                   iec=1 flow active
 rp=1			rp=1 transient state ; rp=0 steady state
 dt=000900D+00	s	time sted ; format d9.0
@@ -78,8 +82,8 @@ ss=3.80D-01	     storage coefficient/porosity water model unconfined without uns
 itsortie=00086400    recorded time step itsortie*unitsorti
 unitsortie=00001D+00
 solver=CGS         BIC BiConjugate Gradient, CGS Conjugate Gradient Squared Method, LIB inria library (n'est pas active actuellement, pb lorsque ecoulement + transport chaleur)
----------------------------------Heat model-----------------------------------------------------------------------------------------------------------
----------------------------------E_parametre.dat
+#### Heat model 
+#### E_parametre.dat
 ith=1				ith=0 heat inactive ith=1 heat active
 time sted
 dt=000900D+00	s	pas de temps ; format d9.0
@@ -94,21 +98,21 @@ recorded time step itsortie*unitsortie
 itsortie=00086400
 unitsortie=00001D+00
 solver=CGS         BIC BiConjugate Gradient, CGS Conjugate Gradient Squared Method, LIB inria library
----------------------------------E_p_therm.dat
+#### E_p_therm.dat
 ithec=1               ithec=1 advection +conduction ithec=0 conduction without advection warning iec in E_parametre.dat should be equal to 0
 alandam=7.70D+00 	  solid thermal conductivity
 rhosi=2650D+00	kg/m3  solid density
 cpm=0835D+00	m2/s2/C	specific heat capacity
 ytest=RIV      	cas test TH2 TH3 THL ANU DTS AVA ZHR ZHZ
----------------------------------INITIAL CONDITIONS -------------------------------------------------------------------------------------------------
---------------------------------E_cdt_initiale.dat
+#### INITIAL CONDITIONS  
+#### E_cdt_initiale.dat
 chgi=00117D+00 	m		homogeneous hydraulic head
 tempi=0012d+00	C		homogeneous temperature
 ichi=1			ichi=1 hydrostatic hydraulic head E_charge_initiale.dat one colunm with the value (Pa) of hydraulic head
 ichi2=0				ichi2=1 spatial variation of the pressure E_pression_initiale.dat one value by celle
 itempi=0		itempi=1 spatial variation of the temperature E_temperature_initiale.dat, one temp ny cell
----------------------------------BOUNDARY CONDITIONS -------------------------------------------------------------------------------------------------
----------E_cdt_aux_limites
+#### BOUNDARY CONDITIONS  
+##### E_cdt_aux_limites
 Homogenous :
 Left:
 icl_gauche=-1		icl=-1 neuman (fluxes), icl=-2 dirichlet (hydraulic head)
@@ -159,7 +163,7 @@ E_PluieR.dat
 
 
 
----------------------------------OUTPUT -------------------------------------------------------------------------------------------------
+### OUTPUT  
 line 3352
 CCC....FICHIERS these texier creation
        if(ytest.eq."TEX") then

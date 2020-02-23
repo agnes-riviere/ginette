@@ -1,33 +1,31 @@
 # Ginette
 
-## License
-Copyright © Sorbonne Universite
-            Universite Aix Marseille
-			Mines ParisTech
-
-Created in 2008
+### License
 
 Authors:
 - ... Riviere , Agnes, agnes.riviere@mines_paristech.fr
 - ... Goncalves , Julio, goncalves@cerege.fr 
 - ... Jost , Anne, anne.jost@upmc.fr
 
-          
+_Created in 2008_. Copyright ©
+- Sorbonne Universite
+- Universite Aix Marseille
+- Mines ParisTech
 
-
-Ginette  :
 Ginette is a model for saturated-unsaturated, variable-density ground-water flow with solute or energy transport. 
 It simulates the groundwater-river interactions for a 2-D variably saturated flow (Riviere et al., 2014), using a finite-difference numerical
 scheme.  Freezing and thawing processes are implemented in the code as well.
 
-[describe functionalities and technical features of your software].
-Need to do later
+[describe functionalities and technical features of your software]
+
+_**Update coming up later**_
+
 -------------------------------------------------------------------------
 This software is governed by the CeCILL license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
 modify and/ or redistribute the software under the terms of the CeCILL
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+http://www.cecill.info. 
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
@@ -54,7 +52,7 @@ Ce logiciel est régi par la licence CeCILL soumise au droit français et
 respectant les principes de diffusion des logiciels libres. Vous pouvez
 utiliser, modifier et/ou redistribuer ce programme sous les conditions
 de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
-sur le site "http://www.cecill.info".
+sur le site http://www.cecill.info.
 
 En contrepartie de l'accessibilité au code source et des droits de copie,
 de modification et de redistribution accordés par cette licence, il n'est
@@ -76,3 +74,7 @@ sécurité de leurs systèmes et ou de leurs données et, plus généralement,
 Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
 pris connaissance de la licence CeCILL, et que vous en avez accepté les
 termes.
+
+
+### Userguide
+Userguide available in [User_guide.md](User_guide.md)
