@@ -3,9 +3,12 @@
 ### License
 
 Authors:
-- ... Riviere , Agnes, agnes.riviere@mines_paristech.fr
-- ... Goncalves , Julio, goncalves@cerege.fr 
-- ... Jost , Anne, anne.jost@upmc.fr
+- Riviere, Agnes, agnes.riviere@mines_paristech.fr
+- Goncalves, Julio, goncalves@cerege.fr 
+- Jost, Anne, anne.jost@upmc.fr
+
+Contributions by:
+- Texier, Jérôme, texier@cerege.fr 
 
 _Created in 2008_. Copyright ©
 - Sorbonne Universite
