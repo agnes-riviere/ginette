@@ -4,8 +4,11 @@
 
 Authors:
 - ... Riviere , Agnes, agnes.riviere@mines_paristech.fr
-- ... Goncalves , Julio, goncalves@cerege.fr 
-- ... Jost , Anne, anne.jost@upmc.fr
+- ... Cucchi , karina, karina.cucchi@gmail.com 
+- ... Flipo , Nicolas, nicolas.flipo@mines_paristech.fr
+
+Contribution
+- ...
 
 _Created in 2008_. Copyright ©
 - Sorbonne Universite
