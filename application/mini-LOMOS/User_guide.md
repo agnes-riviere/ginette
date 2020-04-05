@@ -2,10 +2,10 @@ The scripts work with libts version 1.68  and with libpc version 1.24. Watch the
 
 1) You MUST to complete the file : inversion_parameter.COMM
 parameters zone min max nb of tested values
-n=  : min :max  nb of tested value
-k=   : min max intrinsic permeability nb of tested values
-l= :min thermal conductivity nb of tested values
-r=  : min max heat capicity  nb of tested values
+n= min max  nb of tested value
+k= min max intrinsic permeability nb of tested values
+l= min thermal conductivity nb of tested values
+r= min max heat capicity  nb of tested values
 -----------------------------------
 example for 2 zones :
 k 1 0001D-15 0001D-11 0001
@@ -18,27 +18,28 @@ l 2 1300D-03 8400D-03 0001
 r 2 2600D+00 2600D+00  0001
 
 _____________________________________________________________________________________________________________________________
+
+
 2) Complete inversion.COMM
 You MUST format your command file as inversion.COMM with this following format
-# $1 : name point ex:Point1
-# $2 : year (two last characters YY) ex: 14
-# $3 : month (two last characters MM) ex:  11
-# $4 : day (two last characters DD) ex: 07
-# $5 : name temperature file (four first characters) ex: t502
-# $6 : name pressure sensor (four first characters) ex: p504
-# $7 : thickness of the studied hyporheic zone (m)ex: 0.40
-# $8 : duration of one day in second ex:86400
-# $9 : delta t (s) ex: 900
-# $10 : nmaille1 PT100 1 ex: 11
-# $11 : nmaille2 PT100 2 ex:21
-# $12 : nmaille3 PT100 3 ex:31
-# $13 : Number of observation PT100
-# $14 : Number of area 1 or 2
-# $15 : Limit between the two area
+ $1 : name point ex:Point1
+ $2 : year (two last characters YY) ex: 14
+ $3 : month (two last characters MM) ex:  11
+ $4 : day (two last characters DD) ex: 07
+ $5 : name temperature file (four first characters) ex: t502
+ $6 : name pressure sensor (four first characters) ex: p504
+ $7 : thickness of the studied hyporheic zone (m)ex: 0.40
+ $8 : delta t (s) ex: 900
+ $9 : nmaille1 PT100 1 ex: 11
+ $10 : nmaille2 PT100 2 ex:21
+ $11 : nmaille3 PT100 3 ex:31
+ $12 : Number of observation PT100
+ $13 : Number of area 1 or 2
+ $14 : Limit between the two area
 
 ------------------------------------
 example:
-Point1 14 11 07 t502 p504 0.40 86400 900 11 21 31 3 2 0.20
+Point1 14 11 07 t502 p504 0.40 900 11 21 31 3 2 0.20
 
 3) Complete the file
 inversion_PT100.COMM
