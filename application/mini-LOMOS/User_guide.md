@@ -2,10 +2,10 @@ The scripts work with libts version 1.68  and with libpc version 1.24. Watch the
 
 1) You MUST to complete the file : inversion_parameter.COMM
 parameters zone min max nb of tested values
-n=  : min :max  nb of tested value
-k=   : min max intrinsic permeability nb of tested values
-l= :min thermal conductivity nb of tested values
-r=  : min max heat capicity  nb of tested values
+n= min max  nb of tested value
+k= min max intrinsic permeability nb of tested values
+l= min thermal conductivity nb of tested values
+r= min max heat capicity  nb of tested values
 -----------------------------------
 example for 2 zones :
 k 1 0001D-15 0001D-11 0001
@@ -18,6 +18,8 @@ l 2 1300D-03 8400D-03 0001
 r 2 2600D+00 2600D+00  0001
 
 _____________________________________________________________________________________________________________________________
+
+
 2) Complete inversion.COMM
 You MUST format your command file as inversion.COMM with this following format
  $1 : name point ex:Point1
