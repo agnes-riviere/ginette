@@ -11,6 +11,8 @@ P="charge"
 gfortran -o ginette_velocity ../../../src/ginette_V2.f 
 
 
+echo pwd
+pwd
 # change parameters in input files for steady state
 echo "Ginette's steady"
 
