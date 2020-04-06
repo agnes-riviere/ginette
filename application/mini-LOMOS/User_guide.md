@@ -1,4 +1,3 @@
-The scripts work with libts version 1.68  and with libpc version 1.24. Watch the variables V_TS V_LP in the Makefiles
 
 1) You MUST to complete the file : inversion_parameter.COMM
 parameters zone min max nb of tested values
