@@ -1523,7 +1523,7 @@ CCC...HYDROSTATIQUE
 
 CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
         if (ichi2.eq.1) then
-	open(unit=242,file='E_pression_initiale.dat')
+		open(unit=242,file='E_pression_initiale.dat')
         do i=1,nm
         read(242,*) pr(i)
         enddo
@@ -5349,7 +5349,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....si face droite imposee et vxp(i)<0!!!!
 	if(iclt(i,1).eq.-2.and.vxp(i).lt.0) then
 	b(i)=dble(b(i)+rho(i)*cpe*vxp(i)/am(i)*valclt(i,1))
-	if(abs(vxp(i)-vxm(i)).lt.vxm(i)/1D9) then
+	if(abs(vxp(i)-vxm(i)).lt.abs(vxm(i))/1D9) then
 	print*,'pb de vitesse x'
 	print*,'verifiez votre etat initial'
 	stop
@@ -5369,7 +5369,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....si face gauche imposee et vxm(i)>0!!!!
 	if(vxm(i).gt.0.and.iclt(i,2).eq.-2) then
 	b(i)=dble(b(i)-rho(i)*cpe*vxm(i)/am(i)*valclt(i,2))
-	if(abs(vxp(i)-vxm(i)).lt.vxm(i)/1D9) then
+	if(abs(vxp(i)-vxm(i)).lt.abs(vxm(i))/1D9) then
 	print*,'pb de vitesse x'
 	print*,'verifiez votre etat initial'
 	stop
@@ -5393,9 +5393,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	val(ih)=dble(val(ih)-rho(ivois(i,3))*cpe*vzp(i)/bm(i))
 	endif
 	if(vzp(i).lt.0.and.iclt(i,3).eq.-2) then
-	if(abs(vzp(i)-vzm(i)).lt.vzm(i)/1D9) then
-	print*,'pb de vitesse z',vzp(i),vzp(i)
-	print*,'verifiez votre etat initial'
+	if(abs(vzp(i)-vzm(i)).ge.abs(vzm(i))/1D9) then
+	print*,'pb de vitesse z',vzp(i),vzm(i),i,abs(vzp(i)-vzm(i)),dt
+	print*,'verifiez votre etat initial sup'
 	stop
 	endif
 	b(i)=dble(b(i)+rho(i)*cpe*vzp(i)/bm(i)*valclt(i,3))
@@ -5413,8 +5413,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	endif
 	if(vzm(i).gt.0.and.iclt(i,4).eq.-2) then
 	b(i)=dble(b(i)-rho(i)*cpe*vzm(i)/bm(i)*valclt(i,4))
-	if(abs(vzp(i)-vzm(i)).lt.vzm(i)/1D9) then
-	print*,'pb de vitesse z'
+	if(abs(vzp(i)-vzm(i)).ge.abs(vzm(i))/1D9) then
+	print*,'pb de vitesse z',abs(vzp(i)-vzm(i)),i
 	print*,'verifiez votre etat initial'
 	stop
 	endif
