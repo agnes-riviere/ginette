@@ -76,6 +76,7 @@ c         dimension icpiso(:)
         allocatable ::qadvin_h(:),qadvin_hR(:)
         allocatable ::qcondout_h(:),qcondout_hR(:)
         allocatable ::qcondin_h(:),qcondin_hR(:)
+        allocatable ::qad(:),qcondu(:)
         CHARACTER(5) ::  ytypakrice,ytypsice
         CHARACTER(3) :: ytest,yunconfined,ysolv
 c		integer(4) :: deg_max_gc
@@ -1237,6 +1238,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             allocate(aspzone(nm))
             allocate(tempoo(nm))
             allocate(qtherm(nm))
+            allocate(qad(nm))
+            allocate(qcondu(nm))
             allocate(zs(nc,2))
             allocate(zso(nc,2))
             allocate(zsoo(nc,2))
@@ -3089,18 +3092,19 @@ c               TEST PERFORMANCE              C
 c                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
        if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
-        qad1=0D+00
-        qcondu1=0D+00
-        qtherm1=0D+00
+        do i=1,nm
+        qad(i)=0D+00
+        qcondu(i)=0D+00
+        qtherm(i)=0D+00
+		enddo
 CCC....flux THERMIQUE
         do i=1,nm
-                if(i.eq.1) then
-	if (ymoycondtherm.eq."WOODS") then
+       	if (ymoycondtherm.eq."WOODS") then
 	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)
      &+sqrt(alandai)*(om(i)*sice(i))+
      &sqrt(alandas(i))*(1D+00-om(i))+
      &sqrt(alandag)*om(i)*(1D+00-sw(i)-sice(i)))**2
-	else if(ymoycondtherm.eq."GEOME") then
+	else if(ymoycondtherm.eq."GEOME") then       	       
 	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*
      &alandai**(om(i)*sice(i))*alandag**(om(i)*(1D+00-sw(i)-sice(i))))
 	else if(ymoycondtherm.eq."ARITH") then
@@ -3109,37 +3113,35 @@ CCC....flux THERMIQUE
 	endif
 
 CCC....FACE INF
-cccc....vzp(i) face du dessous entrante
+cccc....vzp(i) face du dessous entrante kg/m3 J⋅kg−1⋅K−1 m/s K  > J /s  > W/m2
 	if(vzm(i).gt.0.and.iclt(i,4).eq.1) then
-	qad1=dble(rho(ivois(i,4))*cpe*vzm(i))*temp(ivois(i,4))*am(i)
+	qad(i)=dble(rho(ivois(i,4))*cpe*vzm(i))*temp(ivois(i,4))
 	endif
-	if(vzm(i).gt.0.and.iclt(i,4).eq.-2) then
-	qad1=dble(rho(i)*cpe*vzm(i)*valclt(i,4))*am(i)
-	endif
+c	if(vzm(i).gt.0.and.iclt(i,4).eq.-2) then
+c	qad(i)=dble(rho(i)*cpe*vzm(i)*valclt(i,4))
+c	endif
 	if(vzm(i).lt.0) then
-	qad1=dble(rho(i)*cpe*vzm(i)*temp(i))*am(i)
+	qad(i)=dble(rho(i)*cpe*vzm(i)*temp(i))
 	endif
 CCC...conduction dispersion
-	dtjm=dble(blt*rho(i)*cpe*((vxm(i)+vxp(i))**2/4
-     &+(vzm(i)+vzp(i))**2/4)**0.5+alanda(i))
+	dtjm=dble(blt*rho(i)*cpe*((vxm(i)+vxp(i))**2./4.
+     &+(vzm(i)+vzp(i))**2./4.)**0.5+alanda(i))
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                FACE BASSE                    C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(iclt(i,4).eq.1) then
-	qcondu1=dble(dtjm/(z(i)-z(ivois(i,4)))*
-     &(temp(i)-temp(ivois(i,4)))*am(i))
+	qcondu(i)=-dble(dtjm/(z(i)-z(ivois(i,4)))*
+     &(temp(i)-temp(ivois(i,4))))
 
 	endif
-CCC....temperature imposee
+CCC....temperature imposee W·m−1·K−1 K /m  > W/m2
 	if(iclt(i,4).eq.-2) then
-	qcondu1=dble(dtjm*(temp(i)-valclt(i,4))/bm(i)*2.D00)*am(i)
+	qcondu(i)=-dble(dtjm*(temp(i)-valclt(i,4))/bm(i)*2.D00)
 	endif
-	qtherm1=qcondu1+qad1
+	qtherm(i)=qcondu(i)+qad(i)   
+	enddo   
 	endif
-	enddo
-	endif
-
 
 
 
@@ -3268,6 +3270,7 @@ CCC....FICHIERS these texier
 
 
 
+
 CCC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
        if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
        if (irpth.eq.1) then
@@ -3276,7 +3279,10 @@ CCC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
        open(unit=60,file='Sim_temperature_maille2_t.dat')
        open(unit=61,file='Sim_temperature_maille3_t.dat')
        open(7782,file='S_vitesse_nmaille2_hb.dat')
-        open(1818,file='S_flux_therm_1_t.dat')
+        open(1818,file='S_flux_therm_velocity_1_t.dat')
+        open(18181,file='Sim_velocity_profil_t.dat')
+        open(18182,file='Sim_heat_flux_profil_t.dat')
+        open(18183,file='Sim_temperature_profil_t.dat')
 c       open(unit=64,file='Sim_temperature_maille4_t.dat')
 c       open(unit=65,file='Sim_temperature_maille5_t.dat')
        endif
@@ -3648,14 +3654,19 @@ cccc....piezoB_RD.dat' zone 7
 
 
 CCC....SORTIE ZH Karina
-       if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+      if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
        if(irecord.eq.1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
        write(60,*) paso/unitsortie,temp(nmaille2)
        write(61,*) paso/unitsortie,temp(nmaille3)
         write(7782,*) paso/unitsortie,vzp(nmaille2),vzm(nmaille2)
-        write(1818,*) paso/unitsortie,qcondu1,qad1,qtherm1,vzm(1),
+        write(1818,*) paso/unitsortie,qcondu(1),qad(1),qtherm(1),vzm(1),
      &temp(1),temp(2)
+         do i=1,nm
+        write(18181,*)paso/unitsortie,z(i),vzm(i)
+        write(18182,*)paso/unitsortie,z(i),qcondu(i),qad(i),qtherm(i)
+        write(18183,*)paso/unitsortie,z(i),temp(i)
+		enddo
 		endif
 		endif
 CCC....SORTIES TEST LUNARDINI
