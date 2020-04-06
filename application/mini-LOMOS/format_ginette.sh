@@ -135,8 +135,8 @@ mv awk.out E_parametre.dat
 awk -f CmdConfig_nmaille.awk -v nmaille1="${8}" -v  nmaille2="${9}"  -v  nmaille3="${10}" E_parametre.dat
 mv awk.out E_parametre.dat
 
-echo "Launching the sensitivity for" $1
+#echo "Launching the sensitivity for" $1
 ./HZ1D.sh ${11} ${12}
- rm -rf Sim_*.dat
-cp ./Sensi_final.dat ../$1_Sensi_final.dat
+# rm -rf Sim_*.dat
+#cp ./Sensi_final.dat ../$1_Sensi_final.dat
 #echo "Sensibility file moved in "$1"_Sensi_final.dat"
