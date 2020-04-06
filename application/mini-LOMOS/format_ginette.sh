@@ -1,3 +1,4 @@
+#!/bin/bash
 # appele par inversion.awk
 
 # $1 : point name (come from inversion.COMM)
@@ -105,7 +106,7 @@ do
 mv Obs_temperature_maille$i\_t.dat ./GINETTE_SENSI/OBS/Obs_temperature_maille$i\_t.dat
 done #done i
 
-for i in E_pression_initiale.dat E_charge_t.dat E_temp_t.dat E_temperature_initiale.dat nitt.dat
+for i in  E_charge_t.dat E_temp_t.dat E_temperature_initiale.dat nitt.dat E_pression_initiale.dat
 do
 mv $i ./GINETTE_SENSI/
 done
@@ -128,15 +129,19 @@ mv awk.out E_parametre.dat
 
 
 
-pwd
+#pwd
 echo "Lenght of 1D model L=" $8
 awk -f CmdConfig_nm.awk -v nm="$nm" -v  L="$L" E_parametre.dat
 mv awk.out E_parametre.dat
 awk -f CmdConfig_nmaille.awk -v nmaille1="${8}" -v  nmaille2="${9}"  -v  nmaille3="${10}" E_parametre.dat
 mv awk.out E_parametre.dat
 
-#echo "Launching the sensitivity for" $1
-./HZ1D.sh ${11} ${12}
+# compile ginette
+ gfortran -o GINETTE_SENSI/ginette_velocity ./../../src/ginette_V2.f 
+
+
+echo "Launching the sensitivity for" $1
+#./HZ1D.sh ${11} ${12}
 # rm -rf Sim_*.dat
 #cp ./Sensi_final.dat ../$1_Sensi_final.dat
 #echo "Sensibility file moved in "$1"_Sensi_final.dat"
