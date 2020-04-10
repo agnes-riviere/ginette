@@ -26,8 +26,7 @@ var1=1
 			cp E_zone_parameter_backup_2zones.dat E_zone_parameter.dat
 			fi
 
-# compile ginette
-gfortran -o ginette_velocity ginette_V2.f
+
 
 #####################################
 ## INITIALIZE PARAMETERS AND FILES ##
@@ -86,12 +85,12 @@ do
 
 			# delete Ginette output files in case
 			# -f is force, no error if file doesnt exist
-			rm -f Sim_temperature_maille*
+			#rm -f Sim_temperature_maille*
 
 			# launch simulations for parameter set in line j
 			# allow for max 15min
 			./ginetteSteadyTransient_velocity.sh
-			exitStatus=$?
+#			exitStatus=$?
 
 
 			if [ $exitStatus -eq 124 ]; then # ginette had to stop before the end
@@ -107,8 +106,9 @@ do
 				NAMEP=""$OUT""$Rac"_"$P"_maille"
 #./OUTPUT/Sim_charge_maille
 				NAMEOT=""$OBS""$RacO"_"$TP"_maille"
-#./OBS/Obs_charge_maille
-				# rename output files
+#./OBS/Obs_charge_maille 
+#ICI GUILLAUME
+				sed "s/\ \ */\ /g" Sim_temperature_maille1_t.dat > Sim_temperature_maille1_t.dat
 				mv Sim_temperature_maille1_t.dat "$OUT"/Sim_temperature_maille1_${j}.dat
 	        	mv Sim_temperature_maille2_t.dat "$OUT"/Sim_temperature_maille2_${j}.dat
 		        mv Sim_temperature_maille3_t.dat "$OUT"/Sim_temperature_maille3_${j}.dat
@@ -117,14 +117,16 @@ do
 	        	mv Sim_heat_flux_profil_t.dat "$OUT"/Sim_heat_flux_profil_t_${j}.dat
 	        	mv Sim_temperature_profil_t.dat "$OUT"/Sim_temperature_profil_t${j}.dat
 
-			nb_obs=$2
-			for i in `seq 1 $nb_obs`
-			do
-			awk -f InGinette.awk -v  id_sim="$j" out="$NAMETP" obs="$NAMEOT" id="$i" anal_ginette.COMM
-			mv awk.out anal_ginette.COMM
-			./CmpKro/CmpKro0.01 anal_ginette.COMM apoub.log
-			mv apoub.log ./SENSI/Sensi_temperature_"$j"_$i.dat
-			done
+
+
+#			nb_obs=$2
+# 			for i in `seq 1 $nb_obs`
+# 			do
+# 			awk -f InGinette.awk -v  id_sim="$j" out="$NAMETP" obs="$NAMEOT" id="$i" anal_ginette.COMM
+# 			mv awk.out anal_ginette.COMM
+# 			./CmpKro/CmpKro0.01 anal_ginette.COMM apoub.log
+# 			mv apoub.log ./SENSI/Sensi_temperature_"$j"_$i.dat
+# 			done
 			fi # close running simulation $1 $j
 
 
