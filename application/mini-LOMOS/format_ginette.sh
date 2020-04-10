@@ -116,11 +116,7 @@ mv E_nb_zone.dat ./GINETTE_SENSI/
 cd ./GINETTE_SENSI
 echo "Now preparing ginette in" `pwd`
 dos2unix *.dat
-#echo "compiling CmpKro"
-#cd ./CmpKro
-#make clean
-#make
-#cd ../
+
 
 
 nitt=`awk '{print $NF}' nitt.dat`
@@ -142,6 +138,7 @@ mv awk.out E_parametre.dat
 
 
 echo "Launching the sensitivity for" $1
+chmod 755 *.sh
 ./HZ1D.sh ${11} ${12}
 # rm -rf Sim_*.dat
 #cp ./Sensi_final.dat ../$1_Sensi_final.dat
