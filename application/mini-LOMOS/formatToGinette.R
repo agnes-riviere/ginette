@@ -11,7 +11,7 @@ library(stringr)
 # read comm
 File_com=list.files(pattern="test_")
 Inversion_PT100="inversion_PT100.COMM"
-depth_PT100=read.csv(Inversion_PT100,sep=" ",header = FALSE)
+depth_PT100=read.csv(Inversion_PT100,sep=" ",header = FALSE) #écart entre les PT100 en cm
 com=read.csv(File_com,sep=" ",header = FALSE)
 
 #initial date
@@ -92,19 +92,18 @@ xOut = as.numeric(difftime(t_time,t_time[1],units = "secs"))
 
 xInit = as.numeric(difftime(presDiff[,1],t_time[1],units = "secs"))
 presDiffInterp = spline(x=xInit,y=presDiff[,2],xout = xOut)$y
-# plot(xOut,presDiffInterp,type='l',xlim=c(50000,855000),ylim=c(-0.4,0.05))
-
+#plot(xOut,presDiffInterp,type='l',xlim=c(50000,855000),ylim=c(-0.4,0.05))
 
 xInit = as.numeric(difftime(stream_temp[,1],t_time[1],units = "secs"))
 tempStreamInterp = spline(x=xInit,y=stream_temp[,2],xout = xOut)$y
- plot(xOut,tempStreamInterp,type='l',xlim=c(50000,55000))
+#plot(xOut,tempStreamInterp,type='l',xlim=c(50000,55000))
 
 xInit = as.numeric(difftime(tempHobbo$Date,t_time[1],units = "secs"))
-tempHobboInterp = array(0,dim=c(length(xOut),4))
+tempHobboInterp = array(0,dim=c(length(xOut),nPT100))
 for (i in 1:nPT100){
   tempHobboInterp[,i] = spline(x=xInit,y=tempHobbo[,i+1],xout = xOut)$y
 }
- plot(xOut,tempHobboInterp[,1],type='l',xlim=c(50000,70000))
+#plot(xOut,tempHobboInterp[,1],type='l',xlim=c(50000,70000))
 # points(xInit,tempHobbo[,1])
 
 #----define data for Ginette model----
@@ -135,13 +134,13 @@ tempIC = approx(x = c(0,sensorDepths),
 
 ### boundary conditions
 presBC = cbind(-presDiffInterp,0)  # Ginette needs hydraulic head [m]
-tempBC = cbind(tempStreamInterp,tempHobboInterp[,4])
+tempBC = cbind(tempStreamInterp,tempHobboInterp[,nPT100])
 
 ### temperature timeseries for inversion
 tsInv = tempHobboInterp[,1:3] 
 
 #depths of the temperature timeseries for inversion
-depthsInv=-sensorDepths[1:(length(sensorDepths)-1)]/Deltaz
+depthsInv=-sensorDepths[1:(length(sensorDepths)-1)]/Deltaz #en cm
 
 #---- save Data ----
 tOut = as.numeric(difftime(t_time,t_time[1],units = "secs"))
