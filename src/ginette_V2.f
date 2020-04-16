@@ -2,7 +2,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC GINETTE CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C AUCUNE MODIFICATION DU CODE N'IMPLIQUE LES DEVELLOPEURS AGNES RIVIERE JULIO GONCALVES ANNE JOST         C
 C contacts agnes.riviere@mines_paristech.fr                                                               C
 C          goncalves@cerege.fr                                                                            C
-c          anne.jost@upmc.fr                                                                              C
+c          anne.jost@upmc.fr                                                                              C Toute utilisation ou copie de ce code implique la citation des auteurs
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
        program pression_ecoulement_transport_thermique
         implicit double precision(a-h,o-x,z),integer(I-N)
@@ -748,17 +748,22 @@ CCC....lecture des données
             allocate(am(ncnr))
             allocate(bm(ncnr))
             allocate(valcl(ncnr,4))
-            allocate(valclc(ncnr,4))
-            allocate(valclt(ncnr,4))
-            allocate(icl(ncnr,4))
-            allocate(iclc(ncnr,4))
-            allocate(iclt(ncnr,4))
-            allocate(valclto(ncnr,4))
             allocate(ivois(ncnr,4))
             allocate(topo(nci))
             allocate(bot(nci))
             allocate(ibas(nci))
             allocate(zbot(ncnr))
+
+
+            allocate(icl(ncnr,4))
+			if(itr.eq.1) then
+            allocate(iclc(ncnr,4))
+            allocate(valclc(ncnr,4))
+			endif
+			if(itr.eq.1) then
+            allocate(iclt(ncnr,4))
+            allocate(valclto(ncnr,4))
+			endif
 
 
 
@@ -814,20 +819,20 @@ ccccc....modif  23/03/2011
 ccccc....log en z
         if(ilog.eq.1) then
         if(j.eq.1) then
-        x(k)=(am(k)/2.D00)
+        x(k)=(am(k)/2)
         else
-        x(k)=(x(k-1)+(am(k-1)+am(k))/2.D00)
+        x(k)=(x(k-1)+(am(k-1)+am(k))/2)
         endif
         else
-        x(k)=(dx/2.D00+(j-1)*dx)
+        x(k)=(dx/2+(j-1)*dx)
         endif
         if(i.eq.1) then
-        z(k)=(az-bm(k)/2.D00)
+        z(k)=dble(az-bm(k)/2)
 ccccc....Modif 19-09-2014- point repere haut de colonne pour modele 1D
         if (itopo.eq.0) then
         if (abs(reptop-repbot)+1D-08.gt.az.and.
      &abs(reptop-repbot)-1D-08.lt.az) then
-         z(k)=(az-bm(k)/2.D00+reptop-az)
+         z(k)=dble(az-bm(k)/2.+reptop-az)
         else
         print*, probleme dans votre constuction de modele
         print*,'reptop-repbot=',reptop-repbot+1D-08,'et az=',az
@@ -837,7 +842,7 @@ ccccc....Modif 19-09-2014- point repere haut de colonne pour modele 1D
         endif
         else
 
-        z(k)=(z(k-nc)-(bm(k-nc)+bm(k))/2.D00)
+        z(k)=dble(z(k-nc)-(bm(k-nc)+bm(k))/2)
         endif
 CCC....CREATION TABLEAU DE VOISINAGE
 ccccc....ivois(ik,1)= voisin droite
@@ -860,8 +865,8 @@ CCC....RENUMEROTATION en FONCTION DE TOPO ET BOTTOM
         enddo
         else
         do i=1,nc
-        topo(i)=(reptop)
-        bot(i)=(repbot)
+        topo(i)=dble(reptop)
+        bot(i)=dble(repbot)
         enddo
         endif
         kr=0
@@ -1229,28 +1234,38 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             allocate(vxp(nm))
             allocate(vzp(nm))
             allocate(vzm(nm))
-            allocate(dsidtempo(nm))
+
             allocate(prk(nm))
             allocate(tempk(nm))
             allocate(conck(nm))
             allocate(conc(nm))
-            allocate(chg(nc))
+            if (ytest.ne."ZNS") allocate(chg(nc))
+            if (ytest.eq."ZNS") allocate(chg(nm))
             allocate(aspzone(nm))
             allocate(tempoo(nm))
-            allocate(qtherm(nm))
+
             allocate(qad(nm))
             allocate(qcondu(nm))
             allocate(zs(nc,2))
             allocate(zso(nc,2))
             allocate(zsoo(nc,2))
+	
+			if(ith.eq.1) then	
             allocate(zl(nc,2))
             allocate(zlo(nc,2))
             allocate(zloo(nc,2))
+            allocate(qtherm(nm))
+			endif
+
+
+			if(icycle.eq.1) then
+            allocate(alph(nm))
+            allocate(dsidtempoo(nm))
+            allocate(dsidtempo(nm))
             allocate(dl(nc))
             allocate(def(nc))
             allocate(defo(nc))
-            allocate(alph(nm))
-            allocate(dsidtempoo(nm))
+			endif
             allocate(anszone(nm))
             allocate(swreszone(nm))
             allocate(alandazone(nm))
@@ -1299,7 +1314,7 @@ cccc....Variation spatiale 05/04/2011
 cccc....pression initiale, alph, moy landa 05/04/2011
         ss(ik)=(sss)
         if (iss.eq.1) read(16,*) ss(ik)
-        alph(ik)=(ss(ik)/(rho1*g))
+        if (icycle.eq.1) alph(ik)=(ss(ik)/(rho1*g))
         rhos(ik)=rhosi
         if(irhomi.eq.1) read(26,*) rhos(ik)
         alandas(ik)=(alandami)
@@ -1321,6 +1336,7 @@ cccc....pression initiale, alph, moy landa 05/04/2011
         dswdp(ik)=0d+00
         swp(ik)=1d+00
         dswpdp(ik)=0d+00
+		if(icycle.eq.1) then
         sice(ik)=0d+00
         siceo(ik)=0D+00
         dsidtemp(ik)=0d+00
@@ -1330,6 +1346,7 @@ cccc....pression initiale, alph, moy landa 05/04/2011
         dsipdp(ik)=0D+00
         dsidtempo(ik)=0D+00
         dsidtempoo(ik)=0D+00
+		endif
         rho(ik)=rho1
         om(ik)=omp
         if (iom.eq.1) read(15,*) om(ik)
@@ -1468,13 +1485,13 @@ c       write(75,*) x(ik),z(ik),pr(ik)
         tempoo(ik)=(tempini)
         tempo(ik)=(tempini)
         temp(ik)=(tempini)
-        if (itempi.eq.1)
+        if (itempi.eq.1.and.ith.eq.1)
      &open(unit=23,file='E_temperature_initiale.dat')
         if (itempi.eq.1) read(23,*) temp(ik)
         if (itempi.eq.1) tempo(ik)=temp(ik)
         if (itempi.eq.1) tempoo(ik)=temp(ik)
         enddo
-
+	
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1482,12 +1499,16 @@ C                                             C
 C                       ISOTHERMES            C
 C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
         do kkcol=1,nc
         do kg=1,2
         zs(kkcol,kg)=-99
         zsoo(kkcol,kg)=-99
         zso(kkcol,kg)=-99
+        enddo
+        enddo
+		if (ith.eq.1) then
+        do kkcol=1,nc
+        do kg=1,2
         zl(kkcol,kg)=-99
         zloo(kkcol,kg)=-99
         zlo(kkcol,kg)=-99
@@ -1496,9 +1517,15 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         def(kkcol)=0.D00
         zaqui(kkcol)=-99
         enddo
+		endif
 
-
-
+		if (icycke.eq.1) then
+        do kkcol=1,nc
+        dl(kkcol)=0.D00
+        def(kkcol)=0.D00
+        zaqui(kkcol)=-99
+        enddo
+		endif
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
@@ -1506,23 +1533,32 @@ C    VARIATION DE LA CHARGE INITIALE          C
 C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC...HYDROSTATIQUE
-        if (ichi.eq.1) then
+        if (ichi.eq.1.and.ytest.ne."ZNS") then
  	open(unit=24,file='E_charge_initiale.dat',iostat=i24)
         do j=1,nc
        read(24,*) chg(j)
         enddo
-
         do j=1,nc
         do ii=1,nm
         if (icol(ii).eq.j) then
         if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
         pr(ii)=((rho(ii)*g*(chg(j)-z(ii))))
-
         if (abs(pr(ii)).lt.10D-9) pr(ii)=0D+00
         endif
         enddo
         enddo
         endif
+
+CCC...charge imposee
+        if (ichi.eq.1.and.ytest.eq."ZNS") then
+ 	open(unit=24,file='E_charge_initiale.dat',iostat=i24)
+        do i=1,nm
+       	read(24,*) chg(i)
+        if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+        pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
+        enddo
+        endif
+
 
 CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
         if (ichi2.eq.1) then
@@ -1702,6 +1738,7 @@ cccc....Tableau ICL et VALCL
 cccc....TABLEAU ICLC 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
 cccc....TABLEAU VALCLC VALEURS CORRESPONDANTES
 cccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
+         if(itr.eq.1) then
         do ik=1,nm
         do j=1,4
         iclc(ik,j)=1
@@ -1710,11 +1747,13 @@ cccc....FLUX NUL PAR DEFAUT
          valclc(ik,j)=0.D+00
         enddo
         enddo
+		endif
 CCC....THERMIQUE
 cccc....Conditions limites
 cccc....TABLEAU ICLT 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
 cccc....TABLEAU VALCLT VALEURS CORRESPONDANTES
 cccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
+         if(ith.eq.1) then
         do ik=1,nm
         do j=1,4
         iclt(ik,j)=1
@@ -1750,6 +1789,7 @@ c     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
         endif
         enddo
         enddo
+		endif
 CCC....EXUTOIRE
 c       if(iexutoire.eq.1) then
 c       do i=1,nm
@@ -2181,6 +2221,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if (pr(i)+1.ne.pr(i)) pro(i)=pr(i)
 	rhold(i)=rho(i)
 	conco(i)=conc(i)
+	enddo
+		if (ith.eq.1) then
+	do i=1,nm
 	if(temp(i)+1.ne.temp(i)) siceo(i)=sice(i)
 	if(temp(i)+1.ne.temp(i)) tempoo(i)=tempo(i)
 	if(temp(i)+1.ne.temp(i)) tempo(i)=temp(i)
@@ -2193,10 +2236,16 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	do iiso=1,2
 	zloo(kcol,iiso)=zlo(kcol,iiso)
 	zlo(kcol,iiso)=zl(kcol,iiso)
+	enddo
+	defo(kcol)=def(kcol)
+	enddo
+
+	endif
+	do kcol=1,nc
+	do iiso=1,2
 	zsoo(kcol,iiso)=zso(kcol,iiso)
 	zso(kcol,iiso)=zs(kcol,iiso)
 	enddo
-	defo(kcol)=def(kcol)
 	enddo
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -3268,6 +3317,15 @@ CCC....FICHIERS these texier
        endif
        endif
 
+CCC....FICHIERS ZNS 1D
+       if(ytest.eq."ZNS") then
+       if (irp.eq.1) then
+        open(1818,file='S_hydraulic_conductivities_profil_t.dat')
+        open(18181,file='S_saturation_profil_t.dat')
+        open(18182,file='S_pressure_profil_t.dat')
+       endif
+       endif
+
 
 
 
@@ -3410,6 +3468,22 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
        endif
        endif
 		endif
+
+
+
+CCC....SORTIE ZNS 1D
+       if(ytest.eq."ZNS") then
+		print*,"dt",paso,irp
+       if (irp.eq.1.and.irecord.eq.1) then
+         do i=1,nm
+        write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
+        write(18181,*)paso/unitsortie,z(i),sw(i)
+        write(18182,*)paso/unitsortie,z(i),pr(i)
+	enddo
+       endif
+       endif
+
+
 
 
 CCC...SORTIES DTS
@@ -3828,11 +3902,13 @@ cccc....Dernier pas de temps ou regime permanant
      &pr(i)/(rho1*g)+z(i),temp(i)
         enddo
 
+		if(ytest.eq."AVA") then
 		rewind(62)
 		do kkcol=1,nc
 		write(62,*)x(ibas(kkcol)),
      &zs(kkcol,1)
 		enddo
+		endif
 CCC....Fermeture des fichiers!!!
 C		call purge_noms_fichiers
         close(96)
@@ -3878,6 +3954,7 @@ C		call purge_noms_fichiers
         close(63)
         close(67)
         close(53)
+
         close(6001)
         close(74)
         close(778)
@@ -3941,60 +4018,66 @@ C		call purge_noms_fichiers
         close(329)
         close(330)
         close(331)
+
         if (allocated(dswdp)) DEALLOCATE(dswdp)
         if (allocated(om)) DEALLOCATE(om)
         if (allocated(rhold)) DEALLOCATE(rhold)
         if (allocated(akr)) DEALLOCATE(akr)
         if (allocated(ak)) DEALLOCATE(ak)
         if (allocated(rho)) DEALLOCATE(rho)
-
+        if (allocated(bm)) DEALLOCATE(bm)
         if (allocated(sw)) DEALLOCATE(sw)
         if (allocated(pro)) DEALLOCATE(pro)
+        if (allocated(prk)) DEALLOCATE(prk)
         if (allocated(am)) DEALLOCATE(am)
         if (allocated(valcl)) DEALLOCATE(valcl)
-        if (allocated(zs)) DEALLOCATE(zs)
-        if (allocated(zso)) DEALLOCATE(zso)
-        if (allocated(zsoo)) DEALLOCATE(zsoo)
-
-
-        if (allocated(zl)) DEALLOCATE(zl)
-        if (allocated(zlo)) DEALLOCATE(zlo)
-        if (allocated(zloo)) DEALLOCATE(zloo)
-        if (allocated(bm)) DEALLOCATE(bm)
-        if (allocated(temp)) DEALLOCATE(temp)
-        if (allocated(qtherm)) DEALLOCATE(qtherm)
         if (allocated(akrv)) DEALLOCATE(akrv)
         if (allocated(akv)) DEALLOCATE(akv)
-  		 if (allocated(valclc)) DEALLOCATE(valclc)
-        if (allocated(conco)) DEALLOCATE(conco)
-        if (allocated(dl)) DEALLOCATE(dl)
-        if (allocated(def)) DEALLOCATE(def)
-        if (allocated(defo)) DEALLOCATE(defo)
-        if (allocated(alph)) DEALLOCATE(alph)
-        if (allocated(valclt)) DEALLOCATE(valclt)
-        if (allocated(tempo)) DEALLOCATE(tempo)
-        if (allocated(rhos)) DEALLOCATE(rhos)
-        if (allocated(alanda)) DEALLOCATE(alanda)
-       if (allocated(cps)) DEALLOCATE(cps)
-        if (allocated(dsidtempoo)) DEALLOCATE(dsidtempoo)
+        if (allocated(ss)) DEALLOCATE(ss)
         if (allocated(vxm)) DEALLOCATE(vxm)
         if (allocated(vxp)) DEALLOCATE(vxp)
         if (allocated(vzp)) DEALLOCATE(vzp)
         if (allocated(vzm)) DEALLOCATE(vzm)
-        if (allocated(dsidtempo)) DEALLOCATE(dsidtempo)
-        if (allocated(prk)) DEALLOCATE(prk)
-        if (allocated(tempk)) DEALLOCATE(tempk)
-        if (allocated(conck)) DEALLOCATE(conck)
-        if (allocated(conc)) DEALLOCATE(conc)
-        if (allocated(sice)) DEALLOCATE(sice)
-        if (allocated(rhoi)) DEALLOCATE(rhoi)
-        if (allocated(siceo)) DEALLOCATE(siceo)
-        if (allocated(siceoo)) DEALLOCATE(siceoo)
-        if (allocated(tempoo)) DEALLOCATE(tempoo)
         if (allocated(chg)) DEALLOCATE(chg)
+
+        if (allocated(zs)) DEALLOCATE(zs)
+        if (allocated(zso)) DEALLOCATE(zso)
+        if (allocated(zsoo)) DEALLOCATE(zsoo)
+        if (allocated(temp)) DEALLOCATE(temp)
+
+        if (allocated(tempk)) DEALLOCATE(tempk)
+        if (allocated(tempoo)) DEALLOCATE(tempoo)
+
+
+
+		if(ith.eq.1) then
+        if (allocated(zl)) DEALLOCATE(zl)
+        if (allocated(zlo)) DEALLOCATE(zlo)
+        if (allocated(zloo)) DEALLOCATE(zloo)
+        if (allocated(qtherm)) DEALLOCATE(qtherm)
+
+		endif
+
+
+
+
+
+
+        if (allocated(valclt)) DEALLOCATE(valclt)
+        if (allocated(tempo)) DEALLOCATE(tempo)
+        if (allocated(rhos)) DEALLOCATE(rhos)
+        if (allocated(alanda)) DEALLOCATE(alanda)
+
+		if (allocated(cps)) DEALLOCATE(cps)
+
+
+
+    		
+
         if (allocated(alandas)) DEALLOCATE(alandas)
-        if (allocated(ss)) DEALLOCATE(ss)
+
         if (allocated(valclto)) DEALLOCATE(valclto)
+
 ccccccccccccccccccccc
         if (allocated(topo)) DEALLOCATE(topo)
         if (allocated(bot)) DEALLOCATE(bot)
@@ -4015,12 +4098,9 @@ ccccccc PB
 
 cccccccccccccccccccccccccc
         if (allocated(swp)) DEALLOCATE(swp)
-        if (allocated(sicep)) DEALLOCATE(sicep)
+
         if (allocated(dswpdp)) DEALLOCATE(dswpdp)
-        if (allocated(dsidp)) DEALLOCATE(dsidp)
-        if (allocated(dsipdp)) DEALLOCATE(dsipdp)
-        if (allocated(dsidtemp)) DEALLOCATE(dsidtemp)
-        if (allocated(dsipdtemp)) DEALLOCATE(dsipdtemp)
+
         if (allocated(dswdt)) DEALLOCATE(dswdt)
         if (allocated(akzone)) DEALLOCATE(akzone)
         if (allocated(omzone)) DEALLOCATE(omzone)
@@ -4038,6 +4118,32 @@ cccccccccccccccccccccccccc
        if (allocated(swresz)) DEALLOCATE(swresz)
         if (allocated(tempsol)) DEALLOCATE(tempsol)
         if (allocated(qpluie)) DEALLOCATE(qpluie)
+         if(itr.eq.1) then
+        if (allocated(conck)) DEALLOCATE(conck)
+        if (allocated(conc)) DEALLOCATE(conc)
+  		 if (allocated(valclc)) DEALLOCATE(valclc)
+        if (allocated(conco)) DEALLOCATE(conco)
+		endif
+
+		 if(icycle.ne.1) then
+        if (allocated(dsidtempoo)) DEALLOCATE(dsidtempoo)
+        if (allocated(dsidtempo)) DEALLOCATE(dsidtempo)
+        if (allocated(sice)) DEALLOCATE(sice)
+        if (allocated(rhoi)) DEALLOCATE(rhoi)
+        if (allocated(siceo)) DEALLOCATE(siceo)
+        if (allocated(siceoo)) DEALLOCATE(siceoo)
+        if (allocated(dsidp)) DEALLOCATE(dsidp)
+        if (allocated(dsipdp)) DEALLOCATE(dsipdp)
+        if (allocated(dsidtemp)) DEALLOCATE(dsidtemp)
+        if (allocated(dsipdtemp)) DEALLOCATE(dsipdtemp)
+        if (allocated(sicep)) DEALLOCATE(sicep)
+        if (allocated(alph)) DEALLOCATE(alph)
+        if (allocated(dl)) DEALLOCATE(dl)
+        if (allocated(def)) DEALLOCATE(def)
+        if (allocated(defo)) DEALLOCATE(defo)
+		endif
+
+      if (ytest.eq."AVA".or.ytest.eq."TEX") then
         if (allocated(chgRD)) DEALLOCATE(chgRD)
         if (allocated(chgRG)) DEALLOCATE(chgRG)
         if (allocated(tempRD)) DEALLOCATE(tempRD)
@@ -4057,6 +4163,8 @@ cccccccccccccccccccccccccc
         if (allocated(chgsurf)) DEALLOCATE(chgsurf)
         if (allocated(tempbottom)) DEALLOCATE(tempbottom)
         if (allocated(tempsurf)) DEALLOCATE(tempsurf)
+		endif
+       if (ytest.eq."DTS") then
         if (allocated(tempDTS)) DEALLOCATE(tempDTS)
         if (allocated(xDTS)) DEALLOCATE(xDTS)
         if (allocated(slopeRH)) DEALLOCATE(slopeRH)
@@ -4078,7 +4186,7 @@ cccccccccccccccccccccccccc
         if (allocated(qcondout_hR)) DEALLOCATE(qcondout_hR)
         if (allocated(qcondin_h)) DEALLOCATE(qcondin_h)
         if (allocated(qcondin_hR)) DEALLOCATE(qcondin_hR)
-
+		endif
         end program
 
 
@@ -4247,7 +4355,7 @@ cccccccmeth gradient conjugue
 
 	if (rho.eq.0.) then
 	print*,'attention rho=0'
-	write (20,*)'rho=0'
+c	write (20,*)'rho=0'
 	go to 11
 	endif
 
@@ -4262,7 +4370,7 @@ cccccccmeth gradient conjugue
 	beta=rho/rhoo
 	if (beta.eq.0.) then
 	print*,'attention beta=0'
-	write (20,*)'sum=0'
+c	write (20,*)'sum=0'
 	endif
 	do i=1,n
 	u(i)=r(i)+beta*q(i)
@@ -4881,6 +4989,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         dimension ansun(nm),asun(nm)
 CCCCC ZNS SSSSSSSSSSSSSSSS
         do i=1,nm
+
 CCC....Recalcul des parametre dependant de P
         prc=0.D+00
         if(pr(i).le.0d+00) prc=-pr(i)
@@ -4894,7 +5003,6 @@ C       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98
 	swt=(sw(i)-swres)/(1.-swres)
 	akr(i)=(swt**0.5)*((1-(1-swt**(ans/(ans-1)))**((ans-1)/ans))**2)
 	akrv(i)=(swt**0.5)*((1-(1-swt**(ans/(ans-1)))**((ans-1)/ans))**2)
-
         enddo
         return
         end
