@@ -15,15 +15,9 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
 ### FICHIER ENTREE
     A REMPLIR :
     E_cdt_aux_limites.dat
-    E_cdt_initiale.dat
     E_parametre.dat
-    E_p_therm.dat
-    E_geom.dat
+    E_charge_initiale.dat
 
-    OPTIONAIRE
-    E_charge_initiale.dat : charge initiale par colonne
-    E_pression_initiale.dat : 1 pression intiale par maille
-    E_temperature_initiale.dat : temperature initiale par maille
 
 #### To compile 
     gfortran ../../src/ginette_V2.f -o ginette
@@ -35,24 +29,24 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
     dt=000900D+00	s	time sted ; format d9.0
     nitt=0000000001		final time = nitt*unite
     unite=8640D+01    s    unite
-    l=1000D+00	m 	lenght    ; format d8.0
-    az=00011D+00   depth      ;   format d9.0
-    imaille=0	      =0 Read mesh: E_voisins.dat, E_coordonnees.dat, E_def_maille.dat  imaille=1 automatic building
+    az=00011D+00   depth      ;   format d9.0 positive value
+	reptop=00000D-04 m	altitude top
+	repbot=-00012+00 m	altitude bottom
+	dz=0001D-02	m	discretisation
     akx=0256D-13	m2	horizontal intrinsic permeability
     akz=0256D-13	m2	vertical intrinsic permeability
     omp=0.3800	     total porosity
-
+	ans=0203D-02		n parametre de Van Genuchten						CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+	asp=0664D-02	1/m	alpha parametre de Van Genuchten 					CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+	swres=0.0005		saturation residuelle							CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
     recorded time step itsortie*unitsortie
     itsortie=00086400
     unitsortie=00001D+00
     ytest=ZNS      	cas test TH2 TH3 THL ANU DTS AVA ZHR ZHZ ZNS1D
 #### INITIAL CONDITIONS  
-#### E_cdt_initiale.dat
-    chgi=00117D+00 	m		homogeneous hydraulic head
-    tempi=0012d+00	C		homogeneous temperature
-    ichi=1			ichi=1 hydrostatic hydraulic head E_charge_initiale.dat one colunm with the value (Pa) of hydraulic head
-    ichi2=0				ichi2=1 spatial variation of the pressure E_pression_initiale.dat one value by celle
-    itempi=0		itempi=1 spatial variation of the temperature E_temperature_initiale.dat, one temp ny cell
+#### E_charge_initiale.dat
+one hydraulic head by cell
+
 #### BOUNDARY CONDITIONS  
 ##### E_cdt_aux_limites
     Homogenous :
@@ -74,18 +68,6 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
     fichier input
     E_p_therm.dat : fichier thermique et nom du test
     E_parametre.dat : parametre et set up
-
-
-
-    Conditions initiales
-    E_cdt_initiale.dat
-    E_charge_initiale.dat
-
-
-    Conditions limites
-    E_cdt_aux_limites.dat
-
-
 ### OUTPUT  
     S_hydraulic_conductivities_profil_t.dat'     time, z, K (m/s) 
 	S_saturation_profil_t.dat                    time, z , water saturation
