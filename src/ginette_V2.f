@@ -1694,45 +1694,54 @@ cccc....message erreur
      &"erreur pas de voisin et pas de conditions aux limites"
         endif
         enddo
+        enddo
+        do i=1,nm
 cccc....CHARGE IMPOSEE aux faces (attention pas au centre des mailles !!!)
         if(icl(i,1).eq.-2) then
          valcl(i,1)=(rho(i)*g*(valcl(i,1)-z(i)))
 cccc....TEST INTERFROST TH2 TH3
-                if(ytest.eq."TH2".or.ytest.eq."TH3") then
-                valcl(i,1)=(rho(i)*g*valcl_droite)
-                        endif
+         if(ytest.eq."TH2".or.ytest.eq."TH3") then
+         valcl(i,1)=(rho(i)*g*valcl_droite)
+         endif
 cccc....VALEURS NULLES
-        if (abs(valcl(i,1)).lt.10D-20) valcl(i,1)=0D+00
+        if (abs(valcl(i,1)).lt.10D-10) valcl(i,1)=0D+00
         endif
+
         if(icl(i,2).eq.-2) then
-         valcl(i,2)=(rho(i)*g*(valcl(i,2)-z(i)))
+        valcl(i,2)=(rho(i)*g*(valcl(i,2)-z(i)))
 cccc....TEST INTERFROST TH2 TH
-                if(ytest.eq."TH2".or.ytest.eq."TH3") then
-                valcl(i,2)=(rho(i)*g*valcl_gauche)
-                endif
+         if(ytest.eq."TH2".or.ytest.eq."TH3") then
+         valcl(i,2)=(rho(i)*g*valcl_gauche)
+         endif
 cccc....VALEURS NULLES
-        if (abs(valcl(i,2)).lt.10D-20) valcl(i,2)=0D+00
+        if (abs(valcl(i,2)).lt.10D-10) valcl(i,2)=0
         endif
+
         if(icl(i,3).eq.-2) then
-         valcl(i,3)=(rho(i)*g*(valcl(i,3)-z(i)-bm(i)/2))
+         valcl(i,3)=dble(rho(i)*g*(valcl(i,3)-z(i)-bm(i)/2))
 cccc....VALEURS NULLES
-		 if (abs(valcl(i,3)).lt.10D-20) valcl(i,3)=0D+00
+		 if (abs(valcl(i,3)).lt.10D-10) valcl(i,3)=0D+00
         endif
+
+
         if(icl(i,4).eq.-2) then
          valcl(i,4)=(rho(i)*g*(valcl(i,4)-z(i)+bm(i)/2))
 cccc....VALEURS NULLES
-        if (abs(valcl(i,4)).lt.10D-20) valcl(i,4)=0D+00
+        if (abs(valcl(i,4)).lt.10D-10) valcl(i,4)=0
         endif
+        enddo
+
 cccc....CDT MAILLES RIVIERE
         if (iclriviere.eq.1) then
+        do i=1,nm
         if(ivois(i,3).eq.-99) then
         icl(i,3)=-1
         valcl(i,3)=qre
         endif
-        endif
         enddo
+        endif
 
-
+	
 CCC....TRANSPORT
 cccc....Tableau ICL et VALCL
 cccc....TABLEAU ICLC 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
@@ -3473,12 +3482,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 CCC....SORTIE ZNS 1D
        if(ytest.eq."ZNS") then
-		print*,"dt",paso,irp
+		print*,"time",paso,"dt",dt,pr(nm),pr(nm)/rho1/g+z(nm)
+		print*,valcl(nm,4)
        if (irp.eq.1.and.irecord.eq.1) then
          do i=1,nm
         write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
         write(18181,*)paso/unitsortie,z(i),sw(i)
-        write(18182,*)paso/unitsortie,z(i),pr(i)
+        write(18182,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
 	enddo
        endif
        endif
