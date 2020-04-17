@@ -71,7 +71,7 @@ one hydraulic head by cell
 ### OUTPUT  
     S_hydraulic_conductivities_profil_t.dat'     time, z, K (m/s) 
 	S_saturation_profil_t.dat                    time, z , water saturation
-    S_pressure_profil_t.dat						 time, z, pressure (Pa)
+    S_pressure_profil_t.dat						 time, z, pressure (Pa), hydraulic head (m)
 
 
 
