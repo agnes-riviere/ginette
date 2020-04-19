@@ -2,7 +2,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC GINETTE CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C AUCUNE MODIFICATION DU CODE N'IMPLIQUE LES DEVELLOPEURS AGNES RIVIERE JULIO GONCALVES ANNE JOST         C
 C contacts agnes.riviere@mines_paristech.fr                                                               C
 C          goncalves@cerege.fr                                                                            C
-c          anne.jost@upmc.fr                                                                              C Toute utilisation ou copie de ce code implique la citation des auteurs
+c          anne.jost@upmc.fr                                                                              C
+C Toute utilisation ou copie de ce code implique la citation des auteurs                                  C
+C                                                            											  C
+C Toutes ventes commerciales en temps que service ou logiciel doit obtenir l'accord des auteurs           C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
        program pression_ecoulement_transport_thermique
         implicit double precision(a-h,o-x,z),integer(I-N)
@@ -1239,8 +1242,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             allocate(tempk(nm))
             allocate(conck(nm))
             allocate(conc(nm))
-            if (ytest.ne."ZNS") allocate(chg(nc))
-            if (ytest.eq."ZNS") allocate(chg(nm))
+            if (ytest.ne."ZNS".and.ytest.ne."WAR") allocate(chg(nc))
+            if (ytest.eq."ZNS".or.ytest.eq."WAR") allocate(chg(nm))
             allocate(aspzone(nm))
             allocate(tempoo(nm))
 
@@ -1559,6 +1562,15 @@ CCC...charge imposee
         enddo
         endif
 
+CCC...charge imposee
+        if (ichi.eq.1.and.ytest.eq."WAR") then
+ 	open(unit=24,file='E_charge_initiale.dat',iostat=i24)
+        do i=1,nm
+       	read(24,*) chg(i)
+        if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+        pr(i)=dble((rho(i)*g*(chg(i))))
+        enddo
+        endif
 
 CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
         if (ichi2.eq.1) then
@@ -1726,6 +1738,8 @@ cccc....VALEURS NULLES
 
         if(icl(i,4).eq.-2) then
          valcl(i,4)=(rho(i)*g*(valcl(i,4)-z(i)+bm(i)/2))
+
+		if(ytest.eq."WAR") valcl(i,4)=valcl_bas*rho1*g
 cccc....VALEURS NULLES
         if (abs(valcl(i,4)).lt.10D-10) valcl(i,4)=0
         endif
@@ -3335,6 +3349,15 @@ CCC....FICHIERS ZNS 1D
        endif
        endif
 
+CCC....FICHIERS ZNS 1D
+       if(ytest.eq."WAR") then
+       if (irp.eq.1) then
+        open(1818,file='S_hydraulic_conductivities_profil_t.dat')
+        open(18181,file='S_saturation_profil_t.dat')
+        open(18182,file='S_pressure_profil_t.dat')
+       endif
+       endif
+
 
 
 
@@ -3482,8 +3505,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 CCC....SORTIE ZNS 1D
        if(ytest.eq."ZNS") then
-		print*,"time",paso,"dt",dt,pr(nm),pr(nm)/rho1/g+z(nm)
-		print*,valcl(nm,4)
+		print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),1+z(100)
+		print*,akr(100),sw(100)
        if (irp.eq.1.and.irecord.eq.1) then
          do i=1,nm
         write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
@@ -3493,6 +3516,18 @@ CCC....SORTIE ZNS 1D
        endif
        endif
 
+CCC....SORTIE ZNS 1D
+       if(ytest.eq."WAR") then
+		print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),1+z(100)
+		print*,akr(100),sw(100)
+       if (irp.eq.1.and.irecord.eq.1) then
+         do i=1,nm
+        write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
+        write(18181,*)paso/unitsortie,z(i),sw(i)
+        write(18182,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
+	enddo
+       endif
+       endif
 
 
 
@@ -5013,11 +5048,12 @@ C       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98
 	swt=(sw(i)-swres)/(1.-swres)
 	akr(i)=(swt**0.5)*((1-(1-swt**(ans/(ans-1)))**((ans-1)/ans))**2)
 	akrv(i)=(swt**0.5)*((1-(1-swt**(ans/(ans-1)))**((ans-1)/ans))**2)
+
         enddo
         return
         end
 
-
+		
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                              C
 C               RIVIERE                        C
