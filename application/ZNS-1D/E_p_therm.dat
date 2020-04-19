@@ -51,4 +51,4 @@ xexutoire=0014D+04					####### GEL/DEGEL			 EXUTOIRE SURPRESSION
 tempexutoire=0005D+00				####### GEL/DEGEL			 EXUTOIRE SURPRESSION
 iinfil=0				iinfil=1 ecretage recharge et routage excedent dans riviere		     RECHARGE
 itopomch=0				itopomch=1 marche escalier topo				 Maille bord model marche escalier c
-ytest=ZNS       		cas test TH2 TH3 THL ANU annule les cas test
+ytest=WAR       		cas test TH2 TH3 THL ZNS WAR (warrick 1985) ANU annule les cas test
