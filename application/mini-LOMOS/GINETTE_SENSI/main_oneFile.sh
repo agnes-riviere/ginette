@@ -105,13 +105,16 @@ do
 #./OUTPUT/Sim_temperature_maille
 				NAMEP=""$OUT""$Rac"_"$P"_maille"
 #./OUTPUT/Sim_charge_maille
-				NAMEOT=""$OBS""$RacO"_"$TP"_maille"
-#./OBS/Obs_charge_maille 
-#ICI GUILLAUME
-				sed "s/\ \ */\ /g" Sim_temperature_maille1_t.dat > Sim_temperature_maille1_t.dat
-				mv Sim_temperature_maille1_t.dat "$OUT"/Sim_temperature_maille1_${j}.dat
-	        	mv Sim_temperature_maille2_t.dat "$OUT"/Sim_temperature_maille2_${j}.dat
-		        mv Sim_temperature_maille3_t.dat "$OUT"/Sim_temperature_maille3_${j}.dat
+#Supprime les espaces multiples et les espaces en debut et fin de chaque ligne
+			sed "{s/\ \ */\ /g;s/^\ *//g;s/ $//g}" Sim_temperature_maille1_t.dat > Sim_temperature_maille1_t_clean.dat
+			sed "{s/\ \ */\ /g;s/^\ *//g;s/ $//g}" Sim_temperature_maille2_t.dat > Sim_temperature_maille2_t_clean.dat
+			sed "{s/\ \ */\ /g;s/^\ *//g;s/ $//g}" Sim_temperature_maille3_t.dat > Sim_temperature_maille3_t_clean.dat
+			rm Sim_temperature_maille1_t.dat
+			rm Sim_temperature_maille2_t.dat
+			rm Sim_temperature_maille3_t.dat
+			mv Sim_temperature_maille1_t_clean.dat "$OUT"/Sim_temperature_maille1_${j}.dat
+	        	mv Sim_temperature_maille2_t_clean.dat "$OUT"/Sim_temperature_maille2_${j}.dat
+		        mv Sim_temperature_maille3_t_clean.dat "$OUT"/Sim_temperature_maille3_${j}.dat
 		        mv S_vitesse_nmaille2_hb.dat "$OUT"/S_vitesse_nmaille2_hb_${j}.dat
 	        	mv Sim_velocity_profil_t.dat "$OUT"/Sim_velocity_profil_t_${j}.dat
 	        	mv Sim_heat_flux_profil_t.dat "$OUT"/Sim_heat_flux_profil_t_${j}.dat

@@ -16,11 +16,14 @@ mkdir SENSI
 #rm CmpKro0.01
 #ln -s ./CmpKro/CmpKro0.01
 
+#Data formatting for R
+sed "{s/\ \ */\ /g;s/^\ *//g;s/ $//g}" tested_values > tested_values_clean
 
 ./main_oneFile.sh $2 $1
 
-# Ici ajouter fichier R pour calculer critere stat a decommenter quand tu auras terminer le script R
-# 			 R CMD BATCH Comparaison_mailles_sim-obs.R
+# Calcul des critères stats
+R CMD BATCH Comparaison_mailles_sim-obs.R
 
+rm tested_values_clean
 
 #./post_treat.sh tested_values $1
