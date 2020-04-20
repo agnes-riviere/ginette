@@ -1,22 +1,24 @@
 #!/bin/bash
-# appele par inversion.awk
+# All the following informations come from the file "inversion.COMM" and are imported here by the file "inversion.awk":
 
-# $1 : point name (come from inversion.COMM)
-# $2 : temperature sensor name (come from inversion.COMM)
-# $3 : beginning of the experiment (come from inversion.COMM)
-# $4 : pressure sensor name (come from inversion.COMM)
-# $5 : beginning of the experiment (come from inversion.COMM)
-# $6 : delta t (come from inversion.COMM)
-# $7 : thickness of the studied hyporheic zone (m)
-# $8 : obs cell 1
-# $9 : obs cell 2
-# $10 : obs cell 3
-# $11 : Number of observation PT100
-# $12 : Number of area 1 or 2
-# $13 : Limit between the two area
+# $1 : point name
+# $2 : temperature sensor name
+# $3 : beginning of the experiment
+# $4 : pressure sensor name
+# $5 : beginning of the experiment
+# $6 : time step (s)
+# $7 : thickness of the studied hyporheic zone (= distance between the 2 furthest working PT100, in meters)
+# $8 : nb of meshes between the river bed and the second PT100
+# $9 : nb of meshes between the river bed and the third PT100
+# $10 : nb of meshes between the river bed and the fourth PT100
+# $11 : nb of functioning PT100 (3 if every sensor works, 2 if one is broken, etc.)
+# $12 : Number of areas (clay, sand...)
+# $13 : Thickness of each area (separator = "", in meters)
+
 echo "-- Entering format_ginette.sh"
 ## Read calibrated parameter
 input_parameter="inversion_parameter.COMM"
+#fichier cree qu'on remplit
 tested_ranges="E_tested_ranges.dat"
 nbligne=$(wc -l $input_parameter |cut -d" " -f1)
 a=$((${12}*4));
@@ -106,7 +108,7 @@ do
 mv Obs_temperature_maille$i\_t.dat ./GINETTE_SENSI/OBS/Obs_temperature_maille$i\_t.dat
 done #done i
 
-for i in  E_charge_t.dat E_temp_t.dat E_temperature_initiale.dat nitt.dat E_pression_initiale.dat
+for i in E_pression_initiale.dat E_charge_t.dat E_temp_t.dat E_temperature_initiale.dat nitt.dat
 do
 mv $i ./GINETTE_SENSI/
 done
@@ -116,7 +118,11 @@ mv E_nb_zone.dat ./GINETTE_SENSI/
 cd ./GINETTE_SENSI
 echo "Now preparing ginette in" `pwd`
 dos2unix *.dat
-
+#echo "compiling CmpKro"
+#cd ./CmpKro
+#make clean
+#make
+#cd ../
 
 
 nitt=`awk '{print $NF}' nitt.dat`
@@ -125,20 +131,14 @@ mv awk.out E_parametre.dat
 
 
 
-#pwd
+pwd
 echo "Lenght of 1D model L=" $8
 awk -f CmdConfig_nm.awk -v nm="$nm" -v  L="$L" E_parametre.dat
 mv awk.out E_parametre.dat
 awk -f CmdConfig_nmaille.awk -v nmaille1="${8}" -v  nmaille2="${9}"  -v  nmaille3="${10}" E_parametre.dat
 mv awk.out E_parametre.dat
 
-# compile ginette
-
- gfortran -o ./ginette_velocity ./../../../src/ginette_V2.f 
-
-
-echo "Launching the sensitivity for" $1
-chmod 755 *.sh
+#echo "Launching the sensitivity for" $1
 ./HZ1D.sh ${11} ${12}
 # rm -rf Sim_*.dat
 #cp ./Sensi_final.dat ../$1_Sensi_final.dat

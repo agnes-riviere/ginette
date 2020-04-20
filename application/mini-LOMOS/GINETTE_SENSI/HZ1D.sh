@@ -18,12 +18,11 @@ mkdir SENSI
 
 #Data formatting for R
 sed "{s/\ \ */\ /g;s/^\ *//g;s/ $//g}" tested_values > tested_values_clean
+mv tested_values_clean tested_values
 
 ./main_oneFile.sh $2 $1
 
 # Calcul des critères stats
 R CMD BATCH Comparaison_mailles_sim-obs.R
-
-rm tested_values_clean
 
 #./post_treat.sh tested_values $1

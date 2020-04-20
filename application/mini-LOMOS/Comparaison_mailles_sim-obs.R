@@ -1,4 +1,5 @@
 #set wd to source file location
+setwd("./")
 
 library(hydroGOF)
 library(stringr)
@@ -14,7 +15,7 @@ nb_PT100 <- length(files_obs)
 num_PT100 <- substr(files_obs, 23, 23)
 
 nb_simu <- as.integer(str_remove(string = str_sub(files_output[length(files_output)], 25), pattern = ".dat"))
-param_simu <- read.table(file = "GINETTE_SENSI/tested_values_clean", sep = " ", header = FALSE)
+param_simu <- read.table(file = "GINETTE_SENSI/tested_values", sep = " ", header = FALSE)
 
 #Read data
 
@@ -37,6 +38,7 @@ data_obs <- data.frame("1" = Obs_temperature_maille1_t, "2" = Obs_temperature_ma
 #Creation of a data-frame with all the simulated temperatures
 
 data_output <- Sim_temperature_maille1_1[1]
+
 for (i in seq_len(nb_simu)) {
   for (j in seq_len(nb_PT100)) {
   a <- get(paste0(paste0("Sim_temperature_maille",j,"_"),i))[2]
