@@ -3484,6 +3484,7 @@ CCC....FICHIERS ZNS 1D
 
 CCC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
        if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+
        if (irpth.eq.1) then
        open(7782,file='S_vitesse_nmaille2_hb.dat')
        open(unit=59,file='Sim_temperature_maille1_t.dat')
@@ -3888,9 +3889,6 @@ cccc....piezoB_RD.dat' zone 7
 		endif
 		endif
 		endif
-
-
-
 
 
 CCC....SORTIE ZH Karina
