@@ -90,7 +90,7 @@ do
 			# launch simulations for parameter set in line j
 			# allow for max 15min
 			./ginetteSteadyTransient_velocity.sh
-#			exitStatus=$?
+			exitStatus=$?
 
 
 			if [ $exitStatus -eq 124 ]; then # ginette had to stop before the end
@@ -118,7 +118,7 @@ do
 		        mv S_vitesse_nmaille2_hb.dat "$OUT"/S_vitesse_nmaille2_hb_${j}.dat
 	        	mv Sim_velocity_profil_t.dat "$OUT"/Sim_velocity_profil_t_${j}.dat
 	        	mv Sim_heat_flux_profil_t.dat "$OUT"/Sim_heat_flux_profil_t_${j}.dat
-	        	mv Sim_temperature_profil_t.dat "$OUT"/Sim_temperature_profil_t${j}.dat
+	        	mv Sim_temperature_profil_t.dat "$OUT"/Sim_temperature_profil_t_${j}.dat
 
 
 
