@@ -51,7 +51,7 @@ c         dimension icpiso(:)
         allocatable :: chg(:),alandas(:),ss(:),topo(:),bot(:)
         allocatable :: valclto(:,:),row(:)
         allocatable :: sice(:),rhoi(:),siceo(:),siceoo(:)
-        allocatable :: zbot(:),zaqui(:)
+c        allocatable :: zbot(:),zaqui(:)
         allocatable :: tempoo(:),swp(:),sicep(:),dswpdp(:),dsidp(:)
         allocatable :: dsipdp(:)
         allocatable :: dsidtemp(:),dsipdtemp(:),dswdt(:)
@@ -59,7 +59,7 @@ c         dimension icpiso(:)
         allocatable :: aspzone(:)
         allocatable :: swreszone(:),alandazone(:)
         allocatable :: cpmzone(:),rhomzone(:)
-        allocatable :: asz(:),ansz(:),swresz(:)
+        allocatable :: swresz(:)
         allocatable :: tempsol(:),qpluie(:)
         allocatable :: chgRD(:),chgRG(:),tempRD(:)
         allocatable :: tempRG(:),id_RD(:),id_RG(:)
@@ -216,7 +216,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	open(unit=13,file='E_voisins.dat')
 	open(unit=40,file='E_colonne.dat')
 c	open(unit=21,file='E_row.dat')
-c	open(unit=22,file='E_conc_initiale.dat')
+c	
 
 
 c	open(unit=41,file='E_cl_drain_t.dat',iostat=io)
@@ -278,6 +278,17 @@ C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         call lecture_cdt_ini(chgi,conci,tempini,ichi,ichi2,iconci,
      &itempi)
+
+
+      if (iconci.eq.1) open(unit=22,file='E_conc_initiale.dat')
+      if (itempi.eq.1) open(unit=23,file='E_temperature_initiale.dat')
+CCC...charge imposee
+      if (ichi.eq.1) open(unit=24,file='E_charge_initiale.dat')
+CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
+       if (ichi2.eq.1)	open(unit=242,file='E_pression_initiale.dat')
+
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C           LECTURE CDT LIMITES               C
@@ -296,7 +307,6 @@ C                                             C
 C         LECTURE FICHIER Variation spatiale            C
 C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
 
 
 		if (ipermh.eq.1)
@@ -331,8 +341,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 		icolone=1
 		imaille=0
 		itopo=1
-		open(unit=22,file='E_zone.dat')
-		open(unit=221,file='E_zone_parameter.dat')
+		open(unit=32,file='E_zone.dat')
+		open(unit=321,file='E_zone_parameter.dat')
 		open(unit=222,file='E_BordRD.dat',iostat=iidRD)
 		open(unit=223,file='E_BordRG.dat',iostat=iidRG)
 		open(unit=224,file='E_Id_river.dat',iostat=iidrv)
@@ -350,8 +360,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 		icolone=1
 		imaille=0
 		itopo=1
-		open(unit=22,file='E_zone.dat')
-		open(unit=221,file='E_zone_parameter.dat')
+		open(unit=32,file='E_zone.dat')
+		open(unit=321,file='E_zone_parameter.dat')
 		open(unit=222,file='E_BordRD.dat',iostat=iidRD)
 		open(unit=223,file='E_BordRG.dat',iostat=iidRG)
 		open(unit=2242,file='E_bottomZH.dat',iostat=iidZH)
@@ -371,8 +381,8 @@ c		open(unit=231,file='E_tempT_Riv.dat')
 
 
 		if(ytest.eq."DTS") then
-		open(unit=22,file='E_zone.dat')
-		open(unit=221,file='E_zone_parameter.dat')
+		open(unit=32,file='E_zone.dat')
+		open(unit=321,file='E_zone_parameter.dat')
 		open(unit=222,file='E_p_boundaryB.txt',iostat=ios)
 		open(unit=2233,file='E_t_boundaryB.txt',iostat=ios1)
 		open(unit=2244,file='E_p_boundaryPP.txt',iostat=ioPP)
@@ -422,9 +432,14 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         open(unit=68,file='E_temp_t.dat',iostat=ios)
 		endif
 		if(ytest.eq."ZHZ") then
-		open(unit=22,file='E_zone.dat')
-		open(unit=221,file='E_zone_parameter.dat')
+		open(unit=32,file='E_zone.dat', status='old', iostat=ios)
+		open(unit=321,file='E_zone_parameter.dat')
 		endif
+
+		if (ios /= 0) then
+		stop 'File E_zone.dat does not exist' ! Or whatever handling you want.
+		end if
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C         FICHIERS ERREUR VERIF               C
@@ -448,6 +463,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         inano=0
         inan=0
         dta=dt
+
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -476,6 +492,8 @@ CCC....lecture des données
 	read(68,*,iostat=ios) tempsurf(j),tempbottom(j)
 	enddo
       endif
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C MARINE
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -750,24 +768,11 @@ CCC....lecture des données
             allocate(icol(ncnr))
             allocate(am(ncnr))
             allocate(bm(ncnr))
-            allocate(valcl(ncnr,4))
+  
             allocate(ivois(ncnr,4))
-            allocate(topo(nci))
-            allocate(bot(nci))
+
+
             allocate(ibas(nci))
-            allocate(zbot(ncnr))
-
-
-            allocate(icl(ncnr,4))
-			if(itr.eq.1) then
-            allocate(iclc(ncnr,4))
-            allocate(valclc(ncnr,4))
-			endif
-			if(itr.eq.1) then
-            allocate(iclt(ncnr,4))
-            allocate(valclto(ncnr,4))
-			endif
-
 
 
 
@@ -859,7 +864,8 @@ ccccc....ivois(ik,4)= voisin ibas
         enddo
         enddo
 
-
+            allocate(topo(nc))
+            allocate(bot(nc))
 CCC....RENUMEROTATION en FONCTION DE TOPO ET BOTTOM
         if (itopo.eq.1) then
         open(unit=10,file='E_geom.dat',form='formatted',status='old')
@@ -898,7 +904,7 @@ CCC....RECALCUL DE LA GEOMETRIE ET DU TABLEAU DE VOISINAGE
         if(ivois(inum(i),j).ne.-99) then
         ivois(i,j)=inum2(ivois(inum(i),j))
 cccc....si inum2(ivois(inum(i),j))=0 c est que le voisin ds lancien maillage n est pas actif!!!
-        if(ivois(i,j).eq.0) ivois(i,j)=-99
+        if(ivois(i,j).eq.0) ivois(i,j)=-99.
         else
         ivois(i,j)=-99
         endif
@@ -974,6 +980,7 @@ CC imaille =0
 
 
 
+c            allocate(zbot(nm))
 
 CCC....NOUVEAU NUMERO de MAILLE
         if (itopo.eq.1) then
@@ -1207,6 +1214,8 @@ cccc...X POOL
 
 
 
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C                       PARAMETRES_ALL        C
@@ -1221,15 +1230,14 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             allocate(icol_ind(nmax))
             allocate(irow_ptr(nmax1))
             allocate(val(nmax))
-            allocate(zaqui(nc))
-            allocate(temp(nm))
+c            allocate(zaqui(nc))
+
             allocate(b(nm))
             allocate(pr(nm))
             allocate(pro(nm))
             allocate(conco(nm))
-            allocate(tempo(nm))
+
             allocate(izone(nm))
-            allocate(jzone(nc))
 
 
 
@@ -1238,61 +1246,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             allocate(vzp(nm))
             allocate(vzm(nm))
 
-            allocate(prk(nm))
-            allocate(tempk(nm))
-            allocate(conck(nm))
-            allocate(conc(nm))
-            if (ytest.ne."ZNS".and.ytest.ne."WAR") allocate(chg(nc))
-            if (ytest.eq."ZNS".or.ytest.eq."WAR") allocate(chg(nm))
-            allocate(aspzone(nm))
-            allocate(tempoo(nm))
-
-            allocate(qad(nm))
-            allocate(qcondu(nm))
-            allocate(zs(nc,2))
-            allocate(zso(nc,2))
-            allocate(zsoo(nc,2))
-	
-			if(ith.eq.1) then	
-            allocate(zl(nc,2))
-            allocate(zlo(nc,2))
-            allocate(zloo(nc,2))
-            allocate(qtherm(nm))
-			endif
-
-
-			if(icycle.eq.1) then
-            allocate(alph(nm))
-            allocate(dsidtempoo(nm))
-            allocate(dsidtempo(nm))
-            allocate(dl(nc))
-            allocate(def(nc))
-            allocate(defo(nc))
-			endif
-            allocate(anszone(nm))
-            allocate(swreszone(nm))
-            allocate(alandazone(nm))
-            allocate(cpmzone(nm))
-            allocate(rhomzone(nm))
-            allocate(asz(nm))
-            allocate(ansz(nm))
-            allocate(swresz(nm))
-            allocate(akzone(nm))
-            allocate(omzone(nm))
-            allocate(swp(nm))
-            allocate(sicep(nm))
-            allocate(dswpdp(nm))
-            allocate(dsidp(nm))
-            allocate(dsipdp(nm))
-            allocate(dsidtemp(nm))
-            allocate(dsipdtemp(nm))
-            allocate(dswdt(nm))
-            allocate(row(nm))
-            allocate(sice(nm))
-            allocate(rhoi(nm))
-            allocate(siceo(nm))
-            allocate(siceoo(nm))
-            allocate(alandas(nm))
             allocate(ss(nm))
             allocate(dswdp(nm))
             allocate(om(nm))
@@ -1305,9 +1258,92 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             allocate(ansun(nm))
             allocate(akrv(nm))
             allocate(akv(nm))
-            allocate(rhos(nm))
-            allocate(alanda(nm))
+
+            allocate(swp(nm))
+            allocate(dswpdp(nm))
+            allocate(dswdt(nm))
+            allocate(row(nm))
+
+            allocate(prk(nm))
+            allocate(zs(nc,2))
+            allocate(zso(nc,2))
+            allocate(zsoo(nc,2))
+
+
+          	allocate(temp(nm))
+            allocate(tempo(nm))
+            allocate(tempk(nm))
+            allocate(tempoo(nm))
+         	allocate(valcl(nm,4))
+            allocate(icl(nm,4))
+			if(itr.eq.1) then
+            allocate(iclc(nm,4))
+            allocate(valclc(nm,4))
+			endif
+			if(ith.eq.1) then
             allocate(cps(nm))
+            allocate(rhos(nm))
+            allocate(iclt(nm,4))
+            allocate(valclto(nm,4))
+            allocate(valclt(nm,4))
+            allocate(zl(nc,2))
+            allocate(zlo(nc,2))
+            allocate(zloo(nc,2))
+            allocate(alanda(nm))
+            allocate(qtherm(nm))
+            allocate(alandas(nm))
+            allocate(qad(nm))
+            allocate(qcondu(nm))
+			endif
+
+
+
+
+
+
+			if(itr.eq.1) then
+            allocate(conck(nm))
+            allocate(conc(nm))
+			endif
+
+			if(ichi.eq.1) then
+			 select case (ytest)
+      			case ("ZNS") 
+     			 allocate(chg(nm))
+     			 case ("WAR")
+				allocate(chg(nm))
+      			 case default
+        		 allocate(chg(nc))
+   				end select
+
+			endif
+
+
+
+
+
+
+
+
+
+
+			if(icycle.eq.1) then
+            allocate(alph(nm))
+            allocate(dsidtempoo(nm))
+            allocate(dsidtempo(nm))
+            allocate(dl(nc))
+            allocate(def(nc))
+            allocate(defo(nc))
+            allocate(dsidp(nm))
+            allocate(dsipdp(nm))
+            allocate(dsipdtemp(nm))
+            allocate(siceoo(nm))
+			endif
+            allocate(sicep(nm))
+            allocate(siceo(nm))
+            allocate(sice(nm))
+            allocate(dsidtemp(nm))
+            allocate(rhoi(nm))
 
 
 
@@ -1316,14 +1352,6 @@ cccc....MODIF AVRIL 2011
 cccc....Variation spatiale 05/04/2011
 cccc....pression initiale, alph, moy landa 05/04/2011
         ss(ik)=(sss)
-        if (iss.eq.1) read(16,*) ss(ik)
-        if (icycle.eq.1) alph(ik)=(ss(ik)/(rho1*g))
-        rhos(ik)=rhosi
-        if(irhomi.eq.1) read(26,*) rhos(ik)
-        alandas(ik)=(alandami)
-        if (ilanda.eq.1) read(17,*) alandas(ik)
-        cps(ik)=(cpm)
-        if(icpm.eq.1) read(27,*) cps(ik)
         akr(ik)=akrx
         ak(ik)=akx
         akrv(ik)=akrz
@@ -1332,29 +1360,56 @@ cccc....pression initiale, alph, moy landa 05/04/2011
 		ansun(ik)=ans
         akc=akx
         akcv=akz
-        rhoi(ik)=rhoii
-        if (ipermh.eq.1) read(14,*) ak(ik)
-        if (ipermv.eq.1) read(140,*) akv(ik)
+        rho(ik)=rho1
+        om(ik)=omp
         sw(ik)=1d+00
         dswdp(ik)=0d+00
         swp(ik)=1d+00
         dswpdp(ik)=0d+00
-		if(icycle.eq.1) then
+        if (iss.eq.1) read(16,*) ss(ik)
+        if (iom.eq.1) read(15,*) om(ik)
+        if (irho.eq.1) read(25,*) rho(ik)
+        if (ipermh.eq.1) read(14,*) ak(ik)
+        if (ipermv.eq.1) read(140,*) akv(ik)
         sice(ik)=0d+00
-        siceo(ik)=0D+00
         dsidtemp(ik)=0d+00
+        rhoi(ik)=rhoii
+        sice(ik)=0d+00
+		enddo
+
+
+		if (ith.eq.1) then
+		do ik=1,nm 
+        rhos(ik)=rhosi
+        if(irhomi.eq.1) read(26,*) rhos(ik)
+        alandas(ik)=(alandami)
+        if (ilanda.eq.1) read(17,*) alandas(ik)
+        cps(ik)=(cpm)
+        if(icpm.eq.1) read(27,*) cps(ik)
+		enddo
+		endif
+
+
+
+
+
+		if(icycle.eq.1) then
+		do ik=1,nm
+
+
+        siceo(ik)=0D+00
+
         sicep(ik)=0d+00
         dsipdtemp(ik)=0d+00
         dsidp(ik)=0d+00
         dsipdp(ik)=0D+00
         dsidtempo(ik)=0D+00
         dsidtempoo(ik)=0D+00
-		endif
-        rho(ik)=rho1
-        om(ik)=omp
-        if (iom.eq.1) read(15,*) om(ik)
-        if (irho.eq.1) read(25,*) rho(ik)
+		alph(ik)=(ss(ik)/(rho1*g))
 		enddo
+		endif
+
+
         ito=0
         ita=0
         paso=0.D+00
@@ -1365,21 +1420,36 @@ C              Zonage des parametres          C
 C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-
 		if(ytest.eq."AVA".or.ytest.eq."ZHZ"
      &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
 		nzone=0
 		do i=1,nm
-		read(22,*)izone(i)
+		read(32,*),izone(i)
 		nzone=max(nzone,izone(i))
 CCC...Calcul le nombre de zone
 		enddo
+
+            allocate(alandazone(nzone))
+            allocate(rhomzone(nzone))
+            allocate(akzone(nzone))
+            allocate(omzone(nzone))
+            allocate(aspzone(nzone))
+            allocate(jzone(nzone))
 		endif
 
-CCC test ibuilt
+
+		if(ytest.eq."AVA".or.ytest.eq."TEX") then
+            allocate(cpmzone(nzone))
+            allocate(anszone(nzone))
+            allocate(swreszone(nzone))
+            allocate(swresz(nm))
+		endif
+
+
+
 		if(ytest.eq."AVA".or.ytest.eq."TEX") then
 		do j=1,nzone
-		read(221,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
+		read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
      &swreszone(j),alandazone(j),cpmzone(j),rhomzone(j)
 		enddo
 		do i=1,nm
@@ -1405,12 +1475,10 @@ ccc loop element
 CCC test AVA
 
 
-
-
 		if(ytest.eq."DTS") then
 		do j=1,nzone
-		read(221,*)jzone(j),akzone(j),omzone(j),
-     &alandazone(j),cpmzone(j),rhomzone(j)
+		read(321,*)jzone(j),akzone(j),omzone(j),
+     &alandazone(j),rhomzone(j)
 		enddo
 		do i=1,nm
 		do j=1,nzone
@@ -1420,7 +1488,6 @@ CCC test AVA
 		om(i)=omzone(j)
 		ss(i)=omzone(j)
 		alandas(i)=alandazone(j)
-		cps(i)=cpmzone(j)
 		rhos(i)=rhomzone(j)
 		endif
 ccc test zone
@@ -1436,13 +1503,12 @@ ccc loop element
 CCC test DTS
 
 
-
-
 		if(ytest.eq."ZHZ")then
 		do j=1,nzone
-		read(221,*)jzone(j),akzone(j),omzone(j),
+		read(321,*)jzone(j),akzone(j),omzone(j),
      &alandazone(j),rhomzone(j)
 		enddo
+
 		do i=1,nm
 		do j=1,nzone
 		if (izone(i).eq.jzone(j)) then
@@ -1460,6 +1526,7 @@ ccc loop zone
 ccc loop element
 		endif
 CCC test ZHZ
+
 		if(ith.eq.1) then
 		do ik=1,nm
 CCC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL SANS ZONE NON SATUREE
@@ -1477,24 +1544,41 @@ CCC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL SANS ZONE NON SATUREE
         endif
         enddo
 		endif
+
 CCC....INITIALISATION DES PARAMETRES
 		do ik=1,nm
         if (ichi2.ne.1.and.ichi.ne.1) then
         pr(ik)=(rho1*g*(chgi-z(ik)))
 c       write(75,*) x(ik),z(ik),pr(ik)
         endif
+        enddo
+
+CCC....INITIALISATION DES PARAMETRES
+		if(itr.eq.1) then
+		do ik=1,nm
         conc(ik)=(conci)
         if (iconci.eq.1) read(22,*) conc(ik)
+        enddo
+		endif
+
+CCC....INITIALISATION DES PARAMETRES
+
+
+
+		do ik=1,nm
         tempoo(ik)=(tempini)
         tempo(ik)=(tempini)
         temp(ik)=(tempini)
-        if (itempi.eq.1.and.ith.eq.1)
-     &open(unit=23,file='E_temperature_initiale.dat')
-        if (itempi.eq.1) read(23,*) temp(ik)
-        if (itempi.eq.1) tempo(ik)=temp(ik)
-        if (itempi.eq.1) tempoo(ik)=temp(ik)
         enddo
-	
+
+       	if (itempi.eq.1) then
+		do ik=1,nm
+		read(23,*) temp(ik)
+        tempo(ik)=temp(ik)
+        tempoo(ik)=temp(ik)
+        enddo
+		endif
+
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1509,6 +1593,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         zso(kkcol,kg)=-99
         enddo
         enddo
+
 		if (ith.eq.1) then
         do kkcol=1,nc
         do kg=1,2
@@ -1516,9 +1601,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         zloo(kkcol,kg)=-99
         zlo(kkcol,kg)=-99
         enddo
-        dl(kkcol)=0.D00
-        def(kkcol)=0.D00
-        zaqui(kkcol)=-99
         enddo
 		endif
 
@@ -1526,9 +1608,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         do kkcol=1,nc
         dl(kkcol)=0.D00
         def(kkcol)=0.D00
-        zaqui(kkcol)=-99
+c        zaqui(kkcol)=-99
         enddo
 		endif
+
+
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
@@ -1536,8 +1620,7 @@ C    VARIATION DE LA CHARGE INITIALE          C
 C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC...HYDROSTATIQUE
-        if (ichi.eq.1.and.ytest.ne."ZNS") then
- 	open(unit=24,file='E_charge_initiale.dat',iostat=i24)
+        if (ichi.eq.1.and.ytest.ne."ZNS".and.ytest.ne."WAR") then
         do j=1,nc
        read(24,*) chg(j)
         enddo
@@ -1554,7 +1637,6 @@ CCC...HYDROSTATIQUE
 
 CCC...charge imposee
         if (ichi.eq.1.and.ytest.eq."ZNS") then
- 	open(unit=24,file='E_charge_initiale.dat',iostat=i24)
         do i=1,nm
        	read(24,*) chg(i)
         if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
@@ -1564,7 +1646,6 @@ CCC...charge imposee
 
 CCC...charge imposee
         if (ichi.eq.1.and.ytest.eq."WAR") then
- 	open(unit=24,file='E_charge_initiale.dat',iostat=i24)
         do i=1,nm
        	read(24,*) chg(i)
         if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
@@ -1574,13 +1655,10 @@ CCC...charge imposee
 
 CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
         if (ichi2.eq.1) then
-		open(unit=242,file='E_pression_initiale.dat')
         do i=1,nm
         read(242,*) pr(i)
-        enddo
+       enddo
         endif
-
-
 
 
 
@@ -1689,6 +1767,10 @@ CCC....ECOULEMENT
         valcl(i,4)=dble(valcl_bas)
         endif
 
+
+
+
+
 cccc....VARIATION SPATIALE : une condition par maille
         if(iclect.eq.1) then
         read(37,*)icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
@@ -1755,7 +1837,6 @@ cccc....CDT MAILLES RIVIERE
         enddo
         endif
 
-	
 CCC....TRANSPORT
 cccc....Tableau ICL et VALCL
 cccc....TABLEAU ICLC 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
@@ -1771,6 +1852,9 @@ cccc....FLUX NUL PAR DEFAUT
         enddo
         enddo
 		endif
+
+
+	
 CCC....THERMIQUE
 cccc....Conditions limites
 cccc....TABLEAU ICLT 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
@@ -1797,6 +1881,8 @@ cccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
         iclt(ik,4)=iclt_bas
         valclt(ik,4)=dble(valclt_bas)
         endif
+
+
 cccc....VARIATION SPATIALE : une condition par maille
         if(icltherm.eq.1) then
         read(38,*) iclt(ik,1),iclt(ik,2),iclt(ik,3)
@@ -1813,6 +1899,9 @@ c     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
         enddo
         enddo
 		endif
+
+
+
 CCC....EXUTOIRE
 c       if(iexutoire.eq.1) then
 c       do i=1,nm
@@ -2010,8 +2099,6 @@ c       enddo
 c       endif
 
 
-
-
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C      TERME dswdp  CDT INITIALE              C
@@ -2063,28 +2150,30 @@ C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....Indice gel/degel
 cccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maille 1 à améliorer
-        if(icycle.eq.0) igel=0
-		if(icycle.eq.1) then
-		if(ytest.ne."TH2".or.ytest.ne."TH3".and.
-     &ytest.ne."MAQ".and.ytest.ne."TH1") then
+        
+		if(icycle.ne.0) then 
         if (temp(1).lt.0.and.tempo(1)-temp(1).gt.0) igel=1
         if (temp(1).lt.0.and.tempo(1)-temp(1).lt.0) igel=2
-        endif
-        if(ytest.eq."TH1".or.ytest.eq."TH2".or.ytest.eq."TH3") igel=2
-        if (ytest.eq."TH2".or.ytest.eq."TH3") then
-        do i=1,nm
-        dswpdp(i)=ss(i)*sw(i)
-	    enddo
-        endif
-
+ 		if(ytest.eq."TH1".or.ytest.eq."TH2".or.ytest.eq."TH3") igel=2
+	    if(ytest.eq."MAQ") then
+        if (paso.le.49.1*86400) igel=1
+        if (paso.gt.49.1*86400) igel=2
+		endif
 c	    if(ytest.eq."MAQ") then
 c        if (paso.le.1180*3600) igel=1
 c        if (paso.gt.1180*3600) then
 c		igel=2
 c		endif
+ 		else
+		 igel=0
+        endif
+
+		if(icycle.eq.1) then
+        if (ytest.eq."TH2".or.ytest.eq."TH3") then
+        do i=1,nm
+        dswpdp(i)=ss(i)*sw(i)
+	    enddo
 	    if(ytest.eq."MAQ") then
-        if (paso.le.49.1*86400) igel=1
-        if (paso.gt.49.1*86400) igel=2
 		do i=1,nm
 CCC....Changement coef emmagasinement
 		if(temp(i).lt.tl) dswpdp(i)=ss(i)/g/rho(i)/om(i)
@@ -2149,6 +2238,7 @@ CCC....grosse maille saturation en glace et permeabilite relative calculees par 
      &col,nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,
      &sicep,swressi,siceo,tempo)
         endif
+
 cccc.....SWTOT est la quantite total d'eau (liquide+glace)
         do i=1,nm
          swtot=swp(i)
@@ -2169,9 +2259,12 @@ cccc....nappe captive
          endif
         if (irp.eq.0) dswdp(i)=0D+00
 
-         enddo
-
-
+		 enddo
+			else
+        do i=1,nm
+            dswdp(i)=dswpdp(i)
+		 enddo
+		endif
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                               C
@@ -2243,11 +2336,16 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	do i=1,nm
 	if (pr(i)+1.ne.pr(i)) pro(i)=pr(i)
 	rhold(i)=rho(i)
+	enddo
+
+		if (itr.eq.1) then
+	do i=1,nm
 	conco(i)=conc(i)
 	enddo
+	endif
 		if (ith.eq.1) then
 	do i=1,nm
-	if(temp(i)+1.ne.temp(i)) siceo(i)=sice(i)
+
 	if(temp(i)+1.ne.temp(i)) tempoo(i)=tempo(i)
 	if(temp(i)+1.ne.temp(i)) tempo(i)=temp(i)
 	do k=1,4
@@ -2255,6 +2353,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	enddo
 	enddo
 	valclto1=valclt(1,3)
+	endif	
+	if(icycle.eq.1) then
+	do i=1,nm
+	if(temp(i)+1.ne.temp(i)) siceo(i)=sice(i)
+	enddo
 	do kcol=1,nc
 	do iiso=1,2
 	zloo(kcol,iiso)=zlo(kcol,iiso)
@@ -2262,8 +2365,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	enddo
 	defo(kcol)=def(kcol)
 	enddo
-
 	endif
+
 	do kcol=1,nc
 	do iiso=1,2
 	zsoo(kcol,iiso)=zso(kcol,iiso)
@@ -2309,9 +2412,17 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC...Sauvegarde de literation picard precedante
         do i=1,nm
         prk(i)=pr(i)
+        enddo
+		if(itr.eq.1) then
+        do i=1,nm
         conck(i)=conc(i)
+        enddo
+		endif
+		if(ith.eq.1) then
+        do i=1,nm
         tempk(i)=temp(i)
         enddo
+		endif
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                               C
@@ -2321,6 +2432,7 @@ C                                               C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(nk.eq.iteration-1.or.pr(1)+1.eq.pr(1)
      &.and.dt.ge.1D-5) then
+
 	  if(dtreco.ne.0) then
       dtrecord=dble(dtreco)-dble(dt)
       irecord=0
@@ -2377,10 +2489,10 @@ cccc....recalcul car chgt pas temps
 
            do i=1,nm
           pr(i)=pro(i)
-          tempo(i)=tempoo(i)
-          siceo(i)=siceoo(i)
-          temp(i)=tempo(i)
-          sice(i)=siceo(i)
+          if(ith.eq.1) tempo(i)=tempoo(i)
+          if(icycle.eq.1) siceo(i)=siceoo(i)
+          if(ith.eq.1) temp(i)=tempo(i)
+          if(icycle.eq.1) sice(i)=siceo(i)
           enddo
           endif
 
@@ -2391,6 +2503,7 @@ C                                               C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....arret du calcul
 CCC....impression du dernier pas de temps
+
         if(dt.lt.1D-5.and.nk.eq.iteration) then
         if (iec.eq.1) then
         if (amaxp.gt.crconvp.or.pr(1)+1.eq.pr(1).or.
@@ -2446,6 +2559,7 @@ c c     endif
 CCCCCCCCCC fin  non convergence
 	goto 15
         endif
+
 CCCCCCCCCCCCCCCC
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2513,6 +2627,7 @@ cccc....COEFFICIENT D EMMAGASINEMENT
       dswpdp(i)=sw(i)*ss(i)
             endif
         enddo
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                nappe libre                  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2545,6 +2660,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....Indice gel/degel
 cccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maille 1 à améliorer
         if(icycle.eq.0) igel=0
+
+
 		if(icycle.eq.1) then
 		if(ytest.ne."TH2".or.ytest.ne."TH3".and.
      &ytest.ne."MAQ".and.ytest.ne."TH1") then
@@ -2612,7 +2729,9 @@ CCC....DEGEL....dswpd subpermafrost
         endif
         enddo
 		enddo
+
         endif
+
 
 CCC....Calcul saturation permeabilite
 CCC....Cas completement sature en eau
@@ -2651,7 +2770,6 @@ CCC....grosse maille saturation en glace et permeabilite relative calculees par 
         endif
 
 
-
 CCC.....SWTOT est la quantite total d'eau (liquide+glace)
         do i=1,nm
 
@@ -2684,11 +2802,11 @@ C																				c
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         do i=1,nm
          sw(i)=swp(i)
-         sice(i)=0
+c         sice(i)=0
          dswdp(i)=dswpdp(i)
          dswdt(i)=0.D0
-         dsidp(i)=0.D0
-         dsidtemp(i)=0.D0
+c         dsidp(i)=0.D0
+c         dsidtemp(i)=0.D0
 
 CCC....Regime permanant
         if (irp.eq.0) dswdp(i)=0D+00
@@ -2696,7 +2814,6 @@ CCC....Regime permanant
          enddo
 
 		endif
-
 
 
 
@@ -2727,7 +2844,6 @@ CCC....Resolution
 		endif
 
 
-
 C		if (ysolv.eq."LIB") then
 C			do i=1,nm+1
 C			irow_ptr(i)=irow_ptr(i)-1
@@ -2752,6 +2868,8 @@ c			print*,"coucou",amaxp,pr(ii),prk(ii)
 c		else
 c		amaxp=0D00
 c		endif
+
+
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
@@ -2918,6 +3036,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C            fin ecoulement calcule           C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         endif
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                              C
 C    Advection sans calcul de l'ecoulement     C
@@ -2980,6 +3100,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C            fin transport calcule            C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         endif
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C        THERMIQUE                            C
@@ -3067,6 +3189,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C            fin thermique calcule            C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
                 endif
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C        nombre de courant                    C
@@ -3288,8 +3411,6 @@ CCC....TEST NEUMAN
        gxl=2D0-zl(1,1)
        gxs=2D0-zs(1,1)
        endif
-
-
 
 
 
@@ -3933,6 +4054,8 @@ c       seicold=Seconds
 c       print*,it,' temps restant: ',trest/60.,dt,pr(1),paso
 c       endif
         enddo
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                     C
 C       FIN BOUCLE TEMPS              C
@@ -3950,12 +4073,14 @@ cccc....Dernier pas de temps ou regime permanant
 		if(ytest.eq."AVA") then
 		rewind(62)
 		do kkcol=1,nc
-		write(62,*)x(ibas(kkcol)),
-     &zs(kkcol,1)
+		write(62,*)x(ibas(kkcol)),zs(kkcol,1)
 		enddo
 		endif
+
 CCC....Fermeture des fichiers!!!
 C		call purge_noms_fichiers
+
+
         close(96)
         close(91)
         close(94)
@@ -4062,155 +4187,174 @@ C		call purge_noms_fichiers
         close(181848)
         close(329)
         close(330)
+        close(32)
+        close(321)
         close(331)
 
-        if (allocated(dswdp)) DEALLOCATE(dswdp)
-        if (allocated(om)) DEALLOCATE(om)
-        if (allocated(rhold)) DEALLOCATE(rhold)
-        if (allocated(akr)) DEALLOCATE(akr)
-        if (allocated(ak)) DEALLOCATE(ak)
-        if (allocated(rho)) DEALLOCATE(rho)
-        if (allocated(bm)) DEALLOCATE(bm)
-        if (allocated(sw)) DEALLOCATE(sw)
-        if (allocated(pro)) DEALLOCATE(pro)
-        if (allocated(prk)) DEALLOCATE(prk)
-        if (allocated(am)) DEALLOCATE(am)
-        if (allocated(valcl)) DEALLOCATE(valcl)
-        if (allocated(akrv)) DEALLOCATE(akrv)
-        if (allocated(akv)) DEALLOCATE(akv)
-        if (allocated(ss)) DEALLOCATE(ss)
-        if (allocated(vxm)) DEALLOCATE(vxm)
-        if (allocated(vxp)) DEALLOCATE(vxp)
-        if (allocated(vzp)) DEALLOCATE(vzp)
-        if (allocated(vzm)) DEALLOCATE(vzm)
-        if (allocated(chg)) DEALLOCATE(chg)
-
-        if (allocated(zs)) DEALLOCATE(zs)
-        if (allocated(zso)) DEALLOCATE(zso)
-        if (allocated(zsoo)) DEALLOCATE(zsoo)
-        if (allocated(temp)) DEALLOCATE(temp)
-
-        if (allocated(tempk)) DEALLOCATE(tempk)
-        if (allocated(tempoo)) DEALLOCATE(tempoo)
 
 
+		if	(allocated(row))	DEALLOCATE(row)
+		if	(allocated(icol_ind))	DEALLOCATE(icol_ind)
+		if	(allocated(irow_ptr))	DEALLOCATE(irow_ptr)
+		if	(allocated(b))	DEALLOCATE(b)
 
-		if(ith.eq.1) then
-        if (allocated(zl)) DEALLOCATE(zl)
-        if (allocated(zlo)) DEALLOCATE(zlo)
-        if (allocated(zloo)) DEALLOCATE(zloo)
-        if (allocated(qtherm)) DEALLOCATE(qtherm)
+		if	(allocated(val))	DEALLOCATE(val)
+		if	(allocated(ss))	DEALLOCATE(ss)
+		if	(allocated(dswdp))	DEALLOCATE(dswdp)
+		if	(allocated(om))	DEALLOCATE(om)
+		if	(allocated(rhold))	DEALLOCATE(rhold)
+		if	(allocated(akr))	DEALLOCATE(akr)
+		if	(allocated(ak))	DEALLOCATE(ak)
+		if	(allocated(akv))	DEALLOCATE(akv)
+		if	(allocated(akrv))	DEALLOCATE(akrv)
 
-		endif
+		if	(allocated(rho))	DEALLOCATE(rho)
+		if	(allocated(sw))	DEALLOCATE(sw)
 
-
-
-
-
-
-        if (allocated(valclt)) DEALLOCATE(valclt)
-        if (allocated(tempo)) DEALLOCATE(tempo)
-        if (allocated(rhos)) DEALLOCATE(rhos)
-        if (allocated(alanda)) DEALLOCATE(alanda)
-
-		if (allocated(cps)) DEALLOCATE(cps)
-
-
-
-    		
-
-        if (allocated(alandas)) DEALLOCATE(alandas)
-
-        if (allocated(valclto)) DEALLOCATE(valclto)
-
-ccccccccccccccccccccc
-        if (allocated(topo)) DEALLOCATE(topo)
-        if (allocated(bot)) DEALLOCATE(bot)
-
-        if (allocated(row)) DEALLOCATE(row)
-
-        if (allocated(zbot)) DEALLOCATE(zbot)
-        if (allocated(zaqui)) DEALLOCATE(zaqui)
+		if	(allocated(x))	DEALLOCATE(x)
+		if	(allocated(z))	DEALLOCATE(z)
+		if	(allocated(inum))	DEALLOCATE(inum)
+		if	(allocated(inum2))	DEALLOCATE(inum2)
+		if	(allocated(icol))	DEALLOCATE(icol)
+		if	(allocated(am))	DEALLOCATE(am)
+		if	(allocated(bm))	DEALLOCATE(bm)
 
 
-ccccccc PB
-        if (allocated(ibas)) DEALLOCATE(ibas)
-        if (allocated(icol)) DEALLOCATE(icol)
+		if	(allocated(icl))	DEALLOCATE(icl)
+		if	(allocated(valcl))	DEALLOCATE(valcl)
+
+		if	(allocated(ivois))	DEALLOCATE(ivois)
+
+		if	(allocated(topo))	DEALLOCATE(topo)
+		if	(allocated(bot))	DEALLOCATE(bot)
+
+		if	(allocated(ibas))	DEALLOCATE(ibas)
+
+c		if	(allocated(zbot))	DEALLOCATE(zbot)
 
 
-
-
-
-cccccccccccccccccccccccccc
-        if (allocated(swp)) DEALLOCATE(swp)
-
-        if (allocated(dswpdp)) DEALLOCATE(dswpdp)
-
-        if (allocated(dswdt)) DEALLOCATE(dswdt)
-        if (allocated(akzone)) DEALLOCATE(akzone)
-        if (allocated(omzone)) DEALLOCATE(omzone)
-        if (allocated(anszone)) DEALLOCATE(anszone)
-        if (allocated(aspzone)) DEALLOCATE(aspzone)
-        if (allocated(swreszone)) DEALLOCATE(swreszone)
-
-
-
-        if (allocated(alandazone)) DEALLOCATE(alandazone)
-        if (allocated(cpmzone)) DEALLOCATE(cpmzone)
-        if (allocated(rhomzone)) DEALLOCATE(rhomzone)
-        if (allocated(asz)) DEALLOCATE(asz)
-        if (allocated(ansz)) DEALLOCATE(ansz)
-       if (allocated(swresz)) DEALLOCATE(swresz)
-        if (allocated(tempsol)) DEALLOCATE(tempsol)
-        if (allocated(qpluie)) DEALLOCATE(qpluie)
-         if(itr.eq.1) then
-        if (allocated(conck)) DEALLOCATE(conck)
-        if (allocated(conc)) DEALLOCATE(conc)
-  		 if (allocated(valclc)) DEALLOCATE(valclc)
-        if (allocated(conco)) DEALLOCATE(conco)
-		endif
-
-		 if(icycle.ne.1) then
+		if	(allocated(vxm))	DEALLOCATE(vxm)
+		if	(allocated(vxp))	DEALLOCATE(vxp)
+		if	(allocated(vzp))	DEALLOCATE(vzp)
+		if	(allocated(vzm))	DEALLOCATE(vzm)
+		if	(allocated(pr))	DEALLOCATE(pr)
+		if	(allocated(prk))	DEALLOCATE(prk)
+		if	(allocated(pro))	DEALLOCATE(pro)
+		if (icycle.eq.1) then
+		if	(allocated(alph))	DEALLOCATE(alph)
+		if	(allocated(dl))	DEALLOCATE(dl)
+		if	(allocated(def))	DEALLOCATE(def)
+		if	(allocated(defo))	DEALLOCATE(defo)
+		if	(allocated(dsipdtemp))	DEALLOCATE(dsipdtemp)
+		if	(allocated(dsidp))	DEALLOCATE(dsidp)
+		if	(allocated(dsipdp))	DEALLOCATE(dsipdp)
+		if	(allocated(dsidtempoo))	DEALLOCATE(dsidtempoo)
+		if	(allocated(dsidtempo))	DEALLOCATE(dsidtempo)
+		if	(allocated(siceoo))	DEALLOCATE(siceoo)
         if (allocated(dsidtempoo)) DEALLOCATE(dsidtempoo)
         if (allocated(dsidtempo)) DEALLOCATE(dsidtempo)
-        if (allocated(sice)) DEALLOCATE(sice)
-        if (allocated(rhoi)) DEALLOCATE(rhoi)
-        if (allocated(siceo)) DEALLOCATE(siceo)
-        if (allocated(siceoo)) DEALLOCATE(siceoo)
-        if (allocated(dsidp)) DEALLOCATE(dsidp)
-        if (allocated(dsipdp)) DEALLOCATE(dsipdp)
-        if (allocated(dsidtemp)) DEALLOCATE(dsidtemp)
-        if (allocated(dsipdtemp)) DEALLOCATE(dsipdtemp)
-        if (allocated(sicep)) DEALLOCATE(sicep)
-        if (allocated(alph)) DEALLOCATE(alph)
-        if (allocated(dl)) DEALLOCATE(dl)
-        if (allocated(def)) DEALLOCATE(def)
-        if (allocated(defo)) DEALLOCATE(defo)
+		if	(allocated(zlo))	DEALLOCATE(zlo)
+		if	(allocated(zloo))	DEALLOCATE(zloo)
+		if	(allocated(zl))	DEALLOCATE(zl)
+
+		endif
+		if (itr.eq.1) then
+		if	(allocated(iclc))	DEALLOCATE(iclc)
+		if	(allocated(valclc))	DEALLOCATE(valclc)
+		if	(allocated(conco))	DEALLOCATE(conco)
+		if	(allocated(conck))	DEALLOCATE(conck)
+		if	(allocated(conc))	DEALLOCATE(conc)
+		endif
+        if (allocated(chgbot)) DEALLOCATE(chgbot)
+        if (allocated(chgsurf)) DEALLOCATE(chgsurf)
+        if (allocated(tempbottom)) DEALLOCATE(tempbottom)
+        if (allocated(tempsurf)) DEALLOCATE(tempsurf)
+		if	(allocated(asun))	DEALLOCATE(asun)
+		if	(allocated(ansun))	DEALLOCATE(ansun)
+		if	(allocated(dswpdp))	DEALLOCATE(dswpdp)
+		if	(allocated(dswdt))	DEALLOCATE(dswdt)
+
+
+
+
+
+
+
+		if	(allocated(zs))	DEALLOCATE(zs)
+		if	(allocated(zso))	DEALLOCATE(zso)
+		if	(allocated(zsoo))	DEALLOCATE(zsoo)
+		if	(allocated(dsidtemp))	DEALLOCATE(dsidtemp)
+		if	(allocated(sice))	DEALLOCATE(sice)
+		if	(allocated(rhoi))	DEALLOCATE(rhoi)
+		if	(allocated(siceo))	DEALLOCATE(siceo)
+		if	(allocated(sicep))	DEALLOCATE(sicep)
+
+			if(ichi.eq.1) then
+		if	(allocated(chg))	DEALLOCATE(chg)
+			endif
+
+		if	(allocated(tempoo))	DEALLOCATE(tempoo)
+		if	(allocated(temp))	DEALLOCATE(temp)
+		if	(allocated(tempo))	DEALLOCATE(tempo)
+		if	(allocated(tempk))	DEALLOCATE(tempk)
+		if (ith.eq.1) then
+       	if	(allocated(valclt))	DEALLOCATE(valclt)
+		if	(allocated(rhos))	DEALLOCATE(rhos)
+		if	(allocated(cps))	DEALLOCATE(cps)
+ 		if	(allocated(alanda))	DEALLOCATE(alanda)
+		if	(allocated(qad))	DEALLOCATE(qad)
+		if	(allocated(alandas))	DEALLOCATE(alandas)
+		if	(allocated(iclt))	DEALLOCATE(iclt)
+
+		if	(allocated(qtherm))	DEALLOCATE(qtherm)
+		if	(allocated(valclto))	DEALLOCATE(valclto)
+
+		if	(allocated(qcondu))	DEALLOCATE(qcondu)
+
+
 		endif
 
-      if (ytest.eq."AVA".or.ytest.eq."TEX") then
-        if (allocated(chgRD)) DEALLOCATE(chgRD)
-        if (allocated(chgRG)) DEALLOCATE(chgRG)
-        if (allocated(tempRD)) DEALLOCATE(tempRD)
-        if (allocated(tempRG)) DEALLOCATE(tempRG)
-        if (allocated(id_RD)) DEALLOCATE(id_RD)
+		if(ytest.eq."AVA".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
+		if	(allocated(alandazone))	DEALLOCATE(alandazone)
+		if	(allocated(cpmzone))	DEALLOCATE(cpmzone)
+		if	(allocated(rhomzone))	DEALLOCATE(rhomzone)
+		if	(allocated(izone))	DEALLOCATE(izone)
+		if	(allocated(jzone))	DEALLOCATE(jzone)
+		if	(allocated(akzone))	DEALLOCATE(akzone)
+		if	(allocated(omzone))	DEALLOCATE(omzone)
+		endif
+
+
+		if (ytest.eq."AVAV".or.ytest.eq."TEX") then
+		if	(allocated(tempRD))	DEALLOCATE(tempRD)
+		if	(allocated(tempRG))	DEALLOCATE(tempRG)
+ 		if (allocated(id_RD)) DEALLOCATE(id_RD)
         if (allocated(id_RG)) DEALLOCATE(id_RG)
+		if	(allocated(id_ZH))	DEALLOCATE(id_ZH)
+		if	(allocated(chgRD))	DEALLOCATE(chgRD)
+		if	(allocated(chgRG))	DEALLOCATE(chgRG)
+        if (allocated(id_river)) DEALLOCATE(id_river)
+        if (allocated(id_rivert)) DEALLOCATE(id_rivert)
+		if	(allocated(chgriver))	DEALLOCATE(chgriver)
+		if	(allocated(tempriver))	DEALLOCATE(tempriver)
+		if	(allocated(tempsol))	DEALLOCATE(tempsol)
+		if	(allocated(qpluie))	DEALLOCATE(qpluie)
+		if	(allocated(anszone))	DEALLOCATE(anszone)
+		if	(allocated(swreszone))	DEALLOCATE(swreszone)
+		if	(allocated(aspzone))	DEALLOCATE(aspzone)
+		if	(allocated(swresz))	DEALLOCATE(swresz)
+		endif
+		if(ytest.eq."DTS") then
+		if	(allocated(tempRD))	DEALLOCATE(tempRD)
+		if	(allocated(tempRG))	DEALLOCATE(tempRG)
         if (allocated(timeG)) DEALLOCATE(timeG)
         if (allocated(timeD)) DEALLOCATE(timeD)
         if (allocated(timeDTS)) DEALLOCATE(timeDTS)
         if (allocated(cRivG)) DEALLOCATE(cRivG)
         if (allocated(cRivD)) DEALLOCATE(cRivD)
-        if (allocated(id_river)) DEALLOCATE(id_river)
-        if (allocated(id_rivert)) DEALLOCATE(id_rivert)
-        if (allocated(tempriver)) DEALLOCATE(tempriver)
-        if (allocated(chgriver)) DEALLOCATE(chgriver)
-        if (allocated(chgbot)) DEALLOCATE(chgbot)
-        if (allocated(chgsurf)) DEALLOCATE(chgsurf)
-        if (allocated(tempbottom)) DEALLOCATE(tempbottom)
-        if (allocated(tempsurf)) DEALLOCATE(tempsurf)
-		endif
-       if (ytest.eq."DTS") then
-        if (allocated(tempDTS)) DEALLOCATE(tempDTS)
+		if	(allocated(xDTS))	DEALLOCATE(xDTS)
+		if	(allocated(tempDTS))	DEALLOCATE(tempDTS)
         if (allocated(xDTS)) DEALLOCATE(xDTS)
         if (allocated(slopeRH)) DEALLOCATE(slopeRH)
         if (allocated(xpool)) DEALLOCATE(xpool)
@@ -4232,6 +4376,21 @@ cccccccccccccccccccccccccc
         if (allocated(qcondin_h)) DEALLOCATE(qcondin_h)
         if (allocated(qcondin_hR)) DEALLOCATE(qcondin_hR)
 		endif
+
+
+
+
+
+
+
+
+
+
+
+
+c		if	(allocated(zaqui))	DEALLOCATE(zaqui)
+
+
         end program
 
 
