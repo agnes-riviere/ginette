@@ -53,10 +53,10 @@ results <- array(NA, dim = c(nb_simu, 5*nb_PT100+1))
 rows <- as.character(c())
 for (i in seq_len(nb_simu)) {
    rows[i] <- paste0("Simu", i, " ", 
-                     "k=", param_simu[j, 1],
-                     " n=", param_simu[j, 2],
-                     " l=", param_simu[j, 3],
-                     " r=", param_simu[j, 4])
+                     "k=", param_simu[i, 1],
+                     " n=", param_simu[i, 2],
+                     " l=", param_simu[i, 3],
+                     " r=", param_simu[i, 4])
 }
 rownames(results) <- rows
 
@@ -100,4 +100,4 @@ for (j in seq_len(nb_simu)) {
 #Sort depending on the sum of KGE
 sorted_results <- results[order(results[, 1], decreasing = TRUE),]
 
-write.table(sorted_results, file = "Results_Stats_sim-obs", sep = ";", col.names = TRUE, row.names = TRUE)
+write.table(sorted_results, file = "SENSI/Results_Stats_sim-obs", sep = ";", col.names = TRUE, row.names = TRUE)
