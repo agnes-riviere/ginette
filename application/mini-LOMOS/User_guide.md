@@ -78,19 +78,22 @@ example for 4 PT100 with a space of 10 cm each:
 10
 _____________________________________________________________________________________________________________________________
 
-4) Add field data with the following format: sensor-name_point_dd_MM_YY.csv 
+4) Add field data. There must be 2 ".csv" files (one for pressure and one for temeratures) with the following format: sensor-name_point_dd_MM_YY.csv 
 
 -------------------------------------
-example :
+example (respectively for temperature and pressure) :
 t502_Point1_07_11_14.csv
+p502_Point1_07_11_14.csv
 
 The format of the pressure differential file is :
 #,dates,pressure_differential [m],temperature in stream [C],
 1,04/11/2014 17:00:00,1.184,11.516,
+etc.
 
 The format of the temperature file is :
 #,dates,temperature depth 1 [C],temperature depth 2 [C],temperature depth 3 [C],temperature depth 4 [C],
 1,04/11/2014 17:00:00,12.775,12.92,13.69,13.112,
+etc.
 _____________________________________________________________________________________________________________________________
 
 5) Launch the screening of multiple experiments of temperature and pressure in the HZ with the awk script inversion.awk from the terminal:
