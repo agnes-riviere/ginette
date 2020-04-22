@@ -3485,7 +3485,7 @@ CCC....FICHIERS ZNS 1D
 CCC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
        if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
 
-       if (irpth.eq.1) then
+       if (irpth.eq.1.and.irp.ne.0) then
        open(7782,file='S_vitesse_nmaille2_hb.dat')
        open(unit=59,file='Sim_temperature_maille1_t.dat')
        open(unit=60,file='Sim_temperature_maille2_t.dat')
@@ -3893,7 +3893,7 @@ cccc....piezoB_RD.dat' zone 7
 
 CCC....SORTIE ZH Karina
       if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
-       if(irecord.eq.1) then
+       if(irecord.eq.1.and.irpth.eq.1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
        write(60,*) paso/unitsortie,temp(nmaille2)
        write(61,*) paso/unitsortie,temp(nmaille3)
