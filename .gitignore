@@ -2,7 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
-.Rout
+*.Rout
 S_*
 Sim_*
+application/mini-LOMOS/Obs_temperature_maille4_t.dat
+application/mini-LOMOS/SENSI/
+application/mini-LOMOS/formatToGinette.Rout
+
+
 
