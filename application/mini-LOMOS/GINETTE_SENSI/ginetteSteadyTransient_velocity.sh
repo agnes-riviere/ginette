@@ -13,7 +13,19 @@ gfortran -o ginette_velocity ../../../src/ginette_V2.f
 
 echo pwd
 pwd
+# change parameters in input files for steady state
+echo "Ginette's steady"
 
+# option -i remplace directement le fichier donne en entree
+# option -e permet de passer plusieurs commandes a la suite
+sed -i -e "s/rp=1/rp=0/g" E_parametre.dat
+sed -i -e "s/rpth=1/rpth=0/g" E_p_therm.dat
+sed -i -e "s/ichi2=1/ichi2=0/g" E_cdt_initiale.dat
+sed -i -e "s/itempi=1/itempi=0/g" E_cdt_initiale.dat
+sed -i -e "s/iclchgt=1/iclchgt=0/g" E_cdt_aux_limites.dat
+
+# call ginette steady state
+./ginette_velocity
 
 echo "Ginette transient"
 
