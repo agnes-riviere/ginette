@@ -33,7 +33,12 @@ for (i in seq_len(nb_PT100*nb_simu))  {
 
 #Creation of a data-frame with all the observed temperatures
 
-data_obs <- data.frame("1" = Obs_temperature_maille1_t, "2" = Obs_temperature_maille2_t[2], "3" = Obs_temperature_maille3_t[2])[-1, ]
+data_obs <- Obs_temperature_maille1_t[1]
+
+for (j in seq_len(nb_PT100)) {
+    a <- get(paste0("Obs_temperature_maille",j,"_t"))[2]
+    data_obs <- cbind(data_obs, a)
+}
 
 #Creation of a data-frame with all the simulated temperatures
 
@@ -72,27 +77,59 @@ for (i in seq_len(nb_PT100)) {
 }
 colnames(results) <- columns
 
-#Fill the matrix
+#verification : sim and obs time-series must have the same length !
 
-if (nb_simu==1) {
-  a <- c(0, 3)
-} else {
-  a <- seq(0, (nb_simu - 1) * 3, by = 3)
+if (length(data_output[, 1]) != length(data_obs[, 1])) {
+  data_obs <- data_obs[-length(data_obs[, 1]), ]
 }
+
+#Fill the matrix
+for (i in seq_len(nb_PT100)) {
+  if (nb_PT100 == 3) {
+    if (nb_simu==1) {
+      a <- c(0, 3)
+    } else {
+      a <- seq(0, (nb_simu - 1) * 3, by = 3)
+    }
+  } else if (nb_PT100 == 2) {
+    if (nb_simu==1) {
+      a <- c(0, 2)
+    } else {
+      a <- seq(0, (nb_simu - 1) * 2, by = 2)
+    }
+  } else {
+    if (nb_simu==1) {
+      a <- c(0, 1)
+    } else {
+      a <- seq(0, (nb_simu - 1) * 1, by = 1)
+    }
+  }
+}
+
 
 for (j in seq_len(nb_simu)) {
   for (i in seq_len(nb_PT100)) {
-    results[j, i + 1] <- KGE(data_obs[, i + 1], data_output[, i + a[j] + 1])
-    results[j, i + 4] <- rmse(data_obs[, i + 1], data_output[, i + a[j] + 1])
-    results[j, i + 7] <- mae(data_obs[, i + 1], data_output[, i + a[j] + 1])
-    results[j, i + 10] <- cor(data_obs[, i + 1], data_output[, i + a[j] + 1])
-    results[j, i + 13] <- pbias(data_obs[, i + 1], data_output[, i + a[j] + 1])
-    if (nb_PT100 == 1) {
-      results[j, 1] <- results[j, 2]
+    if (nb_PT100 == 3) {
+      results[j, i + 1] <- KGE(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 4] <- rmse(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 7] <- mae(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 10] <- cor(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 13] <- pbias(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, 1] <- results[j, 2] + results[j, 3] + results[j, 4]
     } else if (nb_PT100 == 2) {
+      results[j, i + 1] <- KGE(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 3] <- rmse(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 5] <- mae(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 7] <- cor(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 9] <- pbias(data_obs[, i + 1], data_output[, i + a[j] + 1])
       results[j, 1] <- results[j, 2] + results[j, 3]
     } else {
-      results[j, 1] <- results[j, 2] + results[j, 3] + results[j, 4]
+      results[j, i + 1] <- KGE(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 2] <- rmse(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 3] <- mae(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 4] <- cor(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, i + 5] <- pbias(data_obs[, i + 1], data_output[, i + a[j] + 1])
+      results[j, 1] <- results[j, 2]
     }
   }
 }
