@@ -12,8 +12,8 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
 
 > _Rivière, A., Gonçalvès, J., Jost, A. and Font, M. (2014) – Experimental and numerical assessment of stream-aquifer exchanges during disconnection. Journal of Hydrology, 517, 574-583. ⟨10.1016/j.jhydrol.2014.05.040⟩._
 
-### FICHIER ENTREE
-    A REMPLIR :
+### INPUT FILE
+	E_cdt_aux_limites.dat
     E_cdt_aux_limites.dat
     E_parametre.dat
     E_charge_initiale.dat
@@ -26,26 +26,35 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
 #### PARAMETER AND SET UP  
 #### Flow model 
 #### E_parametre.dat
-    dt=000900D+00	s	time sted ; format d9.0
-    nitt=0000000001		final time = nitt*unite
+- dt=000900D+00	s	time sted ; format d9.0
+- Final simulated time = nitt*unite
+   nitt=0000000001		
     unite=8640D+01    s    unite
+- Mesh
     az=00011D+00   depth      ;   format d9.0 positive value
 	reptop=00000D-04 m	altitude top
 	repbot=-00012+00 m	altitude bottom
 	dz=0001D-02	m	discretisation
+- Pysical parameters
     akx=0256D-13	m2	horizontal intrinsic permeability
     akz=0256D-13	m2	vertical intrinsic permeability
     omp=0.3800	     total porosity
 	ans=0203D-02		n parametre de Van Genuchten						CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
 	asp=0664D-02	1/m	alpha parametre de Van Genuchten 					CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
 	swres=0.0005		saturation residuelle							CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
-    recorded time step itsortie*unitsortie
+-  Recorded time step itsortie*unitsortie
     itsortie=00086400
     unitsortie=00001D+00
-    ytest=ZNS      	cas test TH2 TH3 THL ANU DTS AVA ZHR ZHZ ZNS1D
+
 #### INITIAL CONDITIONS  
-#### E_charge_initiale.dat
-one hydraulic head by cell
+- E_cdt_initiale.dat
+-- Unique value
+chgi=-0008D+00 	m	 initial hydraulic head ; d9.0 
+ichi=0
+-- one hydraulic head by cell 
+ichi=1
+Fill E_charge_initiale.dat
+
 
 #### BOUNDARY CONDITIONS  
 ##### E_cdt_aux_limites
@@ -64,10 +73,7 @@ one hydraulic head by cell
     valcl_bas=00000000d+00
     iclchgt=1		special conditions in the subroutine variation_cdt_limites in ginette_V2.f
 
-    TEST ZNS
-    fichier input
-    E_p_therm.dat : fichier thermique et nom du test
-    E_parametre.dat : parametre et set up
+
 ### OUTPUT  
     S_hydraulic_conductivities_profil_t.dat'     time, z, K (m/s) 
 	S_saturation_profil_t.dat                    time, z , water saturation
