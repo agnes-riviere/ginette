@@ -1,7 +1,7 @@
 iec=1                   iec=0 annule ecoulement ; format i1                                  C///  CONSTRUCTION MODEL
 rp=1			rp=1 regime transitoire ; rp=1 regime permanent ; format i1          C///  CONSTRUCTION MODEL
 ith=0			ith=0 thermique inactif, ith=1 thermique actif	; format i1 			CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE
-dt=00001D+00	s	pas de temps ; format d9.0                                            C//////////////////////////  CONSTRUCTION MODEL
+dt=00030D+00	s	pas de temps ; format d9.0                                            C//////////////////////////  CONSTRUCTION MODEL
 nitt=0000000001		nombre d'iterations en temps                                    C//////////////////////////  CONSTRUCTION MODEL
 unite=4680D+01    s    unite iteration temps                                            C//////////////////////////  CONSTRUCTION MODEL
 al=0001D+00	m 	longueur     ; format d8.0                                              C//////////////////////////  CONSTRUCTION MODEL
@@ -27,9 +27,9 @@ amu=0001D-03	kg/m/s	viscosite dynamique                                         
 ipermh=0		ipermh=1 variation spatiale permeabilite, ipermh=0 permeabilite constante    C///////////////////  CONSTRUCTION MODEL
 ipermv=0		ipermv=1 variation spatiale permeabilite, ipermv=0 permeabilite constante    C///////////////////  CONSTRUCTION MODEL
 akrx=0001D+00		permeabilite relative verticale                                 C//////////////////////////  CONSTRUCTION MODEL
-akx=0001D-13	m2	permeabilite intrinseque horizontale                                  C//////////////////////////  CONSTRUCTION MODEL
+akx=0001D-16	m2	permeabilite intrinseque horizontale                                  C//////////////////////////  CONSTRUCTION MODEL
 akrz=0001D+00		permeabilite relative verticale                                       C//////////////////////////  CONSTRUCTION MODEL
-akz=0001D-13	m2	permeabilite intrinseque verticale                                  C//////////////////////////  CONSTRUCTION MODEL
+akz=0001D-16	m2	permeabilite intrinseque verticale                                  C//////////////////////////  CONSTRUCTION MODEL
 iom=0			iom=1 variation spatiale de la porosite, iom=0 pas de variation       C//////////////////////////  CONSTRUCTION MODEL
 omp=0.3630		porosite                                                              C//////////////////////////  CONSTRUCTION MODEL
 iss=0			iss=1 variation spatiale du coefficient d'emmagasinement              C//////////////////////////  CONSTRUCTION MODEL
@@ -37,9 +37,9 @@ ss=4.00D-03	   coefficient d'emmagasinement     (TH2 pa-1)                      
 ia2=0			ia2=0 rho=cste, ia2=1 variation temporelle de la densite              C//////////////////////////  CONSTRUCTION MODEL
 yunconfined=UNS       UNC   akrh=0 dans les cellule dont la pression est nulle , CAP aquifère captif      CCCCCCCCCCCCCCCCCCC LIBRE sans calcul ZNS
 ivg=1			ivg=1 Van Genuchten, ivg=0 zone non saturee non prise en compte		CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
-ans=0153D-02		n parametre de Van Genuchten						CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
-asp=0100D-02	1/m	alpha parametre de Van Genuchten 					CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
-swres=0.5124		saturation residuelle							CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+ans=0131D-02		n parametre de Van Genuchten						CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+asp=0190D-02	1/m	alpha parametre de Van Genuchten 					CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+swres=0.2320		saturation residuelle							CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
 itr=0			itr=0 transport inactif, itr=1 transport actif					CCCCCCCCCCCCCCCCCCCCCCCCCCC TRANSPORT SOLUTE
 all=0000D+00	m	dispersivite longitudinale							CCCCCCCCCCCCCCCCCCCCCCCCCCC TRANSPORT SOLUTE
 alt=0000D+00	m	dispersivite transversale							CCCCCCCCCCCCCCCCCCCCCCCCCCC TRANSPORT SOLUTE
