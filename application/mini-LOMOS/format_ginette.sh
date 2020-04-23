@@ -70,11 +70,13 @@ fi
 done <$input_parameter
 
 chmod 755 *.sh
-rm test_$1.COMM
+#supprime tous les fichiers contenant "test_" dans le repertoire ./ (non recursif), ils feraient planter "formatToGinette.R"
+find -maxdepth 1 -name '*test_*.COMM' | xargs rm
 mkdir ./GINETTE_SENSI/OBS/
 rm -rf ./GINETTE_SENSI/OBS/*
 rm -rf ./GINETTE_SENSI/OUTPUT/*
 cp $tested_ranges ./GINETTE_SENSI/
+
 ## creation du fichier [test_nomdupoint.COMM]
 ./format_ts.sh $1 $2 $3 $4 $5
 #time observation and simulation -> Comparision to adapt the boundary condition files
