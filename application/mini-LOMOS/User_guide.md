@@ -16,8 +16,9 @@ install.packages(lubridate)
 install.packages(hydroGOF)
 install.packages(stringr)
 _____________________________________________________________________________________________________________________________
-1) Add field data. There must be 2 ".csv" files (one for pressure and one for temeratures) with the following format: sensor-name_point_dd_MM_YY.csv 
-
+1) Add field data. There must be 2 ".csv" files (one for pressure and one for temeratures) with the following format: sensor-name_point_dd_MM_YY.csv
+ 
+Particularly pay attention of the dates formatting in the titles, this could explain why the 1D model doesn't work.
 -------------------------------------
 example (respectively for temperature and pressure) :
 t502_Point1_07_11_14.csv
@@ -68,14 +69,17 @@ Format the inversion.COMM command file columns as following :
  $4 : day (two last characters DD) ex: 07 
  $5 : name temperature sensor (four first characters) ex: t502
  $6 : name pressure sensor (four first characters) ex: p502
- $7 : thickness of the studied hyporheic zone (= distance between the 2 furthest working PT100, in meters) ex: 0.40
- $8 : time step (s) ex: 900 
- $9 : nb of meshes between the river bed (where the first PT100 is) and the second PT100 ex: 11 (= 11 cm with a mesh of 1 cm)
- $10 : nb of meshes between the river bed (where the first PT100 is) and the third PT100 ex:21
- $11 : nb of meshes between the river bed (where the first PT100 is) and the fourth PT100 ex:31
- $12 : nb of functioning PT100 -1 (3 if the 4 PT100 work, 2 if one is broken, etc.)
+ $7 : thickness of the studied hyporheic zone (= distance between the 2 		furthest working PT100, in meters) ex: 0.40
+ $8 : time step (s) ex: 900
+
+ $9 : nb of meshes between the river bed (where the first PT100 is) and the second working PT100 ex: 11 (= 11 cm with a mesh of 1 cm)
+ $10 : nb of meshes between the river bed (where the first PT100 is) and the third working PT100 ex:21
+ $11 : nb of meshes between the river bed (where the first PT100 is) and the fourth working PT100 ex:31
+If there are only 3/4 PT100 working, then the $11 won't be taken into account (still type in "0" as it's formatted). 2/4 PT100 working the $10 won't be taken into account etc.
+
+ $12 : nb of observations (= nb of working PT100 -1; as the deepest working PT100 is used as a boundary condition. The upper boundary condition is the temperature sensor of the pressure differential file) ex: 3 if the 4 PT100 work, 2 if one is broken, etc.
  $13 : number of zones (clay, sand...). More than 2 would require more PT100 so it wouldn't make a lot of sense here)
- $14 : thickness of the upper zone (= distance between the riverbed and the bottom of the upper zone, in meters)
+ $14 : thickness of the upper zone (= distance between the riverbed and the bottom of the upper zone, in meters). Type in "0" if there is just 1 zone.
 
 ------------------------------------
 example with every PT100 working and 2 zones :
@@ -97,4 +101,8 @@ ________________________________________________________________________________
 
 5) Launch the screening of multiple experiments of temperature and pressure in the HZ with the awk script inversion.awk from the terminal:
 > awk -f inversion.awk inversion.COMM
+_____________________________________________________________________________________________________________________________
+
+6) The simulated results per mesh are in mini-LOMOS/GINETTE_SENSI/OUTPUT/ and a comparative table of simulated versus observed is generated in mini-LOMOS/SENSI/ by "Comparaison_mailles_sim-obs.R". It is named "Results_Stats_sim-obs".
+Don't forget to copy/paste it in a specific repository if you want to keep track of these files, as launching another simulation will overwrite them.
 
