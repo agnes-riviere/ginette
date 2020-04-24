@@ -8,8 +8,8 @@ path_obs <- "../GINETTE_SENSI/OBS/"
 
 setwd(path_plot)
 sim_name = 1
-
-
+date_bg = "03/05/2019 00:00:00"
+date_bg = as.POSIXct(date_bg, '%d/%m/%Y %H:%M', tz = 'GMT')
 
 files_obs <- list.files(path = path_obs, pattern = 'Obs')
 files_output <-
@@ -23,14 +23,14 @@ Inversion_PT100 = "inversion_PT100.COMM"
 depth_PT100 = read.csv(paste0("../", Inversion_PT100),
                        sep = " ",
                        header = FALSE) #écart entre les PT100 en cm
-depth_PT100[1,1]=-depth_PT100[1,1]
+depth_PT100[1, 1] = -depth_PT100[1, 1]
 if (nPT100 >= 2) {
-for (i in seq(2,nPT100+1)) {
-  depth_PT100[i,1]=depth_PT100[i-1,1]-depth_PT100[i,1]
+  for (i in seq(2, nPT100 + 1)) {
+    depth_PT100[i, 1] = depth_PT100[i - 1, 1] - depth_PT100[i, 1]
+  }
+  
 }
-
-}
-depth_PT100=depth_PT100/100
+depth_PT100 = depth_PT100 / 100
 
 
 #obs dataframe
@@ -38,16 +38,27 @@ df_obs_t = read.table(paste0(path_obs, files_obs[1]),
                       header = FALSE)
 if (nPT100 >= 2) {
   for (i in seq(2, nPT100)) {
-  a <-read.table(paste0(path_obs,"Obs_temperature_maille", i, "_t.dat"))
-  df_obs_t <- cbind(df_obs_t, a$V2)
+    a <-
+      read.table(paste0(path_obs, "Obs_temperature_maille", i, "_t.dat"))
+    df_obs_t <- cbind(df_obs_t, a$V2)
+  }
 }
-}
-if (nPT100 < 2) colnames(df_obs_t) =  c("time", paste0(depth_PT100$V1[1]," m"))
-if (nPT100 == 2) colnames(df_obs_t) =  c("time", paste0(depth_PT100$V1[1]," m"), paste0(depth_PT100$V1[2]," m"))
-if (nPT100 >= 3) colnames(df_obs_t) = c("time", paste0(depth_PT100$V1[1]," m"), paste0(depth_PT100$V1[2]," m"), paste0(depth_PT100$V1[3]," m"))
-Melted_obs_t <- reshape2::melt(df_obs_t, id.var="time")
-colnames(Melted_obs_t)=c("time","Depth","Temperature")
-
+if (nPT100 < 2)
+  colnames(df_obs_t) =  c("time", paste0(depth_PT100$V1[1], " m"))
+if (nPT100 == 2)
+  colnames(df_obs_t) =  c("time",
+                          paste0(depth_PT100$V1[1], " m"),
+                          paste0(depth_PT100$V1[2], " m"))
+if (nPT100 >= 3)
+  colnames(df_obs_t) = c(
+    "time",
+    paste0(depth_PT100$V1[1], " m"),
+    paste0(depth_PT100$V1[2], " m"),
+    paste0(depth_PT100$V1[3], " m")
+  )
+Melted_obs_t <- reshape2::melt(df_obs_t, id.var = "time")
+colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
+Melted_obs_t$time = Melted_obs_t$time + date_bg
 
 
 
@@ -69,13 +80,23 @@ if (nPT100 >= 2) {
     df_sim_t = cbind(df_sim_t, a$V2)
   }
 }
-if (nPT100 < 2) colnames(df_sim_t) =  c("time", paste0(depth_PT100$V1[1]," m"))
-if (nPT100 == 2) colnames(df_sim_t) =  c("time", paste0(depth_PT100$V1[1]," m"), paste0(depth_PT100$V1[2]," m"))
-if (nPT100 >= 3) colnames(df_sim_t) = c("time", paste0(depth_PT100$V1[1]," m"), paste0(depth_PT100$V1[2]," m"), paste0(depth_PT100$V1[3]," m"))
+if (nPT100 < 2)
+  colnames(df_sim_t) =  c("time", paste0(depth_PT100$V1[1], " m"))
+if (nPT100 == 2)
+  colnames(df_sim_t) =  c("time",
+                          paste0(depth_PT100$V1[1], " m"),
+                          paste0(depth_PT100$V1[2], " m"))
+if (nPT100 >= 3)
+  colnames(df_sim_t) = c(
+    "time",
+    paste0(depth_PT100$V1[1], " m"),
+    paste0(depth_PT100$V1[2], " m"),
+    paste0(depth_PT100$V1[3], " m")
+  )
 
-Melted_sim_t <- reshape2::melt(df_sim_t, id.var="time")
-colnames(Melted_sim_t)=c("time","Depth","Temperature")
-
+Melted_sim_t <- reshape2::melt(df_sim_t, id.var = "time")
+colnames(Melted_sim_t) = c("time", "Depth", "Temperature")
+Melted_sim_t$time = Melted_sim_t$time + date_bg
 #Graph
 ## Define color
 colpal <-  brewer.pal(3, "Dark2")
@@ -84,8 +105,14 @@ colpal <-  brewer.pal(3, "Dark2")
 g_temp_ts <-
   ggplot() +
   geom_line(data = Melted_sim_t,
-            mapping = aes(x = time, y = Temperature, color = Depth )) +
-  scale_color_manual(values = colpal) +
+            mapping = aes(x = time, y = Temperature, color = Depth))  +
+  geom_line(
+    data = Melted_obs_t,
+    mapping = aes(x = time, y = Temperature, color = Depth),
+    linetype = "dashed"
+  ) +
+  scale_color_manual(values = c(colpal, colpal)) +
   labs(x = "", y = "T (C)", color = "depth") +
-  theme_bw()
+  scale_x_datetime(date_labels = " %d %b") +
+  theme_bw() 
 g_temp_ts
