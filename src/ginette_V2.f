@@ -1814,6 +1814,7 @@ cccc....VALEURS NULLES
         if(icl(i,3).eq.-2) then
          valcl(i,3)=dble(rho(i)*g*(valcl(i,3)-z(i)-bm(i)/2))
 cccc....VALEURS NULLES
+		if(ytest.eq."WAR") valcl(i,3)=valcl_haut*rho1*g
 		 if (abs(valcl(i,3)).lt.10D-10) valcl(i,3)=0D+00
         endif
 

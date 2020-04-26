@@ -11,7 +11,7 @@ imaille=1	      =0 lecture maillage : voisins, coordonnees, def_maille : largeur
 itopo=0                 itopo=1 variation de altitude de top bot par colonne pas de E_geom.dat
 ibuilt=1			construction maillage manuelle et zonage des parametres
 reptop=00000D+00 m	altitude top
-repbot=-0001D+00 m	altitude bottom
+repbot=-0010D+00 m	altitude bottom
 icolonne=0              icolonne=1 remplir E_colonne.dat, nm valeurs de numero de colonne, sinon icolonne=0   C//////////  CONSTRUCTION MODEL
 nmi=002936		nombre de mailles actives                                             C//////////////////////////  CONSTRUCTION MODEL
 nci=00295		nombre de colonnes                                                    C//////////////////////////  CONSTRUCTION MODEL

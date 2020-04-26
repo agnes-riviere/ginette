@@ -20,12 +20,12 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
     E_p_therm.dat
     E_geom.dat
 
-    OPTIONAIRE
+#### OPTIONAIRE
     E_charge_initiale.dat : charge initiale par colonne
     E_pression_initiale.dat : 1 pression intiale par maille
     E_temperature_initiale.dat : temperature initiale par maille
 
-    maillage manuel :
+#### maillage manuel :
     E_row.dat le numero de ligne de chaque maille
     E_colonne.dat le numero de ligne de chaque maille
     E_voisins.dat
@@ -37,7 +37,7 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
     E_zone.dat  numero de zone de chaque maille
     E_zone_parameter.dat     parametre de chaque zone
 
-    Conditions limites heterogene
+#### Conditions limites heterogene
     E_cl_ecoulement.dat type BC Droite gauche haut bas valeurs BC Droite gauche haut bas
     E_cl_thermique.dat
 
@@ -80,7 +80,21 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
     itsortie=00086400    recorded time step itsortie*unitsorti
     unitsortie=00001D+00
     solver=CGS         BIC BiConjugate Gradient, CGS Conjugate Gradient Squared Method, LIB inria library (n'est pas active actuellement, pb lorsque ecoulement + transport chaleur)
-#### Heat model 
+
+
+### unsaturated flow
+#### E_parametre.dat
+omp=0.3630		porosity                                                             
+yunconfined=UNS 
+ivg=1	
+ans=0153D-02		n Van Genuchten parameter
+asp=0100D-02	1/m	alpha Van Genuchten paramerer 
+swres=0.5124		residual saturation
+Be careful
+- dz should respect this criteria dz<= 1/(5*alpha) in the capilarity fring dans la frange capillaire
+- dt=dz/vfront with vfront the saturation front velocoty vfront=infiltration/(porosité*(smax-smin)
+
+### Heat model 
 #### E_parametre.dat
     ith=1				ith=0 heat inactive ith=1 heat active
     time sted
@@ -125,64 +139,3 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
     Bottom
     valcl_bas=00000000d+00
     iclchgt=1		special conditions in the subroutine variation_cdt_limites in ginette_V2.f
-
-    TEST TEX
-    fichier input
-    E_p_therm.dat : fichier thermique et nom du test
-    E_parametre.dat : parametre et set up
-
-    Geometrie modele
-     E_coordonnee.dat
-    E_def_maille.dat
-    E_geom.dat
-    E_voisins.dat
-     E_row.dat
-    E_colonne.dat
-
-    Paramètre remplace les parametres hydro de E_parametre.dat
-    E_zone.dat
-    E_zone_parameter.dat
-
-    Conditions initiales
-    E_cdt_initiale.dat
-    E_charge_initiale.dat
-
-
-    Conditions limites
-    E_cdt_aux_limites.dat
-
-    E_BordRG.dat   E_chargeT_RD.dat
-    E_BordRD.dat   E_chargeT_RG.dat
-    E_Id_river.dat  E_Id_river_max.dat  E_chargeT_Riv.dat
-    E_PluieR.dat
-
-### OUTPUT  
-    line 3352
-    CCC....FICHIERS these texier creation
-           if(ytest.eq."TEX") then
-           if (irpth.eq.1) then
-           open(7782,file='S_fichier_tot.dat')
-           endif
-           endif
-
-    line 3484 ecriture
-           if(ytest.eq."TEX") then
-           if (irp.eq.1) then
-            do i=1,nm
-            write(7782,*)paso/unitsortie,paso/86400,x(i),
-         &z(i),pr(i)/rho1/g+z(i),sw(i),vxp(i),
-         &vxm(i),vzp(i),vzm(i)
-            enddo
-           endif
-           endif
-
-
-
-
-
-
-
-
-
-
-

@@ -1,7 +1,7 @@
 ## GINETTE User guide
 AUCUNE MODIFICATION DU CODE N'IMPLIQUE LES DEVELLOPEURS AGNES RIVIERE JULIO GONCALVES ANNE JOST
 
-_Authors contacts_
+_Authors contacts_for ginette code
 - agnes.riviere@mines_paristech.fr
 - goncalves@cerege.fr
 - anne.jost@upmc.fr
@@ -32,16 +32,17 @@ Warrick, A. W., Lomen, D. O., & Yates, S. R. (1985). A generalized solution to i
 
 
 #### To compile 
-    gfortran ../../src/ginette_V2.f -o ginette
+    gfortran ../../../../src/ginette_V2.f -o ginette
 #### to run
     ./ginette
 #### PARAMETER AND SET UP  
 #### Flow model 
 #### E_parametre.dat
+		parameters of Numerical simulation of Richards equation in partially saturated porous media: under-relaxation and mass, Phoon et al 2007
     dt=000900D+00	s	time sted ; format d9.0
     nitt=0000000001		final time = nitt*unite
     unite=8640D+01    s    unite
-    az=00011D+00   depth      ;   format d9.0 positive value
+    az=00010D+00   depth      ;   format d9.0 positive value
 	reptop=00000D-04 m	altitude top
 	repbot=-00012+00 m	altitude bottom
 	dz=0001D-02	m	discretisation
