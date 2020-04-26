@@ -3641,8 +3641,7 @@ CCC....SORTIE ZNS 1D
 
 CCC....SORTIE ZNS 1D
        if(ytest.eq."WAR") then
-		print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),1+z(100)
-		print*,akr(100),sw(100)
+		print*,"time",paso,"dt",dt,vzm(1),pr(1),"K",ak(1)*akr(1)
        if (irp.eq.1.and.irecord.eq.1) then
          do i=1,nm
         write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
