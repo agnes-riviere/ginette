@@ -11,6 +11,8 @@ library(stringr)
 File_com = list.files(pattern = "test_")
 Inversion_PT100 = "inversion_PT100.COMM"
 depth_PT100 = read.csv(Inversion_PT100, sep = " ", header = FALSE) #écart entre les PT100 en cm
+
+#ne marchera pas si length(File_com) != 1
 com = read.csv(File_com, sep = " ", header = FALSE)
 
 #initial date

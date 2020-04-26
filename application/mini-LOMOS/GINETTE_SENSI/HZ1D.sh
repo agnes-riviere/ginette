@@ -21,7 +21,3 @@ sed "{s/\ \ */\ /g;s/^\ *//g;s/ $//g}" tested_values > tested_values_clean
 mv tested_values_clean tested_values
 
 ./main_oneFile.sh $2 $1
-
-
-
-#./post_treat.sh tested_values $1
