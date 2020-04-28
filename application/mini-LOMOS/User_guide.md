@@ -72,12 +72,12 @@ Format the inversion.COMM command file columns as following :
  $7 : thickness of the studied hyporheic zone (= distance between the 2 		furthest working PT100, in meters) ex: 0.40
  $8 : time step (s) ex: 900
 
- $9 : nb of meshes between the river bed (where the first PT100 is) and the second working PT100 ex: 11 (= 11 cm with a mesh of 1 cm)
- $10 : nb of meshes between the river bed (where the first PT100 is) and the third working PT100 ex:21
- $11 : nb of meshes between the river bed (where the first PT100 is) and the fourth working PT100 ex:31
-If there are only 3/4 PT100 working, then the $11 won't be taken into account (still type in "0" as it's formatted). 2/4 PT100 working the $10 won't be taken into account etc.
+ $9 : nb of meshes between the river bed and the first working PT100 ex: 11 (= 11 cm with a mesh of 1 cm)
+ $10 : nb of meshes between the river bed and the second working PT100 ex:21
+ $11 : nb of meshes between the river bed and the third working PT100 ex:31
+If there are only 3/4 PT100 working, then the $11 won't be taken into account (still type in "1" or more as it's formatted and a "0" could make affect the simulation). 2/4 PT100 working the $10 won't be taken into account etc.
 
- $12 : nb of observations (= nb of working PT100 -1; as the deepest working PT100 is used as a boundary condition. The upper boundary condition is the temperature sensor of the pressure differential file) ex: 3 if the 4 PT100 work, 2 if one is broken, etc.
+ $12 : nb of observations (= nb of working PT100 -1; as the deepest working PT100 is used as a boundary condition. The upper boundary condition is the temperature sensor in the stream, in the pressure differential file) ex: 3 if the 4 PT100 work, 2 if one is broken, etc.
  $13 : number of zones (clay, sand...). More than 2 would require more PT100 so it wouldn't make a lot of sense here)
  $14 : thickness of the upper zone (= distance between the riverbed and the bottom of the upper zone, in meters). Type in "0" if there is just 1 zone.
 
