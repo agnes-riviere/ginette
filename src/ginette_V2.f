@@ -738,7 +738,6 @@ CCC....THERMIQUE
 
 
 
-
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C                       MAILLAGE              C
@@ -750,6 +749,7 @@ CCC....CALCUL LIGNES COLONNES
 		ncnr=nc*nr
       if (imaille.eq.0) then
         linecell=0
+
 CCC....lecture des données
       do while (iocell.eq.0)
       read(11,*,iostat=iocell)
@@ -773,7 +773,8 @@ CCC....lecture des données
 
 
             allocate(ibas(nci))
-
+            allocate(topo(nci))
+            allocate(bot(nci))
 
 
 
@@ -864,8 +865,7 @@ ccccc....ivois(ik,4)= voisin ibas
         enddo
         enddo
 
-            allocate(topo(nc))
-            allocate(bot(nc))
+
 CCC....RENUMEROTATION en FONCTION DE TOPO ET BOTTOM
         if (itopo.eq.1) then
         open(unit=10,file='E_geom.dat',form='formatted',status='old')
@@ -995,6 +995,7 @@ CCC....NOUVEAU NUMERO de MAILLE
         enddo
 cc endif itopo
         endif
+
         kr=0
 		do ii=1,nm
         if(z(ii)-topo(icol(ii)).lt.0.0001.and.
