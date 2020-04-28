@@ -2825,7 +2825,14 @@ C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....CONSTRUCTION DE LA MATRICE PRESSION
         if(iec.eq.1) then
-
+		if(ytest.eq."WAR".and.paso.lt.100.and.icl(1,3).eq.-1) then
+		valcl(1,3)=valcl(1,3)/10
+			print*,"coucou"
+		else if (ytest.eq."WAR".and.paso.lt.1000.and.icl(1,3).eq.-1) then
+		valcl(1,3)=valcl_haut/5
+		else if (ytest.eq."WAR".and.paso.ge.1000.and.icl(1,3).eq.-1) then
+		valcl(1,3)=valcl_haut
+		endif
         nz=nm
         nmaxz=nmax
         nmaxzz=nmax1
