@@ -1814,6 +1814,7 @@ cccc....VALEURS NULLES
         if(icl(i,3).eq.-2) then
          valcl(i,3)=dble(rho(i)*g*(valcl(i,3)-z(i)-bm(i)/2))
 cccc....VALEURS NULLES
+		if(ytest.eq."WAR") valcl(i,3)=valcl_haut*rho1*g
 		 if (abs(valcl(i,3)).lt.10D-10) valcl(i,3)=0D+00
         endif
 
@@ -2824,7 +2825,14 @@ C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....CONSTRUCTION DE LA MATRICE PRESSION
         if(iec.eq.1) then
-
+		if(ytest.eq."WAR".and.paso.lt.100.and.icl(1,3).eq.-1) then
+		valcl(1,3)=valcl(1,3)/10
+			print*,"coucou"
+		else if (ytest.eq."WAR".and.paso.lt.1000.and.icl(1,3).eq.-1) then
+		valcl(1,3)=valcl_haut/5
+		else if (ytest.eq."WAR".and.paso.ge.1000.and.icl(1,3).eq.-1) then
+		valcl(1,3)=valcl_haut
+		endif
         nz=nm
         nmaxz=nmax
         nmaxzz=nmax1
@@ -3640,8 +3648,7 @@ CCC....SORTIE ZNS 1D
 
 CCC....SORTIE ZNS 1D
        if(ytest.eq."WAR") then
-		print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),1+z(100)
-		print*,akr(100),sw(100)
+		print*,"time",paso,"dt",dt,vzm(1),pr(1),"K",ak(1)*akr(1)
        if (irp.eq.1.and.irecord.eq.1) then
          do i=1,nm
         write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
