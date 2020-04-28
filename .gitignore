@@ -8,6 +8,10 @@ Sim_*
 application/mini-LOMOS/Obs_temperature_maille4_t.dat
 application/mini-LOMOS/SENSI/
 application/mini-LOMOS/formatToGinette.Rout
+ginette
 
-
+E_tested_ranges.dat
+GINETTE_SENSI/ginette_velocity
+GINETTE_SENSI/values
+GinetteData.RData
 
