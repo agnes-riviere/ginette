@@ -88,8 +88,8 @@ ________________________________________________________________________________
 
 4) Complete the file : inversion_PT100.COMM
 
-Each line contains the space between two following PT100
-The first line is the space between the riverbed and PT100 1, the second between PT100 1 and PT100 2, etc.
+Each line contains the space between two following working PT100
+The first line is the space between the riverbed and the first working PT100, the second between the first working PT100 and the second working PT100, etc.
 
 ------------------------------------
 example for 4 PT100 with a space of 10 cm each:

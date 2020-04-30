@@ -38,11 +38,7 @@ for (i in 1:nPT100)  {
   a = read.csv(as.character(com[4 + i, 1]), sep = " ", header = FALSE)
   b = as.POSIXct(paste(a[, 1], a[, 2]), '%d/%m/%Y %H:%M:%S', tz = 'GMT')
   dat_tmp = data.frame(b, a[, 3])
-  if (nchar(as.character(com[4 + i, 1])) == 17) {
-    nam = str_sub(com[4 + i, 1], 1, 13)
-  } else {
-    nam = str_sub(com[4 + i, 1], 1, 14)
-  }
+  name <- str_remove(as.character(com[4 + i, 1]), ".dat")
   if (i == 1) {temp1 = dat_tmp}
   assign(nam, dat_tmp)
 }
@@ -62,11 +58,7 @@ for (i in 1:nriver)  {
   a = read.csv(as.character(com[5 + nPT100 + i, 1]), sep = " ", header = FALSE)
   b = as.POSIXct(paste(a[, 1], a[, 2]), '%d/%m/%Y %H:%M:%S', tz = 'GMT')
   dat_tmp = data.frame(b, a[, 3])
-  if (nchar(as.character(com[5 + nPT100 + i, 1])) == 17) {
-    nam = str_sub(com[5 + nPT100 + i, 1], 1, 13)
-  } else {
-    nam = str_sub(com[5 + nPT100 + i, 1], 1, 14)
-  }
+  name <- str_remove(as.character(com[5 + nPT100 + i, 1]), ".dat")
   assign(nam, dat_tmp)
   if (i==1) {presDiff = dat_tmp}
   if (i==2) {stream_temp = dat_tmp}
