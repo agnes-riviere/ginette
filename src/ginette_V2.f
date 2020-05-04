@@ -405,7 +405,6 @@ c		open(unit=231,file='E_tempT_Riv.dat')
 		endif
 
 
-
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C    FICHIERS Construction manuelle maillage  C
@@ -420,8 +419,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 		endif
 
 
-
-			STOP
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C         LECTURE FICHIER ZHR                 C
@@ -1178,6 +1175,7 @@ cccc...X riffle
 	  allocate(qcondin_hR(ligne5DTS))
 	  allocate(qadvin_hR(ligne5DTS))
 
+
       rewind(300400)
       do j=1,ligne5DTS
       read(300400,*,iostat=iriffle)xriffle(1,j),xriffle(2,j)
@@ -1203,7 +1201,6 @@ cccc...X POOL
       read(300,*,iostat=ipool)xpool(1,j),xpool(2,j)
       enddo
 	   close(300)
-
 
 
 
@@ -7337,6 +7334,317 @@ CCC....ECOULEMENT VAUCLIN
 		enddo
 		endif
 
+
+      if (ytest.eq."DTS") then
+
+	
+cccc time interpolation of the read values
+		if(kimp.ge.ligne2) then
+     	headD=cRivD(ligne2)
+		temperatureD=tempRD(ligne2)
+     	headPD=chgRD(ligne2)
+		else
+		do j=1,ligne2
+		if (paso.lt.timeD(j+1).and.paso.gt.timeD(j)) then
+		headD=(cRivD(j+1)-cRivD(j))
+     &/(timeD(j+1)-timeD(j))
+     &*(paso-timeD(j))+cRivD(j)
+		headPD=(chgRD(j+1)-chgRD(j))
+     &/(timeD(j+1)-timeD(j))
+     &*(paso-timeD(j))+chgRD(j)
+		temperatureD=(tempRD(j+1)-tempRD(j))
+     &/(timeD(j+1)-timeD(j))
+     &*(paso-timeD(j))+tempRD(j)
+		elseif (paso.eq.timeD(j)) then
+		headD=cRivD(j)
+		headPD=chgRD(j)
+		temperatureD=tempRD(j)
+		elseif (paso.lt.timeD(1)) then
+		headD=cRivD(1)
+		headPD=chgRD(1)
+		temperatureD=tempRD(1)
+		endif
+		enddo
+		endif
+
+		if(kimp.ge.ligne1) then
+    	headG=cRivG(ligne1)
+		headPG=chgRG(ligne1)
+     	temperatureG=tempRG(ligne1)
+		else
+		do j=1,ligne1
+		if (paso.lt.timeG(j+1).and.paso.gt.timeG(j)) then
+		headG=(cRivG(j+1)-cRivG(j))
+     &/(timeG(j+1)-timeG(j))
+     &*(paso-timeG(j))+cRivG(j)
+		headPG=(chgRG(j+1)-chgRG(j))
+     &/(timeG(j+1)-timeG(j))
+     &*(paso-timeG(j))+chgRG(j)
+		temperatureG=(tempRG(j+1)-tempRG(j))
+     &/(timeG(j+1)-timeG(j))
+     &*(paso-timeG(j))+tempRG(j)
+		elseif (paso.eq.timeG(j)) then
+		headG=cRivG(j)
+		headPG=chgRG(j)
+		temperatureG=tempRG(j)
+		elseif (paso.lt.timeG(1)) then
+		headG=cRivG(1)
+		headPG=chgRG(1)
+		temperatureG=tempRG(1)
+		endif
+		enddo
+		endif
+
+
+
+
+ccc side boundary petit paris and bertin
+        do i=1,nm
+cccPetit Paris
+        if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
+        if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
+        iclt(i,1)=-2
+		valclt(i,1)=tempo(i)
+		endif
+        if (z(i).lt.1) then
+        icl(i,1)=-2
+       	valcl(i,1)=(headPD-z(i)-4.188)*rho(i)*g
+		else
+        icl(i,1)=-2
+       	valcl(i,1)=pro(i)
+		endif
+        endif
+cccBertin
+        if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
+        if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
+        iclt(i,2)=-2
+		valclt(i,2)=tempo(i)
+        endif
+        if (z(i).lt.1) then
+        icl(i,2)=-2
+       	valcl(i,2)=(headPG-z(i))*rho(i)*g
+		else
+        icl(i,2)=-2
+       	valcl(i,2)=pro(i)
+		endif
+		endif
+
+
+cccc....CDT LIMITE BOTTOM for the water zero flux
+        if (ivois(i,4).eq.-99) then
+ccc heat transport
+        iclt(i,4)=-2
+		valclt(i,4)=temperatureG
+ccc water flow
+        icl(i,4)=-1
+		valcl(i,4)=0
+		if (ivois(i,1).eq.-99) then
+ccc corner cell
+        iclt(i,1)=-2
+		valclt(i,1)=temperatureG
+        icl(i,1)=-2
+       	valcl(i,1)=pro(i)
+		endif
+		if (ivois(i,2).eq.-99) then
+ccc corner cell
+        iclt(i,2)=-2
+		valclt(i,2)=temperatureG
+        icl(i,2)=-2
+c       	valcl(i,2)=(headPG-z(i))*rho(i)*g
+		valcl(i,2)=pro(i)
+		endif
+        endif
+		enddo
+
+cccc....Boundary condition river/ZH for the heat transport
+		if(kimp.ge.ligne-1) then
+		do i=1,nm
+		if (ivois(i,3).eq.-99) then
+		if(icol(i).gt.nc) icol(i)=nc
+		temperature=tempDTS(icol(i),ligne-1)
+        icl(i,3)=-2
+        valclt(i,3)=temperature
+        if (ivois(i,2).eq.-99) then
+        icl(i,2)=-2
+        valclt(i,2)=temperature
+        endif
+        if (ivois(i,1).eq.-99) then
+        icl(i,1)=-2
+        valclt(i,1)=temperature
+        endif
+		endif
+		enddo
+		else
+		do j=1,ligne-1
+		if (paso.lt.timeDTS(j+1).and.paso.gt.timeDTS(j)) then
+		do i=1,nm
+		if (ivois(i,3).eq.-99) then
+		if(icol(i).gt.nc) icol(i)=nc
+		temperature=(tempDTS(icol(i),j+1)-tempDTS(icol(i),j))
+     &/(timeDTS(j+1)-timeDTS(j))*
+     &(paso-timeDTS(j))+tempDTS(icol(i),j)
+        icl(i,3)=-2
+        valclt(i,3)=temperature
+        if (ivois(i,2).eq.-99) then
+        iclt(i,2)=-2
+        valclt(i,2)=temperature
+        endif
+        if (ivois(i,1).eq.-99) then
+        iclt(i,1)=-2
+        valclt(i,1)=temperature
+        endif
+		endif
+		enddo
+		elseif (paso.eq.timeDTS(j)) then
+		do i=1,nm
+		if (ivois(i,3).eq.-99) then
+		if(icol(i).gt.nc) icol(i)=nc
+		temperature=tempDTS(icol(i),j)
+		iclt(i,3)=-2
+        valclt(i,3)=temperature
+c		if(temperature.gt.15) print*,temperature,x(i)
+        if (ivois(i,2).eq.-99.and.x(i).gt.0.5) then
+        iclt(i,2)=-2
+        valclt(i,2)=temperature
+        endif
+        if (ivois(i,1).eq.-99.and.x(i).lt.999.5) then
+        iclt(i,1)=-2
+        valclt(i,1)=temperature
+        endif
+		endif
+		enddo
+		endif
+		enddo
+		endif
+
+CCCC River/ZH hydraulic head
+        do i=1,nm
+		headbk=0
+cccc loop on the element
+	    if (ivois(i,3).eq.-99) then
+cccc no neigh top
+        icl(i,3)=-2
+cccc boundary diricler for the water flow
+		do j=1,ligne3
+ccc loop on the piece of the line of the water level of the river
+cccc slope for each element
+		if(x(i).ge.slopeRH(1,j).and.x(i).le.slopeRH(1,j+1))
+     & then
+ccc  read slope
+		slope=slopeRH(2,j)
+		kj=j
+		endif
+ccc slope from bertin water level for the downstream part
+		if (kj.eq.1) slope=slopeRH(2,1)
+		if (kj.eq.1)  headbk=headG
+ccc id = number of upstream part
+		if(x(i).gt.slopeRH(1,ligne3)) then
+	    kj=ligne3
+		endif
+		enddo
+ccc between the downstream and the first cascade
+		if (kj.eq.2) then
+		do k=1,kj
+		if (k.eq.1)  headbk=headG
+		if (k.gt.1) headbk=slopeRH(2,k-1)*
+     &(slopeRH(1,k)-slopeRH(1,k-1))+headbk
+		enddo
+		endif
+cccc water level of the river = altitude of the first cascade
+		if (kj.eq.3) headbk=116.29999694824218D+00
+cccc water level of the river = altitude of the second cascade
+		if (kj.eq.4) headbk=120.5D+00
+cccc water level of the upstream part
+		if(kj.eq.ligne3) headbk=headD-2.16
+
+		if(kj.eq.ligne3.or.kj.eq.3) then
+		slopeRH(2,kj)=(headD-2.16-120.5D+00)/
+     &(1000-slopeRH(1,ligne3))
+		slope=slopeRH(2,kj)
+		endif
+
+ccc slope inside the first cascade
+		if(kj.eq.2) slope=(headbk-116.29999694824218D+00)/
+     &(slopeRH(1,2)-slopeRH(1,3))
+
+ccc Inside the second cascade
+ccc calculatation the slope
+		if (kj.eq.4) then
+		headbk=slopeRH(2,3)*
+     &(slopeRH(1,kj)-slopeRH(1,kj-1))+116.29999694824218D+00
+		slope=(headbk-120.5D+00)/(slopeRH(1,kj)-slopeRH(1,ligne3))
+		slopeRH(2,kj)=slope
+		endif
+
+
+		if (kj.le.4) head=slope*(x(i)-slopeRH(1,kj))+headbk
+		if (kj.eq.ligne3) head=slope*(x(i)-1000)+headbk
+
+		if(paso.eq.900) then
+    	 write(181828,*)x(i),head
+		endif
+
+		if(paso.eq.86400) then
+    	 write(181829,*)x(i),head
+		endif
+
+		if(paso.eq.86400*2) then
+    	 write(181830,*)x(i),head
+		endif
+
+		if(paso.eq.86400*3) then
+    	 write(181831,*)x(i),head
+		endif
+
+		if(paso.eq.86400*4) then
+    	 write(181832,*)x(i),head
+		endif
+
+		if(paso.eq.86400*5) then
+    	 write(181833,*)x(i),head
+		endif
+
+
+		if(paso.eq.86400*6) then
+    	 write(181834,*)x(i),head
+		endif
+
+		if(paso.eq.86400*7) then
+    	 write(181835,*)x(i),head
+		endif
+
+		if(paso.eq.86400*8) then
+    	 write(181836,*)x(i),head
+		endif
+
+		if(paso.eq.86400*9) then
+    	 write(181837,*)x(i),head
+		endif
+
+		if(paso.eq.86400*10) then
+    	 write(181838,*)x(i),head
+		endif
+
+        valcl(i,3)=(head-z(i)-bm(i)/2)*rho(i)*g
+        if (ivois(i,2).eq.-99) then
+        icl(i,2)=-2
+		valcl(i,2)=(head-z(i))*rho(i)*g
+        endif
+        if (ivois(i,1).eq.-99.and.x(i).lt.999.5) then
+        icl(i,1)=-2
+		valcl(i,1)=(head-z(i))*rho(i)*g
+        endif
+		if(ivois(ivois(i,4),2).eq.-99.and.x(i).gt.0.5) then
+        icl(i,2)=-2
+		valcl(i,2)=(head-z(i))*rho(i)*g
+		endif
+		endif
+
+		enddo
+
+
+
+		endif
 
 
 
