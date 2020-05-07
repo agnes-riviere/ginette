@@ -219,7 +219,7 @@ g_meas_head_differential <-
             mapping = aes(x = p_time,y = Head_differential)) +
   expand_limits(y = 0) +
   geom_hline(mapping = aes(yintercept = 0),linetype = "dashed") +
-  labs(x="",y = expression(Delta*'H = H'['HZ'] *'- H'['riv'] * ' (in m)')) +
+  labs(x="",y = expression(Delta*'H = H'['HZ'] *'- H'['riv'] * ' (in m)'), title = P_titre) +
   scale_x_datetime(date_labels ="%d %b %y") +
   theme_bw()
 
