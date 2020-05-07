@@ -97,11 +97,12 @@ if (nPT100 >= 3)
 Melted_sim_t <- reshape2::melt(df_sim_t, id.var = "time")
 colnames(Melted_sim_t) = c("time", "Depth", "Temperature")
 Melted_sim_t$time = Melted_sim_t$time + date_bg
-#Graph
-## Define color
+
+#Plot all the data to check if everything's correct
+#Define color
 colpal <-  brewer.pal(3, "Dark2")
 
-##plot
+#Plot
 g_temp_ts <-
   ggplot() +
   geom_line(data = Melted_sim_t,
@@ -115,4 +116,7 @@ g_temp_ts <-
   labs(x = "", y = "T (C)", color = "depth") +
   scale_x_datetime(date_labels = " %d %b") +
   theme_bw() 
-g_temp_ts
+
+png(paste0("PLOT/Data_check/", "lol", ".png"))
+  g_temp_ts
+dev.off()

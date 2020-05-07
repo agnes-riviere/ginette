@@ -3,6 +3,9 @@
 library(stats) #for spline interpolation
 library(lubridate)
 library(stringr)
+library(ggplot2)
+library(stringr)
+library(RColorBrewer)
 
 #wd=paste0('/home/ariviere/Documents/Bassin-Orgeval/Donnee_Orgeval_Mines/processed_data_KC/HZ/',
 #          namePoint)
@@ -23,9 +26,6 @@ ini_day = str_sub(com[1, 1], 1, 2)
 ini_date = paste0(ini_day, '/', ini_month, '/', ini_year)
 ini_date = as.POSIXct(ini_date, '%d/%m/%Y', tz = 'GMT')
 
-#number of column
-nm = com[2, 1]
-
 # #---- discretisation parameters for Ginette ----
 Deltaz = 0.01 # [m]
 Deltat = as.integer(as.numeric_version(com[3, 1])) # [s]
@@ -38,7 +38,7 @@ for (i in 1:nPT100)  {
   a = read.csv(as.character(com[4 + i, 1]), sep = " ", header = FALSE)
   b = as.POSIXct(paste(a[, 1], a[, 2]), '%d/%m/%Y %H:%M:%S', tz = 'GMT')
   dat_tmp = data.frame(b, a[, 3])
-  name <- str_remove(as.character(com[4 + i, 1]), ".dat")
+  nam <- str_remove(as.character(com[4 + i, 1]), ".dat")
   if (i == 1) {temp1 = dat_tmp}
   assign(nam, dat_tmp)
 }
@@ -148,5 +148,82 @@ write.table(presIC,file = "E_pression_initiale.dat", col.names = FALSE,row.names
 write.table(tempIC,file = "E_temperature_initiale.dat",col.names = FALSE,row.names = FALSE)
 write.table(tOut[length(tOut)],"nitt.dat",col.names = FALSE,row.names = FALSE)
 
-save(tOut,t_dates,presIC,tempIC,presBC,tempBC,tsInv,depthsInv,z,
-     file = paste0('GinetteData.RData'))
+
+
+# Plot all the observed data to check if everything's correct
+# Temperature data
+Temp <- cbind(xOut, tempStreamInterp, tempHobboInterp)
+
+# Nommer colonnes en fonction du nombre de PT100
+T_colomn_names <- c("time", "Stream")
+
+if (nPT100 >= 2) {
+  for (i in seq(2, nPT100)) {
+    depth_PT100[i, 1] = depth_PT100[i - 1, 1] + depth_PT100[i, 1]
+  }
+  
+}
+depth_PT100 = -depth_PT100 / 100
+
+for (i in seq_len(nPT100)) {
+  T_colomn_names[i+2] <- paste0(depth_PT100[i, 1], " m")
+}
+colnames(Temp) <- T_colomn_names
+
+# Mise en forme du data frame contenant les temperatures avec la fonction melt avant de tracer
+Melted_obs_t <- reshape2::melt(as.data.frame(Temp), id.var = "time")
+colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
+Melted_obs_t$time = Melted_obs_t$time + ini_date
+
+# Recupération des éléments nécessaires pour nommer correctement les graphes
+titre <- str_remove(File_com[1], pattern = ".COMM")
+T_titre <- paste0("T_check_", str_remove(titre, pattern = "test_"))
+
+# Define colors
+colpal <-  brewer.pal(3, "Dark2")
+
+# Plot
+g_temp_ts <-
+  ggplot() +
+  geom_line(data = Melted_obs_t,
+            mapping = aes(x = time, y = Temperature, color = Depth))  +
+  scale_color_manual(values = c(colpal, colpal)) +
+  labs(x = "", y = "T (C)", color = "Depth", title = T_titre) +
+  scale_x_datetime(date_labels = " %d %b %y") +
+  theme_bw() 
+
+#Save plot
+png(paste0("PLOT/Data_check/", T_titre, ".png"))
+g_temp_ts
+dev.off()
+
+
+
+## Head differential data
+Press <- as.data.frame(cbind(xOut, presDiffInterp))
+
+# Nommer colonnes
+P_colomn_names <- c("p_time", "Head_differential")
+colnames(Press) <- P_colomn_names
+
+#adaptation date
+Press$p_time <- Press$p_time + ini_date
+
+# Recupération des éléments nécessaires pour nommer correctement les graphes
+P_titre <- paste0("P_check_", str_remove(titre, pattern = "test_"))
+
+#plot
+g_meas_head_differential <-
+  ggplot() +
+  geom_line(data = Press,
+            mapping = aes(x = p_time,y = Head_differential)) +
+  expand_limits(y = 0) +
+  geom_hline(mapping = aes(yintercept = 0),linetype = "dashed") +
+  labs(x="",y = expression(Delta*'H = H'['HZ'] *'- H'['riv'] * ' (in m)')) +
+  scale_x_datetime(date_labels ="%d %b %y") +
+  theme_bw()
+
+#Save plot
+png(paste0("PLOT/Data_check/", P_titre, ".png"))
+g_meas_head_differential
+dev.off()
