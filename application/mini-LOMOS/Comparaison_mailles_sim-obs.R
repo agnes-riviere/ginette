@@ -14,7 +14,10 @@ files_output <- list.files(path = path_output, pattern = 'temperature_maille')
 nb_PT100 <- length(files_obs)
 num_PT100 <- substr(files_obs, 23, 23)
 
-nb_simu <- as.integer(str_remove(string = str_sub(files_output[length(files_output)], 25), pattern = ".dat"))
+pos_end = str_locate(files_output, ".dat")
+pos_bg = str_locate(files_output, "Sim_temperature_maille")
+id_sim = as.numeric(str_sub(files_output, pos_bg[, 2] + 3,  pos_end[, 1] - 1))
+nb_simu <- as.integer(max(id_sim))
 param_simu <- read.table(file = "GINETTE_SENSI/tested_values", sep = " ", header = FALSE)
 
 #Read data
