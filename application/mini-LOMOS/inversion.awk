@@ -21,7 +21,7 @@ BEGIN{ printf("Starting parameter screening process from 1D distributed data at 
 }
 {
 #  if(NR>1){
-    cmd=sprintf("./format_ginette.sh %s %s %s %s %s %s %s %s  %s %s %s %s %s  ",$1,$5,date($4,$3,$2),$6,date($4,$3,$2),$8,$7,$9,$10,$11,$12,$13,$14);
+    cmd=sprintf("./format_ginette.sh %s %s %s %s %s %s %s %s  %s ",$1,date($4,$3,$2),$5,$6,$7,$8,$9,$10,$11);
 #  };
 
 

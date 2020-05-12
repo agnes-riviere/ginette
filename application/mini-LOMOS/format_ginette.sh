@@ -2,14 +2,13 @@
 # All the following informations come from the file "inversion.COMM" and are imported here by the file "inversion.awk":
 
 # $1 : point name
-# $2 : temperature sensor name
-# $3 : beginning of the experiment
+# $2 : beginning of the experiment
+# $3 : temperature sensor name
 # $4 : pressure sensor name
-# $5 : beginning of the experiment
-# $6 : time step (s)
-# $7 : nb of functioning PT100 (3 if every sensor works, 2 if one is broken, etc.)
-# $8 : Number of areas (clay, sand...)
-# $9 : Thickness of each area (separator = "", in meters)
+# $5 : time step (s)
+# $6 : nb of functioning PT100 (3 if every sensor works, 2 if one is broken, etc.)
+# $7 : Number of areas (clay, sand...)
+# $8 : Thickness of each area (separator = "", in meters)
 
 echo "-- Entering format_ginette.sh"
 ## Read calibrated parameter
@@ -19,7 +18,7 @@ input_parameter="inversion_parameter.COMM"
 
 tested_ranges="E_tested_ranges.dat"
 nbligne=$(wc -l $input_parameter |cut -d" " -f1)
-a=$((${8}*4));
+a=$((${7}*4));
 
 if [[ -f "$tested_ranges" ]]; then
     rm awk.ginette
@@ -31,7 +30,7 @@ fi
 
 for i in `seq 1 $a`; do echo 1 1 1 >> awk.ginette; done
 
-echo ${8}  ${9} >> E_nb_zone.dat
+echo ${7}  ${8} >> E_nb_zone.dat
 
 if  [ $nbligne != $a ]
 then
@@ -46,7 +45,7 @@ fi
 cp awk.ginette $tested_ranges
 while read  param zone min max pas
 do
-nbzone=${8}
+nbzone=${7}
 k="k"
 n="n"
 l="l"
@@ -93,13 +92,13 @@ cp $tested_ranges ./GINETTE_SENSI/
 
 
 
-
 ## fichier [test_nomdupoint.COMM] cree
 ## Creation des fichiers d'entree pour Ginette
 R CMD BATCH formatToGinette.R
 
 ##fichier observation pour inversion
-for i in `seq 1 ${10}`;
+
+for i in `seq 1 ${6}`;
 do
 mv Obs_temperature_maille$i\_t.dat ./GINETTE_SENSI/OBS/Obs_temperature_maille$i\_t.dat
 done #done i
@@ -128,12 +127,12 @@ nm=`awk '{print $1}' model.dat`
 L=`awk '{print $2}' model.dat`
 nmaille1=`awk '{print $3}' model.dat`
 
-if (( ${10} > 1 )) ; then
+if (( ${6} > 1 )) ; then
 nmaille2=`awk '{print $4}' model.dat`
 else
 nmaille2=10
 fi
-if (( "${10}" > 2 )) ; then
+if (( "${6}" > 2 )) ; then
 nmaille3=`awk '{print $5}' model.dat`
 else
 nmaille3=10
@@ -145,12 +144,13 @@ awk -f CmdConfig_nmaille.awk -v nmaille1="$nmaille1" -v  nmaille2="$nmaille2"  -
 mv awk.out E_parametre.dat
 
 echo "Launching the sensitivity for" $1
-./HZ1D.sh ${10} ${8}
+./HZ1D.sh ${6} ${7}
 cd ..
 # Calcul des critères stats
-#if [ -d SENSI ]; then
-#rm -r SENSI
-#fi
-#mkdir SENSI
-#R CMD BATCH Comparaison_mailles_sim-obs.R
+if [ -d SENSI ]; then
+rm -r SENSI
+fi
+mkdir SENSI
+R CMD BATCH Comparaison_mailles_sim-obs.R
 
+echo "file "$1" treated!"

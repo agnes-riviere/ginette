@@ -31,7 +31,7 @@ ini_day = com$V4
 dg_day=sapply(ini_day, function(x) paste(paste(rep(0, 2 - nchar(x)), collapse = ""), x, sep = ""))
 ini_date = paste0(ini_day, '/', ini_month, '/', ini_year)
 ini_date = as.POSIXct(ini_date, '%d/%m/%Y', tz = 'GMT')
-
+cal_time=com$V11
 # #---- discretisation parameters for Ginette ----
 Deltaz = 0.01 # [m]
 Deltat = com$V7 # [s]
@@ -64,11 +64,11 @@ end_pres=as.POSIXct(presDiff[dim(presDiff)[1],1],'%d/%m/%Y %H:%M',tz='GMT')
 
 timeInitial = as.POSIXct(tempHobbo$dates[1],'%d/%m/%Y %H:%M',tz='GMT')
 timeFinal = as.POSIXct(tempHobbo$dates[dim(tempHobbo)[1]],'%d/%m/%Y %H:%M',tz='GMT')
-
+end_date=max(timeInitial,ini_pres,ini_date)+cal_time
 
 # reference times and dates starting from max(timeInitial,ini_obs)
-t_time = seq(from = max(timeInitial,ini_pres),
-             to = min(end_pres,timeFinal),
+t_time = seq(from = max(timeInitial,ini_pres,ini_date),
+             to = min(end_pres,timeFinal,end_date),
              by = as.difftime(Deltat, units = "secs"))
 
 t_dates = seq(from = strptime(paste0(as.character(t_time[1],format="%Y-%m-%d")," 00:00"),format = "%Y-%m-%d %H:%M"),

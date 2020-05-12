@@ -12,9 +12,7 @@ gfortran -o values Calibrated_values.f95
 echo "Compiling gigi"
 mkdir $OUTPUT
 
-#echo "Configuring the links"
-#rm CmpKro0.01
-#ln -s ./CmpKro/CmpKro0.01
+
 
 #Data formatting for R
 sed "{s/\ \ */\ /g;s/^\ *//g;s/ $//g}" tested_values > tested_values_clean
