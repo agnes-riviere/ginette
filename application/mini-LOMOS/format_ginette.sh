@@ -142,11 +142,14 @@ awk -f CmdConfig_nmaille.awk -v nmaille1="${8}" -v  nmaille2="${9}"  -v  nmaille
 mv awk.out E_parametre.dat
 
 #echo "Launching the sensitivity for" $1
-./HZ1D.sh ${11} ${12}
+#./HZ1D.sh ${11} ${12}
 cd ..
 # Calcul des critères stats
-mkdir SENSI
-R CMD BATCH Comparaison_mailles_sim-obs.R
+if [ -d SENSI ]; then
+rm -r SENSI
+fi
+#mkdir SENSI
+#R CMD BATCH Comparaison_mailles_sim-obs.R
 
 # rm -rf Sim_*.dat
 #cp ./Sensi_final.dat ../$1_Sensi_final.dat
