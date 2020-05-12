@@ -6,70 +6,64 @@ library(stringr)
 library(ggplot2)
 library(stringr)
 library(RColorBrewer)
+library(data.table)
+library(readr)
+setwd(dir = ".")
+getwd()
 
-#wd=paste0('/home/ariviere/Documents/Bassin-Orgeval/Donnee_Orgeval_Mines/processed_data_KC/HZ/',
-#          namePoint)
-#setwd(wd)
 # read comm
-File_com = list.files(pattern = "test_")
+#File_com = list.files(pattern = "test_")
+File_com = "inversion.COMM"
 Inversion_PT100 = "inversion_PT100.COMM"
 depth_PT100 = read.csv(Inversion_PT100, sep = " ", header = FALSE) #écart entre les PT100 en cm
 
 #ne marchera pas si length(File_com) != 1
 com = read.csv(File_com, sep = " ", header = FALSE)
-
+point_name=com$V1
+temp_sensor=com$V5
+pres_sensor=com$V6
 #initial date
-ini_year = str_sub(com[1, 1], 7, 9)
-ini_year = as.numeric(paste0('20', ini_year))
-ini_month = str_sub(com[1, 1], 4, 5)
-ini_day = str_sub(com[1, 1], 1, 2)
+dg_year =com$V2
+ini_year = as.numeric(paste0('20',dg_year))
+ini_month = com$V3
+dg_month=sapply(ini_month, function(x) paste(paste(rep(0, 2 - nchar(x)), collapse = ""), x, sep = ""))
+ini_day = com$V4
+dg_day=sapply(ini_day, function(x) paste(paste(rep(0, 2 - nchar(x)), collapse = ""), x, sep = ""))
 ini_date = paste0(ini_day, '/', ini_month, '/', ini_year)
 ini_date = as.POSIXct(ini_date, '%d/%m/%Y', tz = 'GMT')
 
 # #---- discretisation parameters for Ginette ----
 Deltaz = 0.01 # [m]
-Deltat = as.integer(as.numeric_version(com[3, 1])) # [s]
+Deltat = com$V7 # [s]
 
-# number PT100 in the hyporheic zone
-nPT100 = as.integer(as.numeric_version(com[4, 1]))
+# number obs PT100 in the hyporheic zone to inv
+nPT100 = com$V8
 
 # name HZ temperature
-for (i in 1:nPT100)  {
-  a = read.csv(as.character(com[4 + i, 1]), sep = " ", header = FALSE)
-  b = as.POSIXct(paste(a[, 1], a[, 2]), '%d/%m/%Y %H:%M:%S', tz = 'GMT')
-  dat_tmp = data.frame(b, a[, 3])
-  nam <- str_remove(as.character(com[4 + i, 1]), ".dat")
-  if (i == 1) {temp1 = dat_tmp}
-  assign(nam, dat_tmp)
-}
+temp_file=paste0(temp_sensor,"_",point_name,"_",dg_day,"_",dg_month,"_",dg_year,".csv")
+temp_data=fread(temp_file)
+# number obs PT100 in the hyporheic zone, the last one is used as boundary condition
+ntemp= ncol(temp_data)-2
+tempHobbo=data.frame(temp_data)
+tempHobbo$dates = as.POSIXct(temp_data$dates,'%d/%m/%Y %H:%M:%S', tz = 'GMT')
 
-tempHobbo = data.frame(Date = temp1[, 1])
-
-for (i in 1:nPT100)  {
-  a = read.csv(as.character(com[4 + i, 1]), sep = " ", header = FALSE)
-  tempHobbo[, i + 1] = a[, 3]
-}
-
-# number river data
-nriver= as.integer(as.numeric_version(com[nPT100+4+1,1]))
 
 # read data pressure and river temperature
-for (i in 1:nriver)  {
-  a = read.csv(as.character(com[5 + nPT100 + i, 1]), sep = " ", header = FALSE)
-  b = as.POSIXct(paste(a[, 1], a[, 2]), '%d/%m/%Y %H:%M:%S', tz = 'GMT')
-  dat_tmp = data.frame(b, a[, 3])
-  name <- str_remove(as.character(com[5 + nPT100 + i, 1]), ".dat")
-  assign(nam, dat_tmp)
-  if (i==1) {presDiff = dat_tmp}
-  if (i==2) {stream_temp = dat_tmp}
-}
+river_file=paste0(pres_sensor,"_",point_name,"_",dg_day,"_",dg_month,"_",dg_year,".csv")
+riverHobbo=fread(river_file)
+riverHobbo$dates = as.POSIXct(temp_data$dates,'%d/%m/%Y %H:%M:%S', tz = 'GMT')
+nriver= ncol(riverHobbo)-2
+presDiff=data.frame(riverHobbo$dates,riverHobbo$pressure_differential_m)
+stream_temp=data.frame(riverHobbo$dates,riverHobbo$temperature_stream_C)
+
+
 
 #---- add consider timeseries from date of initial conditions ----
 ini_pres= as.POSIXct(presDiff[1,1],'%d/%m/%Y %H:%M',tz='GMT')
 end_pres=as.POSIXct(presDiff[dim(presDiff)[1],1],'%d/%m/%Y %H:%M',tz='GMT')
 
-timeInitial = as.POSIXct(temp1[1,1],'%d/%m/%Y %H:%M',tz='GMT')
-timeFinal = as.POSIXct(temp1[dim(temp1)[1],1],'%d/%m/%Y %H:%M',tz='GMT')
+timeInitial = as.POSIXct(tempHobbo$dates[1],'%d/%m/%Y %H:%M',tz='GMT')
+timeFinal = as.POSIXct(tempHobbo$dates[dim(tempHobbo)[1]],'%d/%m/%Y %H:%M',tz='GMT')
 
 
 # reference times and dates starting from max(timeInitial,ini_obs)
@@ -92,17 +86,17 @@ xInit = as.numeric(difftime(stream_temp[,1],t_time[1],units = "secs"))
 tempStreamInterp = spline(x=xInit,y=stream_temp[,2],xout = xOut)$y
 #plot(xOut,tempStreamInterp,type='l',xlim=c(50000,55000))
 
-xInit = as.numeric(difftime(tempHobbo$Date,t_time[1],units = "secs"))
-tempHobboInterp = array(0,dim=c(length(xOut),nPT100))
-for (i in 1:nPT100){
-  tempHobboInterp[,i] = spline(x=xInit,y=tempHobbo[,i+1],xout = xOut)$y
+dates = as.numeric(difftime(tempHobbo$dates,t_time[1],units = "secs"))
+tempHobboInterp = array(0,dim=c(length(xOut),ntemp))
+for (i in 1:ntemp){
+  tempHobboInterp[,i] = spline(x=xInit,y=tempHobbo[,3],xout = xOut)$y
 }
 #plot(xOut,tempHobboInterp[,1],type='l',xlim=c(50000,70000))
 # points(xInit,tempHobbo[,1])
 
 #----define data for Ginette model----
-sensorDepths = vector(length = nPT100)
-for (i in 1:nPT100){
+sensorDepths = vector(length = ntemp)
+for (i in 1:ntemp){
   if(i==1) {
     sensorDepths[i]=0-as.integer(depth_PT100[i,])*Deltaz
   } else {
@@ -128,10 +122,10 @@ tempIC = approx(x = c(0,sensorDepths),
 
 ### boundary conditions
 presBC = cbind(-presDiffInterp,0)  # Ginette needs hydraulic head [m]
-tempBC = cbind(tempStreamInterp,tempHobboInterp[,nPT100])
+tempBC = cbind(tempStreamInterp,tempHobboInterp[,ntemp])
 
 ### temperature timeseries for inversion
-tsInv = tempHobboInterp[,1:3] 
+tsInv = tempHobboInterp[,1:nPT100] 
 
 #depths of the temperature timeseries for inversion
 depthsInv=-sensorDepths[1:(length(sensorDepths)-1)]/Deltaz #en cm
@@ -147,7 +141,8 @@ write.table(tempBC,file = "E_temp_t.dat",col.names = FALSE,row.names = FALSE)
 write.table(presIC,file = "E_pression_initiale.dat", col.names = FALSE,row.names = FALSE)
 write.table(tempIC,file = "E_temperature_initiale.dat",col.names = FALSE,row.names = FALSE)
 write.table(tOut[length(tOut)],"nitt.dat",col.names = FALSE,row.names = FALSE)
-
+model=data.frame(sensorDepths[length(sensorDepths)]/Deltaz*-1,sensorDepths[ntemp]*-1,t(depthsInv[seq(1,length(depthsInv))]))
+write.table(model,"model.dat",col.names = FALSE,row.names = FALSE)
 
 
 # Plot all the observed data to check if everything's correct
@@ -157,16 +152,9 @@ Temp <- cbind(xOut, tempStreamInterp, tempHobboInterp)
 # Nommer colonnes en fonction du nombre de PT100
 T_colomn_names <- c("time", "Stream")
 
-if (nPT100 >= 2) {
-  for (i in seq(2, nPT100)) {
-    depth_PT100[i, 1] = depth_PT100[i - 1, 1] + depth_PT100[i, 1]
-  }
 
-}
-depth_PT100 = -depth_PT100 / 100
-
-for (i in seq_len(nPT100)) {
-  T_colomn_names[i+2] <- paste0(depth_PT100[i, 1], " m")
+for (i in seq_len(ntemp)) {
+  T_colomn_names[i+2] <- paste0(sensorDepths[i], " m")
 }
 colnames(Temp) <- T_colomn_names
 
@@ -227,3 +215,5 @@ g_meas_head_differential <-
 png(paste0("PLOT/Data_check/", P_titre, ".png"))
 g_meas_head_differential
 dev.off()
+
+

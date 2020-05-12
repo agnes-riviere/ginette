@@ -37,11 +37,15 @@ ________________________________________________________________________________
 2) Complete the following file: inversion_parameter.COMM
 
 Column 1 = parameters of interest:
-k= intrinsic permeability
-n= porosity
-l= heat capacity
-r= medium density
-
+k= intrinsic permeability [m2]
+n= porosity 
+l= solid thermal conductivity [W m−1 K−1]
+r= solid density [kg m-3]
+The bulk volumetric heat capacity of the porous medium is calculated  by the following equation :
+c_mr_m=c_w r_w n + c_s r (1-n)
+c_w= specific heat capacity of water [334 000 J kg−1 K−1]
+r_w=water density [1 000 kg m-3] 
+c_s=specific heat capacity of solid [J kg−1 K−1]  
 Column 2 = number of zones (e.g. clay, sand...)
 Column 3 and 4 (respectively min and max) = range for the value test (litterature)
 Column 5 = number of tests within the previously defined range
@@ -69,17 +73,13 @@ Format the inversion.COMM command file columns as following :
  $4 : day (two last characters DD) ex: 07 
  $5 : name temperature sensor (four first characters) ex: t502
  $6 : name pressure sensor (four first characters) ex: p502
- $7 : thickness of the studied hyporheic zone (= distance between the 2 		furthest working PT100, in meters) ex: 0.40
- $8 : time step (s) ex: 900
+ $7 : time step (s) ex: 900
 
- $9 : nb of meshes between the river bed and the first working PT100 ex: 11 (= 11 cm with a mesh of 1 cm)
- $10 : nb of meshes between the river bed and the second working PT100 ex:21
- $11 : nb of meshes between the river bed and the third working PT100 ex:31
-If there are only 3/4 PT100 working, then the $11 won't be taken into account (still type in "1" or more as it's formatted and a "0" could make affect the simulation). 2/4 PT100 working the $10 won't be taken into account etc.
 
- $12 : nb of observations (= nb of working PT100 -1; as the deepest working PT100 is used as a boundary condition. The upper boundary condition is the temperature sensor in the stream, in the pressure differential file) ex: 3 if the 4 PT100 work, 2 if one is broken, etc.
- $13 : number of zones (clay, sand...). More than 2 would require more PT100 so it wouldn't make a lot of sense here)
- $14 : thickness of the upper zone (= distance between the riverbed and the bottom of the upper zone, in meters). Type in "0" if there is just 1 zone.
+
+ $11 : nb of observations (= nb of working PT100 -1; as the deepest working PT100 is used as a boundary condition. The upper boundary condition is the temperature sensor in the stream, in the pressure differential file) ex: 3 if the 4 PT100 work, 2 if one is broken, etc.
+ $12 : number of zones (clay, sand...). More than 2 would require more PT100 so it wouldn't make a lot of sense here)
+ $13 : thickness of the upper zone (= distance between the riverbed and the bottom of the upper zone, in meters). Type in "0" if there is just 1 zone.
 
 ------------------------------------
 example with every PT100 working and 2 zones :
@@ -90,7 +90,6 @@ ________________________________________________________________________________
 
 Each line contains the space between two following working PT100
 The first line is the space between the riverbed and the first working PT100, the second between the first working PT100 and the second working PT100, etc.
-
 ------------------------------------
 example for 4 PT100 with a space of 10 cm each:
 10
