@@ -96,10 +96,18 @@ Format the inversion.COMM command file columns as following :
  $11: maximum duration of the inversion. If the duration of the experiment is smaller than the prescribed duration, the duration of the experiment will be used.
 ```
 ------------------------------------
+```
 example with every PT100 working and 2 zones :
+```
+```
 Point1  14 11 07 t502 p504 900 3 2 0.20 864000
+```
+```
 example with 2 PT100 working and 1 zone :
+```
+```
 Point43 17 05 18 t520 p520 900 2 1 0 864000
+```
 _____________________________________________________________________________________________________________________________
 
 ### 4) Complete the file : inversion_PT100.COMM
