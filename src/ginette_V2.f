@@ -67,7 +67,7 @@ c        allocatable :: zbot(:),zaqui(:)
         allocatable :: cRivG(:),cRivD(:)
         allocatable :: id_river(:),tempriver(:),chgriver(:),id_rivert(:)
         allocatable :: chgbot(:),chgsurf(:),id_ZH(:)
-        allocatable :: qbot(:),qsurf(:)
+        double precision,dimension(:),allocatable:: qbot,qsurf
         allocatable :: tempbottom(:),tempsurf(:)
         allocatable :: tempDTS(:,:),xDTS(:)
         allocatable :: slopeRH(:,:)
@@ -522,7 +522,7 @@ CCC....lecture des données
       ligne4=ligne4+1
 		endif
 		enddo
-
+		rewind(68)
 
 	 select case (icl_bas)
       			case (-1) 
@@ -547,6 +547,7 @@ CCC....lecture des données
             allocate(chgsurf(ligne4))
 	do j=1,ligne4
 		read(68,*,iostat=iop) chgsurf(j)
+
 	enddo
    				end select
 			endif
@@ -7282,7 +7283,6 @@ c       ak(i)=permeabilite intrinseque
         valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
         iclt(nm,4)=-2
         valclt(nm,4)=tempbottom(kimp)
-
         if(kimp.gt.ligne4) then
         iclt(1,3)=-2
         valclt(1,3)=tempsurf(ligne4)
@@ -7297,7 +7297,6 @@ c       ak(i)=permeabilite intrinseque
         iclt(nm,4)=-2
         valclt(nm,4)=tempbottom(ligne4)
         endif
-
 		if(irptha.eq.0) then
         iclt(1,3)=-2
         valclt(1,3)=tempsurf(1)
