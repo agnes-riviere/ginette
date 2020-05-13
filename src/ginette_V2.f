@@ -2443,6 +2443,7 @@ C  Variation des conditions aux limites vs. temps C
 C                                                 C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
+
        if(iclchgt.eq.1) then
 		select case (ytest) 
   		 case ("WAR")          
@@ -2913,14 +2914,6 @@ C                                             C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....CONSTRUCTION DE LA MATRICE PRESSION
         if(iec.eq.1) then
-		if(ytest.eq."WAR".and.paso.lt.100.and.icl(1,3).eq.-1) then
-		valcl(1,3)=valcl(1,3)/10
-			print*,"coucou"
-		else if (ytest.eq."WAR".and.paso.lt.1000.and.icl(1,3).eq.-1) then
-		valcl(1,3)=valcl_haut/5
-		else if (ytest.eq."WAR".and.paso.ge.1000.and.icl(1,3).eq.-1) then
-		valcl(1,3)=valcl_haut
-		endif
         nz=nm
         nmaxz=nmax
         nmaxzz=nmax1
@@ -4766,7 +4759,7 @@ C                                              C
 C   Definition de la matrice pr lecoulement    C
 C                                              C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-        irow_ptr(1)=1
+		irow_ptr(1)=1
         il=0
         do ik=1,nm
         b(ik)=0D+00
