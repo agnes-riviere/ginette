@@ -67,6 +67,7 @@ c        allocatable :: zbot(:),zaqui(:)
         allocatable :: cRivG(:),cRivD(:)
         allocatable :: id_river(:),tempriver(:),chgriver(:),id_rivert(:)
         allocatable :: chgbot(:),chgsurf(:),id_ZH(:)
+        allocatable :: qbot(:),qsurf(:)
         allocatable :: tempbottom(:),tempsurf(:)
         allocatable :: tempDTS(:,:),xDTS(:)
         allocatable :: slopeRH(:,:)
@@ -434,9 +435,29 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 		endif
 
 		if (ios /= 0) then
-		stop 'File E_zone.dat does not exist' ! Or whatever handling you want.
+		stop 'File E_zone.dat does not exist' 
 		end if
-
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C                                             C
+C         LECTURE FICHIER ZNS 1D ou warrick   C
+C                                             C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+		if(ytest.eq."ZNS".or.ytest.eq."WAR") then
+			if(iclchgt.eq.1) then
+			 select case (icl_bas)
+     			 case (-1) 
+        open(unit=45,file='E_debit_bas_t.dat',iostat=iop)
+     			 case (-2)
+        open(unit=45,file='E_charge_bas_t.dat',iostat=iop)
+   				end select
+		select case (icl_haut)
+     			 case (-1) 
+        open(unit=68,file='E_debit_haut_t.dat',iostat=ios)
+     			 case (-2)
+        open(unit=68,file='E_charge_haut_t.dat',iostat=ios)
+   				end select
+			endif
+		endif
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                             C
 C         FICHIERS ERREUR VERIF               C
@@ -489,6 +510,33 @@ CCC....lecture des données
 	read(68,*,iostat=ios) tempsurf(j),tempbottom(j)
 	enddo
       endif
+
+CCC....ZNS 1D ou Warrick
+		if(ytest.eq."ZNS".or.ytest.eq."WAR") then
+			if(iclchgt.eq.1) then
+        ligne4=0
+CCC....lecture des données
+      do while (ios.eq.0)
+      read(68,*,iostat=ios)
+      if (ios.eq.0) then
+      ligne4=ligne4+1
+		endif
+		enddo
+	 select case (icl_bas)
+      			case (-1) 
+        allocate(qbot(ligne4))
+     			 case (-2)
+        allocate(chgbot(ligne4))
+   				end select
+		select case (icl_haut)
+     			 case (-1) 
+            allocate(chgsurf(ligne4))
+     			 case (-2)
+            allocate(qsurf(ligne4))
+   				end select
+			endif
+		endif
+
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2380,6 +2428,18 @@ C                                                 C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
        if(iclchgt.eq.1) then
+		select case (ytest) 
+  		 case ("WAR")          
+			ntsortie=ligne4        
+		case ("ZNS")
+			ntsortie=ligne4                 
+		case ("ZHR")
+			ntsortie=ligne4                 
+		case ("ZHZ")
+			ntsortie=ligne4 
+   		case default          
+			ntsortie=ligne2        
+		end select
        call variation_cdt_limites(n,nm,
      &icl,valcl,iclt,valclt,ivois,itlecture,
      &z,g,ntsortie,bm,irptha,
@@ -2465,7 +2525,18 @@ cccc....irecord = booléen si vrai ecriture sinon rien
         if (irp.eq.0.and.irptha.eq.0) paso=nitt*unitsim
 
        if(iclchgt.eq.1) then
-
+		select case (ytest) 
+  		 case ("WAR")          
+			ntsortie=ligne4        
+		case ("ZNS")
+			ntsortie=ligne4                 
+		case ("ZHR")
+			ntsortie=ligne4                 
+		case ("ZHZ")
+			ntsortie=ligne4 
+   		case default          
+			ntsortie=ligne2        
+		end select 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                 C
 C  Variation des conditions aux limites vs. temps C
@@ -4222,7 +4293,8 @@ C		call purge_noms_fichiers
 		if	(allocated(am))	DEALLOCATE(am)
 		if	(allocated(bm))	DEALLOCATE(bm)
 
-
+		if	(allocated(qbot))	DEALLOCATE(qbot)
+		if	(allocated(qsurf))	DEALLOCATE(qsurf)
 		if	(allocated(icl))	DEALLOCATE(icl)
 		if	(allocated(valcl))	DEALLOCATE(valcl)
 
@@ -7086,7 +7158,8 @@ cccc....
         dimension valclt(nm,4),iclt(nm,4),z(nm)
         dimension rho(nm),bm(nm),x(nm)
 		dimension icol(nm)
-        dimension chgbottom(ligne2),chgsurf(ligne2)
+        dimension chgbottom(ntsortie),chgsurf(ntsortie)
+        dimension qbottom(ntsortie),qsurf(ntsortie)
         dimension tempsol(ligne)
         dimension qpluie(ligne1),chgRD(ligne2)
 		dimension chgRG(ligne2),tempRD(ligne2)
@@ -7130,6 +7203,60 @@ c       ak(i)=permeabilite intrinseque
 
 
         kimp=int(paso/itlecture)+1
+		if(kimp.gt.ligne4) kimp=ligne4
+		if (ytest.eq."WAR".or.ytest.eq."ZNZ") then
+		select case (ytest) 
+		case ("WAR")          
+       do i=1,nm
+        if (ivois(i,4).eq.-99) then 
+		select case (icl(i,4)) 
+		case (-2)
+		valcl(i,4)=chgbottom(kimp)*rho1*g 
+		case (-1) 
+		valcl(i,4)=qbottom(kimp)
+		end select
+		endif
+         if (ivois(i,3).eq.-99) then 
+		select case (icl(i,3)) 
+		case (-2)
+		valcl(i,3)=chgsurf(kimp)*rho1*g 
+		case (-1) 
+		valcl(i,3)=qsurf(kimp)
+		end select
+		endif
+		enddo
+		case ("ZNZ")           
+       do i=1,nm
+        if (ivois(i,4).eq.-99) then 
+		select case (icl(i,4)) 
+		case (-2)
+		zbas=z(i)-bm(i)/2
+		if(abs(zbas).lt.1e-6) zbas=0D+00
+        valcl(i,4)=(rho(i)*g*(chgbottom(ligne4)- zbas))
+		case (-1) 
+		valcl(i,4)=qbottom(kimp)
+		end select
+		endif
+         if (ivois(i,3).eq.-99) then 
+		select case (icl(i,3)) 
+		case (-2)
+		zhaut=z(i)+bm(i)/2
+		if(abs(zhaut).lt.1e-6) zhaut=0D+00
+        valcl(i,3)=rho(i)*g*(chgsurf(kimp)-zhaut)
+		case (-1) 
+		valcl(i,3)=qsurf(kimp)
+		end select
+		endif
+		enddo        
+
+		end select 
+
+        endif
+
+
+
+
+
 
         if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
        do i=1,nm
