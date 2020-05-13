@@ -5,7 +5,7 @@ C          goncalves@cerege.fr                                                  
 c          anne.jost@upmc.fr                                                                              C
 C Toute utilisation ou copie de ce code implique la citation des auteurs                                  C
 C                                                            											  C
-C Toutes ventes commerciales en temps que service ou logiciel doit obtenir l'accord des auteurs           C
+C Toute vente commerciale en temps que service ou logiciel doit obtenir l'accord des auteurs           C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
        program pression_ecoulement_transport_thermique
         implicit double precision(a-h,o-x,z),integer(I-N)
