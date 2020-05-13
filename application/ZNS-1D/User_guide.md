@@ -71,9 +71,16 @@ Fill E_charge_initiale.dat
     icl_bas=-1
     Bottom
     valcl_bas=00000000d+00
-    iclchgt=1		special conditions in the subroutine variation_cdt_limites in ginette_V2.f
-
-
+    iclchgt=1		boundary conditions with the time
+##### Varition of boundary
+###### icl_haut=-1 Neuman condition
+		fill E_debit_haut_t.dat
+###### icl_haut=-2 Diriclet condition
+		fill E_charge_haut_t.dat
+###### icl_bas=-1 Neuman condition
+		fill E_debit_bas_t.dat
+###### icl_bas=-2 Diriclet condition
+		fill E_charge_bas_t.dat
 ### OUTPUT  
     S_hydraulic_conductivities_profil_t.dat'     time, z, K (m/s) 
 	S_saturation_profil_t.dat                    time, z , water saturation

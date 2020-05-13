@@ -525,14 +525,26 @@ CCC....lecture des données
 	 select case (icl_bas)
       			case (-1) 
         allocate(qbot(ligne4))
+	do j=1,ligne4
+		read(45,*,iostat=iop) qbot(j)
+	enddo
      			 case (-2)
         allocate(chgbot(ligne4))
+	do j=1,ligne4
+		read(45,*,iostat=iop) chgbot(j)
+	enddo
    				end select
 		select case (icl_haut)
      			 case (-1) 
-            allocate(chgsurf(ligne4))
-     			 case (-2)
             allocate(qsurf(ligne4))
+	do j=1,ligne4
+		read(68,*,iostat=iop) qsurf(j)
+	enddo
+     			 case (-2)
+            allocate(chgsurf(ligne4))
+	do j=1,ligne4
+		read(68,*,iostat=iop) chgsurf(j)
+	enddo
    				end select
 			endif
 		endif
