@@ -72,9 +72,10 @@ Fill E_charge_initiale.dat
     Bottom
     valcl_bas=00000000d+00
     iclchgt=1		boundary conditions with the time
+	itlecture 		reading interval time
 ##### Varition of boundary
 ###### icl_haut=-1 Neuman condition
-		fill E_debit_haut_t.dat
+		fill E_debit_haut_t.dat 
 ###### icl_haut=-2 Diriclet condition
 		fill E_charge_haut_t.dat
 ###### icl_bas=-1 Neuman condition
