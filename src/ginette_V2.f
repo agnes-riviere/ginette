@@ -555,6 +555,7 @@ CCC....lecture des données
 
 
 
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C MARINE
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1832,7 +1833,6 @@ CCC....ECOULEMENT
 
 
 
-
 cccc....VARIATION SPATIALE : une condition par maille
         if(iclect.eq.1) then
         read(37,*)icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
@@ -2467,7 +2467,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &cRivG,timeG,
      &cRivD,timeD,
      &timeDTS,xDTS,
-     &tempDTS,x,icol,nc,tempo,pro,slopeRH)
+     &tempDTS,x,icol,nc,tempo,pro,slopeRH,
+     &qsurf,qbot)
        endif
 
 
@@ -2537,6 +2538,7 @@ cccc....irecord = booléen si vrai ecriture sinon rien
             it=it+1
             nk=1
 
+
             paso=dble(dt)+dble(paso)-dble(dto)
         if (irp.eq.0.and.irptha.eq.0) paso=nitt*unitsim
 
@@ -2570,7 +2572,8 @@ cccc....recalcul car chgt pas temps
      &cRivG,timeG,
      &cRivD,timeD,
      &timeDTS,xDTS,
-     &tempDTS,x,icol,nc,tempo,pro,slopeRH)
+     &tempDTS,x,icol,nc,tempo,pro,slopeRH,
+     &qsurf,qbot)
        endif
 
            do i=1,nm
@@ -7166,7 +7169,8 @@ cccc....
      &cRivG,timeG,
      &cRivD,timeD,
      &timeDTS,xDTS,
-     &tempDTS,x,icol,nc,tempo,pro,slopeRH)
+     &tempDTS,x,icol,nc,tempo,pro,slopeRH,
+     &qsurf,qbottom)
 
         implicit double precision(a-h,o-z)
         implicit integer (i-n)
@@ -7219,7 +7223,6 @@ c       ak(i)=permeabilite intrinseque
 
 
         kimp=int(paso/itlecture)+1
-
 
 		if(kimp.gt.ligne4) kimp=ligne4
 		if (ytest.eq."WAR".or.ytest.eq."ZNS") then
