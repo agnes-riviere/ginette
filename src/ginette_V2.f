@@ -522,6 +522,8 @@ CCC....lecture des données
       ligne4=ligne4+1
 		endif
 		enddo
+
+
 	 select case (icl_bas)
       			case (-1) 
         allocate(qbot(ligne4))
@@ -533,6 +535,7 @@ CCC....lecture des données
 	do j=1,ligne4
 		read(45,*,iostat=iop) chgbot(j)
 	enddo
+
    				end select
 		select case (icl_haut)
      			 case (-1) 
@@ -7215,51 +7218,47 @@ c       ak(i)=permeabilite intrinseque
 
 
         kimp=int(paso/itlecture)+1
+
+
 		if(kimp.gt.ligne4) kimp=ligne4
-		if (ytest.eq."WAR".or.ytest.eq."ZNZ") then
+		if (ytest.eq."WAR".or.ytest.eq."ZNS") then
 		select case (ytest) 
 		case ("WAR")          
-       do i=1,nm
-        if (ivois(i,4).eq.-99) then 
-		select case (icl(i,4)) 
+		select case (icl(nm,4)) 
 		case (-2)
-		valcl(i,4)=chgbottom(kimp)*rho1*g 
+		valcl(nm,4)=chgbottom(kimp)*rho(nm)*g 
 		case (-1) 
-		valcl(i,4)=qbottom(kimp)
+		valcl(nm,4)=qbottom(kimp)
 		end select
-		endif
-         if (ivois(i,3).eq.-99) then 
-		select case (icl(i,3)) 
+		select case (icl(1,3))
 		case (-2)
-		valcl(i,3)=chgsurf(kimp)*rho1*g 
+		valcl(1,3)=chgsurf(kimp)*rho(1)*g 
 		case (-1) 
-		valcl(i,3)=qsurf(kimp)
+		valcl(1,3)=qsurf(kimp)
 		end select
-		endif
-		enddo
-		case ("ZNZ")           
-       do i=1,nm
-        if (ivois(i,4).eq.-99) then 
-		select case (icl(i,4)) 
+		case ("ZNS")           
+
+
+		select case (icl(nm,4)) 
 		case (-2)
-		zbas=z(i)-bm(i)/2
+		zbas=z(nm)-bm(nm)/2
 		if(abs(zbas).lt.1e-6) zbas=0D+00
-        valcl(i,4)=(rho(i)*g*(chgbottom(ligne4)- zbas))
+        valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
 		case (-1) 
-		valcl(i,4)=qbottom(kimp)
+		valcl(nm,4)=qbottom(kimp)
 		end select
-		endif
-         if (ivois(i,3).eq.-99) then 
-		select case (icl(i,3)) 
+
+         if (ivois(1,3).eq.-99) then 
+		select case (icl(1,3)) 
 		case (-2)
-		zhaut=z(i)+bm(i)/2
+		zhaut=z(1)+bm(1)/2
 		if(abs(zhaut).lt.1e-6) zhaut=0D+00
-        valcl(i,3)=rho(i)*g*(chgsurf(kimp)-zhaut)
+        valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
 		case (-1) 
-		valcl(i,3)=qsurf(kimp)
+		valcl(1,3)=qsurf(kimp)
 		end select
 		endif
-		enddo        
+       
 
 		end select 
 
@@ -7271,61 +7270,52 @@ c       ak(i)=permeabilite intrinseque
 
 
         if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
-       do i=1,nm
-        if (ivois(i,3).eq.-99) then
-        iclt(i,3)=-2
-        valclt(i,3)=tempsurf(kimp)
-        icl(i,3)=-2
-		zhaut=z(i)+bm(i)/2
+        iclt(1,3)=-2
+        valclt(1,3)=tempsurf(kimp)
+        icl(1,3)=-2
+		zhaut=z(1)+bm(1)/2
 		if(abs(zhaut).lt.1e-6) zhaut=0D+00
-        valcl(i,3)=rho(i)*g*(chgsurf(kimp)-zhaut)
-        endif
-        if (ivois(i,4).eq.-99) then
-        icl(i,4)=-2
-		zbas=z(i)-bm(i)/2
+        valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+        icl(nm,4)=-2
+		zbas=z(nm)-bm(nm)/2
 		if(abs(zbas).lt.1e-6) zbas=0D+00
-        valcl(i,4)=rho(i)*g*(chgbottom(kimp)-zbas)
-        iclt(i,4)=-2
-        valclt(i,4)=tempbottom(kimp)
-        endif
+        valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
+        iclt(nm,4)=-2
+        valclt(nm,4)=tempbottom(kimp)
+
         if(kimp.gt.ligne4) then
-        if (ivois(i,3).eq.-99) then
-        iclt(i,3)=-2
-        valclt(i,3)=tempsurf(ligne4)
-        icl(i,3)=-2
-		zhaut=z(i)+bm(i)/2
+        iclt(1,3)=-2
+        valclt(1,3)=tempsurf(ligne4)
+        icl(1,3)=-2
+		zhaut=z(1)+bm(1)/2
 		if(abs(zhaut).lt.1e-6) zhaut=0D+00
-        valcl(i,3)=(rho(i)*g*(chgsurf(ligne4)-zhaut))
-        endif
-        if (ivois(i,4).eq.-99) then
-        icl(i,4)=-2
-		zbas=z(i)-bm(i)/2
+        valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
+        icl(nm,4)=-2
+		zbas=z(nm)-bm(nm)/2
 		if(abs(zbas).lt.1e-6) zbas=0D+00
-        valcl(i,4)=(rho(i)*g*(chgbottom(ligne4)- zbas))
-        iclt(i,4)=-2
-        valclt(i,4)=tempbottom(ligne4)
+        valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
+        iclt(nm,4)=-2
+        valclt(nm,4)=tempbottom(ligne4)
         endif
-        endif
+
 		if(irptha.eq.0) then
-        if (ivois(i,3).eq.-99) then
-        iclt(i,3)=-2
-        valclt(i,3)=tempsurf(1)
-        icl(i,3)=-2
-		zhaut=z(i)+bm(i)/2
+        iclt(1,3)=-2
+        valclt(1,3)=tempsurf(1)
+        icl(1,3)=-2
+		zhaut=z(1)+bm(1)/2
 		if(abs(zhaut).lt.1e-6) zhaut=0D+00
-        valcl(i,3)=rho(i)*g*(chgsurf(1)-zhaut)
-        endif
-        if (ivois(i,4).eq.-99) then
-        icl(i,4)=-2
-		zbas=z(i)-bm(i)/2
+        valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
+        icl(nm,4)=-2
+		zbas=z(nm)-bm(nm)/2
 		if(abs(zbas).lt.1e-6) zbas=0D+00
-        valcl(i,4)=rho(i)*g*(chgbottom(1)-zbas)
-        iclt(i,4)=-2
+        valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
+        iclt(nm,4)=-2
         valclt(i,4)=tempbottom(1)
-        endif
 		endif
-        enddo
+
         endif
+
+
         if (ytest.eq."MAQ") then
         do i=1,nm
 c		if(paso.ge.86400*1) then
