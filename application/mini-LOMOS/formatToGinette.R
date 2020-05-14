@@ -17,7 +17,6 @@ File_com = "inversion.COMM"
 Inversion_PT100 = "inversion_PT100.COMM"
 depth_PT100 = read.csv(Inversion_PT100, sep = " ", header = FALSE) #écart entre les PT100 en cm
 
-#ne marchera pas si length(File_com) != 1
 com = read.csv(File_com, sep = " ", header = FALSE)
 point_name=com$V1
 temp_sensor=com$V5
@@ -26,12 +25,13 @@ pres_sensor=com$V6
 dg_year =com$V2
 ini_year = as.numeric(paste0('20',dg_year))
 ini_month = com$V3
-dg_month=sapply(ini_month, function(x) paste(paste(rep(0, 2 - nchar(x)), collapse = ""), x, sep = ""))
+dg_month = sapply(ini_month, function(x) paste(paste(rep(0, 2 - nchar(x)), collapse = ""), x, sep = ""))
 ini_day = com$V4
 dg_day=sapply(ini_day, function(x) paste(paste(rep(0, 2 - nchar(x)), collapse = ""), x, sep = ""))
 ini_date = paste0(ini_day, '/', ini_month, '/', ini_year)
 ini_date = as.POSIXct(ini_date, '%d/%m/%Y', tz = 'GMT')
 cal_time=com$V11
+
 # #---- discretisation parameters for Ginette ----
 Deltaz = 0.01 # [m]
 Deltat = com$V7 # [s]
@@ -42,11 +42,11 @@ nPT100 = com$V8
 # name HZ temperature
 temp_file=paste0(temp_sensor,"_",point_name,"_",dg_day,"_",dg_month,"_",dg_year,".csv")
 temp_data=fread(temp_file)
-# number obs PT100 in the hyporheic zone, the last one is used as boundary condition
+
+# number obs PT100 in the hyporheic zone, the last (deeper) one is used as boundary condition
 ntemp= ncol(temp_data)-2
 tempHobbo=data.frame(temp_data)
 tempHobbo$dates = as.POSIXct(temp_data$dates,'%d/%m/%Y %H:%M:%S', tz = 'GMT')
-
 
 # read data pressure and river temperature
 river_file=paste0(pres_sensor,"_",point_name,"_",dg_day,"_",dg_month,"_",dg_year,".csv")
@@ -56,19 +56,19 @@ nriver= ncol(riverHobbo)-2
 presDiff=data.frame(riverHobbo$dates,riverHobbo$pressure_differential_m)
 stream_temp=data.frame(riverHobbo$dates,riverHobbo$temperature_stream_C)
 
-
-
 #---- add consider timeseries from date of initial conditions ----
 ini_pres= as.POSIXct(presDiff[1,1],'%d/%m/%Y %H:%M',tz='GMT')
 end_pres=as.POSIXct(presDiff[dim(presDiff)[1],1],'%d/%m/%Y %H:%M',tz='GMT')
 
 timeInitial = as.POSIXct(tempHobbo$dates[1],'%d/%m/%Y %H:%M',tz='GMT')
 timeFinal = as.POSIXct(tempHobbo$dates[dim(tempHobbo)[1]],'%d/%m/%Y %H:%M',tz='GMT')
-end_date=max(timeInitial,ini_pres,ini_date)+cal_time
+
+### DEPEND DE cal_time !!!!
+end_date = max(timeInitial,ini_pres,ini_date) + cal_time
 
 # reference times and dates starting from max(timeInitial,ini_obs)
-t_time = seq(from = max(timeInitial,ini_pres,ini_date),
-             to = min(end_pres,timeFinal,end_date),
+t_time = seq(from = max(timeInitial,ini_pres, ini_date),
+             to = min(end_pres,timeFinal, end_date),
              by = as.difftime(Deltat, units = "secs"))
 
 t_dates = seq(from = strptime(paste0(as.character(t_time[1],format="%Y-%m-%d")," 00:00"),format = "%Y-%m-%d %H:%M"),
@@ -78,19 +78,21 @@ t_dates = seq(from = strptime(paste0(as.character(t_time[1],format="%Y-%m-%d"),"
 # points where interpolation is to take place
 xOut = as.numeric(difftime(t_time,t_time[1],units = "secs"))
 
-xInit = as.numeric(difftime(presDiff[,1],t_time[1],units = "secs"))
-presDiffInterp = spline(x=xInit,y=presDiff[,2],xout = xOut)$y
+xInit1 = as.numeric(difftime(presDiff[,1], t_time[1],units = "secs"))
+presDiffInterp = spline(x=xInit1, y=presDiff[,2], xout = xOut)$y
 #plot(xOut,presDiffInterp,type='l',xlim=c(50000,855000),ylim=c(-0.4,0.05))
 
-xInit = as.numeric(difftime(stream_temp[,1],t_time[1],units = "secs"))
-tempStreamInterp = spline(x=xInit,y=stream_temp[,2],xout = xOut)$y
+xInit2 = as.numeric(difftime(stream_temp[,1], t_time[1], units = "secs"))
+tempStreamInterp = spline(x=xInit2,y=stream_temp[,2],xout = xOut)$y
 #plot(xOut,tempStreamInterp,type='l',xlim=c(50000,55000))
 
-dates = as.numeric(difftime(tempHobbo$dates,t_time[1],units = "secs"))
-tempHobboInterp = array(0,dim=c(length(xOut),ntemp))
+xInit3 = as.numeric(difftime(tempHobbo$dates, t_time[1], units = "secs"))
+tempHobboInterp = array(0, dim = c(length(xOut), ntemp))
+
 for (i in 1:ntemp){
-  tempHobboInterp[,i] = spline(x=xInit,y=tempHobbo[,3],xout = xOut)$y
+  tempHobboInterp[,i] = spline(x = xInit3, y = tempHobbo[, i+2], xout = xOut)$y
 }
+
 #plot(xOut,tempHobboInterp[,1],type='l',xlim=c(50000,70000))
 # points(xInit,tempHobbo[,1])
 
@@ -152,20 +154,20 @@ Temp <- cbind(xOut, tempStreamInterp, tempHobboInterp)
 # Nommer colonnes en fonction du nombre de PT100
 T_colomn_names <- c("time", "Stream")
 
-
 for (i in seq_len(ntemp)) {
   T_colomn_names[i+2] <- paste0(sensorDepths[i], " m")
 }
 colnames(Temp) <- T_colomn_names
 
+Temp <- as.data.frame(Temp)
+Temp$time <- Temp$time + ini_date
+
 # Mise en forme du data frame contenant les temperatures avec la fonction melt avant de tracer
-Melted_obs_t <- reshape2::melt(as.data.frame(Temp), id.var = "time")
+Melted_obs_t <- reshape2::melt(Temp, id.var = "time")
 colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
-Melted_obs_t$time = Melted_obs_t$time + ini_date
 
 # Recupération des éléments nécessaires pour nommer correctement les graphes
-titre <- str_remove(File_com[1], pattern = ".COMM")
-T_titre <- paste0("T_check_", str_remove(titre, pattern = "test_"))
+T_titre <- paste0("T_Cal_Check_", as.character(point_name))
 
 # Define colors
 colpal <-  brewer.pal(3, "Dark2")
@@ -176,7 +178,7 @@ g_temp_ts <-
   geom_line(data = Melted_obs_t,
             mapping = aes(x = time, y = Temperature, color = Depth))  +
   scale_color_manual(values = c(colpal, colpal)) +
-  labs(x = "", y = "T (C)", color = "Depth", title = "Temperature calibration Point 43") +
+  labs(x = "", y = "T (C)", color = "Depth", title = T_titre) +
   scale_x_datetime(date_labels = " %d %b %y") +
   theme_bw()
 
@@ -198,7 +200,7 @@ colnames(Press) <- P_colomn_names
 Press$p_time <- Press$p_time + ini_date
 
 # Recupération des éléments nécessaires pour nommer correctement les graphes
-P_titre <- paste0("P_check_", str_remove(titre, pattern = "test_"))
+P_titre <- paste0("P_Cal_Check_", str_remove(titre, pattern = "test_"))
 
 #plot
 g_meas_head_differential <-
