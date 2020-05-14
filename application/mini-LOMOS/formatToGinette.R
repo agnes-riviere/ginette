@@ -200,7 +200,7 @@ colnames(Press) <- P_colomn_names
 Press$p_time <- Press$p_time + ini_date
 
 # Recupération des éléments nécessaires pour nommer correctement les graphes
-P_titre <- paste0("P_Cal_Check_", str_remove(titre, pattern = "test_"))
+P_titre <- paste0("P_Cal_Check_", as.character(point_name))
 
 #plot
 g_meas_head_differential <-
@@ -209,7 +209,7 @@ g_meas_head_differential <-
             mapping = aes(x = p_time,y = Head_differential)) +
   expand_limits(y = 0) +
   geom_hline(mapping = aes(yintercept = 0),linetype = "dashed") +
-  labs(x="",y = expression(Delta*'H = H'['HZ'] *'- H'['riv'] * ' (in m)'), title = "Head differential calibration Point43") +
+  labs(x="",y = expression(Delta*'H = H'['HZ'] *'- H'['riv'] * ' (in m)'), title = P_titre) +
   scale_x_datetime(date_labels ="%d %b %y") +
   theme_bw()
 
