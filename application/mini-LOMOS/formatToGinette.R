@@ -64,10 +64,10 @@ timeInitial = as.POSIXct(tempHobbo$dates[1],'%d/%m/%Y %H:%M',tz='GMT')
 timeFinal = as.POSIXct(tempHobbo$dates[dim(tempHobbo)[1]],'%d/%m/%Y %H:%M',tz='GMT')
 
 ### DEPEND DE cal_time !!!!
-end_date = max(timeInitial,ini_pres,ini_date) + cal_time
+end_date = max(timeInitial,ini_pres) + cal_time
 
 # reference times and dates starting from max(timeInitial,ini_obs)
-t_time = seq(from = max(timeInitial,ini_pres, ini_date),
+t_time = seq(from = max(timeInitial,ini_pres),
              to = min(end_pres,timeFinal, end_date),
              by = as.difftime(Deltat, units = "secs"))
 
@@ -170,52 +170,53 @@ colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
 T_titre <- paste0("T_Cal_Check_", as.character(point_name))
 
 # Define colors
-colpal <-  brewer.pal(3, "Dark2")
+colpal <-  brewer.pal(6, "Dark2")
 
 # Plot
 g_temp_ts <-
   ggplot() +
   geom_line(data = Melted_obs_t,
             mapping = aes(x = time, y = Temperature, color = Depth))  +
-  scale_color_manual(values = c(colpal, colpal)) +
+  scale_color_manual(values = c(colpal)) +
   labs(x = "", y = "T (C)", color = "Depth", title = T_titre) +
   scale_x_datetime(date_labels = " %d %b %y") +
   theme_bw()
 
 #Save plot
-png(paste0("PLOT/Data_check/", T_titre, ".png"))
-g_temp_ts
-dev.off()
+# png(paste0("PLOT/Data_check/", T_titre, ".png"))
+# g_temp_ts
+# dev.off()
 
 
+# IL FAUT UN TRAITEMENT AVANT
 
-## Head differential data
-Press <- as.data.frame(cbind(xOut, presDiffInterp))
-
-# Nommer colonnes
-P_colomn_names <- c("p_time", "Head_differential")
-colnames(Press) <- P_colomn_names
-
-#adaptation date
-Press$p_time <- Press$p_time + ini_date
-
-# Recupération des éléments nécessaires pour nommer correctement les graphes
-P_titre <- paste0("P_Cal_Check_", as.character(point_name))
-
-#plot
-g_meas_head_differential <-
-  ggplot() +
-  geom_line(data = Press,
-            mapping = aes(x = p_time,y = Head_differential)) +
-  expand_limits(y = 0) +
-  geom_hline(mapping = aes(yintercept = 0),linetype = "dashed") +
-  labs(x="",y = expression(Delta*'H = H'['HZ'] *'- H'['riv'] * ' (in m)'), title = P_titre) +
-  scale_x_datetime(date_labels ="%d %b %y") +
-  theme_bw()
-
-#Save plot
-png(paste0("PLOT/Data_check/", P_titre, ".png"))
-g_meas_head_differential
-dev.off()
+# ## Head differential data
+# Press <- as.data.frame(cbind(xOut, presDiffInterp))
+# 
+# # Nommer colonnes
+# P_colomn_names <- c("p_time", "Head_differential")
+# colnames(Press) <- P_colomn_names
+# 
+# #adaptation date
+# Press$p_time <- Press$p_time + ini_date
+# 
+# # Recupération des éléments nécessaires pour nommer correctement les graphes
+# P_titre <- paste0("P_Cal_Check_", as.character(point_name))
+# 
+# #plot
+# g_meas_head_differential <-
+#   ggplot() +
+#   geom_line(data = Press,
+#             mapping = aes(x = p_time,y = Head_differential)) +
+#   expand_limits(y = 0) +
+#   geom_hline(mapping = aes(yintercept = 0),linetype = "dashed") +
+#   labs(x="",y = expression(Delta*'H = H'['HZ'] *'- H'['riv'] * ' (in m)'), title = P_titre) +
+#   scale_x_datetime(date_labels ="%d %b %y") +
+#   theme_bw()
+# 
+# #Save plot
+# png(paste0("PLOT/Data_check/", P_titre, ".png"))
+# g_meas_head_differential
+# dev.off()
 
 

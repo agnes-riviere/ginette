@@ -8,7 +8,9 @@ path_obs <- "../GINETTE_SENSI/OBS/"
 
 setwd(path_plot)
 sim_name = 1
-date_bg = "05/04/2017 00:18:00"
+
+# SET THE DATE
+date_bg = "18/05/2017 18:00"
 date_bg = as.POSIXct(date_bg, '%d/%m/%Y %H:%M', tz = 'GMT')
 
 files_obs <- list.files(path = path_obs, pattern = 'Obs')
@@ -113,10 +115,10 @@ g_temp_ts <-
     linetype = "dashed"
   ) +
   scale_color_manual(values = c(colpal, colpal)) +
-  labs(x = "", y = "T (C)", color = "depth") +
+  labs(x = "", y = "T (C)", color = "depth", titre = "Cal_Point45a") +
   scale_x_datetime(date_labels = " %d %b") +
   theme_bw() 
 
-png(paste0("./Data_check/", "Val_Point42b", ".png"))
+png(paste0("./Data_check/", "Cal_Point45a", ".png"))
   g_temp_ts
 dev.off()
