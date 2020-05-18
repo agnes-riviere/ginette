@@ -100,7 +100,7 @@ Format the inversion.COMM command file columns as following :
 example with every PT100 working and 2 zones :
 ```
 ```
-Point1  14 11 07 t502 p504 900 3 2 0.20 864000
+Point1 14 11 07 t502 p504 900 3 2 0.20 864000
 ```
 ```
 example with 2 PT100 working and 1 zone :
