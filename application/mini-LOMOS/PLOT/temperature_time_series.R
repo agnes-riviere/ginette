@@ -115,10 +115,10 @@ g_temp_ts <-
     linetype = "dashed"
   ) +
   scale_color_manual(values = c(colpal, colpal)) +
-  labs(x = "", y = "T (C)", color = "depth", titre = "Cal_Point45a") +
+  labs(x = "", y = "T (C)", color = "depth", titre = "Val_Point40") +
   scale_x_datetime(date_labels = " %d %b") +
   theme_bw() 
 
-png(paste0("./Data_check/", "Cal_Point45a", ".png"))
+png(paste0("./Data_check/", "Val_Point40", ".png"))
   g_temp_ts
 dev.off()
