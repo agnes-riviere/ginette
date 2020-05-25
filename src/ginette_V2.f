@@ -3627,9 +3627,9 @@ CCC...DTS
 c    	OPEN(181819,FILE='S_velocity.dat')
 c    	OPEN(181820,FILE='S_temperature.dat')
 c    	OPEN(181821,FILE='S_pressure.dat')
-	  open(751,file='S_charge_initiale_1days.dat')
-    	OPEN(181822,FILE='S_molonari40.dat')
-    	OPEN(181823,FILE='S_molonari42.dat')
+	  open(751,file='S_charge_initiale_10days.dat')
+    	OPEN(181822,FILE='S_MolTemp40.dat')
+    	OPEN(181823,FILE='S_MolTemp42.dat')
 	  OPEN(181824,FILE='S_MolHeadP41.dat')
 	  OPEN(181825,FILE='S_MolHeadP43.dat')
 	  OPEN(181826,FILE='S_MolHeadP44.dat')
@@ -3638,13 +3638,13 @@ c    	OPEN(181821,FILE='S_pressure.dat')
 	  OPEN(181841,FILE='S_MolTempP43.dat')
 	  OPEN(181842,FILE='S_MolTempP44.dat')
 	  OPEN(181843,FILE='S_MolTempP45.dat')
-	  OPEN(181845,FILE='S_MolFluxpP41.dat')
-	  OPEN(181846,FILE='S_MolFluxP43.dat')
-	  OPEN(181847,FILE='S_MolFluxP44.dat')
-	  OPEN(181848,FILE='S_MolFluxP45.dat')
-	  OPEN(329,FILE='S_Hd_P_month1.dat')
-	  OPEN(330,FILE='S_Hd_P_month2.dat')
-	  OPEN(331,FILE='S_Hd_P_month3.dat')
+c	  OPEN(181845,FILE='S_MolFluxpP41.dat')
+c	  OPEN(181846,FILE='S_MolFluxP43.dat')
+c	  OPEN(181847,FILE='S_MolFluxP44.dat')
+c	  OPEN(181848,FILE='S_MolFluxP45.dat')
+c	  OPEN(329,FILE='S_Hd_P_month1.dat')
+c	  OPEN(330,FILE='S_Hd_P_month2.dat')
+c	  OPEN(331,FILE='S_Hd_P_month3.dat')
 	  endif
 
 
@@ -3716,68 +3716,76 @@ CCC...SORTIES DTS
 	   enddo
 	  endif
 
-	  if(paso.eq.1559500) then
-	  do i=1,nm
-    	 write(329,*)paso/unitsortie,paso/86400,x(i),
-     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
-     &vxm(i),vzp(i),vzm(i)
-	   enddo
-	  endif
+c	  if(paso.eq.1559500) then
+c	  do i=1,nm
+c    	 write(329,*)paso/unitsortie,paso/86400,x(i),
+c     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
+c     &vxm(i),vzp(i),vzm(i)
+c	   enddo
+c	  endif
 
-	  if(paso.eq.4238000) then
-	  do i=1,nm
-    	 write(330,*)paso/unitsortie,paso/86400,x(i),
-     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
-     &vxm(i),vzp(i),vzm(i)
-	   enddo
-	  endif
+c	  if(paso.eq.4238000) then
+c	  do i=1,nm
+c    	 write(330,*)paso/unitsortie,paso/86400,x(i),
+c     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
+c     &vxm(i),vzp(i),vzm(i)
+c	   enddo
+c	  endif
 
-	  if(paso.eq.6830000) then
-	  do i=1,nm
-    	 write(331,*)paso/unitsortie,paso/86400,x(i),
-     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
-     &vxm(i),vzp(i),vzm(i)
-	   enddo
-	  endif
+c	  if(paso.eq.6830000) then
+c	  do i=1,nm
+c    	 write(331,*)paso/unitsortie,paso/86400,x(i),
+c     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
+c     &vxm(i),vzp(i),vzm(i)
+c	   enddo
+c	  endif
 
 CCCC MOLONARI PRINT start time record
 cccc.... to add an end time paso.lt.XXXX)
-
-	  if(paso.gt.5830200) then
-    	write(181822,*)paso/unitsortie,(temp(60445)+temp(60446))/2,
-     &(temp(23960)+temp(23961))/2,(temp(84873)+temp(84874))/2,
-     &(temp(91895)+temp(91896))/2
-    	write(181823,*)paso/unitsortie,temp(14000),temp(1241),
-     &temp(55),temp(123)
+cccc....molonari40 
+	  if(paso.gt.864000) then
 ccc...hydraulic head difference between river and the bottom of the molonari
+cccc....molonari41
 	  write(181824,*)paso/unitsortie,pr(90671)/rho1/g+z(90671)
      &,valcl(92463,3)/rho1/g+z(92463)+bm(92463)/2,ivois(92463,3)
+cccc....molonari43
 	  write(181825,*)paso/unitsortie,pr(68375)/rho1/g+z(68375)
      &,valcl(71995,3)/rho1/g+z(71995)+bm(71995)/2,ivois(71995,3)
+cccc....molonari44
 	  write(181826,*)paso/unitsortie,pr(61832)/rho1/g+z(61832)
      &,valcl(65724,3)/rho1/g+z(65724)+bm(65724)/2,ivois(65724,3)
+cccc....molonari45
 	  write(181827,*)paso/unitsortie,pr(22058)/rho1/g+z(22058)
      &,valcl(25824,3)/rho1/g+z(25824)+bm(25824)/2,ivois(25824,3)
 ccc...Temperature for the surface and each depth of the molonari
-
+cccc....molonari40
+    	write(181822,*)paso/unitsortie,(temp(60445)+temp(60446))/2,
+     &(temp(23960)+temp(23961))/2,(temp(84873)+temp(84874))/2,
+     &(temp(91895)+temp(91896))/2
+cccc....molonari42 
+    	write(181823,*)paso/unitsortie,temp(14000),temp(1241),
+     &temp(55),temp(123)
+cccc....molonari41
        write(181840,*)paso/unitsortie,
      &(valclt(91896,3)+valclt(92463,3))/2,
      &(temp(91298)+temp(91895))/2,(temp(90671)+temp(91297))/2,
      &(temp(90032)+temp(90670))/2,(temp(89380)+temp(90031))/2
+cccc....molonari43
        write(181841,*)paso/unitsortie,
      &(valclt(70796,3)+valclt(69588,3))/2,
      &(temp(69589)+temp(68372))/2,(temp(68373)+temp(67128))/2,
      &(temp(67129)+temp(65866))/2,(temp(65867)+temp(64589))/2
+cccc....molonari44
        write(181842,*)paso/unitsortie,
      &(valclt(65723,3)+valclt(65722,3))/2,
      &(temp(64446)+temp(64445))/2,(temp(63146)+temp(63145))/2,
      &(temp(61831)+temp(61830))/2,(temp(60470)+temp(60469))/2
+cccc....molonari45
        write(181843,*)paso/unitsortie,
      &(valclt(33221,3)+valclt(33220,3))/2,
      &(temp(31380)+temp(31379))/2,(temp(29536)+temp(29535))/2,
      &(temp(27690)+temp(27689))/2,(temp(25842)+temp(25841))/2
 	  endif
-
 	  endif
 
 cccccccc Find Location of Molonari
