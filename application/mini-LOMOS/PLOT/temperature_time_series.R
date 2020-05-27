@@ -10,7 +10,7 @@ setwd(path_plot)
 sim_name = 1
 
 # SET THE DATE
-date_bg = "18/05/2017 18:00"
+date_bg = "05/11/2016 19:30"
 date_bg = as.POSIXct(date_bg, '%d/%m/%Y %H:%M', tz = 'GMT')
 
 files_obs <- list.files(path = path_obs, pattern = 'Obs')
@@ -46,17 +46,17 @@ if (nPT100 >= 2) {
   }
 }
 if (nPT100 < 2)
-  colnames(df_obs_t) =  c("time", paste0(depth_PT100$V1[1], " m"))
+  colnames(df_obs_t) =  c("time", paste0("OBS Temperature : ", depth_PT100$V1[1], " m"))
 if (nPT100 == 2)
   colnames(df_obs_t) =  c("time",
-                          paste0(depth_PT100$V1[1], " m"),
-                          paste0(depth_PT100$V1[2], " m"))
+                          paste0("OBS Temperature : ", depth_PT100$V1[1], " m"),
+                          paste0("OBS Temperature : ", depth_PT100$V1[2], " m"))
 if (nPT100 >= 3)
   colnames(df_obs_t) = c(
     "time",
-    paste0(depth_PT100$V1[1], " m"),
-    paste0(depth_PT100$V1[2], " m"),
-    paste0(depth_PT100$V1[3], " m")
+    paste0("OBS Temperature : ", depth_PT100$V1[1], " m"),
+    paste0("OBS Temperature : ", depth_PT100$V1[2], " m"),
+    paste0("OBS Temperature : ", depth_PT100$V1[3], " m")
   )
 Melted_obs_t <- reshape2::melt(df_obs_t, id.var = "time")
 colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
@@ -83,21 +83,21 @@ if (nPT100 >= 2) {
   }
 }
 if (nPT100 < 2)
-  colnames(df_sim_t) =  c("time", paste0(depth_PT100$V1[1], " m"))
+  colnames(df_sim_t) =  c("time", paste0("SIM Temperature : ", depth_PT100$V1[1], " m"))
 if (nPT100 == 2)
   colnames(df_sim_t) =  c("time",
-                          paste0(depth_PT100$V1[1], " m"),
-                          paste0(depth_PT100$V1[2], " m"))
+                          paste0("SIM Temperature : ", depth_PT100$V1[1], " m"),
+                          paste0("SIM Temperature : ", depth_PT100$V1[2], " m"))
 if (nPT100 >= 3)
   colnames(df_sim_t) = c(
     "time",
-    paste0(depth_PT100$V1[1], " m"),
-    paste0(depth_PT100$V1[2], " m"),
-    paste0(depth_PT100$V1[3], " m")
+    paste0("SIM Temperature : ", depth_PT100$V1[1], " m"),
+    paste0("SIM Temperature : ", depth_PT100$V1[2], " m"),
+    paste0("SIM Temperature : ", depth_PT100$V1[3], " m")
   )
 
 Melted_sim_t <- reshape2::melt(df_sim_t, id.var = "time")
-colnames(Melted_sim_t) = c("time", "Depth", "Temperature")
+colnames(Melted_sim_t) = c("time", "Sim_depth", "Sim_temperature")
 Melted_sim_t$time = Melted_sim_t$time + date_bg
 
 #Plot all the data to check if everything's correct
@@ -108,17 +108,23 @@ colpal <-  brewer.pal(3, "Dark2")
 g_temp_ts <-
   ggplot() +
   geom_line(data = Melted_sim_t,
-            mapping = aes(x = time, y = Temperature, color = Depth))  +
+            mapping = aes(x = time, y = Sim_temperature, color = Sim_depth),
+            linetype = "dashed")  +
   geom_line(
     data = Melted_obs_t,
-    mapping = aes(x = time, y = Temperature, color = Depth),
-    linetype = "dashed"
+    mapping = aes(x = time, y = Temperature, color = Depth)
   ) +
   scale_color_manual(values = c(colpal, colpal)) +
-  labs(x = "", y = "T (C)", color = "depth", titre = "Val_Point40") +
-  scale_x_datetime(date_labels = " %d %b") +
-  theme_bw() 
+  labs(x = "Date", y = "T (°C)", title = "Titre") +
+  scale_x_datetime(date_labels = " %d %b %Y") +
+  theme_bw() + 
+  theme(legend.position = c(0.1, 0.1), 
+        legend.background = element_rect(fill="lightgrey", size = 0.5, linetype="solid", colour ="black"),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 10),
+        legend.key.size = unit(1, "cm")) +
+  theme(plot.title = element_text(hjust = 0.5, size = 15))
 
-png(paste0("./Data_check/", "Val_Point40", ".png"))
-  g_temp_ts
-dev.off()
+# png(paste0("./Data_check/", "Val_Point40", ".png"))
+#   g_temp_ts
+# dev.off()
