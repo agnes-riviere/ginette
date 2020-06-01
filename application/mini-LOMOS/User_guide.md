@@ -13,7 +13,9 @@ Also, make sure that all the files of the "mini-LOMOS" file are executable:
 In order to make the R scripts work, you'll also need the packages "lubridate", "hydroGOF" and "stringr".
 You can respectively install them on R with the following command lines:
 > install.packages(lubridate)
+
 > install.packages(hydroGOF)
+
 > install.packages(stringr)
 _____________________________________________________________________________________________________________________________
 ### 1) Add field data.
@@ -28,13 +30,13 @@ t502_Point1_07_11_14.csv
 p502_Point1_07_11_14.csv
 ```
 The format of the pressure differential file is:
-#,dates,pressure_differential [m],temperature in stream [C]
+#,dates, pressure_differential [m], temperature in stream [C]
 ```
 1,04/11/2014 17:00:00,1.184,11.516,
 etc.
 ```
 The format of the temperature file is:
-#,dates,temperature depth 1 [C],temperature depth 2 [C],temperature depth 3 [C],temperature depth 4 [C]
+#,dates, temperature depth 1 [C], temperature depth 2 [C], temperature depth 3 [C], temperature depth 4 [C]
 ```
 1,04/11/2014 17:00:00,12.775,12.92,13.69,13.112,
 etc.
@@ -67,7 +69,7 @@ $10 = distance between the riverbed and the bottom of the upper zones. Type in "
 ```
  $11: maximum duration of the inversion (s) ex : 864000 (= 10 days)
 ```
-If the duration of the experiment is smaller than the prescribed duration, the duration of the experiment will be used (i.e you can put 8640000000 to be sure to use the duration of the experiment). 
+**If the duration of the experiment is smaller than the prescribed duration, the duration of the experiment will be used (i.e you can put 8640000000 to be sure to use the duration of the experiment).**
 ------------------------------------
 Example with every PT100 working and 2 zones:
 ```
@@ -151,14 +153,16 @@ A comparative table of simulated versus observed is generated in _ginette/applic
 **Don't forget to copy/paste it in a specific repository if you want to keep track of these files, as launching another simulation will overwrite them.**
 _____________________________________________________________________________________________________________________________
 ### 7) PLOTS
-Data check:
+**Data check:**
+
 The R script "formatToGinette.R" reads and interpolate all the data before they are used by ginette. 
 
 At the end of the script (l.150), you'll find lines that will plot the interpolated data and save it in _ginette/application/mini-LOMOS/PLOT/Data_check_
 
 You can do it before to use ginette to check if your data are correct, just remove the "#" using ctrl+shift+C and launch the script.
 
-Results:
+**Results:**
+
 When you achieved satisfying calibrations, you can plot the simulated vs observed temperature time-series thanks to the temperature_time_series.R script in ginette/application/mini-LOMOS/PLOT/
 
 It will also save the plots in _ginette/application/mini-LOMOS/PLOT/Data_check_
