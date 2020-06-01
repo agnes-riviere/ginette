@@ -122,12 +122,12 @@ g_temp_ts <-
   theme(legend.background = element_rect(linetype="solid", colour ="black"),
         legend.key.size = unit(2, "cm")) +
   labs(x = "Date", y = "T (°C)", color = "Depth", linetype = "Type") +
-  ggtitle("Observed vs simulated temperature with estimated parameters : LOMOS-mini P45a") +
+  ggtitle("Observed vs simulated temperature with estimated parameters : LOMOS-mini P45b") +
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5, size = 12)) +
   theme(legend.key.size = unit(1, "cm"), legend.title = element_text(hjust = 0.5))
 
 
-png(paste0("PLOT/Data_check/", "P45a_Obs-Sim", ".png"), width = 720, height = 480, units = "px")
+png(paste0("PLOT/Data_check/", "P45b_Obs-Sim", ".png"), width = 720, height = 480, units = "px")
 g_temp_ts
 dev.off()

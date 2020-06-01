@@ -147,49 +147,54 @@ model=data.frame(sensorDepths[length(sensorDepths)]/Deltaz*-1,sensorDepths[ntemp
 write.table(model,"model.dat",col.names = FALSE,row.names = FALSE)
 
 
-# Plot all the observed data to check if everything's correct
-# Temperature data
-Temp <- cbind(xOut, tempStreamInterp, tempHobboInterp)
-
-# Nommer colonnes en fonction du nombre de PT100
-T_colomn_names <- c("time", "Stream")
-
-for (i in seq_len(ntemp)) {
-  T_colomn_names[i+2] <- paste0(sensorDepths[i], " m")
-}
-colnames(Temp) <- T_colomn_names
-
-Temp <- as.data.frame(Temp)
-Temp$time <- Temp$time + ini_date
-
-# Mise en forme du data frame contenant les temperatures avec la fonction melt avant de tracer
-Melted_obs_t <- reshape2::melt(Temp, id.var = "time")
-colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
-
-# Recupération des éléments nécessaires pour nommer correctement les graphes
-T_titre <- paste0("T_Cal_Check_", as.character(point_name))
-
-# Define colors
-colpal <-  brewer.pal(6, "Dark2")
-
-# Plot
-g_temp_ts <-
-  ggplot() +
-  geom_line(data = Melted_obs_t,
-            mapping = aes(x = time, y = Temperature, color = Depth))  +
-  scale_color_manual(values = c(colpal)) +
-  labs(x = "", y = "T (C)", color = "Depth", title = T_titre) +
-  scale_x_datetime(date_labels = " %d %b %y") +
-  theme_bw()
-
-#Save plot
-# png(paste0("PLOT/Data_check/", T_titre, ".png"))
-# g_temp_ts
-# dev.off()
-
-
-# IL FAUT UN TRAITEMENT AVANT
-
+# #
+# #
+# ####### Plot all the observed data to check if everything's correct
+# #
+# #
+# 
+# # Temperature data
+# Temp <- cbind(xOut, tempStreamInterp, tempHobboInterp)
+# 
+# # Nommer colonnes en fonction du nombre de PT100
+# T_colomn_names <- c("time", "Stream")
+# 
+# for (i in seq_len(ntemp)) {
+#   T_colomn_names[i+2] <- paste0(sensorDepths[i], " m")
+# }
+# colnames(Temp) <- T_colomn_names
+# 
+# Temp <- as.data.frame(Temp)
+# Temp$time <- Temp$time + ini_date
+# 
+# # Mise en forme du data frame contenant les temperatures avec la fonction melt avant de tracer
+# Melted_obs_t <- reshape2::melt(Temp, id.var = "time")
+# colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
+# 
+# # Recupération des éléments nécessaires pour nommer correctement les graphes
+# T_titre <- paste0("T_Cal_Check_", as.character(point_name))
+# 
+# # Define colors
+# colpal <-  brewer.pal(6, "Dark2")
+# 
+# # Plot
+# g_temp_ts <-
+#   ggplot() +
+#   geom_line(data = Melted_obs_t,
+#             mapping = aes(x = time, y = Temperature, color = Depth))  +
+#   scale_color_manual(values = c(colpal)) +
+#   labs(x = "", y = "T (C)", color = "Depth", title = T_titre) +
+#   scale_x_datetime(date_labels = " %d %b %y") +
+#   theme_bw()
+# 
+# #Save plot
+# # png(paste0("PLOT/Data_check/", T_titre, ".png"))
+# # g_temp_ts
+# # dev.off()
+# 
+# 
+# # IL FAUT UN TRAITEMENT AVANT
+# 
 # ## Head differential data
 # Press <- as.data.frame(cbind(xOut, presDiffInterp))
 # 
@@ -214,9 +219,7 @@ g_temp_ts <-
 #   scale_x_datetime(date_labels ="%d %b %y") +
 #   theme_bw()
 # 
-# #Save plot
-# png(paste0("PLOT/Data_check/", P_titre, ".png"))
-# g_meas_head_differential
-# dev.off()
-
-
+# # #Save plot
+# # png(paste0("PLOT/Data_check/", P_titre, ".png"))
+# # g_meas_head_differential
+# # dev.off()
