@@ -20,7 +20,7 @@ You can respectively install them on R with the following command lines:
 _____________________________________________________________________________________________________________________________
 ### 1) Add field data.
 
-There must be 2 ".csv" files (one for pressure and one for temeratures) with the following format: sensor-name_point_dd_MM_YY.csv
+There must be 2 ".csv" files (one for pressure and one for temperatures) with the following format: sensor-name_point_dd_MM_YY.csv
  
 #### Particularly pay attention of the dates formatting in the titles, this could explain why the 1D model doesn't work.
 -------------------------------------
@@ -69,7 +69,8 @@ $10 = distance between the riverbed and the bottom of the upper zones. Type in "
 ```
  $11: maximum duration of the inversion (s) ex : 864000 (= 10 days)
 ```
-**If the duration of the experiment is smaller than the prescribed duration, the duration of the experiment will be used (i.e you can put 8640000000 to be sure to use the duration of the experiment).**
+If the duration of the experiment is smaller than the prescribed duration, the duration of the experiment will be used (i.e you can put 8640000000 to be sure to use the duration of the experiment).
+
 ------------------------------------
 Example with every PT100 working and 2 zones:
 ```
@@ -103,15 +104,23 @@ ________________________________________________________________________________
 ### 4) Complete the following file: inversion_parameter.COMM
 
 Column 1 = parameters of interest:
+
 k = intrinsic permeability [m2]
+
 n = porosity 
+
 l = solid thermal conductivity [W m−1 K−1]
+
 r = solid density [kg m-3]
 
 The bulk volumetric heat capacity of the porous medium is calculated  by the following equation :
+
 c_mr_m = c_w r_w n + c_s r (1-n)
+
 c_w = specific heat capacity of water [334 000 J kg−1 K−1]
+
 r_w = water density [1 000 kg m-3] 
+
 c_s = specific heat capacity of solid [J kg−1 K−1]
 
 Column 2 = number of zones (e.g. clay, sand...)
@@ -159,7 +168,7 @@ The R script "formatToGinette.R" reads and interpolate all the data before they 
 
 At the end of the script (l.150), you'll find lines that will plot the interpolated data and save it in _ginette/application/mini-LOMOS/PLOT/Data_check_
 
-You can do it before to use ginette to check if your data are correct, just remove the "#" using ctrl+shift+C and launch the script.
+You can do it before to use ginette to check if your data are correct, just remove the "#" using ctrl + shift + C and launch the script.
 
 **Results:**
 
