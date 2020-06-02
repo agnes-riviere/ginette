@@ -69,7 +69,7 @@ $10 = distance between the riverbed and the bottom of the upper zones. Type in "
 ```
  $11: maximum duration of the inversion (s) ex : 864000 (= 10 days)
 ```
-If the duration of the experiment is smaller than the prescribed duration, the duration of the experiment will be used (i.e you can put 8640000000 to be sure to use the duration of the experiment).
+If the duration of the experiment is smaller than the prescribed duration, the duration of the experiment will be used (i.e. you can put 8640000000 to be sure to use the duration of the experiment).
 
 ------------------------------------
 Example with every PT100 working and 2 zones:
@@ -115,7 +115,7 @@ r = solid density [kg m-3]
 
 The bulk volumetric heat capacity of the porous medium is calculated  by the following equation :
 
-c_mr_m = c_w r_w n + c_s r (1-n)
+**c_mr_m = c_w r_w n + c_s r (1-n)**
 
 c_w = specific heat capacity of water [334 000 J kg−1 K−1]
 
