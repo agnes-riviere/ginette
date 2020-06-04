@@ -3697,7 +3697,7 @@ CCC....SORTIE ZNS 1D
 	   do i=1,nm
 	  write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
 	  write(18181,*)paso/unitsortie,z(i),sw(i)
-	  write(18182,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
+	  write(18182,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g,pr(i)/rho1/g+z(i)
 	enddo
        endif
        endif
