@@ -37,3 +37,12 @@ dz=0025D-04	m
 Prescribed recharge
 icl_haut=-1													c Surface	C ECOULEMENT
 valcl_haut=00000452d-07	valeur flux (m/s) valeur charge (m)								c Surface  	C ECOULEMENT
+
+
+### Test 2_ORCHIDEE_test
+
+This folder contains tests of infiltration from the ORCHIDEE model recharge at the top boundary of ginette.
+
+Files E_debit_haut_t.dat{1..12} includes daily recharge from different soil texture classes of USDA ( Carsel and Parrish, 1988)
+Files E_debit_haut_t.dat_veg{1..15} includes daily daily recharge from different vegetation PFT classes ( Krinner et al. 2005)
+

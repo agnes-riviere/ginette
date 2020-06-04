@@ -82,6 +82,9 @@ one presure head by cell (P/rho/g)
 
 ### Benchmark test
 
+This test was conducted to benchmark the ginette model under changing alpha values (sharper gradients with higher alpha values take longer time to simulate)
+A set of simulations are devised to conduct the benchmark. "ginette_runs.xlsx" contains the number of tests and conditions of each test in a spreadsheed.
+
 # E_cdt_aux_limites.dat
 icl_haut=-1	 c Surface
 valcl_haut=00000000d-00	valeur flux (m/s) valeur charge (m)
