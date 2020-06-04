@@ -1,7 +1,7 @@
 iec=1                   iec=0 annule ecoulement ; format i1                                  C///  CONSTRUCTION MODEL
 rp=1			rp=1 regime transitoire ; rp=1 regime permanent ; format i1          C///  CONSTRUCTION MODEL
 ith=0			ith=0 thermique inactif, ith=1 thermique actif	; format i1 			CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE
-dt=00900D+00	s	pas de temps ; format d9.0                                            C//////////////////////////  CONSTRUCTION MODEL
+dt=00090D+01	s	pas de temps ; format d9.0                                            C//////////////////////////  CONSTRUCTION MODEL
 nitt=0000000001		nombre d'iterations en temps                                    C//////////////////////////  CONSTRUCTION MODEL
 unite=3162D+04    s    unite iteration temps                                            C//////////////////////////  CONSTRUCTION MODEL
 al=0001D+00	m 	longueur     ; format d8.0                                              C//////////////////////////  CONSTRUCTION MODEL
@@ -17,7 +17,7 @@ nmi=002936		nombre de mailles actives                                           
 nci=00295		nombre de colonnes                                                    C//////////////////////////  CONSTRUCTION MODEL
 nri=00070		nombre de lignes                                                      C//////////////////////////  CONSTRUCTION MODEL
 dx=0001D+00	m	pas d'espace en x                                                     C//////////////////////////  CONSTRUCTION MODEL
-dz=0018D-03	m	pas d'espace en z                                                     C//////////////////////////  CONSTRUCTION MODEL
+dz=0100D-03	m	pas d'espace en z                                                     C//////////////////////////  CONSTRUCTION MODEL
 nclog=00000		nb de pas discretisation log x                                        C//////////////////////////  CONSTRUCTION MODEL
 ilog=0			progression log du pas d'espace en x : ilog=1 actif, ilog=0 inactif   C//////////////////////////  CONSTRUCTION MODEL
 rho1=1000D+00	kg/m3	densite eau                                       		      C//////////////////////////  CONSTRUCTION MODEL
@@ -27,9 +27,9 @@ amu=0001D-03	kg/m/s	viscosite dynamique                                         
 ipermh=0		ipermh=1 variation spatiale permeabilite, ipermh=0 permeabilite constante    C///////////////////  CONSTRUCTION MODEL
 ipermv=0		ipermv=1 variation spatiale permeabilite, ipermv=0 permeabilite constante    C///////////////////  CONSTRUCTION MODEL
 akrx=0001D+00		permeabilite relative verticale                                 C//////////////////////////  CONSTRUCTION MODEL
-akx=0589D-14	m2	permeabilite intrinseque horizontale                                  C//////////////////////////  CONSTRUCTION MODEL
+akx=0589D-15	m2	permeabilite intrinseque horizontale                                  C//////////////////////////  CONSTRUCTION MODEL
 akrz=0001D+00		permeabilite relative verticale                                       C//////////////////////////  CONSTRUCTION MODEL
-akz=0589D-14	m2	permeabilite intrinseque verticale                                  C//////////////////////////  CONSTRUCTION MODEL
+akz=0589D-15	m2	permeabilite intrinseque verticale                                  C//////////////////////////  CONSTRUCTION MODEL
 iom=0			iom=1 variation spatiale de la porosite, iom=0 pas de variation       C//////////////////////////  CONSTRUCTION MODEL
 omp=0.2930		porosite                                                              C//////////////////////////  CONSTRUCTION MODEL
 iss=0			iss=1 variation spatiale du coefficient d'emmagasinement              C//////////////////////////  CONSTRUCTION MODEL
@@ -38,8 +38,8 @@ ia2=0			ia2=0 rho=cste, ia2=1 variation temporelle de la densite              C/
 yunconfined=UNS       UNC   akrh=0 dans les cellule dont la pression est nulle , CAP aquifère captif      CCCCCCCCCCCCCCCCCCC LIBRE sans calcul ZNS
 ivg=1			ivg=1 Van Genuchten, ivg=0 zone non saturee non prise en compte		CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
 ans=0110D-02		n parametre de Van Genuchten						CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
-asp=0700D-02	1/m	alpha parametre de Van Genuchten 					CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
-swres=0.0000		saturation residuelle							CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+asp=0300D-02	1/m	alpha parametre de Van Genuchten 					CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+swres=0.0100		saturation residuelle							CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
 itr=0			itr=0 transport inactif, itr=1 transport actif					CCCCCCCCCCCCCCCCCCCCCCCCCCC TRANSPORT SOLUTE
 all=0000D+00	m	dispersivite longitudinale							CCCCCCCCCCCCCCCCCCCCCCCCCCC TRANSPORT SOLUTE
 alt=0000D+00	m	dispersivite transversale							CCCCCCCCCCCCCCCCCCCCCCCCCCC TRANSPORT SOLUTE
