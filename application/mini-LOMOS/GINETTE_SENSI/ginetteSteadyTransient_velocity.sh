@@ -41,8 +41,3 @@ awk '{print $4}' S_pression_charge_temperature.dat > E_pression_initiale.dat
 
 # call ginette transient
 ./ginette_velocity
-
-echo "Ginette exhausted"
-
-
-

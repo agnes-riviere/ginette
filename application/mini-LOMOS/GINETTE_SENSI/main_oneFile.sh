@@ -1,4 +1,6 @@
 #!/bin/bash
+# $1 : number of zone
+# $2 : number of obervation
 # this file runs Ginette with parameter sets given in $1 th line of parameterSets.txt
 # it handles one set of porosity - heat conductivity - heat capacity
 # it loops over values of permeability provided in parameters/permeabilitySets/
@@ -121,15 +123,6 @@ do
 	        	mv Sim_temperature_profil_t.dat "$OUT"/Sim_temperature_profil_t_${j}.dat
 
 
-
-#			nb_obs=$2
-# 			for i in `seq 1 $nb_obs`
-# 			do
-# 			awk -f InGinette.awk -v  id_sim="$j" out="$NAMETP" obs="$NAMEOT" id="$i" anal_ginette.COMM
-# 			mv awk.out anal_ginette.COMM
-# 			./CmpKro/CmpKro0.01 anal_ginette.COMM apoub.log
-# 			mv apoub.log ./SENSI/Sensi_temperature_"$j"_$i.dat
-# 			done
 			fi # close running simulation $1 $j
 
 
@@ -143,4 +136,4 @@ do
 
 done
 
-echo "file "$1" treated!"
+

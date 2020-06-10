@@ -14,7 +14,10 @@ files_output <- list.files(path = path_output, pattern = 'temperature_maille')
 nb_PT100 <- length(files_obs)
 num_PT100 <- substr(files_obs, 23, 23)
 
-nb_simu <- as.integer(str_remove(string = str_sub(files_output[length(files_output)], 25), pattern = ".dat"))
+pos_end = str_locate(files_output, ".dat")
+pos_bg = str_locate(files_output, "Sim_temperature_maille")
+id_sim = as.numeric(str_sub(files_output, pos_bg[, 2] + 3,  pos_end[, 1] - 1))
+nb_simu <- as.integer(max(id_sim))
 param_simu <- read.table(file = "GINETTE_SENSI/tested_values", sep = " ", header = FALSE)
 
 #Read data
@@ -55,14 +58,30 @@ for (i in seq_len(nb_simu)) {
 results <- array(NA, dim = c(nb_simu, 5*nb_PT100+1))
 
 #name of rows
-rows <- as.character(c())
-for (i in seq_len(nb_simu)) {
-   rows[i] <- paste0("Simu", i, " ", 
-                     "k=", param_simu[i, 1],
-                     " n=", param_simu[i, 2],
-                     " l=", param_simu[i, 3],
-                     " r=", param_simu[i, 4])
-}
+rows <- as.character(rep(0, nb_simu))
+
+if (length(param_simu)>4) {
+  for (i in seq_len(nb_simu)) {
+    rows[i] <- paste0("Simu", i, " ", 
+                      "k1=", param_simu[i, 1],
+                      " k2=", param_simu[i, 5],
+                      " n1=", param_simu[i, 2],
+                      " n2=", param_simu[i, 6],
+                      " l1=", param_simu[i, 3],
+                      " l2=", param_simu[i, 7],
+                      " r1=", param_simu[i, 4],
+                      " r2=", param_simu[i, 8])
+  }} else {
+    for (i in seq_len(nb_simu)) {
+      rows[i] <- paste0("Simu", i, " ", 
+                        "k=", param_simu[i, 1],
+                        " n=", param_simu[i, 2],
+                        " l=", param_simu[i, 3],
+                        " r=", param_simu[i, 4])
+    }
+  }
+
+
 rownames(results) <- rows
 
 #name of columns
