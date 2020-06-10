@@ -3668,10 +3668,6 @@ c    	OPEN(181821,FILE='S_pressure.dat')
 	  open(751,file='S_charge_initiale_10days.dat')
     	OPEN(181822,FILE='S_MolTemp40.dat')
     	OPEN(181823,FILE='S_MolTemp42.dat')
-	  OPEN(181824,FILE='S_MolHeadP41.dat')
-	  OPEN(181825,FILE='S_MolHeadP43.dat')
-	  OPEN(181826,FILE='S_MolHeadP44.dat')
-	  OPEN(181827,FILE='S_MolHeadP45.dat')
 	  OPEN(181840,FILE='S_MolTempP41.dat')
 	  OPEN(181841,FILE='S_MolTempP43.dat')
 	  OPEN(181842,FILE='S_MolTempP44.dat')
@@ -3781,20 +3777,7 @@ c	  endif
 CCCC MOLONARI PRINT start time record
 cccc.... to add an end time paso.lt.XXXX)
 cccc....molonari40 
-	  if(paso.gt.864000*2) then
-ccc...hydraulic head difference between river and the bottom of the molonari
-cccc....molonari41
-	  write(181824,*)paso/unitsortie,pr(90671)/rho1/g+z(90671)
-     &,valcl(92463,3)/rho1/g+z(92463)+bm(92463)/2,ivois(92463,3)
-cccc....molonari43
-	  write(181825,*)paso/unitsortie,pr(68375)/rho1/g+z(68375)
-     &,valcl(71995,3)/rho1/g+z(71995)+bm(71995)/2,ivois(71995,3)
-cccc....molonari44
-	  write(181826,*)paso/unitsortie,pr(61832)/rho1/g+z(61832)
-     &,valcl(65724,3)/rho1/g+z(65724)+bm(65724)/2,ivois(65724,3)
-cccc....molonari45
-	  write(181827,*)paso/unitsortie,pr(22058)/rho1/g+z(22058)
-     &,valcl(25824,3)/rho1/g+z(25824)+bm(25824)/2,ivois(25824,3)
+	  if(paso.gt.86400*2) then
 ccc...Temperature for the surface and each depth of the molonari
 cccc....molonari40
     	write(181822,*)paso/unitsortie,(temp(60445)+temp(60446))/2,
