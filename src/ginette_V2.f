@@ -16,9 +16,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  double precision rug,pent,qriva,hriv,aklit,aklitv,unitsim,sum
 	  double precision tempriv,elit,akdrain,edrain,crconvp,crconvc
 	  double precision pas
-	  integer nc,nr,nm,iec,irp,ith,nitt,ixy,ii
-	  integer imaille,itopo,ibuilt,icolonne
-	  integer nmi,nci,nri,nclog,ilog,irho
+	  integer nc,nr,n,iec,irp,ith,nitt,ixy,ii
+	  integer imaille,itopo,ibuilt,icolone
+	  integer ni,nci,nri,nclog,ilog,irho
 	  integer ipermh,ipermv,iom,iss,ia2,ivg
 	  integer iteration,itsortie,icalvit
 	  integer mcol,nmaille1,nmaille2,nmaille3,nmaille4
@@ -67,7 +67,7 @@ c	  allocatable :: zbot(:),zaqui(:)
       integer,dimension(:), allocatable :: id_RD,id_RG
       double precision,dimension(:),allocatable::chgbot,chgsurf,chgriver
 	  double precision,dimension(:),allocatable:: qbot,qsurf,xDTS
-      double precision,dimension(:),allocatable::tempbottom,tempsurf
+      double precision,dimension(:),allocatable::tempbot,tempsurf
 	  double precision,dimension(:,:),allocatable::  tempDTS,slopeRH
       double precision,dimension(:,:),allocatable::xpool,xriffle
       double precision,dimension(:),allocatable::qout_w,qout_wR
@@ -79,7 +79,7 @@ c	  allocatable :: zbot(:),zaqui(:)
       double precision,dimension(:),allocatable::qcondout_h,qcondout_hR
       double precision,dimension(:),allocatable::qcondin_h,qcondin_hR
       double precision,dimension(:),allocatable::qad,qcondu
-      integer           :: dati, n
+      integer           :: nm
       character(LEN=40) :: FileName
       LOGICAL           :: An_Error
 
@@ -162,7 +162,7 @@ C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....al longeur
 CCC....az profondeur
-CCC....nc nb de icolonnes
+CCC....nc nb de icolones
 CCC....nr nb de ligne
 CCC....qre debit pluie
 CCC....rho1 densite eau
@@ -245,7 +245,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &ilog,ipermh,ipermv,
      &iec,irp,ith,dt,nitt,unitsim,al,
      &az,igravit,imaille,itopo,reptop,repbot,
-     &icolonne,nmi,nci,nri,dx,dz,nclog,rho1,irho,g,amu,
+     &icolone,nmi,nci,nri,dx,dz,nclog,rho1,irho,g,amu,
      &akrx,akx,akrz,akz,iom,omp,iss,sss,ia2,yunconfined,ivg,
      &ans,asp,swres,itr,allg,alt,iriv,iqriv,qre,hbot,xberg,
      &rug,pent,qriva,hriv,aklit,aklitv,tempriv,elit,akdrain,
@@ -336,11 +336,46 @@ CCC....Fichiers variations conditions aux limites
      &	open(unit=38,file='E_cl_thermique.dat')
 
 
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C	  	  	  	  	       					  C
+C	   GEOMETRIE MODEL	  	  			  C
+C	  	  	  	  	       					  C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+	      allocate(ibas(nci))
+	      allocate(topo(nci))
+	      allocate(bot(nci))
+
+
+
+
+	  select case (itopo) 
+   	  case (1)	    
+	  open(unit=10,file='E_geom.dat',form='formatted',
+     &status='old',iostat=igeom)
+	call count_file(10,igeom,nc)
+	  do i=1,nc
+	  read(10,*) topo(i),bot(i)
+	  enddo
+  	  case (0) 
+	  do i=1,nci
+	  topo(i)=(reptop)
+	  bot(i)=(repbot)
+	  enddo
+cc endif itop
+	  end select
+
+
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C	   LECTURE FICHIER IBUILT				  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+
+
 	  if(ytest.eq."TEX") then
 	  icolone=1
 	  imaille=0
@@ -389,78 +424,16 @@ C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if(ytest.eq."DTS") then
+	  icolone=1
+	  imaille=0
+	  ibuilt=0
+	  itopo=1
+	  
+
+
 	  call DTS_open(icolone,imaille,itopo,ligne,ligne1,
      &ligne2,ligne3,ligne4,ligne6)
-        if (allocated(timeDTS)) deallocate(timeDTS)
-        if (allocated(xDTS)) deallocate(xDTS)
-        if (allocated(tempDTS)) deallocate(tempDTS)
-     	allocate(timeDTS(ligne))
-      	allocate(xDTS(nc))
-      	allocate(tempDTS(nc,ligne))
-        if (allocated(chgRG)) deallocate(chgRG)
-        if (allocated(cRivG)) deallocate(cRivG)
-        if (allocated(timeG)) deallocate(timeG)
-        if (allocated(tempRG)) deallocate(tempRG)
-     	allocate(chgRG(ligne1))
-     	allocate(cRivG(ligne1))
-     	allocate(timeG(ligne1))
-     	allocate(tempRG(ligne1))
-        if (allocated(chgRD)) deallocate(chgRD)
-        if (allocated(cRivD)) deallocate(cRivD)
-        if (allocated(timeD)) deallocate(timeD)
-        if (allocated(tempRD)) deallocate(tempRD)
-     	allocate(chgRD(ligne2))
-     	allocate(cRivD(ligne2))
-     	allocate(timeD(ligne2))
-     	allocate(tempRD(ligne2))
 
-
-     	allocate(slopeRH(2,ligne3))
-
-        if (allocated(xriffle)) deallocate(xriffle)
-        if (allocated(qout_wR)) deallocate(qout_wR)
-        if (allocated(qin_wR)) deallocate(qin_wR)
-        if (allocated(qout_hR)) deallocate(qout_hR)
-        if (allocated(qin_hR)) deallocate(qin_hR)
-        if (allocated(qcondout_hR)) deallocate(qcondout_hR)
-        if (allocated(qadvout_hR)) deallocate(qadvout_hR)
-        if (allocated(qcondin_hR)) deallocate(qcondin_hR)
-        if (allocated(qadvin_hR)) deallocate(qadvin_hR)
-
-     	allocate(xriffle(2,ligne6))
-     	allocate(qout_wR(ligne6))
-     	allocate(qin_wR(ligne6))
-     	allocate(qout_hR(ligne6))
-     	allocate(qin_hR(ligne6))
-     	allocate(qcondout_hR(ligne6))
-     	allocate(qadvout_hR(ligne6))
-     	allocate(qcondin_hR(ligne6))
-     	allocate(qadvin_hR(ligne6))
-        if (allocated(xpool)) deallocate(xpool)
-        if (allocated(qout_w)) deallocate(qout_w)
-        if (allocated(qin_w)) deallocate(qin_w)
-        if (allocated(qout_h)) deallocate(qout_h)
-        if (allocated(qin_h)) deallocate(qin_h)
-        if (allocated(qcondout_h)) deallocate(qcondout_h)
-        if (allocated(qadvout_h)) deallocate(qadvout_h)
-        if (allocated(qcondin_h)) deallocate(qcondin_h)
-        if (allocated(qadvin_h)) deallocate(qadvin_h)
-        allocate(xpool(2,ligne4))
-        allocate(qout_w(ligne4))
-        allocate(qin_w(ligne4))
-        allocate(qout_h(ligne4))
-        allocate(qin_h(ligne4))
-        allocate(qcondout_h(ligne4))
-        allocate(qadvout_h(ligne4))
-        allocate(qcondin_h(ligne4))
-        allocate(qadvin_h(ligne4))
-
-		call DTS_read(nc,xpool,ligne,ligne1,
-     &ligne2,ligne3,ligne4,
-     &ligne6,timeDTS,xDTS,tempDTS,
-     &chgRG,cRivG,timeG,tempRG,
-     &chgRD,cRivD,timeD,tempRD,
-     &xriffle,slopeRH)
 
 	  endif
 
@@ -477,6 +450,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  open(unit=40,file='E_colonne.dat')
 	  open(unit=21,file='E_row.dat')
 	  endif
+
+
+
+
+
+
+
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -569,12 +549,12 @@ CCC....lecture des données
 
 	      allocate(chgbot(ligne4))
 	      allocate(chgsurf(ligne4))
-	      allocate(tempbottom(ligne4))
+	      allocate(tempbot(ligne4))
 	      allocate(tempsurf(ligne4))
 	rewind(68)
 	do j=1,ligne4
 	read(45,*,iostat=iop) chgsurf(j),chgbot(j)
-	read(68,*,iostat=ios) tempsurf(j),tempbottom(j)
+	read(68,*,iostat=ios) tempsurf(j),tempbot(j)
 	enddo
       endif
 
@@ -804,7 +784,6 @@ CCC if ZH pour flux
 
 
 
-
 c       ligne5=0
 CCC....TEST POUR MAQUETTE DECONNECTION
 c       if (icldrain.eq.1.or.iclriviere.eq.1) then
@@ -878,19 +857,16 @@ C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....CALCUL LIGNES COLONNES
 
-
-
-
-	  select case ( imaille)
+	  select case (imaille)
 	  CASE (0)
-	  linecell=0
-CCC....lecture des données
-	  do while (iocell.eq.0)
-	  read(11,*,iostat=iocell)
-	  if (iocell.eq.0) then
-	  linecell=linecell+1
-	  endif
-	  enddo
+
+	  call count_file(11,iocell,linecell)
+		if(linecell.ne.nmi) then
+		print*,'le fichier de coordonnees et nm ne correspondent pas'
+		print*,'nb ligne E_coordonnee.dat =',linecell
+		print*,'nmi E_parametre.dat =',nmi
+			stop
+		endif
 	  ncnr=linecell
        	CASE DEFAULT
 	  nc=nint(abs(al)/dx)
@@ -905,13 +881,7 @@ CCC....lecture des données
 	      allocate(icol(ncnr))
 	      allocate(am(ncnr))
 	      allocate(bm(ncnr))
-  
-	      allocate(ivois(ncnr,4))
-
-
-	      allocate(ibas(nci))
-	      allocate(topo(nci))
-	      allocate(bot(nci))
+  	      allocate(ivois(ncnr,4))
 
 
 
@@ -920,9 +890,7 @@ CCC....lecture des données
 
 
 
-
-
-	  select case ( imaille)
+	  select case (imaille)
 	  CASE (1)
 CCC....MAILLAGE AUTO
 CCCC....DEFINITION DU MAILLAGE BRUT
@@ -958,6 +926,7 @@ ccccc....Progression log du pas d espace en X ILOG+1
 	  bm(i)=dble(dz)
 	  enddo
     	END SELECT
+
 
 
 
@@ -1019,19 +988,6 @@ ccccc....ivois(ik,4)= voisin ibas
 
 
 CCC....RENUMEROTATION en FONCTION DE TOPO ET BOTTOM
-	  select case (itopo)
-	  case (0)
-	  do i=1,nc
-	  topo(i)=dble(reptop)
-	  bot(i)=dble(repbot)
-	  enddo
-	  case default
-	  open(unit=10,file='E_geom.dat',form='formatted',status='old')
-	  do i=1,nc
-	  read(10,*) topo(i),bot(i)
-	  enddo
-    	END SELECT
-
 
 
 	  kr=0
@@ -1067,8 +1023,8 @@ cccc....si inum2(ivois(inum(i),j))=0 c est que le voisin ds lancien maillage n e
 	  endif
 	  enddo
        write(11,*)i,x(i),z(i)
-c       write(12,*)am(i),bm(i)
-c       write(13,*)ivois(i,1),ivois(i,2),ivois(i,3),ivois(i,4)
+       write(12,*)am(i),bm(i)
+       write(13,*)ivois(i,1),ivois(i,2),ivois(i,3),ivois(i,4)
 	  enddo
 	  nm=nc*nr
 
@@ -1077,17 +1033,19 @@ CC imaille =0
 	  nc=nci
 	  nr=nri
 	  nm=linecell
+
 	  rewind(11)
 	  do i=1,nm
 	  read(11,*)x(i),z(i)
 	  read(12,*)am(i),bm(i)
 	  read(13,*) ivois(i,1),ivois(i,2),ivois(i,3),ivois(i,4)
-	  if (icolonne.eq.1.or.ibuilt.eq.1) 	read(40,*) icol(i)
+	  if (icolone.eq.1.or.ibuilt.eq.1) 	read(40,*) icol(i)
 	  enddo
+
 	  close(11)
 	  close(12)
 	  close(13)
-
+	  close(40)
 
        do i=1,nm
        if (ivois(i,1).ne.-99) then
@@ -1133,27 +1091,9 @@ CC imaille =0
        enddo
 
 
-
-
-
-CCC....NOUVEAU NUMERO de MAILLE
-	  select case (itopo) 
-   	  case (1)	    
-	  open(unit=10,file='E_geom.dat',form='formatted',status='old')
-	  do i=1,nc
-	  read(10,*) topo(i),bot(i)
-	  enddo
-   	  case (0) 
-	  do i=1,nc
-	  topo(i)=(reptop)
-	  bot(i)=(repbot)
-	  enddo
-cc endif itopo
-	  end select
-
+		if(ibuilt.eq.1) then
 	  kr=0
 	  do ii=1,nm
-
 	  if(z(ii)-topo(icol(ii)).lt.0.0001.and.
      &z(ii)-bot(icol(ii)).gt.0.0001) then
 	  kr=kr+1
@@ -1197,8 +1137,9 @@ c	  call flush(11)
 cccc	  call flush(12)
 cccc	  call flush(13)
 
-    	END SELECT
+		endif
 
+    	END SELECT
 
 
 
@@ -1221,7 +1162,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  endif
 	  enddo
 
-	  if (icolonne.ne.1.or.ibuilt.ne.1) then
+	  if (icolone.ne.1.or.ibuilt.ne.1) then
 	  do i=1,nm
 
 	  do kkcol=1,nc
@@ -1243,7 +1184,8 @@ C	  		   PARAMETRES_ALL	  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-	      nmax=5*nm
+	      nmax=5*nm+1
+
 	  	nmax1=nm+1
 
 
@@ -1283,14 +1225,17 @@ c	      allocate(zbot(nm))
 	      allocate(swp(nm))
 	      allocate(dswpdp(nm))
 	      allocate(dswdt(nm))
-       if(iaquitard.eq.1) allocate(irow(nm))
+	      allocate(iclt(nm,4))
+	      allocate(valclt(nm,4))
+	      allocate(cps(nm))
+       	  if(iaquitard.eq.1) allocate(irow(nm))
 
 	      allocate(prk(nm))
 	      allocate(zs(nc,2))
 	      allocate(zso(nc,2))
 	      allocate(zsoo(nc,2))
-
-
+	      allocate(rhos(nm))
+	      allocate(alandas(nm))
 	    	allocate(temp(nm))
 	      allocate(tempo(nm))
 	      allocate(tempk(nm))
@@ -1302,17 +1247,12 @@ c	      allocate(zbot(nm))
 	      allocate(valclc(nm,4))
 	  	endif
 	  	if(ith.eq.1) then
-	      allocate(cps(nm))
-	      allocate(rhos(nm))
-	      allocate(iclt(nm,4))
 	      allocate(valclto(nm,4))
-	      allocate(valclt(nm,4))
 	      allocate(zl(nc,2))
 	      allocate(zlo(nc,2))
 	      allocate(zloo(nc,2))
 	      allocate(alanda(nm))
 	      allocate(qtherm(nm))
-	      allocate(alandas(nm))
 	      allocate(qad(nm))
 	      allocate(qcondu(nm))
 	  	endif
@@ -1435,6 +1375,94 @@ cccc....pression initiale, alph, moy landa 05/04/2011
 	  ita=0
 	  paso=0.D+00
 
+
+
+
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C	  	  	  	  	       					  C
+C    READ DTS							  C
+C	  	  	  	  	       					  C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+	  if(ytest.eq."DTS") then
+
+
+        if (allocated(timeDTS)) deallocate(timeDTS)
+        if (allocated(xDTS)) deallocate(xDTS)
+        if (allocated(tempDTS)) deallocate(tempDTS)
+     	allocate(timeDTS(ligne))
+      	allocate(xDTS(nc))
+      	allocate(tempDTS(ligne,nc))
+        if (allocated(chgRG)) deallocate(chgRG)
+        if (allocated(cRivG)) deallocate(cRivG)
+        if (allocated(timeG)) deallocate(timeG)
+        if (allocated(tempRG)) deallocate(tempRG)
+     	allocate(chgRG(ligne1))
+     	allocate(cRivG(ligne1))
+     	allocate(timeG(ligne1))
+     	allocate(tempRG(ligne1))
+        if (allocated(chgRD)) deallocate(chgRD)
+        if (allocated(cRivD)) deallocate(cRivD)
+        if (allocated(timeD)) deallocate(timeD)
+        if (allocated(tempRD)) deallocate(tempRD)
+     	allocate(chgRD(ligne2))
+     	allocate(cRivD(ligne2))
+     	allocate(timeD(ligne2))
+     	allocate(tempRD(ligne2))
+
+
+     	allocate(slopeRH(2,ligne3))
+
+        if (allocated(xriffle)) deallocate(xriffle)
+        if (allocated(qout_wR)) deallocate(qout_wR)
+        if (allocated(qin_wR)) deallocate(qin_wR)
+        if (allocated(qout_hR)) deallocate(qout_hR)
+        if (allocated(qin_hR)) deallocate(qin_hR)
+        if (allocated(qcondout_hR)) deallocate(qcondout_hR)
+        if (allocated(qadvout_hR)) deallocate(qadvout_hR)
+        if (allocated(qcondin_hR)) deallocate(qcondin_hR)
+        if (allocated(qadvin_hR)) deallocate(qadvin_hR)
+
+     	allocate(xriffle(2,ligne6))
+     	allocate(qout_wR(ligne6))
+     	allocate(qin_wR(ligne6))
+     	allocate(qout_hR(ligne6))
+     	allocate(qin_hR(ligne6))
+     	allocate(qcondout_hR(ligne6))
+     	allocate(qadvout_hR(ligne6))
+     	allocate(qcondin_hR(ligne6))
+     	allocate(qadvin_hR(ligne6))
+        if (allocated(xpool)) deallocate(xpool)
+        if (allocated(qout_w)) deallocate(qout_w)
+        if (allocated(qin_w)) deallocate(qin_w)
+        if (allocated(qout_h)) deallocate(qout_h)
+        if (allocated(qin_h)) deallocate(qin_h)
+        if (allocated(qcondout_h)) deallocate(qcondout_h)
+        if (allocated(qadvout_h)) deallocate(qadvout_h)
+        if (allocated(qcondin_h)) deallocate(qcondin_h)
+        if (allocated(qadvin_h)) deallocate(qadvin_h)
+        allocate(xpool(2,ligne4))
+        allocate(qout_w(ligne4))
+        allocate(qin_w(ligne4))
+        allocate(qout_h(ligne4))
+        allocate(qin_h(ligne4))
+        allocate(qcondout_h(ligne4))
+        allocate(qadvout_h(ligne4))
+        allocate(qcondin_h(ligne4))
+        allocate(qadvin_h(ligne4))
+
+
+		call DTS_read(nc,xpool,ligne,ligne1,
+     &ligne2,ligne3,ligne4,
+     &ligne6,timeDTS,xDTS,tempDTS,
+     &chgRG,cRivG,timeG,tempRG,
+     &chgRD,cRivD,timeD,tempRD,
+     &xriffle,slopeRH)
+
+	  endif
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C		  Zonage des parametres	    C
@@ -1493,7 +1521,9 @@ ccc loop element
 	  do j=1,nzone
 	  read(321,*)jzone(j),akzone(j),omzone(j),
      &alandazone(j),rhomzone(j)
+
 	  enddo
+
 	  do i=1,nm
 	  do j=1,nzone
 	  if (izone(i).eq.jzone(j)) then
@@ -1506,6 +1536,9 @@ ccc loop element
 	  endif
 ccc test zone
 	  enddo
+
+
+
 ccc loop zone
 c	  if(i.eq.1) print*,ak(i)
 c	  if(i.eq.10001) print*,ak(i)
@@ -1684,7 +1717,6 @@ CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
 	  read(242,*) pr(i)
        enddo
 	  endif
-
 
 
 
@@ -1924,6 +1956,7 @@ c     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
 	  enddo
 	  enddo
 	  endif
+
 
 
 
@@ -2406,6 +2439,7 @@ C	  	  	  	  	  	   C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
+
        if(iclchgt.eq.1) then
 	  select case (ytest) 
   	   case ("WAR")	    
@@ -2419,22 +2453,19 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
    	  case default	    
 	  	ntsortie=ligne2	  
 	  end select
-       call variation_cdt_limites(n,nm,
-     &icl,valcl,iclt,valclt,ivois,itlecture,
-     &z,g,ntsortie,bm,irptha,
-     &paso,rho,tempsol,tempriver,qpluie,chgriver,
-     &chgRD,chgRG,tempRD,tempRG,
+       call variation_cdt_limites(nm,paso,itlecture,ytest,
      &ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,
+     &icl,valcl,iclt,valclt,ivois,
+     &z,g,ntsortie,bm,irptha,
+     &rho,tempsol,tempriver,qpluie,chgriver,
+     &chgRD,chgRG,tempRD,tempRG,
      &id_RD,id_RG,id_river,id_rivert,tempsurf,
-     &tempbottom,chgsurf,chgbot,ytest,
-     &cRivG,timeG,
-     &cRivD,timeD,
+     &tempbot,chgsurf,chgbot,
+     &cRivG,timeG,cRivD,timeD,
      &timeDTS,xDTS,
      &tempDTS,x,icol,nc,tempo,pro,slopeRH,
      &qsurf,qbot)
        endif
-
-
 
 
 
@@ -2462,6 +2493,7 @@ CCC...Sauvegarde de literation picard precedante
 	  tempk(i)=temp(i)
 	  enddo
 	  endif
+
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  		   C
@@ -2524,16 +2556,15 @@ C  Variation des conditions aux limites vs. temps C
 C	  	  	  	  	  	   C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 cccc....recalcul car chgt pas temps
-       call variation_cdt_limites(n,nm,
-     &icl,valcl,iclt,valclt,ivois,itlecture,
-     &z,g,ntsortie,bm,irptha,
-     &paso,rho,tempsol,tempriver,qpluie,chgriver,
-     &chgRD,chgRG,tempRD,tempRG,
+       call variation_cdt_limites(nm,paso,itlecture,ytest,
      &ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,
+     &icl,valcl,iclt,valclt,ivois,
+     &z,g,ntsortie,bm,irptha,
+     &rho,tempsol,tempriver,qpluie,chgriver,
+     &chgRD,chgRG,tempRD,tempRG,
      &id_RD,id_RG,id_river,id_rivert,tempsurf,
-     &tempbottom,chgsurf,chgbot,ytest,
-     &cRivG,timeG,
-     &cRivD,timeD,
+     &tempbot,chgsurf,chgbot,
+     &cRivG,timeG,cRivD,timeD,
      &timeDTS,xDTS,
      &tempDTS,x,icol,nc,tempo,pro,slopeRH,
      &qsurf,qbot)
@@ -2879,9 +2910,13 @@ CCC....CONSTRUCTION DE LA MATRICE PRESSION
 	  nz=nm
 	  nmaxz=nmax
 	  nmaxzz=nmax1
+c	      allocate(icol_ind(nmax))
+c	      allocate(irow_ptr(nmax1))
+c	      allocate(val(nmax)
+
 	  call matp(val,icol_ind,irow_ptr,x,z,b,am,ivois,
      &rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,
-     &sw,nz,irp,nmaxz,nmaxzz,bm,akv,akrv,
+     &sw,nz,irp,nmax1,nmax,bm,akv,akrv,
      &igel,ysupdp,rhoi,ixy,dsidtemp,temp,tempo,ysolv)
 CCC....Resolution
 	  n1=nm
@@ -2916,6 +2951,7 @@ c	  	print*,"coucou",amaxp,pr(ii),prk(ii)
 	    enddo
 	    if (k.gt.999) amaxp=1000
 	    if (k.gt.999) ipb=-9999
+
 c	  else
 c	  amaxp=0D00
 c	  endif
@@ -3163,6 +3199,8 @@ CCC....SI ITh=0, ON ZAPPE LE Thermique!!!!
 	  nth=nm
 	  nmaxth=nmax
 	  nmaxthh=nmax1
+
+
 
 
       call matt(val,icol_ind,irow_ptr,x,b,am,ivois,tempo,
@@ -3743,7 +3781,7 @@ c	  endif
 CCCC MOLONARI PRINT start time record
 cccc.... to add an end time paso.lt.XXXX)
 cccc....molonari40 
-	  if(paso.gt.864000) then
+	  if(paso.gt.864000*2) then
 ccc...hydraulic head difference between river and the bottom of the molonari
 cccc....molonari41
 	  write(181824,*)paso/unitsortie,pr(90671)/rho1/g+z(90671)
@@ -3803,12 +3841,8 @@ c	  	  if(x(i).ge.74.5.and.x(i).le.75.5) then
 c	  	  print*,i,x(i),z(i),ivois(i,3)
 c	  	  endif
 c	  	  enddo
-	  print*,	"cell ","time ","hh ","ivois ","icl ","valcl ","temp "
-	  print*,"cell 1",paso/86400,pr(1)/rho1/g+z(1),
-     &valcl(1,2)/rho1/g+z(1)
-	  print*,paso/unitsortie,(valclt(65723,3)+valclt(65722,3))/2,
-     &(temp(64446)+temp(64445))/2,(temp(63146)+temp(63145))/2,
-     &(temp(61831)+temp(61830))/2,(temp(60470)+temp(60469))/2
+	  print*,	"cell ","time ","hh","temp "
+	  print*,"cell 1",paso/86400,pr(nm)/rho1/g+z(nm),temp(nm),pr(1)
 	  endif
 
 CCC...SORTIES VAUCLIN parametre clement
@@ -4135,7 +4169,7 @@ cccc....Dernier pas de temps ou regime permanant
 	  endif
 
 CCC....Fermeture des fichiers!!!
-C	  call purge_noms_fichiers
+c	  call purge_noms_fichiers
 
 
 	  close(96)
@@ -4325,7 +4359,7 @@ c	  if	(allocated(zbot))	DEALLOCATE(zbot)
 	  endif
 	  if (allocated(chgbot)) DEALLOCATE(chgbot)
 	  if (allocated(chgsurf)) DEALLOCATE(chgsurf)
-	  if (allocated(tempbottom)) DEALLOCATE(tempbottom)
+	  if (allocated(tempbot)) DEALLOCATE(tempbot)
 	  if (allocated(tempsurf)) DEALLOCATE(tempsurf)
 	  if	(allocated(asun))	DEALLOCATE(asun)
 	  if	(allocated(ansun))	DEALLOCATE(ansun)
@@ -4816,12 +4850,15 @@ C	  	  	  	  		  C
 C   Definition de la matrice pr lecoulement    C
 C	  	  	  	  		  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
 	  irow_ptr(1)=1
 	  il=0
 	  do ik=1,nm
+
 	  b(ik)=0D+00
 	  il=il+1
 	  val(il)=0D+00
+
 CCC....Stockage du numero de la diagonale
 	  ilik=il
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -4837,7 +4874,6 @@ CCC....terme b
 	  b(ik)=dble(b(ik)-sw(ik)*ia2
      &*om(ik)*(rho(ik)-rhold(ik))/dt*irp
      &-rho(ik)*om(ik)*dswdp(ik)*pro(ik)/dt*irp)
-
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  		  C
@@ -4873,6 +4909,10 @@ cccc....Face haute a potentiel impose....
 	  b(ik)=dble(b(ik)-ixy*1/dzhi*rho(ik)*akv(ik)*akrv(ik)/amu
      &*valcl(ik,3))-1/bm(ik)*rho(ik)*akv(ik)*akrv(ik)/amu*rho(ik)*g
 	  endif
+
+
+
+
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  		  C
@@ -4914,18 +4954,24 @@ C		  FACE GAUCHE	  	       C
 C	  	  	  	  		  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(icl(ik,2).eq.1) then
+
 cccc....Maille de gauche existe CORRECTION TERME DZ/DX*RHO*G/AM terme i-1/2 positif
+
+
 	  il=il+1
 	  im=ivois(ik,2)
 	  icol_ind(il)=im
+
 	  dxg=dble(am(ik)*abs(x(ik)-x(im)))
 	  val(il)=dble(1/dxg*(am(im)+am(ik))
      &/(am(im)/(akr(im)*ak(im)*rho(im)/amu)+
      &am(ik)/(akr(ik)*ak(ik)*rho(ik)/amu)))
+
 	  b(ik)=dble(b(ik)+(am(im)+am(ik))/(am(im)/
      &(akr(im)*ak(im)*rho(im)/amu)+
      &am(ik)/(akr(ik)*ak(ik)*rho(ik)/amu))
      &*(rho(im)+rho(ik))/2*g*ixy*(z(im)-z(ik))/(x(im)-x(ik))/am(ik))
+
 	  val(ilik)=dble(val(ilik)-val(il))
 	  irow_ptr(ik+1)=irow_ptr(ik+1)+1
 	  endif
@@ -4967,12 +5013,14 @@ cccc....Face droite a flux impose....
 	  b(ik)=dble(b(ik)-valcl(ik,1)/am(ik)*rho(ik))
 	  endif
 
+
 	  if(icl(ik,1).eq.-2) then
 cccc....Face droite a potentiel impose....
 	  b(ik)=dble(b(ik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu*
      &valcl(ik,1))
 	  val(ilik)=dble(val(ilik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu)
 	  endif
+
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  		  C
@@ -5817,8 +5865,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....si face droite imposee et vxp(i)<0!!!!
 	if(iclt(i,1).eq.-2.and.vxp(i).lt.0) then
 	b(i)=dble(b(i)+rho(i)*cpe*vxp(i)/am(i)*valclt(i,1))
-	if(abs(vxp(i)-vxm(i)).lt.abs(vxm(i))/1D9) then
-	print*,'pb de vitesse x'
+	if(abs(vxp(i)-vxm(i)).gt.abs(vxm(i))/1D9) then
+	print*,'pb de vitesse x maille ='
+	print*,i,vxp(i),vxm(i)
 	print*,'verifiez votre etat initial'
 	stop
 	endif
@@ -5837,13 +5886,14 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....si face gauche imposee et vxm(i)>0!!!!
 	if(vxm(i).gt.0.and.iclt(i,2).eq.-2) then
 	b(i)=dble(b(i)-rho(i)*cpe*vxm(i)/am(i)*valclt(i,2))
-	if(abs(vxp(i)-vxm(i)).lt.abs(vxm(i))/1D9) then
+	if(abs(vxp(i)-vxm(i)).gt.abs(vxm(i))/1D9) then
 	print*,'pb de vitesse x'
+	print*,i,vxp(i),vxm(i)
 	print*,'verifiez votre etat initial'
 	stop
 	endif
 	endif
-	if(vxm(i).lt.0.) then
+	if(vxm(i).lt.0) then
 	val(ii)=dble(val(ii)+rho(i)*cpe*vxm(i)/am(i))
 	endif
 CCC....face gauche flux impose (U*C mol/s ou g/s)
@@ -5871,6 +5921,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....face sup flux impose (U*C mol/s ou g/s)
 	if(iclt(i,3).eq.-1) then
 	b(i)=dble(b(i)-valclt(i,3)/bm(i))
+
 	endif
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -6736,7 +6787,7 @@ cccc....
 	  subroutine lecture_parametre(
      &ilog,ipermh,ipermv,
      &iec,irp,ith,dt,nitt,unitsim,al,
-     &az,ixy,imaille,itopo,reptop,repbot,icolonne,nmi,nci,
+     &az,ixy,imaille,itopo,reptop,repbot,icolone,nmi,nci,
      &nri,dx,dz,nclog,rho1,irho,g,amu,
      &akrx,akx,akrz,akz,iom,omp,iss,sss,ia2,yunconfined,ivg,
      &ans,asp,swres,itr,allg,alt,iriv,iqriv,qre,hbot,xberg,
@@ -6764,7 +6815,7 @@ cccc....
 	READ(3,'(7x,i1)')ibuilt	!!	l12
 	READ(3,'(7x,d9.0)')reptop	!!	l13
 	READ(3,'(7x,d9.0)')repbot	!!	l14
-	READ(3,'(9x,i1)')icolonne	!!	l15
+	READ(3,'(9x,i1)')icolone	!!	l15
 	READ(3,'(4x,i6)')nmi	!!	l16
 	READ(3,'(4x,i5)')nci	!!	l17
 	READ(3,'(4x,i5)')nri	!!	l18
@@ -7198,36 +7249,30 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  imaille=0
 	  itopo=1
 
-
-	  call open_file('E_zone.dat', An_Error,320)
+	  call open_file('E_zone.dat', An_Error,32)
 	  call open_file('E_zone_parameter.dat',An_Error,321)
+
 
 	  open(unit=222,file='E_p_boundaryB.dat',iostat=ios,action='read')
 	  open(unit=2233,file='E_t_boundaryB.dat')
 	  call count_file(222,ios,ligne1)
+
 	  open(unit=2244,file='E_p_boundaryPP.dat',iostat=ioPP)
 	  open(unit=225,file='E_t_boundaryPP.dat',iostat=ios3)
 	  call count_file(2244,ioPP,ligne2)
+
 	  open(unit=226,file='FODTSginette.dat',iostat=i226)
 	  call count_file(226,i226,ligne)
 	  open(unit=227,file='E_heads.dat',iostat=ioslope)
 	  call count_file(227,ioslope,ligne3)
 
-	  OPEN(181828,FILE='S_WLriver900s.dat')
-	  OPEN(181829,FILE='S_WLriver_1_day.dat')
-	  OPEN(181830,FILE='S_WLriver_2_day.dat')
-	  OPEN(181831,FILE='S_WLriver_3_day.dat')
-	  OPEN(181832,FILE='S_WLriver_4_day.dat')
-	  OPEN(181833,FILE='S_WLriver_5_day.dat')
-	  OPEN(181834,FILE='S_WLriver_6_day.dat')
-	  OPEN(181835,FILE='S_WLriver_7_day.dat')
-	  OPEN(181836,FILE='S_WLriver_8_day.dat')
-	  OPEN(181837,FILE='S_WLriver_9_day.dat')
-	  OPEN(181838,FILE='S_WLriver_10_day.dat')
+
 	  open(unit=300,file='E_pool_coord.dat',iostat=ipool)
 	  call count_file(300,ipool,ligne4)
+
 	  open(unit=300400,file='E_riffle_coord.dat',iostat=iriff)
 	  call count_file(300400,iriff,ligne6)
+
 	  return
 	  end
 
@@ -7242,16 +7287,19 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  implicit double precision(a-h,o-z)
 	  implicit integer (i-n)
-	  dimension  timeDTS(ligne),xDTS(nc),tempDTS(nc,ligne)
+	  dimension  timeDTS(ligne),xDTS(nc),tempDTS(ligne,nc)
 	  dimension  chgRG(ligne1),cRivG(ligne1),timeG(ligne1)
 	  dimension  tempRG(ligne1),chgRD(ligne2),cRivD(ligne2)
 	  dimension  timeD(ligne2),tempRD(ligne2),xriffle(2,ligne6)
 	  dimension xpool(2,ligne4),slopeRH(2,ligne3)
 
 
-c      do j=1,ligne
-c      read(226,*,iostat=ios4)timeDTS(j),(tempDTS(i,j),i=1,nc)
-c      enddo
+		rewind(226)
+      do j=1,ligne
+      read(226,*,iostat=ios4)timeDTS(j)
+     &,(tempDTS(j,i),i=1,nc)
+      enddo
+
 
        do j=1,ligne1
       read(222,*,iostat=ios)timeG(j),chgRG(j),cRivG(j)
@@ -7303,46 +7351,18 @@ cccc...
 CCC....TODOLIST
 cccc....
 
-	  subroutine variation_cdt_limites(n,nm,
-     &icl,valcl,iclt,valclt,ivois,itlecture,
-     &z,g,ntsortie,bm,irptha,
-     &paso,rho,tempsol,tempriver,qpluie,chgriver,
-     &chgRD,chgRG,tempRD,tempRG,
+	  subroutine variation_cdt_limites(nm,paso,itlecture,ytest,
      &ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,
+     &icl,valcl,iclt,valclt,ivois,
+     &z,g,ntsortie,bm,irptha,
+     &rho,tempsol,tempriver,qpluie,chgriver,
+     &chgRD,chgRG,tempRD,tempRG,
      &id_RD,id_RG,id_river,id_rivert,tempsurf,
-     &tempbottom,chgsurf,chgbottom,ytest,
-     &cRivG,timeG,
-     &cRivD,timeD,
+     &tempbottom,chgsurf,chgbottom,
+     &cRivG,timeG,cRivD,timeD,
      &timeDTS,xDTS,
      &tempDTS,x,icol,nc,tempo,pro,slopeRH,
      &qsurf,qbottom)
-
-	  implicit double precision(a-h,o-z)
-	  implicit integer (i-n)
-	  dimension ivois(nm,4),valcl(nm,4),icl(nm,4)
-	  dimension valclt(nm,4),iclt(nm,4),z(nm)
-	  dimension rho(nm),bm(nm),x(nm)
-	  dimension icol(nm)
-	  dimension chgbottom(ntsortie),chgsurf(ntsortie)
-	  dimension qbottom(ntsortie),qsurf(ntsortie)
-	  dimension tempsol(ligne)
-	  dimension qpluie(ligne1),chgRD(ligne2)
-	  dimension chgRG(ligne2),tempRD(ligne2)
-	  dimension tempriver(ligne2)
-	  dimension id_RD(ligne3),id_RG(ligne4)
-	  dimension id_river(ligne5),chgriver(ligne2)
-	  dimension tempRG(ligne2),id_rivert(ligne6)
-	  dimension tempsurf(ntsortie),tempbottom(ntsortie)
-	  dimension cRivG(ligne2)
-	  dimension timeG(ligne2)
-	  dimension cRivD(ligne2)
-	  dimension timeD(ligne2)
-	  dimension timeDTS(ligne),pro(nm)
-	  dimension xDTS(nc),tempo(nm)
-	  dimension tempDTS(nc,ligne)
-	  dimension slopeRH(2,ligne3)
-	  CHARACTER(3) :: ytest
-
 c     nc nb de colonnes
 c     nr nb de ligne
 c       qre debit pluie
@@ -7364,13 +7384,37 @@ c       ICLT(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
 c       akr(i)=permeabilite relative
 c       ak(i)=permeabilite intrinseque
 
+	  implicit double precision(a-h,o-z)
+	  implicit integer (i-n)
+	  dimension ivois(nm,4),valcl(nm,4),icl(nm,4)
+	  dimension valclt(nm,4),iclt(nm,4),z(nm)
+	  dimension rho(nm),bm(nm),x(nm)
+	  dimension icol(nm)
+	  dimension chgbottom(ntsortie),chgsurf(ntsortie)
+	  dimension qbottom(ntsortie),qsurf(ntsortie)
+	  dimension tempsol(ligne)
+	  dimension qpluie(ligne1),chgRD(ligne2)
+	  dimension chgRG(ligne2),tempRD(ligne2)
+	  dimension tempriver(ligne2)
+	  dimension id_RD(ligne3),id_RG(ligne4)
+	  dimension id_river(ligne5),chgriver(ligne2)
+	  dimension tempRG(ligne1),id_rivert(ligne6)
+	  dimension tempsurf(ntsortie),tempbottom(ntsortie)
+	  dimension cRivG(ligne1)
+	  dimension timeG(ligne1)
+	  dimension cRivD(ligne2)
+	  dimension timeD(ligne2)
+	  dimension timeDTS(ligne),pro(nm)
+	  dimension xDTS(nc),tempo(nm)
+	  dimension tempDTS(ligne,nc)
+	  dimension slopeRH(2,ligne3)
+	  CHARACTER(3) :: ytest
+	  kimp=int(paso/itlecture)
 
 
 
-	  kimp=int(paso/itlecture)+1
-
-	  if(kimp.gt.ligne4) kimp=ligne4
 	  if (ytest.eq."WAR".or.ytest.eq."ZNS") then
+	  if(kimp.gt.ligne4) kimp=ligne4
 	  select case (ytest) 
 	  case ("WAR")	    
 	  select case (icl(nm,4)) 
@@ -7407,18 +7451,13 @@ c       ak(i)=permeabilite intrinseque
 	  valcl(1,3)=qsurf(kimp)
 	  end select
 	  endif
-       
-
 	  end select 
-
 	  endif
 
 
 
-
-
-
 	  if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+	  if(kimp.gt.ligne4) kimp=ligne4
 	  iclt(1,3)=-2
 	  valclt(1,3)=tempsurf(kimp)
 	  icl(1,3)=-2
@@ -7463,7 +7502,11 @@ c       ak(i)=permeabilite intrinseque
 	  endif
 
 
+
+
+
 	  if (ytest.eq."MAQ") then
+	  if(kimp.gt.ligne4) kimp=ligne4
 	  do i=1,nm
 c	  if(paso.ge.86400*1) then
 c       if (ivois(i,4).eq.-99) then
@@ -7486,18 +7529,9 @@ c	  endif
 	  iclt(i,4)=-2
 	  valclt(i,4)=tempbottom(kimp)
 	  endif
-	  if(kimp.gt.ligne4) then
-	  if (ivois(i,3).eq.-99) then
-	  iclt(i,3)=-2
-	  valclt(i,3)=tempsurf(ligne4)
-	  endif
-	  if (ivois(i,4).eq.-99) then
-	  iclt(i,4)=-2
-	  valclt(i,4)=tempbottom(ligne4)
-	  endif
-	  endif
 	  enddo
 	  endif
+
 
 
 	  if (ytest.eq."AVA") then
@@ -7581,7 +7615,6 @@ c	  valclt(i,3)=tempriver(kimp)
 	  enddo
 	  endif
 
-
 	  if (ytest.eq."VAU") then
 CCC....ECOULEMENT VAUCLIN
 	  do i=1,nm
@@ -7611,71 +7644,21 @@ CCC....ECOULEMENT VAUCLIN
 	  endif
 
 
+
       if (ytest.eq."DTS") then
 
-	
-cccc time interpolation of the read values
-	  if(kimp.ge.ligne2) then
-     	headD=cRivD(ligne2)
-	  temperatureD=tempRD(ligne2)
-     	headPD=chgRD(ligne2)
-	  else
-	  do j=1,ligne2
-	  if (paso.lt.timeD(j+1).and.paso.gt.timeD(j)) then
-	  headD=(cRivD(j+1)-cRivD(j))
-     &/(timeD(j+1)-timeD(j))
-     &*(paso-timeD(j))+cRivD(j)
-	  headPD=(chgRD(j+1)-chgRD(j))
-     &/(timeD(j+1)-timeD(j))
-     &*(paso-timeD(j))+chgRD(j)
-	  temperatureD=(tempRD(j+1)-tempRD(j))
-     &/(timeD(j+1)-timeD(j))
-     &*(paso-timeD(j))+tempRD(j)
-	  elseif (paso.eq.timeD(j)) then
-	  headD=cRivD(j)
-	  headPD=chgRD(j)
-	  temperatureD=tempRD(j)
-	  elseif (paso.lt.timeD(1)) then
-	  headD=cRivD(1)
-	  headPD=chgRD(1)
-	  temperatureD=tempRD(1)
-	  endif
-	  enddo
-	  endif
-
-	  if(kimp.ge.ligne1) then
-    	headG=cRivG(ligne1)
-	  headPG=chgRG(ligne1)
-     	temperatureG=tempRG(ligne1)
-	  else
-	  do j=1,ligne1
-	  if (paso.lt.timeG(j+1).and.paso.gt.timeG(j)) then
-	  headG=(cRivG(j+1)-cRivG(j))
-     &/(timeG(j+1)-timeG(j))
-     &*(paso-timeG(j))+cRivG(j)
-	  headPG=(chgRG(j+1)-chgRG(j))
-     &/(timeG(j+1)-timeG(j))
-     &*(paso-timeG(j))+chgRG(j)
-	  temperatureG=(tempRG(j+1)-tempRG(j))
-     &/(timeG(j+1)-timeG(j))
-     &*(paso-timeG(j))+tempRG(j)
-	  elseif (paso.eq.timeG(j)) then
-	  headG=cRivG(j)
-	  headPG=chgRG(j)
-	  temperatureG=tempRG(j)
-	  elseif (paso.lt.timeG(1)) then
-	  headG=cRivG(1)
-	  headPG=chgRG(1)
-	  temperatureG=tempRG(1)
-	  endif
-	  enddo
-	  endif
-
+	  if(kimp.ge.ligne2) kimp=ligne2
+	  if(kimp.ge.ligne1) kimp=ligne1
+	  if(kimp.lt.1) kimp=1
+c	  headG=cRivG(kimp)
+c	  headPG=chgRG(kimp)
+c	  temperatureG=tempRG(kimp)
 
 
 
 ccc side boundary petit paris and bertin
 	  do i=1,nm
+
 cccPetit Paris
 	  if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
 	  if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
@@ -7684,81 +7667,68 @@ cccPetit Paris
 	  endif
 	  if (z(i).lt.1) then
 	  icl(i,1)=-2
-       	valcl(i,1)=(headPD-z(i)-4.188)*rho(i)*g
+      valcl(i,1)=(chgRD(kimp)-z(i)-4.188)*rho(i)*g
 	  else
 	  icl(i,1)=-2
-       	valcl(i,1)=pro(i)
+      valcl(i,1)=pro(i)
 	  endif
 	  endif
+
+
+
+
+
 cccBertin
 	  if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
 	  if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
 	  iclt(i,2)=-2
 	  valclt(i,2)=tempo(i)
 	  endif
+
 	  if (z(i).lt.1) then
 	  icl(i,2)=-2
-       	valcl(i,2)=(headPG-z(i))*rho(i)*g
+      valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
 	  else
 	  icl(i,2)=-2
-       	valcl(i,2)=pro(i)
+      valcl(i,2)=pro(i)
 	  endif
 	  endif
+
 
 
 cccc....CDT LIMITE BOTTOM for the water zero flux
 	  if (ivois(i,4).eq.-99) then
 ccc heat transport
 	  iclt(i,4)=-2
-	  valclt(i,4)=temperatureG
+	  valclt(i,4)=tempRG(kimp)
 ccc water flow
 	  icl(i,4)=-1
 	  valcl(i,4)=0
 	  if (ivois(i,1).eq.-99) then
 ccc corner cell
 	  iclt(i,1)=-2
-	  valclt(i,1)=temperatureG
+	  valclt(i,1)=tempRG(kimp)
 	  icl(i,1)=-2
-       	valcl(i,1)=pro(i)
+      valcl(i,1)=pro(i)
 	  endif
 	  if (ivois(i,2).eq.-99) then
 ccc corner cell
 	  iclt(i,2)=-2
-	  valclt(i,2)=temperatureG
+	  valclt(i,2)=tempRG(kimp)
 	  icl(i,2)=-2
-c       	valcl(i,2)=(headPG-z(i))*rho(i)*g
 	  valcl(i,2)=pro(i)
 	  endif
 	  endif
 	  enddo
 
+
+
 cccc....Boundary condition river/ZH for the heat transport
-	  if(kimp.ge.ligne-1) then
+	  if(kimp.ge.ligne) kimp=ligne 
 	  do i=1,nm
-	  if (ivois(i,3).eq.-99) then
 	  if(icol(i).gt.nc) icol(i)=nc
-	  temperature=tempDTS(icol(i),ligne-1)
-	  icl(i,3)=-2
-	  valclt(i,3)=temperature
-	  if (ivois(i,2).eq.-99) then
-	  icl(i,2)=-2
-	  valclt(i,2)=temperature
-	  endif
-	  if (ivois(i,1).eq.-99) then
-	  icl(i,1)=-2
-	  valclt(i,1)=temperature
-	  endif
-	  endif
-	  enddo
-	  else
-	  do j=1,ligne-1
-	  if (paso.lt.timeDTS(j+1).and.paso.gt.timeDTS(j)) then
-	  do i=1,nm
 	  if (ivois(i,3).eq.-99) then
-	  if(icol(i).gt.nc) icol(i)=nc
-	  temperature=(tempDTS(icol(i),j+1)-tempDTS(icol(i),j))
-     &/(timeDTS(j+1)-timeDTS(j))*
-     &(paso-timeDTS(j))+tempDTS(icol(i),j)
+	  temperature=tempDTS(kimp,icol(i))
 	  icl(i,3)=-2
 	  valclt(i,3)=temperature
 	  if (ivois(i,2).eq.-99) then
@@ -7769,29 +7739,8 @@ cccc....Boundary condition river/ZH for the heat transport
 	  iclt(i,1)=-2
 	  valclt(i,1)=temperature
 	  endif
-	  endif
+      endif
 	  enddo
-	  elseif (paso.eq.timeDTS(j)) then
-	  do i=1,nm
-	  if (ivois(i,3).eq.-99) then
-	  if(icol(i).gt.nc) icol(i)=nc
-	  temperature=tempDTS(icol(i),j)
-	  iclt(i,3)=-2
-	  valclt(i,3)=temperature
-c	  if(temperature.gt.15) print*,temperature,x(i)
-	  if (ivois(i,2).eq.-99.and.x(i).gt.0.5) then
-	  iclt(i,2)=-2
-	  valclt(i,2)=temperature
-	  endif
-	  if (ivois(i,1).eq.-99.and.x(i).lt.999.5) then
-	  iclt(i,1)=-2
-	  valclt(i,1)=temperature
-	  endif
-	  endif
-	  enddo
-	  endif
-	  enddo
-	  endif
 
 CCCC River/ZH hydraulic head
 	  do i=1,nm
@@ -7812,7 +7761,7 @@ ccc  read slope
 	  endif
 ccc slope from bertin water level for the downstream part
 	  if (kj.eq.1) slope=slopeRH(2,1)
-	  if (kj.eq.1)  headbk=headG
+	  if (kj.eq.1)  headbk=cRivG(kimp)
 ccc id = number of upstream part
 	  if(x(i).gt.slopeRH(1,ligne3)) then
 	    kj=ligne3
@@ -7821,7 +7770,7 @@ ccc id = number of upstream part
 ccc between the downstream and the first cascade
 	  if (kj.eq.2) then
 	  do k=1,kj
-	  if (k.eq.1)  headbk=headG
+	  if (k.eq.1)  headbk=cRivG(kimp)
 	  if (k.gt.1) headbk=slopeRH(2,k-1)*
      &(slopeRH(1,k)-slopeRH(1,k-1))+headbk
 	  enddo
@@ -7831,10 +7780,10 @@ cccc water level of the river = altitude of the first cascade
 cccc water level of the river = altitude of the second cascade
 	  if (kj.eq.4) headbk=120.5D+00
 cccc water level of the upstream part
-	  if(kj.eq.ligne3) headbk=headD-2.16
+	  if(kj.eq.ligne3) headbk=cRivD(kimp)-2.16
 
 	  if(kj.eq.ligne3.or.kj.eq.3) then
-	  slopeRH(2,kj)=(headD-2.16-120.5D+00)/
+	  slopeRH(2,kj)=(cRivD(kimp)-2.16-120.5D+00)/
      &(1000-slopeRH(1,ligne3))
 	  slope=slopeRH(2,kj)
 	  endif
@@ -7855,52 +7804,6 @@ ccc calculatation the slope
 
 	  if (kj.le.4) head=slope*(x(i)-slopeRH(1,kj))+headbk
 	  if (kj.eq.ligne3) head=slope*(x(i)-1000)+headbk
-
-	  if(paso.eq.900) then
-    	 write(181828,*)x(i),head
-	  endif
-
-	  if(paso.eq.86400) then
-    	 write(181829,*)x(i),head
-	  endif
-
-	  if(paso.eq.86400*2) then
-    	 write(181830,*)x(i),head
-	  endif
-
-	  if(paso.eq.86400*3) then
-    	 write(181831,*)x(i),head
-	  endif
-
-	  if(paso.eq.86400*4) then
-    	 write(181832,*)x(i),head
-	  endif
-
-	  if(paso.eq.86400*5) then
-    	 write(181833,*)x(i),head
-	  endif
-
-
-	  if(paso.eq.86400*6) then
-    	 write(181834,*)x(i),head
-	  endif
-
-	  if(paso.eq.86400*7) then
-    	 write(181835,*)x(i),head
-	  endif
-
-	  if(paso.eq.86400*8) then
-    	 write(181836,*)x(i),head
-	  endif
-
-	  if(paso.eq.86400*9) then
-    	 write(181837,*)x(i),head
-	  endif
-
-	  if(paso.eq.86400*10) then
-    	 write(181838,*)x(i),head
-	  endif
-
 	  valcl(i,3)=(head-z(i)-bm(i)/2)*rho(i)*g
 	  if (ivois(i,2).eq.-99) then
 	  icl(i,2)=-2
@@ -7992,8 +7895,6 @@ cccc....CDT LIMITE RIVER variable dans le temps
 
 
 
-
 	  return
 	  end
-
 
