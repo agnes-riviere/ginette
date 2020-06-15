@@ -1473,7 +1473,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
 	  nzone=0
 	  do i=1,nm
-	  read(32,*),izone(i)
+	  read(32,*)izone(i)
 	  nzone=max(nzone,izone(i))
 CCC...Calcul le nombre de zone
 	  enddo
@@ -3666,8 +3666,8 @@ c    	OPEN(181819,FILE='S_velocity.dat')
 c    	OPEN(181820,FILE='S_temperature.dat')
 c    	OPEN(181821,FILE='S_pressure.dat')
 	  open(751,file='S_charge_initiale_10days.dat')
-    	OPEN(181822,FILE='S_MolTemp40.dat')
-    	OPEN(181823,FILE='S_MolTemp42.dat')
+    	OPEN(181822,FILE='S_MolTempP40.dat')
+    	OPEN(181823,FILE='S_MolTempP42.dat')
 	  OPEN(181840,FILE='S_MolTempP41.dat')
 	  OPEN(181841,FILE='S_MolTempP43.dat')
 	  OPEN(181842,FILE='S_MolTempP44.dat')
@@ -3777,6 +3777,8 @@ c	  endif
 CCCC MOLONARI PRINT start time record
 cccc.... to add an end time paso.lt.XXXX)
 cccc....molonari40 
+CCCC			print*,z(60469),izone(60469)
+CCCC			stop
 	  if(paso.gt.86400*2) then
 ccc...Temperature for the surface and each depth of the molonari
 cccc....molonari40
@@ -3788,22 +3790,22 @@ cccc....molonari42
      &temp(55),temp(123)
 cccc....molonari41
        write(181840,*)paso/unitsortie,
-     &(valclt(91896,3)+valclt(92463,3))/2,
+c     &(valclt(91896,3)+valclt(92463,3))/2,
      &(temp(91298)+temp(91895))/2,(temp(90671)+temp(91297))/2,
      &(temp(90032)+temp(90670))/2,(temp(89380)+temp(90031))/2
 cccc....molonari43
        write(181841,*)paso/unitsortie,
-     &(valclt(70796,3)+valclt(69588,3))/2,
+c     &(valclt(70796,3)+valclt(69588,3))/2,
      &(temp(69589)+temp(68372))/2,(temp(68373)+temp(67128))/2,
      &(temp(67129)+temp(65866))/2,(temp(65867)+temp(64589))/2
 cccc....molonari44
        write(181842,*)paso/unitsortie,
-     &(valclt(65723,3)+valclt(65722,3))/2,
+c     &(valclt(65723,3)+valclt(65722,3))/2,
      &(temp(64446)+temp(64445))/2,(temp(63146)+temp(63145))/2,
      &(temp(61831)+temp(61830))/2,(temp(60470)+temp(60469))/2
 cccc....molonari45
        write(181843,*)paso/unitsortie,
-     &(valclt(33221,3)+valclt(33220,3))/2,
+c     &(valclt(33221,3)+valclt(33220,3))/2,
      &(temp(31380)+temp(31379))/2,(temp(29536)+temp(29535))/2,
      &(temp(27690)+temp(27689))/2,(temp(25842)+temp(25841))/2
 	  endif
