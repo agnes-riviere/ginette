@@ -3,14 +3,15 @@
 library(ggplot2)
 library(reshape2)
 library(akima)
-path_output <- "/home/guillaume/Documents/ginette/application/mini-LOMOS/GINETTE_SENSI/OUTPUT/"
+library(data.table)
+path_output <- "../GINETTE_SENSI/OUTPUT/"
 # path_plot <- "./"
 
 sim_name=1
 
 # 
 # setwd(path_plot)
-D_sim<-read.table(paste0(path_output,"Sim_temperature_profil_t_",sim_name,".dat"),header = FALSE)
+D_sim<-fread(paste0(path_output,"Sim_temperature_profil_t_",sim_name,".dat"),header = FALSE)
 
 #interpolation
 x=D_sim[,1]/86400
