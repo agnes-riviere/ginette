@@ -3776,15 +3776,15 @@ c	  endif
 
 CCCC MOLONARI PRINT start time record
 cccc.... to add an end time paso.lt.XXXX)
-<<<<<<< HEAD
+
 cccc....molonari40
 c	print*, izone(), x(55), z(55)
 c        stop
-=======
+
 cccc....molonari40 
 CCCC			print*,z(60469),izone(60469)
 CCCC			stop
->>>>>>> 9459ebd92e7be58fa74ce69a1afd528442ae4458
+
 	  if(paso.gt.86400*2) then
 ccc...Temperature for the surface and each depth of the molonari
 cccc....molonari40
@@ -3797,7 +3797,6 @@ cccc....molonari42
 cccc....molonari41
        write(181840,*)paso/unitsortie,
 c     &(valclt(91896,3)+valclt(92463,3))/2,
-<<<<<<< HEAD
      &(temp(91297)+temp(91298))/2,(temp(90670)+temp(90671))/2,
      &(temp(90031)+temp(90032))/2,(temp(89379)+temp(89380))/2
 cccc....molonari43
