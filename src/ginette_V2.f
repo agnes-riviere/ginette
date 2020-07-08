@@ -3792,8 +3792,9 @@ c    	write(181822,*)paso/unitsortie,(temp(60445)+temp(60446))/2,
 c     &(temp(23960)+temp(23961))/2,(temp(84873)+temp(84874))/2,
 c     &(temp(91895)+temp(91896))/2
 cccc....molonari42 
-    	write(181823,*)paso/unitsortie,temp(98525),temp(98506),
-     &temp(98484),temp(98446)
+    	write(181823,*)paso/unitsortie,
+     &(temp(98524)+temp(98525))/2,(temp(98505)+temp(98506))/2,
+     &(temp(98483)+temp(98484))/2,(temp(98445)+temp(98446))/2
 cccc....molonari41
        write(181840,*)paso/unitsortie,
 c     &(valclt(91896,3)+valclt(92463,3))/2,
@@ -3834,7 +3835,9 @@ c	  	  print*,i,x(i),z(i),ivois(i,3)
 c	  	  endif
 c	  	  enddo
 	  print*,	"cell ","time ","hh","temp "
-	  print*,"cell 1",paso/86400,pr(69588)/rho1/g+z(69588),temp(68589)
+	  print*,"cell 1",paso/86400,pr(98445)/rho1/g+z(98445),temp(98445)
+	  print*,"cell 1",paso/86400,pr(98525)/rho1/g+z(98525),temp(98525)
+	  print*,"cell 1",izone(98524)
 	  endif
 
 CCC...SORTIES VAUCLIN parametre clement
@@ -7825,6 +7828,23 @@ ccc calculatation the slope
 	  endif
 	  endif
 
+
+
+cccc....Boundary UPSTREAM
+        if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
+        icl(i,1)=-2
+        iclt(i,1)=-2
+       	valcl(i,1)=(chgRD(kimp)-z(i))*rho(i)*g
+        valclt(i,1)=tempRD(kimp)
+        endif
+
+cccc....Boundary DOWNSTREAM
+        if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
+        icl(i,2)=-2
+        iclt(i,2)=-2
+       	valcl(i,2)=(chgRD(kimp)-z(i))*rho(i)*g
+        valclt(i,2)=tempRG(kimp)
+        endif
 
 		
 	  enddo
