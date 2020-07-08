@@ -3776,40 +3776,48 @@ c	  endif
 
 CCCC MOLONARI PRINT start time record
 cccc.... to add an end time paso.lt.XXXX)
+
+cccc....molonari40
+c	print*, izone(), x(55), z(55)
+c        stop
+
 cccc....molonari40 
 CCCC			print*,z(60469),izone(60469)
 CCCC			stop
+
 	  if(paso.gt.86400*2) then
 ccc...Temperature for the surface and each depth of the molonari
 cccc....molonari40
-    	write(181822,*)paso/unitsortie,(temp(60445)+temp(60446))/2,
-     &(temp(23960)+temp(23961))/2,(temp(84873)+temp(84874))/2,
-     &(temp(91895)+temp(91896))/2
+c    	write(181822,*)paso/unitsortie,(temp(60445)+temp(60446))/2,
+c     &(temp(23960)+temp(23961))/2,(temp(84873)+temp(84874))/2,
+c     &(temp(91895)+temp(91896))/2
 cccc....molonari42 
-    	write(181823,*)paso/unitsortie,temp(14000),temp(1241),
-     &temp(55),temp(123)
+    	write(181823,*)paso/unitsortie,
+     &(temp(98524)+temp(98525))/2,(temp(98505)+temp(98506))/2,
+     &(temp(98483)+temp(98484))/2,(temp(98445)+temp(98446))/2
 cccc....molonari41
        write(181840,*)paso/unitsortie,
 c     &(valclt(91896,3)+valclt(92463,3))/2,
-     &(temp(91298)+temp(91895))/2,(temp(90671)+temp(91297))/2,
-     &(temp(90032)+temp(90670))/2,(temp(89380)+temp(90031))/2
+     &(temp(91297)+temp(91298))/2,(temp(90670)+temp(90671))/2,
+     &(temp(90031)+temp(90032))/2,(temp(89379)+temp(89380))/2
 cccc....molonari43
        write(181841,*)paso/unitsortie,
 c     &(valclt(70796,3)+valclt(69588,3))/2,
-     &(temp(69589)+temp(68372))/2,(temp(68373)+temp(67128))/2,
-     &(temp(67129)+temp(65866))/2,(temp(65867)+temp(64589))/2
+     &(temp(69588)+temp(68589))/2,(temp(68372)+temp(67128))/2,
+     &(temp(67128)+temp(67129))/2,(temp(65866)+temp(65867))/2
 cccc....molonari44
        write(181842,*)paso/unitsortie,
 c     &(valclt(65723,3)+valclt(65722,3))/2,
-     &(temp(64446)+temp(64445))/2,(temp(63146)+temp(63145))/2,
-     &(temp(61831)+temp(61830))/2,(temp(60470)+temp(60469))/2
+     &(temp(64445)+temp(64446))/2,(temp(63145)+temp(63146))/2,
+     &(temp(61830)+temp(61831))/2,(temp(60469)+temp(60470))/2
 cccc....molonari45
        write(181843,*)paso/unitsortie,
 c     &(valclt(33221,3)+valclt(33220,3))/2,
-     &(temp(31380)+temp(31379))/2,(temp(29536)+temp(29535))/2,
-     &(temp(27690)+temp(27689))/2,(temp(25842)+temp(25841))/2
+     &(temp(23960)+temp(23961))/2,(temp(22055)+temp(22056))/2,
+     &(temp(20118)+temp(20119))/2,(temp(18148)+temp(18149))/2
 	  endif
 	  endif
+
 
 cccccccc Find Location of Molonari
 c	  	  do i=1,nm
@@ -3827,7 +3835,9 @@ c	  	  print*,i,x(i),z(i),ivois(i,3)
 c	  	  endif
 c	  	  enddo
 	  print*,	"cell ","time ","hh","temp "
-	  print*,"cell 1",paso/86400,pr(nm)/rho1/g+z(nm),temp(nm),pr(1)
+	  print*,"cell 1",paso/86400,pr(98445)/rho1/g+z(98445),temp(98445)
+	  print*,"cell 1",paso/86400,pr(98525)/rho1/g+z(98525),temp(98525)
+	  print*,"cell 1",izone(98524)
 	  endif
 
 CCC...SORTIES VAUCLIN parametre clement
@@ -7640,7 +7650,6 @@ c	  headPG=chgRG(kimp)
 c	  temperatureG=tempRG(kimp)
 
 
-
 ccc side boundary petit paris and bertin
 	  do i=1,nm
 
@@ -7738,20 +7747,28 @@ cccc boundary diricler for the water flow
 	  do j=1,ligne3
 ccc loop on the piece of the line of the water level of the river
 cccc slope for each element
-	  if(x(i).ge.slopeRH(1,j).and.x(i).le.slopeRH(1,j+1))
-     & then
-ccc  read slope
-	  slope=slopeRH(2,j)
-	  kj=j
-	  endif
-ccc slope from bertin water level for the downstream part
-	  if (kj.eq.1) slope=slopeRH(2,1)
-	  if (kj.eq.1)  headbk=cRivG(kimp)
+	  if(x(i).le.392) 	  slope=slopeRH(2,1)
+	  if(x(i).le.392) 	  kj=1
+	  if(x(i).ge.392.and.x(i).lt.397) 	  slope=slopeRH(2,2)
+	  if(x(i).ge.392.and.x(i).lt.397) 	  kj=2
+	  if(x(i).ge.397.and.x(i).lt.929) 	  slope=slopeRH(2,3)
+	  if(x(i).ge.397.and.x(i).lt.929) 	  kj=3
+	  if(x(i).ge.929.and.x(i).lt.931) 	  slope=slopeRH(2,4)
+	  if(x(i).ge.929.and.x(i).lt.931) 	  kj=4
 ccc id = number of upstream part
-	  if(x(i).gt.slopeRH(1,ligne3)) then
-	    kj=ligne3
+	  if(x(i).gt.931) then
+	    kj=5
+		slope=slopeRH(2,5)
 	  endif
 	  enddo
+		
+
+
+ccc slope from bertin water level for the downstream part
+	  if (x(i).lt.392) slope=slopeRH(2,1)
+	  if (x(i).lt.392)  headbk=cRivG(kimp)
+
+
 ccc between the downstream and the first cascade
 	  if (kj.eq.2) then
 	  do k=1,kj
@@ -7767,7 +7784,8 @@ cccc water level of the river = altitude of the second cascade
 cccc water level of the upstream part
 	  if(kj.eq.ligne3) headbk=cRivD(kimp)-2.16
 
-	  if(kj.eq.ligne3.or.kj.eq.3) then
+c	  if(kj.eq.ligne3.or.kj.eq.3) then
+	  if(kj.eq.ligne3) then
 	  slopeRH(2,kj)=(cRivD(kimp)-2.16-120.5D+00)/
      &(1000-slopeRH(1,ligne3))
 	  slope=slopeRH(2,kj)
@@ -7787,9 +7805,15 @@ ccc calculatation the slope
 	  endif
 
 
-	  if (kj.le.4) head=slope*(x(i)-slopeRH(1,kj))+headbk
+	  if (kj.le.4) then
+		head=slope*(x(i)-slopeRH(1,kj))+headbk
+	  endif
+
 	  if (kj.eq.ligne3) head=slope*(x(i)-1000)+headbk
 	  valcl(i,3)=(head-z(i)-bm(i)/2)*rho(i)*g
+
+
+
 	  if (ivois(i,2).eq.-99) then
 	  icl(i,2)=-2
 	  valcl(i,2)=(head-z(i))*rho(i)*g
@@ -7804,9 +7828,26 @@ ccc calculatation the slope
 	  endif
 	  endif
 
+
+
+cccc....Boundary UPSTREAM
+        if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
+        icl(i,1)=-2
+        iclt(i,1)=-2
+       	valcl(i,1)=(chgRD(kimp)-z(i))*rho(i)*g
+        valclt(i,1)=tempRD(kimp)
+        endif
+
+cccc....Boundary DOWNSTREAM
+        if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
+        icl(i,2)=-2
+        iclt(i,2)=-2
+       	valcl(i,2)=(chgRD(kimp)-z(i))*rho(i)*g
+        valclt(i,2)=tempRG(kimp)
+        endif
+
+		
 	  enddo
-
-
 
 	  endif
 
