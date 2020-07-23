@@ -3665,7 +3665,7 @@ CCC...DTS
 c    	OPEN(181819,FILE='S_velocity.dat')
 c    	OPEN(181820,FILE='S_temperature.dat')
 c    	OPEN(181821,FILE='S_pressure.dat')
-	  open(751,file='S_charge_initiale_10days.dat')
+	  open(751,file='S_pression_temperature_initiale_10days.dat')
     	OPEN(181822,FILE='S_MolTempP40.dat')
     	OPEN(181823,FILE='S_MolTempP42.dat')
 	  OPEN(181840,FILE='S_MolTempP41.dat')
@@ -3746,7 +3746,7 @@ CCC...SORTIES DTS
 
 	  if(paso.lt.86400+10.and.paso.gt.86400-10) then
 	  do i=1,nm
-	  write(751,*) pr(i)
+	  write(751,*) pr(i),temp(i)
 	   enddo
 	  endif
 

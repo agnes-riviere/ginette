@@ -23,15 +23,15 @@ D_sim <- melt(fld$z, na.rm = TRUE)
 names(D_sim) <- c("x", "y", "advection")
 D_sim$time <- fld$x[D_sim$x]
 D_sim$depth <- fld$y[D_sim$y]
-bl <- colorRampPalette(c("navy","royalblue","lightskyblue"))(200)                      
-re <- colorRampPalette(c("mistyrose", "red2","darkred"))(200)
+bl <- colorRampPalette(c("lightskyblue","royalblue","navy"))(200)                      
+re <- colorRampPalette(c("darkred", "red2","mistyrose"))(200)
 p <- ggplot(data = D_sim, aes(x = time, y = depth, z = advection)) +
   geom_tile(aes(fill = advection)) +
   stat_contour(colour = "black") +
   xlab("Time (days)") +
   ylab("Depth (m)") +
   scale_fill_gradientn(colours=c(re,"white", bl), na.value = "grey98",
-                       limits = c(-60, 60))  +                              
+                       limits = range(pretty(c(min(fld$z), max(fld$z)))),breaks=pretty(c(min(fld$z), max(fld$z))))  +                              
   theme_bw()+
   theme(legend.title = element_text(size = 15),
         legend.text = element_text(size = 10)) 
