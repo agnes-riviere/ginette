@@ -151,27 +151,33 @@ l 2 1300D-03 8400D-03 0001
 r 2 2600D+00 2600D+00  0001
 ```
 _____________________________________________________________________________________________________________________________
-### 5) Launch the screening of multiple experiments of temperature and pressure in the HZ with the awk script inversion.awk from the terminal:
+### 5) Data check
+
+The R script "formatToGinette.R" reads and interpolate all the data before they are used by ginette.
+
+At the end of the script (l.150), you'll find lines that will plot the interpolated data and save it in _ginette/application/mini-LOMOS/PLOT/Data_check_
+
+Just remove the "#" using ctrl + shift + C and launch the script.
+_____________________________________________________________________________________________________________________________
+### 6) Launch the screening of multiple experiments of temperature and pressure in the HZ with the awk script inversion.awk from the terminal:
 > awk -f inversion.awk inversion.COMM
 _____________________________________________________________________________________________________________________________
-### 6) OUTPUT
+### 7) OUTPUT
 The simulated results per mesh are in _ginette/application/mini-LOMOS/GINETTE_SENSI/OUTPUT/_
+
+**Statistical criteria:**
 
 A comparative table of simulated versus observed is generated in _ginette/application/mini-LOMOS/SENSI/_ by "Comparaison_mailles_sim-obs.R". It is named "Results_Stats_sim-obs".
 
 **Don't forget to copy/paste it in a specific repository if you want to keep track of these files, as launching another simulation will overwrite them.**
+
+**Plots:**
+
+You can plot the simulated vs observed temperature time-series thanks to the temperature_time_series.R script in ginette/application/mini-LOMOS/PLOT/, which will help you for interpretation.
+
+Based on these output, you should be able to refine the parameter sets of the inversion_parameter.COMM file and launch further simulations in order to complete a satisfaying calibration.
 _____________________________________________________________________________________________________________________________
-### 7) PLOTS
-**Data check:**
+### 8) Results
 
-The R script "formatToGinette.R" reads and interpolate all the data before they are used by ginette. 
-
-At the end of the script (l.150), you'll find lines that will plot the interpolated data and save it in _ginette/application/mini-LOMOS/PLOT/Data_check_
-
-You can do it before to use ginette to check if your data are correct, just remove the "#" using ctrl + shift + C and launch the script.
-
-**Results:**
-
-When you achieved satisfying calibrations, you can plot the simulated vs observed temperature time-series thanks to the temperature_time_series.R script in ginette/application/mini-LOMOS/PLOT/
-
-It will also save the plots in _ginette/application/mini-LOMOS/PLOT/Data_check_
+When you achieved satisfying calibrations and validations, 
+You can also plot advective and conductive heat fluxes, temperature profiles and Darcy velocities thanks to the other R scripts of the "PLOT" folder.
