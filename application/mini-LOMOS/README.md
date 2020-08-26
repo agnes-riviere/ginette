@@ -8,7 +8,7 @@ Authors:
 - ... Flipo , Nicolas, nicolas.flipo@mines_paristech.fr
 
 Contribution
-- ...
+- ...Schuller , Guillaume, gschuler@engees.eu
 
 _Created in 2008_. Copyright ©
 - Sorbonne Universite
