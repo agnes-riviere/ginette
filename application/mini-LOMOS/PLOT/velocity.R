@@ -16,11 +16,12 @@ D_sim<-read.table(paste0(path_output,"Sim_velocity_profil_t_",sim_name,".dat"),h
  x=D_sim[,1]/86400
 y=D_sim[,2]
 z=D_sim[,3]
-fld <- with(D_sim, interp(x = x, y = y, z = z))
+D_sim=as.data.frame(D_sim)
+fld <- with(D_sim,interp(x = x, y = y, z = z))
 
 
 # prepare data in long format
-D_sim <- melt(fld$z, na.rm = TRUE)
+D_sim <- reshape2::melt(fld$z, na.rm = TRUE)
 names(D_sim) <- c("x", "y", "velocity")
 D_sim$time <- fld$x[D_sim$x]
 D_sim$depth <- fld$y[D_sim$y]
