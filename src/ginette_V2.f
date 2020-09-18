@@ -3835,12 +3835,18 @@ c	  	  print*,i,x(i),z(i),ivois(i,3)
 c	  	  endif
 c	  	  enddo
 	  print*,	"cell ","time ","hh","temp "
+
 	  print*,"cell 1",paso/86400,pr(96561)/rho1/g+z(96561),temp(96561)
 	  print*,"cell 1",paso/86400,pr(96562)/rho1/g+z(96562),temp(96562)
 	  print*,"cell 1",paso/86400,pr(96560)/rho1/g+z(96560),temp(96560)
 	  print*,"cell 1",paso/86400,pr(96552)/rho1/g+z(96552),temp(96552)
 	  print*,"cell 1",paso/86400,pr(96234)/rho1/g+z(96234),temp(96234)
 	  print*,"cell 1",izone(98524),alanda(98524),ivois(96561,4)
+
+c	  print*,"cell 1",paso/86400,pr(98445)/rho1/g+z(98445),temp(98445)
+c	  print*,"cell 1",paso/86400,pr(98525)/rho1/g+z(98525),temp(98525)
+c	  print*,"cell 1",izone(98524)
+
 	  endif
 
 CCC...SORTIES VAUCLIN parametre clement
@@ -7831,6 +7837,7 @@ cccc boundary diricler for the water flow
 		do j=1,5
 ccc loop on the piece of the line of the water level of the river
 cccc slope for each element
+
 		if(x(i).ge.slopeRH(1,j).and.x(i).le.slopeRH(1,j+1))
      & then
 ccc  read slope
@@ -7845,20 +7852,51 @@ ccc id = number of upstream part
 	    kj=ligne3
 		endif
 		enddo
+
+	  if(x(i).le.392) 	  slope=slopeRH(2,1)
+	  if(x(i).le.392) 	  kj=1
+	  if(x(i).ge.392.and.x(i).lt.397) 	  slope=slopeRH(2,2)
+	  if(x(i).ge.392.and.x(i).lt.397) 	  kj=2
+	  if(x(i).ge.397.and.x(i).lt.929) 	  slope=slopeRH(2,3)
+	  if(x(i).ge.397.and.x(i).lt.929) 	  kj=3
+	  if(x(i).ge.929.and.x(i).lt.931) 	  slope=slopeRH(2,4)
+	  if(x(i).ge.929.and.x(i).lt.931) 	  kj=4
+ccc id = number of upstream part
+	  if(x(i).gt.931) then
+	    kj=5
+		slope=slopeRH(2,5)
+	  endif
+	  enddo
+		
+
+
+ccc slope from bertin water level for the downstream part
+	  if (x(i).lt.392) slope=slopeRH(2,1)
+	  if (x(i).lt.392)  headbk=cRivG(kimp)
+
+C PARTIE A CHECKER
 ccc between the downstream and the first cascade
-		if (kj.eq.2) then
-		headbk=slopeRH(2,1)*
-     &(slopeRH(1,2)-slopeRH(1,1))+headG
-		endif
+c		if (kj.eq.2) then
+C		headbk=slopeRH(2,1)*
+C     &(slopeRH(1,2)-slopeRH(1,1))+headG
+C		endif
 cccc water level of the river = altitude of the first cascade
-		if (kj.eq.3) headbk=116.29999694824218D+00
+C		if (kj.eq.3) headbk=116.29999694824218D+00
 cccc water level of the river = altitude of the second cascade
-		if (kj.eq.4) headbk=120.5D+00
+C		if (kj.eq.4) headbk=120.5D+00
 cccc water level of the upstream part
+
 		if(kj.eq.ligne3) headbk=headD-8.188
 cc.or.kj.eq.3
 		if(kj.eq.ligne3) then
 		slopeRH(2,kj)=(headbk-120.5D+00)/
+
+	  if(kj.eq.ligne3) headbk=cRivD(kimp)-2.16
+
+c	  if(kj.eq.ligne3.or.kj.eq.3) then
+	  if(kj.eq.ligne3) then
+	  slopeRH(2,kj)=(cRivD(kimp)-2.16-120.5D+00)/
+
      &(1000-slopeRH(1,ligne3))
 		slope=slopeRH(2,kj)
 		endif
@@ -7875,7 +7913,6 @@ c     &(slopeRH(1,3)-slopeRH(1,2))+116.29999694824218D+00
 		slopeRH(2,kj)=(headbk-120.5D+00)/(slopeRH(1,3)-slopeRH(1,4))
 		slope=slopeRH(2,kj)
 		endif
-
 
 		if (kj.le.4) head=slope*(x(i)-slopeRH(1,kj))+headbk
 		if (kj.eq.ligne3) head=slope*(x(i)-1000)+headbk
@@ -7900,7 +7937,50 @@ c		print*,x(i),head
 		
 		enddo
 
+	  if (kj.le.4) then
+		head=slope*(x(i)-slopeRH(1,kj))+headbk
+	  endif
 
+	  if (kj.eq.ligne3) head=slope*(x(i)-1000)+headbk
+	  valcl(i,3)=(head-z(i)-bm(i)/2)*rho(i)*g
+
+
+
+	  if (ivois(i,2).eq.-99) then
+	  icl(i,2)=-2
+	  valcl(i,2)=(head-z(i))*rho(i)*g
+	  endif
+	  if (ivois(i,1).eq.-99.and.x(i).lt.999.5) then
+	  icl(i,1)=-2
+	  valcl(i,1)=(head-z(i))*rho(i)*g
+	  endif
+	  if(ivois(ivois(i,4),2).eq.-99.and.x(i).gt.0.5) then
+	  icl(i,2)=-2
+	  valcl(i,2)=(head-z(i))*rho(i)*g
+	  endif
+	  endif
+
+
+
+
+cccc....Boundary UPSTREAM
+        if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
+        icl(i,1)=-2
+        iclt(i,1)=-2
+       	valcl(i,1)=(chgRD(kimp)-z(i))*rho(i)*g
+        valclt(i,1)=tempRD(kimp)
+        endif
+
+cccc....Boundary DOWNSTREAM
+        if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
+        icl(i,2)=-2
+        iclt(i,2)=-2
+       	valcl(i,2)=(chgRD(kimp)-z(i))*rho(i)*g
+        valclt(i,2)=tempRG(kimp)
+        endif
+
+		
+	  enddo
 
 
 		 endif

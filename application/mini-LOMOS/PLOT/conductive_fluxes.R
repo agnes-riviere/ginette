@@ -32,7 +32,7 @@ p <- ggplot(data = D_sim, aes(x = time, y = depth, z = conduction)) +
   xlab("Time (days)") +
   ylab("Depth (m)") +
   scale_fill_gradientn(colours=c(re,"white", bl), na.value = "grey98",
-                       limits = range(pretty(c(min(fld$z), max(fld$z)))),breaks=pretty(c(min(fld$z), max(fld$z))))   +                              
+ limits = range(pretty(c(min(fld$z), max(fld$z)))),breaks=pretty(c(min(fld$z), max(fld$z))))   +                              
   theme_bw()+
   theme(legend.title = element_text(size = 15),
         legend.text = element_text(size = 10)) 

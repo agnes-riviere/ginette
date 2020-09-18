@@ -1,21 +1,3 @@
-# namePoint = 'syntheticStudy'
-# wd=paste0('~/workspace/Programmes/LIBS/libts/trunk/test/HOBBO_HZ1D/GINETTE_SENSI/CONVERGENCE/')
-# setwd(wd)
-
-# prjPath = paste0('../../',namePoint,'/')
-# # OGSprjName = namePoint
-# 
-# # load data
-# Sys.setenv(TZ='GMT')
-# 
-# Deltaz = 0.01 # in m
-# Deltat = 15*60 # in s
-# 
-# depthVect = c(0.1,0.2,0.3,0.4)
-# permeability = 1e-13
-
-# GinetteWriteInputFiles <- function(){
-  
   period = 24*60*60 # in seconds
   z=seq(from=0,to=-0.4,by=-Deltaz)
   zmid = seq(from = -Deltaz/2,
