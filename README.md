@@ -15,9 +15,7 @@ _Created in 2008_. Copyright ©
 - Universite Aix Marseille
 - Mines ParisTech
 
-Ginette is a model for saturated-unsaturated, variable-density ground-water flow with solute or energy transport. 
-It simulates the groundwater-river interactions for a 2-D variably saturated flow (Riviere et al., 2014), using a finite-difference numerical
-scheme.  Freezing and thawing processes are implemented in the code as well.
+Ginette is a model for saturated-unsaturated, variable-density ground-water flow with solute or energy transport.  It is a 2-D variably saturated groundwater flow model with integrated 1-D surface flow for the stream. The coupling of fluid flow and  heat transfer, accounting for freezing and thawing processes, is implemented in the code for a fully saturated medium.
 
 [describe functionalities and technical features of your software]
 
