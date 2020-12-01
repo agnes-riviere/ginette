@@ -5,10 +5,10 @@
 Authors:
 - ... Riviere , Agnes, agnes.riviere@mines_paristech.fr
 - ... Cucchi , karina, karina.cucchi@gmail.com 
-- ... Flipo , Nicolas, nicolas.flipo@mines_paristech.fr
 
 Contribution
 - ...Schuller , Guillaume, gschuler@engees.eu
+- ... Flipo , Nicolas, nicolas.flipo@mines_paristech.fr
 
 _Created in 2008_. Copyright ©
 - Sorbonne Universite
@@ -22,7 +22,7 @@ _Created in 2008_. Copyright ©
 _**Update coming up later**_
 
 -------------------------------------------------------------------------
-This software is governed by the CeCILL license under French law and
+This software is governed by the CeCILL v2 license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
 modify and/ or redistribute the software under the terms of the CeCILL
 license as circulated by CEA, CNRS and INRIA at the following URL
