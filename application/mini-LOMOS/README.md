@@ -2,20 +2,20 @@
 
 ### License
 
-_Authors:
+Authors:
 - ... Riviere , Agnes, agnes.riviere@mines_paristech.fr
 - ... Cucchi , karina, karina.cucchi@gmail.com 
 
-_Contribution
+Contribution
 - ...Schuller , Guillaume, gschuler@engees.eu
 - ... Flipo , Nicolas, nicolas.flipo@mines_paristech.fr
 
-_Created in 2008_. Copyright ©
+Created in 2008_. Copyright ©
 - Sorbonne Universite
 - Universite Aix Marseille
 - Mines ParisTech
 
-_References:
+References:
 - Rivière, A., Gonçalvès, J., Jost, A., & Font, M. (2014). Experimental and numerical assessment of transient stream-aquifer exchange during disconnection. Journal of Hydrology, 517, 574–583. https://doi.org/10.1016/j.jhydrol.2014.05.040
 - Rivière, A., Jost, A., Gonçalvès, J. & Font, M. (2018). Pore water pressure evolution below a freezing front under saturated conditions: Large-scale laboratory experiment and numerical investigation. Cold Regions Science and Technology, 158, 76-94. https://doi.org/10.1016/j.coldregions.2018.11.005
 - Rivière, A., Gonçalvès, J., Jost, A., (2020). agnes-riviere/ginette: Ginette-2020-09 (Version 2020-09). Zenodo. http://doi.org/10.5281/zenodo.4058821
