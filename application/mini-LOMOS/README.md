@@ -3,12 +3,12 @@
 ### License
 
 Authors:
-- ... Riviere , Agnes, agnes.riviere@mines_paristech.fr
-- ... Cucchi , karina, karina.cucchi@gmail.com 
+-  Riviere , Agnes, agnes.riviere@mines_paristech.fr
+-  Cucchi , karina, karina.cucchi@gmail.com 
 
 Contributions :
-- ... Schuller , Guillaume, gschuler@engees.eu
-- ... Flipo , Nicolas, nicolas.flipo@mines_paristech.fr
+-  Schuller , Guillaume, gschuler@engees.eu
+-  Flipo , Nicolas, nicolas.flipo@mines_paristech.fr
 
 Created in 2008_. Copyright ©
 - Sorbonne Universite
