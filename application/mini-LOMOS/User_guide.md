@@ -1,5 +1,5 @@
 This User_guide will guide you step by step to help you complete the inversion based on the mini-LOMOS sensors, depending on how you chose to use it. 
-Please refer to "LOMOS-mini: A coupled system quantifying transient water and heat exchanges in streambeds" from Cucchi et al. (2017) if you want to know more information about the monitoring system and to .
+Please refer to "LOMOS-mini: A coupled system quantifying transient water and heat exchanges in streambeds" from Cucchi et al. (2017) if you want to know more information about the monitoring system and to  "Experimental and numerical assessment of transient stream-aquifer exchange during disconnection" from Riviere et al. (2014) and ."Pore water pressure evolution below a freezing front under saturated conditions: Large-scale laboratory experiment and numerical investigation." Rivière et al. (2019) for the numerical model.
 _____________________________________________________________________________________________________________________________
 
 ### Prelude :
