@@ -228,9 +228,7 @@ c	open(unit=42,file='E_cl_riv_pluie1_t.dat',iostat=iot)
 c	open(unit=43,file='E_cl_riv_pluie2_t.dat',iostat=io2)
 c	open(unit=44,file='E_cl_riv_pluie3_t.dat',iostat=io3)
 
-c	open(unit=452,file='E_pres_t.dat',iostat=iop2)
-c	  open(unit=45,file='E_charge_t.dat',iostat=iop)
-c	  open(unit=68,file='E_temp_t.dat',iostat=ios)
+
 
 
 
@@ -373,6 +371,15 @@ C	  	  	  	  	       					  C
 C	   LECTURE FICHIER IBUILT				  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+
+	  if(ytest.eq."VIT") then
+c	  open(unit=453,file='E_vitesse.dat')
+c	open(unit=452,file='E_pres_t.dat',iostat=iop2)
+	  open(unit=45,file='E_charge_t.dat',iostat=iop)
+	  open(unit=68,file='E_temp_t.dat',iostat=ios)
+        open(unit=23,file='E_temperature_initiale.dat')
+	  endif
 
 
 
@@ -3627,6 +3634,13 @@ CCC....INTERFROST TEST TH2
 
 
 
+        if(ytest.eq."VIT") then
+       open(unit=59,file='Sim_temperature_maille1_t.dat')
+       open(unit=60,file='Sim_temperature_maille2_t.dat')
+       open(unit=61,file='Sim_temperature_maille3_t.dat') 
+          endif
+
+
 CCC...AVAV Marine Dangead
 	  if(ytest.eq."AVA") then
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -3665,7 +3679,7 @@ CCC...DTS
 c    	OPEN(181819,FILE='S_velocity.dat')
 c    	OPEN(181820,FILE='S_temperature.dat')
 c    	OPEN(181821,FILE='S_pressure.dat')
-	  open(751,file='S_pression_temperature_initiale_10days.dat')
+	  open(751,file='S_charge_initiale_10days.dat')
     	OPEN(181822,FILE='S_MolTempP40.dat')
     	OPEN(181823,FILE='S_MolTempP42.dat')
 	  OPEN(181840,FILE='S_MolTempP41.dat')
@@ -3746,7 +3760,7 @@ CCC...SORTIES DTS
 
 	  if(paso.lt.86400+10.and.paso.gt.86400-10) then
 	  do i=1,nm
-	  write(751,*) pr(i),temp(i)
+	  write(751,*) pr(i)
 	   enddo
 	  endif
 
@@ -3835,18 +3849,9 @@ c	  	  print*,i,x(i),z(i),ivois(i,3)
 c	  	  endif
 c	  	  enddo
 	  print*,	"cell ","time ","hh","temp "
-
-	  print*,"cell 1",paso/86400,pr(96561)/rho1/g+z(96561),temp(96561)
-	  print*,"cell 1",paso/86400,pr(96562)/rho1/g+z(96562),temp(96562)
-	  print*,"cell 1",paso/86400,pr(96560)/rho1/g+z(96560),temp(96560)
-	  print*,"cell 1",paso/86400,pr(96552)/rho1/g+z(96552),temp(96552)
-	  print*,"cell 1",paso/86400,pr(96234)/rho1/g+z(96234),temp(96234)
-	  print*,"cell 1",izone(98524),alanda(98524),ivois(96561,4)
-
-c	  print*,"cell 1",paso/86400,pr(98445)/rho1/g+z(98445),temp(98445)
-c	  print*,"cell 1",paso/86400,pr(98525)/rho1/g+z(98525),temp(98525)
-c	  print*,"cell 1",izone(98524)
-
+	  print*,"cell 1",paso/86400,pr(98445)/rho1/g+z(98445),temp(98445)
+	  print*,"cell 1",paso/86400,pr(98525)/rho1/g+z(98525),temp(98525)
+	  print*,"cell 1",izone(98524)
 	  endif
 
 CCC...SORTIES VAUCLIN parametre clement
@@ -4171,6 +4176,67 @@ cccc....Dernier pas de temps ou regime permanant
 	  write(62,*)x(ibas(kkcol)),zs(kkcol,1)
 	  enddo
 	  endif
+
+
+
+
+       if(ytest.eq."VIT") then
+		if(it.eq.1) then
+        print*,'thermal conductivity=',alanda(1)
+		print*,'apparent heat capacity=',om(1)*sw(1)*rho(1)*cpe+
+     &om(1)*(1-sw(1))*rhog*cpg+(1.-om(1))*rhos(1)*cps(1)
+		print*,'hydraulic conductivity=',akr(1)*ak(1)*rho(1)/(amu)
+		do i=1,nm
+        if(icl(i,4).eq.-2) then
+		print*,'h(nm) [m]',pr(i)/(rho(i)*g)+z(i),'pr(nm) [Pa]',pr(i)
+		prbas=pr(i)
+		zbas=z(i)
+		endif
+        if(icl(i,3).eq.-2) then
+		print*,'h(1)[m]',pr(i)/(rho(i)*g)+z(i),'pr(1) [Pa]',pr(i)
+		prhaut=pr(i)
+		zhaut=z(i)
+		endif
+		enddo
+		print*,'Z_Obs1',z(nmaille1)
+		print*,'Z_Obs2',z(nmaille2)
+		print*,'Z_Obs3',z(nmaille3)
+		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut
+     &-(prbas/(rho1*g)+zbas))/(zhaut-zbas)
+CCC vitessse face haute si sortant négatif, entrant positif
+		print*,'velocity=',-vzp(1)
+		endif
+
+       if(irecord.eq.1) then
+		print*,'t(s)',paso,'T_obs [°C]',temp(nmaille1),temp(nmaille2),
+     &temp(nmaille3),'velocity=',-vzp(1)
+		do i=1,nm
+        if(icl(i,4).eq.-2) then
+		print*,'h(nm) [m]',pr(i)/(rho(i)*g)+z(i),'pr(nm) [Pa]',pr(i)
+		prbas=pr(i)
+		zbas=z(i)
+		endif
+        if(icl(i,3).eq.-2) then
+		print*,'h(1)[m]',pr(i)/(rho(i)*g)+z(i),'pr(1) [Pa]',pr(i)
+		prhaut=pr(i)
+		zhaut=z(i)
+		endif
+		enddo
+		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut
+     &-(prbas/(rho1*g)+zbas))/(zhaut-zbas)
+CCC vitessse face haute si sortant négatif, entrant positif
+		print*,'velocity=',-vzp(1)
+        write(59,*)paso/us,temp(nmaille1)
+       write(60,*)paso/us,temp(nmaille2)
+       write(61,*)paso/us,temp(nmaille3)
+		endif
+        endif
+
+
+
+
+
+
 
 CCC....Fermeture des fichiers!!!
 c	  call purge_noms_fichiers
@@ -7711,83 +7777,6 @@ ccc water flow
 ccc corner cell
 	  iclt(i,1)=-2
 	  valclt(i,1)=tempRG(kimp)
-	  if (z(i).lt.1) then
-	  icl(i,2)=-2
-      valcl(i,1)=(chgRD(kimp)-z(i)-4.188)*rho(i)*g
-	  else
-	  icl(i,1)=-2
-      valcl(i,1)=pro(i)
-		endif
-	  endif
-	  if (ivois(i,2).eq.-99) then
-ccc corner cell
-	  iclt(i,2)=-2
-	  valclt(i,2)=tempRG(kimp)
-	  if (z(i).lt.1) then
-	  icl(i,2)=-2
-      valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
-	  else
-	  icl(i,2)=-2
-	  valcl(i,2)=pro(i)
-	  endif
-	  endif
-	  endif
-	  enddo
-
-
-
-cccc....Boundary condition river/ZH for the heat transport
-	  do i=1,nm
-
-cccPetit Paris
-	  if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
-	  if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
-	  iclt(i,1)=-2
-	  valclt(i,1)=tempo(i)
-	  endif
-	  if (z(i).lt.1) then
-	  icl(i,1)=-2
-      valcl(i,1)=(chgRD(kimp)-z(i)-8.188)*rho(i)*g
-	  else
-	  icl(i,1)=-2
-      valcl(i,1)=pro(i)
-	  endif
-	  endif
-
-
-
-
-
-cccBertin
-	  if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
-	  if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
-	  iclt(i,2)=-2
-	  valclt(i,2)=tempo(i)
-	  endif
-
-	  if (z(i).lt.1) then
-	  icl(i,2)=-2
-      valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
-	  else
-	  icl(i,2)=-2
-      valcl(i,2)=pro(i)
-	  endif
-	  endif
-
-
-
-cccc....CDT LIMITE BOTTOM for the water zero flux
-	  if (ivois(i,4).eq.-99) then
-ccc heat transport
-	  iclt(i,4)=-2
-	  valclt(i,4)=tempRG(kimp)
-ccc water flow
-	  icl(i,4)=-1
-	  valcl(i,4)=0
-	  if (ivois(i,1).eq.-99) then
-ccc corner cell
-	  iclt(i,1)=-2
-	  valclt(i,1)=tempRG(kimp)
 	  icl(i,1)=-2
       valcl(i,1)=pro(i)
 	  endif
@@ -7806,10 +7795,10 @@ ccc corner cell
 cccc....Boundary condition river/ZH for the heat transport
 	  if(kimp.ge.ligne) kimp=ligne 
 	  do i=1,nm
-	  if(icol(i).gt.2000) icol(i)=2000
+	  if(icol(i).gt.nc) icol(i)=nc
 	  if (ivois(i,3).eq.-99) then
 	  temperature=tempDTS(kimp,icol(i))
-	  iclt(i,3)=-2
+	  icl(i,3)=-2
 	  valclt(i,3)=temperature
 	  if (ivois(i,2).eq.-99) then
 	  iclt(i,2)=-2
@@ -7822,37 +7811,17 @@ cccc....Boundary condition river/ZH for the heat transport
       endif
 	  enddo
 
-
 CCCC River/ZH hydraulic head
-        do i=1,nm
-		headG=cRivG(kimp)
-		headD=chgRD(kimp)
-
-		headbk=0
+	  do i=1,nm
+	  headbk=0
 cccc loop on the element
 	    if (ivois(i,3).eq.-99) then
 cccc no neigh top
-        icl(i,3)=-2
+	  icl(i,3)=-2
 cccc boundary diricler for the water flow
-		do j=1,5
+	  do j=1,ligne3
 ccc loop on the piece of the line of the water level of the river
 cccc slope for each element
-
-		if(x(i).ge.slopeRH(1,j).and.x(i).le.slopeRH(1,j+1))
-     & then
-ccc  read slope
-		slope=slopeRH(2,j)
-		kj=j
-		endif
-ccc slope from bertin water level for the downstream part
-		if (kj.eq.1) slope=slopeRH(2,1)
-		if (kj.eq.1)  headbk=headG
-ccc id = number of upstream part
-		if(x(i).gt.slopeRH(1,ligne3)) then
-	    kj=ligne3
-		endif
-		enddo
-
 	  if(x(i).le.392) 	  slope=slopeRH(2,1)
 	  if(x(i).le.392) 	  kj=1
 	  if(x(i).ge.392.and.x(i).lt.397) 	  slope=slopeRH(2,2)
@@ -7874,68 +7843,42 @@ ccc slope from bertin water level for the downstream part
 	  if (x(i).lt.392) slope=slopeRH(2,1)
 	  if (x(i).lt.392)  headbk=cRivG(kimp)
 
-C PARTIE A CHECKER
+
 ccc between the downstream and the first cascade
-c		if (kj.eq.2) then
-C		headbk=slopeRH(2,1)*
-C     &(slopeRH(1,2)-slopeRH(1,1))+headG
-C		endif
+	  if (kj.eq.2) then
+	  do k=1,kj
+	  if (k.eq.1)  headbk=cRivG(kimp)
+	  if (k.gt.1) headbk=slopeRH(2,k-1)*
+     &(slopeRH(1,k)-slopeRH(1,k-1))+headbk
+	  enddo
+	  endif
 cccc water level of the river = altitude of the first cascade
-C		if (kj.eq.3) headbk=116.29999694824218D+00
+	  if (kj.eq.3) headbk=116.29999694824218D+00
 cccc water level of the river = altitude of the second cascade
-C		if (kj.eq.4) headbk=120.5D+00
+	  if (kj.eq.4) headbk=120.5D+00
 cccc water level of the upstream part
-
-		if(kj.eq.ligne3) headbk=headD-8.188
-cc.or.kj.eq.3
-		if(kj.eq.ligne3) then
-		slopeRH(2,kj)=(headbk-120.5D+00)/
-
 	  if(kj.eq.ligne3) headbk=cRivD(kimp)-2.16
 
 c	  if(kj.eq.ligne3.or.kj.eq.3) then
 	  if(kj.eq.ligne3) then
 	  slopeRH(2,kj)=(cRivD(kimp)-2.16-120.5D+00)/
-
      &(1000-slopeRH(1,ligne3))
-		slope=slopeRH(2,kj)
-		endif
+	  slope=slopeRH(2,kj)
+	  endif
 
 ccc slope inside the first cascade
-		if(kj.eq.2) slope=(headbk-116.29999694824218D+00)/
+	  if(kj.eq.2) slope=(headbk-116.29999694824218D+00)/
      &(slopeRH(1,2)-slopeRH(1,3))
 
 ccc Inside the second cascade
 ccc calculatation the slope
-		if (kj.eq.3) then
-c		headbk=slopeRH(2,3)*
-c     &(slopeRH(1,3)-slopeRH(1,2))+116.29999694824218D+00
-		slopeRH(2,kj)=(headbk-120.5D+00)/(slopeRH(1,3)-slopeRH(1,4))
-		slope=slopeRH(2,kj)
-		endif
+	  if (kj.eq.4) then
+	  headbk=slopeRH(2,3)*
+     &(slopeRH(1,kj)-slopeRH(1,kj-1))+116.29999694824218D+00
+	  slope=(headbk-120.5D+00)/(slopeRH(1,kj)-slopeRH(1,ligne3))
+	  slopeRH(2,kj)=slope
+	  endif
 
-		if (kj.le.4) head=slope*(x(i)-slopeRH(1,kj))+headbk
-		if (kj.eq.ligne3) head=slope*(x(i)-1000)+headbk
-
-        valcl(i,3)=(head-z(i)-bm(i)/2)*rho(i)*g
-        if (ivois(i,2).eq.-99) then
-        icl(i,2)=-2
-		valcl(i,2)=(head-z(i))*rho(i)*g
-        endif
-        if (ivois(i,1).eq.-99.and.x(i).lt.999.5) then
-        icl(i,1)=-2
-		valcl(i,1)=(head-z(i))*rho(i)*g
-        endif
-		if(ivois(ivois(i,4),2).eq.-99.and.x(i).gt.0.5) then
-        icl(i,2)=-2
-		valcl(i,2)=(head-z(i))*rho(i)*g
-		endif
-		
-c		print*,x(i),head
-
-		endif
-		
-		enddo
 
 	  if (kj.le.4) then
 		head=slope*(x(i)-slopeRH(1,kj))+headbk
@@ -7962,7 +7905,6 @@ c		print*,x(i),head
 
 
 
-
 cccc....Boundary UPSTREAM
         if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
         icl(i,1)=-2
@@ -7982,8 +7924,7 @@ cccc....Boundary DOWNSTREAM
 		
 	  enddo
 
-
-		 endif
+	  endif
 
 
 
