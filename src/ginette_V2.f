@@ -471,7 +471,8 @@ C	  	  	  	  	       					  C
 C	   LECTURE FICHIER ZHR	  	  			  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+	  if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
 	  open(unit=45,file='E_charge_t.dat',iostat=iop)
 	  open(unit=68,file='E_temp_t.dat',iostat=ios)
 	  if (ios /= 0) then
@@ -541,7 +542,8 @@ C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....INITIALISATION COMPTEUR LIGNES
 
-      if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+      if (ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
 	  ligne4=0
 CCC....lecture des données
       do while (ios.eq.0)
@@ -2454,7 +2456,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  case ("ZNS")
 	  	ntsortie=ligne4	  	   
 	  case ("ZHR")
-	  	ntsortie=ligne4	  	   
+	  	ntsortie=ligne4	 
+	  case ("1DS")
+	  	ntsortie=ligne4	 	   
 	  case ("ZHZ")
 	  	ntsortie=ligne4 
    	  case default	    
@@ -2551,7 +2555,9 @@ cccc....irecord = booléen si vrai ecriture sinon rien
 	  case ("ZNS")
 	  	ntsortie=ligne4	  	   
 	  case ("ZHR")
-	  	ntsortie=ligne4	  	   
+	  	ntsortie=ligne4	  
+	  case ("1DS")
+	  	ntsortie=ligne4	 	   
 	  case ("ZHZ")
 	  	ntsortie=ligne4 
    	  case default	    
@@ -3382,7 +3388,8 @@ C	  	  	  	  	       					  C
 c		   TEST PERFORMANCE		  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-       if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+       if (ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
 	  do i=1,nm
 	  qad(i)=0D+00
 	  qcondu(i)=0D+00
@@ -3580,7 +3587,8 @@ CCC....FICHIERS ZNS 1D
 
 
 CCC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
-       if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+       if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
 
        if (irpth.eq.1.and.irp.ne.0) then
        open(7782,file='S_vitesse_nmaille2_hb.dat')
@@ -3994,7 +4002,8 @@ cccc....piezoB_RD.dat' zone 7
 
 
 CCC....SORTIE ZH Karina
-      if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+      if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
        if(irecord.eq.1.and.irpth.eq.1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
        write(60,*) paso/unitsortie,temp(nmaille2)
@@ -7526,7 +7535,8 @@ c       ak(i)=permeabilite intrinseque
 
 
 
-	  if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+	  if (ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
 	  if(kimp.gt.ligne4) kimp=ligne4
 	  iclt(1,3)=-2
 	  valclt(1,3)=tempsurf(kimp)
