@@ -542,8 +542,7 @@ C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....INITIALISATION COMPTEUR LIGNES
 
-      if (ytest.eq."ZHR".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."1DS") then
+      if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
 	  ligne4=0
 CCC....lecture des données
       do while (ios.eq.0)
@@ -566,6 +565,32 @@ CCC....lecture des données
 	read(68,*,iostat=ios) tempsurf(j),tempbot(j)
 	enddo
       endif
+
+
+      if (ytest.eq."1DS") then
+	  ligne4=0
+CCC....lecture des données
+      do while (ios.eq.0)
+      read(68,*,iostat=ios)
+      if (ios.eq.0) then
+      ligne4=ligne4+1
+	endif
+	enddo
+
+
+        if (allocated(chgbot)) deallocate(chgbot)
+
+	      allocate(chgbot(ligne4))
+	      allocate(chgsurf(ligne4))
+	      allocate(tempsurf(ligne4))
+	rewind(68)
+	do j=1,ligne4
+	read(45,*,iostat=iop) chgsurf(j),chgbot(j)
+	read(68,*,iostat=ios) tempsurf(j)
+	enddo
+      endif
+
+
 
 CCC....ZNS 1D ou Warrick
 	  if(ytest.eq."ZNS".or.ytest.eq."WAR") then
@@ -7535,8 +7560,7 @@ c       ak(i)=permeabilite intrinseque
 
 
 
-	  if (ytest.eq."ZHR".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."1DS") then
+	  if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
 	  if(kimp.gt.ligne4) kimp=ligne4
 	  iclt(1,3)=-2
 	  valclt(1,3)=tempsurf(kimp)
@@ -7580,6 +7604,58 @@ c       ak(i)=permeabilite intrinseque
 	  endif
 
 	  endif
+
+
+
+
+
+
+
+	  if (ytest.eq."1DS") then
+	  if(kimp.gt.ligne4) kimp=ligne4
+	  iclt(1,3)=-2
+	  valclt(1,3)=tempsurf(kimp)
+	  icl(1,3)=-2
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+	  icl(nm,4)=-2
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
+	  if(kimp.gt.ligne4) then
+	  iclt(1,3)=-2
+	  valclt(1,3)=tempsurf(ligne4)
+	  icl(1,3)=-2
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
+	  icl(nm,4)=-2
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
+	  endif
+	  if(irptha.eq.0) then
+	  iclt(1,3)=-2
+	  valclt(1,3)=tempsurf(1)
+	  icl(1,3)=-2
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
+	  icl(nm,4)=-2
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
+	  endif
+
+	  endif
+
+
+
+
+
+
+
 
 
 
