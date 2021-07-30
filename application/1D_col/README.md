@@ -12,6 +12,9 @@ _Created in 2008_. Copyright ©
 - Universite Aix Marseille
 - Mines ParisTech
 
+#Utisation
+compile ginette in the current folder
+use compile_ginette.py to modify the setup and the parameters of the model
 
 
 [describe functionalities and technical features of your software]
