@@ -13,7 +13,7 @@ irhomi=0		       irhomi=1 variation de la densite du milieu poreux
 rhosi=2900D+00	kg/m3	densite milieu								CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE
 icpm=0			       icpm=1 variation spatiale capacite calorifique specifique du milieu poreux
 cpm=1000D+00	m2/s2/C	capacite calorifique specifique du solide			   CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE GEL
-ymoycondtherm=ARITH	   LUNAR,WOODS,GEOME,ARITH,NEUMA
+ymoycondtherm=WOODS	   LUNAR,WOODS,GEOME,ARITH,NEUMA
 icycle=0		       icycle=1 gel/degel actif, icycle=0 transport de chaleur sans gel/degel	####### GEL/DEGEL
 igel=0                 indice gel=1 premiere iteration en gel igel=2 premiere iteration en degel ####### GEL/DEGE
 igelzns=0		        igelzns=1 gel zone non saturee				 ####### GEL/DEGE

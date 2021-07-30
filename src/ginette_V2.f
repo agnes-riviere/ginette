@@ -479,7 +479,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  stop 'File E_temp_t.dat does not exist' 
 	  end if
 	  endif
-	  if(ytest.eq."ZHZ") then
+	  if(ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
 	  open(unit=32,file='E_zone.dat', status='old', iostat=ios)
 	  open(unit=321,file='E_zone_parameter.dat')
 	  if (ios /= 0) then
@@ -1504,7 +1505,8 @@ C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if(ytest.eq."AVA".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
+     &.or.ytest.eq."DTS".or.ytest.eq."TEX"
+     &.or.ytest.eq."1DS") then
 	  nzone=0
 	  do i=1,nm
 	  read(32,*)izone(i)
@@ -1523,7 +1525,7 @@ CCC...Calcul le nombre de zone
 
 
 	  SELECT CASE (ytest)
-	  	  CASE ('AVA' , 'TEX')
+	  	  CASE ('AVA' , 'TEX','1DS')
 	      allocate(cpmzone(nzone))
 	      allocate(anszone(nzone))
 	      allocate(swreszone(nzone))
@@ -3612,8 +3614,7 @@ CCC....FICHIERS ZNS 1D
 
 
 CCC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
-       if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."1DS") then
+       if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
 
        if (irpth.eq.1.and.irp.ne.0) then
        open(7782,file='S_vitesse_nmaille2_hb.dat')
@@ -3627,6 +3628,28 @@ CCC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
 	  open(18183,file='Sim_temperature_profil_t.dat')
 c       open(unit=64,file='Sim_temperature_maille4_t.dat')
 c       open(unit=65,file='Sim_temperature_maille5_t.dat')
+       endif
+       endif
+
+CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
+       if(ytest.eq."1DS") then
+
+       if (irpth.eq.1.and.irp.ne.0) then
+       open(7782,file='S_vitesse_nmaille2_hb.dat')
+       open(unit=59,file='Sim_temperature_maille1_t.dat')
+       open(unit=60,file='Sim_temperature_maille2_t.dat')
+       open(unit=61,file='Sim_temperature_maille3_t.dat')
+       open(7782,file='S_vitesse_nmaille2_hb.dat')
+	  open(1818,file='S_flux_therm_velocity_1_t.dat')
+	  open(18181,file='Sim_velocity_profil_t.dat')
+	  open(18182,file='Sim_heat_flux_profil_t.dat')
+	  open(18183,file='Sim_temperature_profil_t.dat')
+      open(unit=64,file='Sim_temperature_maille4_t.dat')
+       OPEN(94,FILE='S_permeabilite_t.dat')
+       OPEN(941,FILE='S_saturation_t.dat')
+       OPEN(942,FILE='S_conduct_therm_t.dat')
+       OPEN(943,FILE='S_cap_term_t.dat')
+
        endif
        endif
 
@@ -4028,7 +4051,7 @@ cccc....piezoB_RD.dat' zone 7
 
 CCC....SORTIE ZH Karina
       if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."1DS") then
+     &) then
        if(irecord.eq.1.and.irpth.eq.1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
        write(60,*) paso/unitsortie,temp(nmaille2)
@@ -4043,6 +4066,32 @@ CCC....SORTIE ZH Karina
 	  enddo
 	  endif
 	  endif
+
+
+CCC....SORTIE sol Emmanuel leger 
+      if(ytest.eq."1DS") then
+       if(irecord.eq.1.and.irpth.eq.1) then
+       write(59,*) paso/unitsortie,temp(nmaille1)
+       write(60,*) paso/unitsortie,temp(nmaille2)
+       write(61,*) paso/unitsortie,temp(nmaille3)
+       write(64,*) paso/unitsortie,temp(nmaille4)
+	  write(7782,*) paso/unitsortie,vzp(nmaille2),vzm(nmaille2)
+	  write(1818,*) paso/unitsortie,qcondu(1),qad(1),qtherm(1),vzm(1),
+     &temp(1),temp(2)
+	   do i=1,nm
+	  write(18181,*)paso/unitsortie,z(i),vzm(i)
+	  write(18182,*)paso/unitsortie,z(i),qcondu(i),qad(i),qtherm(i)
+	  write(18183,*)paso/unitsortie,z(i),temp(i)
+	  write(94,*)paso/unitsortie,z(i),akv(i)*akrv(i)*rho(i)*g/amu
+	  write(941,*)paso/unitsortie,z(i),sw(i)
+	  write(942,*)paso/unitsortie,z(i),alanda(i)
+	  write(943,*)paso/unitsortie,z(i),om(i)*sw(i)*rho(i)*cpe+
+     &om(i)*sice(i)*rhoi(i)*cpice+
+     &(1.-om(i))*rhos(i)*cps(i)
+	  enddo
+	  endif
+	  endif
+
 CCC....SORTIES TEST LUNARDINI
 	  if(ytest.eq."THL") then
     	print*,"OUT",dt,paso

@@ -5,14 +5,13 @@ import numpy as np
 import pandas as pd
 from scipy import interpolate
 import matplotlib.pyplot as plt
-
+# please compile ginette in the folder 1D_col
 path = os.getcwd()
 
 print(path)
 ########### Setup
 # /Users/mbp/Documents/my-project/python-snippets/notebook
 f_param_bck=open("/home/ariviere/Programmes/ginette/application/1D_col/E_parametre_backup.dat", "r")
-f_param_new = open("/home/ariviere/Programmes/ginette/application/1D_col/E_parametre.dat", 'w')
 setup_model=f_param_bck.read()
 #time step in s
 dt=900
@@ -31,23 +30,61 @@ Obs3=[-0.2, 11]
 
 nb_zone=2
 # user-defined  parameters zone 1 
-val_k=10e-6
+# intrinsic permeability
+val_k=10e-13
+# porosity
 val_n=0.3
+# solid thermal conductivity
+# the porous media thermal conductivity is calculated bu the Woodside relationship
+#l_w = 0,598	   kg.m/s-3/C
 val_l=2
+# Heat capacity is calculated  by the following relationship
+#  c_pm= c_w r_w n + c_s r (1-n)
+# density
+# c_s solid specific heat capacity
+# c_s=2650D+00 m2/s2/C this value is imposed to be constant but there are no way to calibrate the both parameter rho and c in the same time
+#c_w=4185D+00	       m2/s2/C
+#r_w=1000  kg/m3
+# solid density r=val_r 
 val_r=2600e+00
-alpha=
-n=
-swres
+# Van Genuchten parameter
+val_a=6.64 #m-1
+val_nVG= 2.03
+swres=0.01
 
-# c_s capacite calorifique specifique du solide
-# c_s  impose a 1000D+00 J kg-1 k-1
-#  c_pm= c_w r_w n + c_s r (1-n)  
-# user-defined  parameters zone 2     
+# user-defined  parameters zone 2
+# altitude of the limit between zone 1 and zone 2
 thk2=-0.2
-val_k2=10e-8
+# intrinsic permeability
+val_k2=10e-15
+# porosity
 val_n2=0.01
+# Solid thermal conductivity
 val_l2=4
+#solid density
 val_r2=2100
+# Van Genuchten parameter
+val_a2=6.64 #m-1
+val_nVG2= 2.03
+swres2=0.010
+
+
+# user-defined  parameters zone 2
+# altitude of the limit between zone 1 and zone 2
+thk3=-0.2
+# intrinsic permeability
+val_k3=10e-15
+# porosity
+val_n3=0.01
+# Solid thermal conductivity
+val_l3=4
+#solid density
+val_r3=2100
+# Van Genuchten parameter
+val_a3=6.64 #m-1
+val_nVG3= 2.03
+swres3=0.010
+
 
 
 nb_cell=-z_bottom/dz
@@ -106,14 +143,14 @@ f_paramZ_bck.close()
 
 
 
-os.system(r"/home/ariviere/Programmes/ginette/application/1D_col/ginette")
+#os.system(r"/home/ariviere/Programmes/ginette/application/1D_col/ginette")
 
 
-znew = np.arange(z_bottom+dz/2,0, dz)
-z=pd.DataFrame(np.array([Obs1, Obs2, Obs3]),
-                   columns=['z', 't_obs'])
+#znew = np.arange(z_bottom+dz/2,0, dz)
+#z=pd.DataFrame(np.array([Obs1, Obs2, Obs3]),
+#                   columns=['z', 't_obs'])
 
-f = interpolate.interp1d(x, y)
+#f = interpolate.interp1d(x, y)
 
 
 # Conductivité thermique equivalent
