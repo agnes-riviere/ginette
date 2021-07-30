@@ -481,7 +481,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  endif
 	  if(ytest.eq."ZHZ"
      &.or.ytest.eq."1DS") then
-	  open(unit=32,file='E_zone.dat', status='old', iostat=ios)
+	  call open_file('E_zone.dat', An_Error,32)
 	  open(unit=321,file='E_zone_parameter.dat')
 	  if (ios /= 0) then
 	  stop 'File E_zone.dat does not exist' 
@@ -1509,10 +1509,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &.or.ytest.eq."1DS") then
 	  nzone=0
 	  do i=1,nm
-	  read(32,*)izone(i)
+	  read(32,*)izone(i)      
 	  nzone=max(nzone,izone(i))
 CCC...Calcul le nombre de zone
 	  enddo
+
 
 	      allocate(alandazone(nzone))
 	      allocate(rhomzone(nzone))
