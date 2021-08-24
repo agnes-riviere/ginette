@@ -228,9 +228,7 @@ c	open(unit=42,file='E_cl_riv_pluie1_t.dat',iostat=iot)
 c	open(unit=43,file='E_cl_riv_pluie2_t.dat',iostat=io2)
 c	open(unit=44,file='E_cl_riv_pluie3_t.dat',iostat=io3)
 
-c	open(unit=452,file='E_pres_t.dat',iostat=iop2)
-c	  open(unit=45,file='E_charge_t.dat',iostat=iop)
-c	  open(unit=68,file='E_temp_t.dat',iostat=ios)
+
 
 
 
@@ -375,6 +373,15 @@ C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
+	  if(ytest.eq."VIT") then
+c	  open(unit=453,file='E_vitesse.dat')
+c	open(unit=452,file='E_pres_t.dat',iostat=iop2)
+	  open(unit=45,file='E_charge_t.dat',iostat=iop)
+	  open(unit=68,file='E_temp_t.dat',iostat=ios)
+        open(unit=23,file='E_temperature_initiale.dat')
+	  endif
+
+
 
 	  if(ytest.eq."TEX") then
 	  icolone=1
@@ -464,15 +471,17 @@ C	  	  	  	  	       					  C
 C	   LECTURE FICHIER ZHR	  	  			  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+	  if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
 	  open(unit=45,file='E_charge_t.dat',iostat=iop)
 	  open(unit=68,file='E_temp_t.dat',iostat=ios)
 	  if (ios /= 0) then
 	  stop 'File E_temp_t.dat does not exist' 
 	  end if
 	  endif
-	  if(ytest.eq."ZHZ") then
-	  open(unit=32,file='E_zone.dat', status='old', iostat=ios)
+	  if(ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
+	  call open_file('E_zone.dat', An_Error,32)
 	  open(unit=321,file='E_zone_parameter.dat')
 	  if (ios /= 0) then
 	  stop 'File E_zone.dat does not exist' 
@@ -557,6 +566,32 @@ CCC....lecture des données
 	read(68,*,iostat=ios) tempsurf(j),tempbot(j)
 	enddo
       endif
+
+
+      if (ytest.eq."1DS") then
+	  ligne4=0
+CCC....lecture des données
+      do while (ios.eq.0)
+      read(68,*,iostat=ios)
+      if (ios.eq.0) then
+      ligne4=ligne4+1
+	endif
+	enddo
+
+
+        if (allocated(chgbot)) deallocate(chgbot)
+
+	      allocate(chgbot(ligne4))
+	      allocate(chgsurf(ligne4))
+	      allocate(tempsurf(ligne4))
+	rewind(68)
+	do j=1,ligne4
+	read(45,*,iostat=iop) chgsurf(j),chgbot(j)
+	read(68,*,iostat=ios) tempsurf(j)
+	enddo
+      endif
+
+
 
 CCC....ZNS 1D ou Warrick
 	  if(ytest.eq."ZNS".or.ytest.eq."WAR") then
@@ -1470,13 +1505,15 @@ C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if(ytest.eq."AVA".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
+     &.or.ytest.eq."DTS".or.ytest.eq."TEX"
+     &.or.ytest.eq."1DS") then
 	  nzone=0
 	  do i=1,nm
-	  read(32,*)izone(i)
+	  read(32,*)izone(i)      
 	  nzone=max(nzone,izone(i))
 CCC...Calcul le nombre de zone
 	  enddo
+
 
 	      allocate(alandazone(nzone))
 	      allocate(rhomzone(nzone))
@@ -1489,7 +1526,7 @@ CCC...Calcul le nombre de zone
 
 
 	  SELECT CASE (ytest)
-	  	  CASE ('AVA' , 'TEX')
+	  	  CASE ('AVA' , 'TEX','1DS')
 	      allocate(cpmzone(nzone))
 	      allocate(anszone(nzone))
 	      allocate(swreszone(nzone))
@@ -2447,7 +2484,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  case ("ZNS")
 	  	ntsortie=ligne4	  	   
 	  case ("ZHR")
-	  	ntsortie=ligne4	  	   
+	  	ntsortie=ligne4	 
+	  case ("1DS")
+	  	ntsortie=ligne4	 	   
 	  case ("ZHZ")
 	  	ntsortie=ligne4 
    	  case default	    
@@ -2544,7 +2583,9 @@ cccc....irecord = booléen si vrai ecriture sinon rien
 	  case ("ZNS")
 	  	ntsortie=ligne4	  	   
 	  case ("ZHR")
-	  	ntsortie=ligne4	  	   
+	  	ntsortie=ligne4	  
+	  case ("1DS")
+	  	ntsortie=ligne4	 	   
 	  case ("ZHZ")
 	  	ntsortie=ligne4 
    	  case default	    
@@ -3375,7 +3416,8 @@ C	  	  	  	  	       					  C
 c		   TEST PERFORMANCE		  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-       if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+       if (ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
 	  do i=1,nm
 	  qad(i)=0D+00
 	  qcondu(i)=0D+00
@@ -3590,6 +3632,28 @@ c       open(unit=65,file='Sim_temperature_maille5_t.dat')
        endif
        endif
 
+CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
+       if(ytest.eq."1DS") then
+
+       if (irpth.eq.1.and.irp.ne.0) then
+       open(7782,file='S_vitesse_nmaille2_hb.dat')
+       open(unit=59,file='Sim_temperature_maille1_t.dat')
+       open(unit=60,file='Sim_temperature_maille2_t.dat')
+       open(unit=61,file='Sim_temperature_maille3_t.dat')
+       open(7782,file='S_vitesse_nmaille2_hb.dat')
+	  open(1818,file='S_flux_therm_velocity_1_t.dat')
+	  open(18181,file='Sim_velocity_profil_t.dat')
+	  open(18182,file='Sim_heat_flux_profil_t.dat')
+	  open(18183,file='Sim_temperature_profil_t.dat')
+      open(unit=64,file='Sim_temperature_maille4_t.dat')
+       OPEN(94,FILE='S_permeabilite_t.dat')
+       OPEN(941,FILE='S_saturation_t.dat')
+       OPEN(942,FILE='S_conduct_therm_t.dat')
+       OPEN(943,FILE='S_cap_term_t.dat')
+
+       endif
+       endif
+
 
 CCC....SORTIE MAQ GEL/DEGEL
 	  if(ytest.eq."MAQ") then
@@ -3625,6 +3689,13 @@ CCC....INTERFROST TEST TH2
     	OPEN(181818,FILE='S_TH2.dat',form='unformatted')
 	  endif
 
+
+
+        if(ytest.eq."VIT") then
+       open(unit=59,file='Sim_temperature_maille1_t.dat')
+       open(unit=60,file='Sim_temperature_maille2_t.dat')
+       open(unit=61,file='Sim_temperature_maille3_t.dat') 
+          endif
 
 
 CCC...AVAV Marine Dangead
@@ -3665,7 +3736,7 @@ CCC...DTS
 c    	OPEN(181819,FILE='S_velocity.dat')
 c    	OPEN(181820,FILE='S_temperature.dat')
 c    	OPEN(181821,FILE='S_pressure.dat')
-	  open(751,file='S_pression_temperature_initiale_10days.dat')
+	  open(751,file='S_charge_initiale_10days.dat')
     	OPEN(181822,FILE='S_MolTempP40.dat')
     	OPEN(181823,FILE='S_MolTempP42.dat')
 	  OPEN(181840,FILE='S_MolTempP41.dat')
@@ -3746,7 +3817,7 @@ CCC...SORTIES DTS
 
 	  if(paso.lt.86400+10.and.paso.gt.86400-10) then
 	  do i=1,nm
-	  write(751,*) pr(i),temp(i)
+	  write(751,*) pr(i)
 	   enddo
 	  endif
 
@@ -3835,18 +3906,9 @@ c	  	  print*,i,x(i),z(i),ivois(i,3)
 c	  	  endif
 c	  	  enddo
 	  print*,	"cell ","time ","hh","temp "
-
-	  print*,"cell 1",paso/86400,pr(96561)/rho1/g+z(96561),temp(96561)
-	  print*,"cell 1",paso/86400,pr(96562)/rho1/g+z(96562),temp(96562)
-	  print*,"cell 1",paso/86400,pr(96560)/rho1/g+z(96560),temp(96560)
-	  print*,"cell 1",paso/86400,pr(96552)/rho1/g+z(96552),temp(96552)
-	  print*,"cell 1",paso/86400,pr(96234)/rho1/g+z(96234),temp(96234)
-	  print*,"cell 1",izone(98524),alanda(98524),ivois(96561,4)
-
-c	  print*,"cell 1",paso/86400,pr(98445)/rho1/g+z(98445),temp(98445)
-c	  print*,"cell 1",paso/86400,pr(98525)/rho1/g+z(98525),temp(98525)
-c	  print*,"cell 1",izone(98524)
-
+	  print*,"cell 1",paso/86400,pr(98445)/rho1/g+z(98445),temp(98445)
+	  print*,"cell 1",paso/86400,pr(98525)/rho1/g+z(98525),temp(98525)
+	  print*,"cell 1",izone(98524)
 	  endif
 
 CCC...SORTIES VAUCLIN parametre clement
@@ -3989,7 +4051,8 @@ cccc....piezoB_RD.dat' zone 7
 
 
 CCC....SORTIE ZH Karina
-      if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+      if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &) then
        if(irecord.eq.1.and.irpth.eq.1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
        write(60,*) paso/unitsortie,temp(nmaille2)
@@ -4004,6 +4067,32 @@ CCC....SORTIE ZH Karina
 	  enddo
 	  endif
 	  endif
+
+
+CCC....SORTIE sol Emmanuel leger 
+      if(ytest.eq."1DS") then
+       if(irecord.eq.1.and.irpth.eq.1) then
+       write(59,*) paso/unitsortie,temp(nmaille1)
+       write(60,*) paso/unitsortie,temp(nmaille2)
+       write(61,*) paso/unitsortie,temp(nmaille3)
+       write(64,*) paso/unitsortie,temp(nmaille4)
+	  write(7782,*) paso/unitsortie,vzp(nmaille2),vzm(nmaille2)
+	  write(1818,*) paso/unitsortie,qcondu(1),qad(1),qtherm(1),vzm(1),
+     &temp(1),temp(2)
+	   do i=1,nm
+	  write(18181,*)paso/unitsortie,z(i),vzm(i)
+	  write(18182,*)paso/unitsortie,z(i),qcondu(i),qad(i),qtherm(i)
+	  write(18183,*)paso/unitsortie,z(i),temp(i)
+	  write(94,*)paso/unitsortie,z(i),akv(i)*akrv(i)*rho(i)*g/amu
+	  write(941,*)paso/unitsortie,z(i),sw(i)
+	  write(942,*)paso/unitsortie,z(i),alanda(i)
+	  write(943,*)paso/unitsortie,z(i),om(i)*sw(i)*rho(i)*cpe+
+     &om(i)*sice(i)*rhoi(i)*cpice+
+     &(1.-om(i))*rhos(i)*cps(i)
+	  enddo
+	  endif
+	  endif
+
 CCC....SORTIES TEST LUNARDINI
 	  if(ytest.eq."THL") then
     	print*,"OUT",dt,paso
@@ -4171,6 +4260,67 @@ cccc....Dernier pas de temps ou regime permanant
 	  write(62,*)x(ibas(kkcol)),zs(kkcol,1)
 	  enddo
 	  endif
+
+
+
+
+       if(ytest.eq."VIT") then
+		if(it.eq.1) then
+        print*,'thermal conductivity=',alanda(1)
+		print*,'apparent heat capacity=',om(1)*sw(1)*rho(1)*cpe+
+     &om(1)*(1-sw(1))*rhog*cpg+(1.-om(1))*rhos(1)*cps(1)
+		print*,'hydraulic conductivity=',akr(1)*ak(1)*rho(1)/(amu)
+		do i=1,nm
+        if(icl(i,4).eq.-2) then
+		print*,'h(nm) [m]',pr(i)/(rho(i)*g)+z(i),'pr(nm) [Pa]',pr(i)
+		prbas=pr(i)
+		zbas=z(i)
+		endif
+        if(icl(i,3).eq.-2) then
+		print*,'h(1)[m]',pr(i)/(rho(i)*g)+z(i),'pr(1) [Pa]',pr(i)
+		prhaut=pr(i)
+		zhaut=z(i)
+		endif
+		enddo
+		print*,'Z_Obs1',z(nmaille1)
+		print*,'Z_Obs2',z(nmaille2)
+		print*,'Z_Obs3',z(nmaille3)
+		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut
+     &-(prbas/(rho1*g)+zbas))/(zhaut-zbas)
+CCC vitessse face haute si sortant négatif, entrant positif
+		print*,'velocity=',-vzp(1)
+		endif
+
+       if(irecord.eq.1) then
+		print*,'t(s)',paso,'T_obs [°C]',temp(nmaille1),temp(nmaille2),
+     &temp(nmaille3),'velocity=',-vzp(1)
+		do i=1,nm
+        if(icl(i,4).eq.-2) then
+		print*,'h(nm) [m]',pr(i)/(rho(i)*g)+z(i),'pr(nm) [Pa]',pr(i)
+		prbas=pr(i)
+		zbas=z(i)
+		endif
+        if(icl(i,3).eq.-2) then
+		print*,'h(1)[m]',pr(i)/(rho(i)*g)+z(i),'pr(1) [Pa]',pr(i)
+		prhaut=pr(i)
+		zhaut=z(i)
+		endif
+		enddo
+		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut
+     &-(prbas/(rho1*g)+zbas))/(zhaut-zbas)
+CCC vitessse face haute si sortant négatif, entrant positif
+		print*,'velocity=',-vzp(1)
+        write(59,*)paso/us,temp(nmaille1)
+       write(60,*)paso/us,temp(nmaille2)
+       write(61,*)paso/us,temp(nmaille3)
+		endif
+        endif
+
+
+
+
+
+
 
 CCC....Fermeture des fichiers!!!
 c	  call purge_noms_fichiers
@@ -7509,6 +7659,58 @@ c       ak(i)=permeabilite intrinseque
 
 
 
+
+
+	  if (ytest.eq."1DS") then
+	  if(kimp.gt.ligne4) kimp=ligne4
+	  iclt(1,3)=-2
+	  valclt(1,3)=tempsurf(kimp)
+	  icl(1,3)=-2
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+	  icl(nm,4)=-2
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
+	  if(kimp.gt.ligne4) then
+	  iclt(1,3)=-2
+	  valclt(1,3)=tempsurf(ligne4)
+	  icl(1,3)=-2
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
+	  icl(nm,4)=-2
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
+	  endif
+	  if(irptha.eq.0) then
+	  iclt(1,3)=-2
+	  valclt(1,3)=tempsurf(1)
+	  icl(1,3)=-2
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
+	  icl(nm,4)=-2
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
+	  endif
+
+	  endif
+
+
+
+
+
+
+
+
+
+
+
+
 	  if (ytest.eq."MAQ") then
 	  if(kimp.gt.ligne4) kimp=ligne4
 	  do i=1,nm
@@ -7711,83 +7913,6 @@ ccc water flow
 ccc corner cell
 	  iclt(i,1)=-2
 	  valclt(i,1)=tempRG(kimp)
-	  if (z(i).lt.1) then
-	  icl(i,2)=-2
-      valcl(i,1)=(chgRD(kimp)-z(i)-4.188)*rho(i)*g
-	  else
-	  icl(i,1)=-2
-      valcl(i,1)=pro(i)
-		endif
-	  endif
-	  if (ivois(i,2).eq.-99) then
-ccc corner cell
-	  iclt(i,2)=-2
-	  valclt(i,2)=tempRG(kimp)
-	  if (z(i).lt.1) then
-	  icl(i,2)=-2
-      valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
-	  else
-	  icl(i,2)=-2
-	  valcl(i,2)=pro(i)
-	  endif
-	  endif
-	  endif
-	  enddo
-
-
-
-cccc....Boundary condition river/ZH for the heat transport
-	  do i=1,nm
-
-cccPetit Paris
-	  if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
-	  if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
-	  iclt(i,1)=-2
-	  valclt(i,1)=tempo(i)
-	  endif
-	  if (z(i).lt.1) then
-	  icl(i,1)=-2
-      valcl(i,1)=(chgRD(kimp)-z(i)-8.188)*rho(i)*g
-	  else
-	  icl(i,1)=-2
-      valcl(i,1)=pro(i)
-	  endif
-	  endif
-
-
-
-
-
-cccBertin
-	  if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
-	  if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
-	  iclt(i,2)=-2
-	  valclt(i,2)=tempo(i)
-	  endif
-
-	  if (z(i).lt.1) then
-	  icl(i,2)=-2
-      valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
-	  else
-	  icl(i,2)=-2
-      valcl(i,2)=pro(i)
-	  endif
-	  endif
-
-
-
-cccc....CDT LIMITE BOTTOM for the water zero flux
-	  if (ivois(i,4).eq.-99) then
-ccc heat transport
-	  iclt(i,4)=-2
-	  valclt(i,4)=tempRG(kimp)
-ccc water flow
-	  icl(i,4)=-1
-	  valcl(i,4)=0
-	  if (ivois(i,1).eq.-99) then
-ccc corner cell
-	  iclt(i,1)=-2
-	  valclt(i,1)=tempRG(kimp)
 	  icl(i,1)=-2
       valcl(i,1)=pro(i)
 	  endif
@@ -7806,10 +7931,10 @@ ccc corner cell
 cccc....Boundary condition river/ZH for the heat transport
 	  if(kimp.ge.ligne) kimp=ligne 
 	  do i=1,nm
-	  if(icol(i).gt.2000) icol(i)=2000
+	  if(icol(i).gt.nc) icol(i)=nc
 	  if (ivois(i,3).eq.-99) then
 	  temperature=tempDTS(kimp,icol(i))
-	  iclt(i,3)=-2
+	  icl(i,3)=-2
 	  valclt(i,3)=temperature
 	  if (ivois(i,2).eq.-99) then
 	  iclt(i,2)=-2
@@ -7822,37 +7947,17 @@ cccc....Boundary condition river/ZH for the heat transport
       endif
 	  enddo
 
-
 CCCC River/ZH hydraulic head
-        do i=1,nm
-		headG=cRivG(kimp)
-		headD=chgRD(kimp)
-
-		headbk=0
+	  do i=1,nm
+	  headbk=0
 cccc loop on the element
 	    if (ivois(i,3).eq.-99) then
 cccc no neigh top
-        icl(i,3)=-2
+	  icl(i,3)=-2
 cccc boundary diricler for the water flow
-		do j=1,5
+	  do j=1,ligne3
 ccc loop on the piece of the line of the water level of the river
 cccc slope for each element
-
-		if(x(i).ge.slopeRH(1,j).and.x(i).le.slopeRH(1,j+1))
-     & then
-ccc  read slope
-		slope=slopeRH(2,j)
-		kj=j
-		endif
-ccc slope from bertin water level for the downstream part
-		if (kj.eq.1) slope=slopeRH(2,1)
-		if (kj.eq.1)  headbk=headG
-ccc id = number of upstream part
-		if(x(i).gt.slopeRH(1,ligne3)) then
-	    kj=ligne3
-		endif
-		enddo
-
 	  if(x(i).le.392) 	  slope=slopeRH(2,1)
 	  if(x(i).le.392) 	  kj=1
 	  if(x(i).ge.392.and.x(i).lt.397) 	  slope=slopeRH(2,2)
@@ -7874,68 +7979,42 @@ ccc slope from bertin water level for the downstream part
 	  if (x(i).lt.392) slope=slopeRH(2,1)
 	  if (x(i).lt.392)  headbk=cRivG(kimp)
 
-C PARTIE A CHECKER
+
 ccc between the downstream and the first cascade
-c		if (kj.eq.2) then
-C		headbk=slopeRH(2,1)*
-C     &(slopeRH(1,2)-slopeRH(1,1))+headG
-C		endif
+	  if (kj.eq.2) then
+	  do k=1,kj
+	  if (k.eq.1)  headbk=cRivG(kimp)
+	  if (k.gt.1) headbk=slopeRH(2,k-1)*
+     &(slopeRH(1,k)-slopeRH(1,k-1))+headbk
+	  enddo
+	  endif
 cccc water level of the river = altitude of the first cascade
-C		if (kj.eq.3) headbk=116.29999694824218D+00
+	  if (kj.eq.3) headbk=116.29999694824218D+00
 cccc water level of the river = altitude of the second cascade
-C		if (kj.eq.4) headbk=120.5D+00
+	  if (kj.eq.4) headbk=120.5D+00
 cccc water level of the upstream part
-
-		if(kj.eq.ligne3) headbk=headD-8.188
-cc.or.kj.eq.3
-		if(kj.eq.ligne3) then
-		slopeRH(2,kj)=(headbk-120.5D+00)/
-
 	  if(kj.eq.ligne3) headbk=cRivD(kimp)-2.16
 
 c	  if(kj.eq.ligne3.or.kj.eq.3) then
 	  if(kj.eq.ligne3) then
 	  slopeRH(2,kj)=(cRivD(kimp)-2.16-120.5D+00)/
-
      &(1000-slopeRH(1,ligne3))
-		slope=slopeRH(2,kj)
-		endif
+	  slope=slopeRH(2,kj)
+	  endif
 
 ccc slope inside the first cascade
-		if(kj.eq.2) slope=(headbk-116.29999694824218D+00)/
+	  if(kj.eq.2) slope=(headbk-116.29999694824218D+00)/
      &(slopeRH(1,2)-slopeRH(1,3))
 
 ccc Inside the second cascade
 ccc calculatation the slope
-		if (kj.eq.3) then
-c		headbk=slopeRH(2,3)*
-c     &(slopeRH(1,3)-slopeRH(1,2))+116.29999694824218D+00
-		slopeRH(2,kj)=(headbk-120.5D+00)/(slopeRH(1,3)-slopeRH(1,4))
-		slope=slopeRH(2,kj)
-		endif
+	  if (kj.eq.4) then
+	  headbk=slopeRH(2,3)*
+     &(slopeRH(1,kj)-slopeRH(1,kj-1))+116.29999694824218D+00
+	  slope=(headbk-120.5D+00)/(slopeRH(1,kj)-slopeRH(1,ligne3))
+	  slopeRH(2,kj)=slope
+	  endif
 
-		if (kj.le.4) head=slope*(x(i)-slopeRH(1,kj))+headbk
-		if (kj.eq.ligne3) head=slope*(x(i)-1000)+headbk
-
-        valcl(i,3)=(head-z(i)-bm(i)/2)*rho(i)*g
-        if (ivois(i,2).eq.-99) then
-        icl(i,2)=-2
-		valcl(i,2)=(head-z(i))*rho(i)*g
-        endif
-        if (ivois(i,1).eq.-99.and.x(i).lt.999.5) then
-        icl(i,1)=-2
-		valcl(i,1)=(head-z(i))*rho(i)*g
-        endif
-		if(ivois(ivois(i,4),2).eq.-99.and.x(i).gt.0.5) then
-        icl(i,2)=-2
-		valcl(i,2)=(head-z(i))*rho(i)*g
-		endif
-		
-c		print*,x(i),head
-
-		endif
-		
-		enddo
 
 	  if (kj.le.4) then
 		head=slope*(x(i)-slopeRH(1,kj))+headbk
@@ -7962,7 +8041,6 @@ c		print*,x(i),head
 
 
 
-
 cccc....Boundary UPSTREAM
         if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
         icl(i,1)=-2
@@ -7982,8 +8060,7 @@ cccc....Boundary DOWNSTREAM
 		
 	  enddo
 
-
-		 endif
+	  endif
 
 
 
