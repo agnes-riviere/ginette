@@ -1,0 +1,199 @@
+
+R version 4.0.2 (2020-06-22) -- "Taking Off Again"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+Microsoft R Open 4.0.2
+The enhanced R distribution from Microsoft
+Microsoft packages Copyright (C) 2020 Microsoft Corporation
+
+Using the Intel MKL for parallel mathematical computing (using 1 cores).
+
+Default CRAN mirror snapshot taken on 2020-07-16.
+See: https://mran.microsoft.com/.
+
+[Sauvegarde de la session précédente restaurée]
+
+> #set wd to source file location
+> setwd("./")
+> 
+> library(hydroGOF)
+Le chargement a nécessité le package : zoo
+
+Attachement du package : ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+> library(stringr)
+> library(plyr)
+> 
+> path_obs <- "GINETTE_SENSI/OBS/"
+> path_output <- "GINETTE_SENSI/OUTPUT/"
+> 
+> files_obs <- list.files(path = path_obs, pattern = 'Obs')
+> files_output <- list.files(path = path_output, pattern = 'temperature_maille')
+> 
+> nb_PT100 <- length(files_obs)
+> num_PT100 <- substr(files_obs, 23, 23)
+> 
+> pos_end = str_locate(files_output, ".dat")
+> pos_bg = str_locate(files_output, "Sim_temperature_maille")
+> id_sim = as.numeric(str_sub(files_output, pos_bg[, 2] + 3,  pos_end[, 1] - 1))
+> nb_simu <- as.integer(max(id_sim))
+> param_simu <- read.table(file = "GINETTE_SENSI/tested_values", sep = " ", header = FALSE)
+> 
+> #Read data
+> 
+> for (i in seq_len(nb_PT100))  { 
++   a <- read.csv(paste0(path_obs, files_obs)[i], sep=" ", header = FALSE)
++   name <- str_remove(files_obs[i], ".dat")
++   assign(name, a)
++ }
+> 
+> for (i in seq_len(nb_PT100*nb_simu))  { 
++   a <- read.csv(paste0(path_output, files_output)[i], sep = " ", header = FALSE)
++   name <- str_remove(files_output[i], ".dat")
++   assign(name, a)
++ }
+> 
+> #Creation of a data-frame with all the observed temperatures
+> 
+> data_obs <- Obs_temperature_maille1_t[1]
+> 
+> for (j in seq_len(nb_PT100)) {
++     a <- get(paste0("Obs_temperature_maille",j,"_t"))[2]
++     data_obs <- cbind(data_obs, a)
++ }
+> 
+> #Creation of a data-frame with all the simulated temperatures
+> 
+> data_output <- Sim_temperature_maille1_1[1]
+> 
+> for (i in seq_len(nb_simu)) {
++   for (j in seq_len(nb_PT100)) {
++   a <- get(paste0(paste0("Sim_temperature_maille",j,"_"),i))[2]
++   data_output <- cbind(data_output, a)
++   }
++ }
+> 
+> #Creation of the matrix of the stats results of comparisons obs with sim
+> results <- array(NA, dim = c(nb_simu, 5*nb_PT100+1))
+> 
+> #name of rows
+> rows <- as.character(rep(0, nb_simu))
+> 
+> if (length(param_simu)>4) {
++   for (i in seq_len(nb_simu)) {
++     rows[i] <- paste0("Simu", i, " ", 
++                       "k1=", param_simu[i, 1],
++                       " k2=", param_simu[i, 5],
++                       " n1=", param_simu[i, 2],
++                       " n2=", param_simu[i, 6],
++                       " l1=", param_simu[i, 3],
++                       " l2=", param_simu[i, 7],
++                       " r1=", param_simu[i, 4],
++                       " r2=", param_simu[i, 8])
++   }} else {
++     for (i in seq_len(nb_simu)) {
++       rows[i] <- paste0("Simu", i, " ", 
++                         "k=", param_simu[i, 1],
++                         " n=", param_simu[i, 2],
++                         " l=", param_simu[i, 3],
++                         " r=", param_simu[i, 4])
++     }
++   }
+> 
+> 
+> rownames(results) <- rows
+> 
+> #name of columns
+> columns <- as.character(c())
+> columns[1] <- "Sum KGE"
+> for (i in seq_len(nb_PT100)) {
++   columns[i+1] <- paste0("KGE m", num_PT100[i])
++   columns[i+1+as.integer(num_PT100[length(num_PT100)])] <- paste0("RMSE m", num_PT100[i])
++   columns[i+1+2*as.integer(num_PT100[length(num_PT100)])] <- paste0("MAE m", num_PT100[i])
++   columns[i+1+3*as.integer(num_PT100[length(num_PT100)])] <- paste0("COR m", num_PT100[i])
++   columns[i+1+4*as.integer(num_PT100[length(num_PT100)])] <- paste0("PBIAS m", num_PT100[i])
++ }
+> colnames(results) <- columns
+> 
+> #verification : sim and obs time-series must have the same length !
+> 
+> if (length(data_output[, 1]) != length(data_obs[, 1])) {
++   data_obs <- data_obs[-length(data_obs[, 1]), ]
++ }
+> 
+> #Fill the matrix
+> for (i in seq_len(nb_PT100)) {
++   if (nb_PT100 == 3) {
++     if (nb_simu==1) {
++       a <- c(0, 3)
++     } else {
++       a <- seq(0, (nb_simu - 1) * 3, by = 3)
++     }
++   } else if (nb_PT100 == 2) {
++     if (nb_simu==1) {
++       a <- c(0, 2)
++     } else {
++       a <- seq(0, (nb_simu - 1) * 2, by = 2)
++     }
++   } else {
++     if (nb_simu==1) {
++       a <- c(0, 1)
++     } else {
++       a <- seq(0, (nb_simu - 1) * 1, by = 1)
++     }
++   }
++ }
+> 
+> 
+> for (j in seq_len(nb_simu)) {
++   for (i in seq_len(nb_PT100)) {
++     if (nb_PT100 == 3) {
++       results[j, i + 1] <- KGE(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 4] <- rmse(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 7] <- mae(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 10] <- cor(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 13] <- pbias(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, 1] <- results[j, 2] + results[j, 3] + results[j, 4]
++     } else if (nb_PT100 == 2) {
++       results[j, i + 1] <- KGE(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 3] <- rmse(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 5] <- mae(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 7] <- cor(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 9] <- pbias(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, 1] <- results[j, 2] + results[j, 3]
++     } else {
++       results[j, i + 1] <- KGE(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 2] <- rmse(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 3] <- mae(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 4] <- cor(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, i + 5] <- pbias(data_obs[, i + 1], data_output[, i + a[j] + 1])
++       results[j, 1] <- results[j, 2]
++     }
++   }
++ }
+> 
+> #Sort depending on the sum of KGE
+> sorted_results <- results[order(results[, 1], decreasing = TRUE),]
+> 
+> write.table(sorted_results, file = "SENSI/Results_Stats_sim-obs", sep = ";", col.names = TRUE, row.names = TRUE)
+> 
+> proc.time()
+utilisateur     système      écoulé 
+      1.601       0.103       1.717 

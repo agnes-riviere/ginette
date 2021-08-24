@@ -20,7 +20,7 @@ You can respectively install them on R with the following command lines:
 _____________________________________________________________________________________________________________________________
 ### 1) Add field data.
 
-There must be 2 ".csv" files (one for pressure and one for temperatures) with the following format: sensor-name_point_dd_MM_YY.csv
+There must be 2 ".csv" files (one for pressure and one for temperatures) with the following format: sensor-name_point_dd_MM_YY.csv inside the repertory mini-LOMOS/
  
 #### Particularly pay attention of the dates formatting in the titles, this could explain why the 1D model doesn't work.
 -------------------------------------
@@ -121,7 +121,7 @@ c_w = specific heat capacity of water [334 000 J kg−1 K−1]
 
 r_w = water density [1 000 kg m-3] 
 
-c_s = specific heat capacity of solid [J kg−1 K−1]
+c_s = specific heat capacity of solid [J kg−1 K−1] 1000 (valeur imposeeà
 
 Column 2 = number of zones (e.g. clay, sand...)
 
@@ -150,7 +150,9 @@ n 2 0.05 0.40 0001
 l 2 1300D-03 8400D-03 0001
 r 2 2600D+00 2600D+00  0001
 ```
-_____________________________________________________________________________________________________________________________
+
+
+__________________________________________________________________________________________________________________________
 ### 5) Launch the screening of multiple experiments of temperature and pressure in the HZ with the awk script inversion.awk from the terminal:
 > awk -f inversion.awk inversion.COMM
 _____________________________________________________________________________________________________________________________
