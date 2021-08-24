@@ -5,7 +5,7 @@ dt=000900D+00		s	pas de temps ; format d9.0                                     
 nitt=000001         nombre d'iterations en temps    000001                                     C//////////////////////////  CONSTRUCTION MODEL
 unite=8640D+01 		s	temps total de simulation unite*nitt ;format d8.0                       C//////////////////////////  CONSTRUCTION MODEL
 al=0001D+00    		m 	longueur     ; format d8.0                                              C//////////////////////////  CONSTRUCTION MODEL
-az=5.50e-01       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
+az=5.500e-01       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
 ixy=1           =1 : plan x,z  =0 plan x,y annulation du terme graviatiait ; format i1          C//////////////////////////  CONSTRUCTION MODEL
 imaille=1	    =0 lecture maillage : voisins, coordonnees, def_maille : largeur (am), hauteur (bm), nb colonnes (nci), nb lignes (nri);  =1 construction maillage automatique  C//////  CONSTRUCTION MODEL
 itopo=0         itopo=1 variation de altitude de top bot par colonne  E_geom.dats  C//////////////////////////  CONSTRUCTION MODEL

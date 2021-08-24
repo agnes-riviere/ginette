@@ -4,8 +4,8 @@ library(ggplot2)
 library(reshape2)
 library(akima)
 
-path_output <- "../GINETTE_SENSI/OUTPUT/"
-# path_plot <- "./"
+path_output <- '/home/ariviere/Programmes/ginette/application/mini-LOMOS/GINETTE_SENSI/OUTPUT/'
+ path_plot <- "./"
 
 sim_name=1
 
@@ -37,7 +37,7 @@ p <- ggplot(data = D_sim, aes(x = time, y = depth, z = temperature)) +
         legend.text = element_text(size = 10))
 p
 
-ggsave("temperature_profile.png", plot = p, width = 11, height = 8)
+ggsave("./temperature_profile.png", plot = p, width = 11, height = 8)
 
 
 #library(directlabels)

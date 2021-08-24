@@ -3,7 +3,7 @@
 library(ggplot2)
 library(reshape2)
 library(akima)
-path_output <- "../GINETTE_SENSI/OUTPUT/"
+path_output <-'/home/ariviere/Programmes/ginette/application/mini-LOMOS/GINETTE_SENSI/OUTPUT/'
 path_plot <- "./"
 
 sim_name=1

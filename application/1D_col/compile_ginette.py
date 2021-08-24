@@ -96,7 +96,7 @@ val_swres2=0.010
 
 # user-defined  parameters zone 2
 # altitude of the limit between zone 1 and zone 2
-thk3=-0.4
+thk3=-0.6
 # intrinsic permeability
 val_k3=1e-12
 # porosity
@@ -125,7 +125,7 @@ cell4=-Obs4/dz
 setup_model=setup_model.replace('[dt]','%06.0fD+00' % dt)
 setup_model=setup_model.replace('[nb_day]','%06.0f' % nb_day)
 setup_model=setup_model.replace('[z_bottom]','%6.2e' % z_bottom)
-setup_model=setup_model.replace('[az]','%6.2e' % -z_bottom)
+setup_model=setup_model.replace('[az]','%7.3e' % -z_bottom)
 setup_model=setup_model.replace('[dz]','%6.2e' % dz)
 setup_model=setup_model.replace('[nb_cell]','%05.0f' % nb_cell)
 setup_model=setup_model.replace('[unsat]','%1i' % unsat)
