@@ -1,12 +1,14 @@
 # Ginette
+==================================================================================
 
 
-Authors:
+## Authors:
 - Riviere, Agnes, agnes.riviere@mines_paristech.fr
 - Goncalves, Julio, goncalves@cerege.fr 
 - Jost, Anne, anne.jost@upmc.fr
 
-Contributions by:
+
+## Contributions by:
 - Texier, Jérôme, texier@cerege.fr 
 
 
