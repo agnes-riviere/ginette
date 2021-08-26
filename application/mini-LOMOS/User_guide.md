@@ -54,19 +54,9 @@ Format the inversion.COMM command file columns as following :
  $5 : name temperature sensor (four first characters) ex: t502
  $6 : name pressure sensor (four first characters) ex: p502
  $7 : time step (s) ex: 900
- $8 : nb of observations ex: 3 if the 4 PT100 work, 2 if one is broken, etc.
-``` 
-$8 = nb of working PT100-1; as the deepest working PT100 is used as a boundary condition. 
-The upper boundary condition is the temperature sensor in the stream, in the pressure differential file.
-```
- $9 : number of zones (clay, sand...) ex: 1
-```
-More than 2 would require more PT100 so it wouldn't make a lot of sense here.
-```
- $10 : thickness of the upper zone (m)
-```
-$10 = distance between the riverbed and the bottom of the upper zones. Type in "0" if there is just 1 zone.
-```
+ $8 : nb of observations ex: 3 if the 4 PT100 work, 2 if one is broken, etc. $8 = nb of working PT100-1; as the deepest working PT100 is used as a boundary condition. The upper boundary condition is the temperature sensor in the stream, in the pressure differential file.
+ $9 : number of zones (clay, sand...) ex: 1 More than 2 would require more PT100 so it wouldn't make a lot of sense here.
+ $10 : thickness of the upper zone (m) distance between the riverbed and the bottom of the upper zones. Type in "0" if there is just 1 zone.
  $11: maximum duration of the inversion (s) ex : 864000 (= 10 days)
 ```
 If the duration of the experiment is smaller than the prescribed duration, the duration of the experiment will be used (i.e. you can put 8640000000 to be sure to use the duration of the experiment).
