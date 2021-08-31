@@ -23,6 +23,10 @@ References:
 
 _**Update coming up later**_
 
+### Userguide
+Userguide available in [User_guide.md](User_guide.md)
+
+
 -------------------------------------------------------------------------
 This software is governed by the CeCILL v2 license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
@@ -79,5 +83,3 @@ pris connaissance de la licence CeCILL, et que vous en avez accepté les
 termes.
 
 
-### Userguide
-Userguide available in [User_guide.md](User_guide.md)
