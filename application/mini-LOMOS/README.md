@@ -1,31 +1,34 @@
-# Ginette application
+Ginette application
+=====================================================
 
-### License
+# Authors:
+*  Riviere , Agnes, agnes.riviere@mines_paristech.fr
+*  Cucchi , karina, karina.cucchi@gmail.com 
 
-Authors:
--  Riviere , Agnes, agnes.riviere@mines_paristech.fr
--  Cucchi , karina, karina.cucchi@gmail.com 
+# Contributions :
+*  Schuller , Guillaume, gschuler@engees.eu
+*  Flipo , Nicolas, nicolas.flipo@mines_paristech.fr
 
-Contributions :
--  Schuller , Guillaume, gschuler@engees.eu
--  Flipo , Nicolas, nicolas.flipo@mines_paristech.fr
 
-Created in 2008_. Copyright ©
+# created in 2008_. Copyright ©
 - Sorbonne Universite
 - Universite Aix Marseille
 - Mines ParisTech
 
-References:
-- Cucchi, K., Rivière, A., Flipo, N., A. Baudin, A. Berrhouma, F. Rejiba & Rubin, Y. (2018). LOMOS-mini: a coupled pressure and temperature system for local estimations of water and heat exchanges and sediment properties in streambeds. Journal of hydrology, 561, 1037-104. ⟨10.1016/j.jhydrol.2017.10.074⟩.
-- Rivière, A., Gonçalvès, J., Jost, A., & Font, M. (2014). Experimental and numerical assessment of transient stream-aquifer exchange during disconnection. Journal of Hydrology, 517, 574–583. https://doi.org/10.1016/j.jhydrol.2014.05.040
-- Rivière, A., Jost, A., Gonçalvès, J. & Font, M. (2018). Pore water pressure evolution below a freezing front under saturated conditions: Large-scale laboratory experiment and numerical investigation. Cold Regions Science and Technology, 158, 76-94. https://doi.org/10.1016/j.coldregions.2018.11.005
-- Rivière, A., Gonçalvès, J., Jost, A., (2020). agnes-riviere/ginette: Ginette-2020-09 (Version 2020-09). Zenodo. http://doi.org/10.5281/zenodo.4058821
+# References:
+* Cucchi, K., Rivière, A., Flipo, N., A. Baudin, A. Berrhouma, F. Rejiba & Rubin, Y. (2018). LOMOS-mini: a coupled pressure and temperature system for local estimations of water and heat exchanges and sediment properties in streambeds. Journal of hydrology, 561, 1037-104. ⟨10.1016/j.jhydrol.2017.10.074⟩.
+* Rivière, A., Gonçalvès, J., Jost, A., & Font, M. (2014). Experimental and numerical assessment of transient stream-aquifer exchange during disconnection. Journal of Hydrology, 517, 574–583. https://doi.org/10.1016/j.jhydrol.2014.05.040
+* Rivière, A., Jost, A., Gonçalvès, J. & Font, M. (2018). Pore water pressure evolution below a freezing front under saturated conditions: Large-scale laboratory experiment and numerical investigation. Cold Regions Science and Technology, 158, 76-94. https://doi.org/10.1016/j.coldregions.2018.11.005
+* Rivière, A., Gonçalvès, J., Jost, A., (2020). agnes-riviere/ginette: Ginette-2020-09 (Version 2020-09). Zenodo. http://doi.org/10.5281/zenodo.4058821
 
 _**Update coming up later**_
 
-### Userguide
+# Userguide
 Userguide available in [User_guide.md](User_guide.md)
 
+
+
+# License
 
 -------------------------------------------------------------------------
 This software is governed by the CeCILL v2 license under French law and
