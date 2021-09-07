@@ -21,7 +21,8 @@ Userguide available in [User_guide.md](User_guide.md)
 - Rivière, A., Jost, A., Gonçalvès, J. & Font, M. (2018). Pore water pressure evolution below a freezing front under saturated conditions: Large-scale laboratory experiment and numerical investigation. Cold Regions Science and Technology, 158, 76-94. https://doi.org/10.1016/j.coldregions.2018.11.005
 - Rivière, A., Gonçalvès, J., Jost, A., (2020). agnes-riviere/ginette: Ginette-2020-09 (Version 2020-09). Zenodo. http://doi.org/10.5281/zenodo.4058821
 
-message: "If you use this software, please cite it as below."
+## Message:
+"If you use this software, please cite it as below."
 authors:
   - family-names: Rivière
     given-names: Agnès
