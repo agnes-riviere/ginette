@@ -1,0 +1,13 @@
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Rivière
+    given-names: Agnès
+    orcid: https://orcid.org/0000-0000-0000-0000
+  - family-names: Gonçalvès
+    given-names: Julio
+  - family-names: Jost
+    given-names: Anne
+
+title: agnes-riviere/ginette: Ginette-2020-09
+version: 2020-09
+date-released: 2017-12-18
