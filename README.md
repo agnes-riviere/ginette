@@ -23,6 +23,9 @@ Userguide available in [User_guide.md](User_guide.md)
 
 ## Message:
 "If you use this software, please cite it as below."
+Rivière, A., Gonçalvès, J., Jost, A., Ginette,   [![DOI](https://zenodo.org/badge/242535776.svg)](https://zenodo.org/badge/latestdoi/242535776)
+
+
 authors:
   - family-names: Rivière
     given-names: Agnès
