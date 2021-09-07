@@ -1,36 +1,61 @@
-# Ginette
+![Ginette-2](Ginette-2.png)
+==================================================================================
 
-### License
+Ginette is a model for saturated-unsaturated, variable-density ground-water flow with solute or energy transport.  It is a 2-D variably saturated groundwater flow model with integrated 1-D surface flow for the stream. The coupling of fluid flow and  heat transfer, accounting for freezing and thawing processes, is implemented in the code for a fully saturated medium.
 
-Authors:
+
+
+## Authors:
 - Riviere, Agnes, agnes.riviere@mines_paristech.fr
 - Goncalves, Julio, goncalves@cerege.fr 
 - Jost, Anne, anne.jost@upmc.fr
 
-Contributions by:
+
+## Contributions by:
 - Texier, Jérôme, texier@cerege.fr 
 
-References:
+
+## Userguide
+Userguide available in [User_guide.md](User_guide.md)
+
+
+## References:
 - Rivière, A., Gonçalvès, J., Jost, A., & Font, M. (2014). Experimental and numerical assessment of transient stream-aquifer exchange during disconnection. Journal of Hydrology, 517, 574–583. https://doi.org/10.1016/j.jhydrol.2014.05.040
 - Rivière, A., Jost, A., Gonçalvès, J. & Font, M. (2018). Pore water pressure evolution below a freezing front under saturated conditions: Large-scale laboratory experiment and numerical investigation. Cold Regions Science and Technology, 158, 76-94. https://doi.org/10.1016/j.coldregions.2018.11.005
 - Rivière, A., Gonçalvès, J., Jost, A., (2020). agnes-riviere/ginette: Ginette-2020-09 (Version 2020-09). Zenodo. http://doi.org/10.5281/zenodo.4058821
 
+## Message:
+"If you use this software, please cite it as below."
+Rivière, A., Gonçalvès, J., Jost, A., Ginette,   [![DOI](https://zenodo.org/badge/242535776.svg)](https://zenodo.org/badge/latestdoi/242535776)
 
+
+authors:
+  - family-names: Rivière
+    given-names: Agnès
+    orcid: https://orcid.org/0000-0002-6002-3189
+  - family-names: Gonçalvès
+    given-names: Julio
+    orcid: https://orcid.org/0000-0003-0047-4233
+  - family-names: Jost
+    given-names: Anne
+    orcid: https://orcid.org/0000-0002-0925-3376
+    
+    
+title: agnes-riviere/ginette: Ginette-2020-09
+version: 2020-09
+date-released: 2017-12-18
+
+## License
 _Created in 2008_. Copyright ©
 - Sorbonne Universite
 - Universite Aix Marseille
 - Mines ParisTech
 
-Ginette is a model for saturated-unsaturated, variable-density ground-water flow with solute or energy transport.  It is a 2-D variably saturated groundwater flow model with integrated 1-D surface flow for the stream. The coupling of fluid flow and  heat transfer, accounting for freezing and thawing processes, is implemented in the code for a fully saturated medium.
-
-[describe functionalities and technical features of your software]
-
-_**Update coming up later**_
 
 -------------------------------------------------------------------------
 This software is governed by the CeCILL license under French law and
 abiding by the rules of distribution of free software.  You can  use, 
-modify and/ or redistribute the software under the terms of the CeCILL
+modify and/ or redistribute the software under the terms of the CeCILLerging pull requests, you can allow any combin
 license as circulated by CEA, CNRS and INRIA at the following URL
 http://www.cecill.info. 
 
@@ -84,5 +109,4 @@ Le fait que vous puissiez accéder à cet en-tête signifie que vous avez
 pris connaissance de la licence CeCILL, et que vous en avez accepté les
 termes.
 
-### Userguide
-Userguide available in [User_guide.md](User_guide.md)
+
