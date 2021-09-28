@@ -584,10 +584,11 @@ CCC....lecture des données
 	      allocate(chgbot(ligne4))
 	      allocate(chgsurf(ligne4))
 	      allocate(tempsurf(ligne4))
+	      allocate(tempbot(ligne4))
 	rewind(68)
 	do j=1,ligne4
 	read(45,*,iostat=iop) chgsurf(j),chgbot(j)
-	read(68,*,iostat=ios) tempsurf(j)
+	read(68,*,iostat=ios) tempsurf(j),tempbot(j)
 	enddo
       endif
 
@@ -3279,7 +3280,7 @@ C	  endif
 
 
 CCC....Test du Picard thermique
-	  if(ivg.eq.1.or.iriv.eq.1.or.iqriv.eq.0.or.
+	  if(iriv.eq.1.or.iqriv.eq.0.or.
      &icycle.eq.0.or.igelzns.eq.0.or.iomdegel.eq.0) then
 	  amaxt=0D+00
 	  do ii=1,nm
@@ -4249,7 +4250,7 @@ c       CALL CPU_Time(Seconds)
 C...FICHIERS FIN DE SIMULATION
 cccc....Dernier pas de temps ou regime permanant
        do i=1,nm
-	  write(74,FMT='(i6,BN,F14.2,F14.2,F14.2,F14.2,F14.2)')
+	  write(74,FMT='(i6,BN,F14.2,F14.2,F14.3,F14.3,F14.2)')
      &i,x(i),z(i),pr(i),
      &pr(i)/(rho1*g)+z(i),temp(i)
 	  enddo
@@ -7663,39 +7664,42 @@ c       ak(i)=permeabilite intrinseque
 
 	  if (ytest.eq."1DS") then
 	  if(kimp.gt.ligne4) kimp=ligne4
-	  iclt(1,3)=-2
 	  valclt(1,3)=tempsurf(kimp)
-	  icl(1,3)=-2
+	  valclt(nm,4)=tempbottom(kimp)
 	  zhaut=z(1)+bm(1)/2
 	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
-	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
-	  icl(nm,4)=-2
+	  if(icl(1,3).eq.-2) valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
 	  zbas=z(nm)-bm(nm)/2
 	  if(abs(zbas).lt.1e-6) zbas=0D+00
-	  valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
+	  if(icl(nm,4).eq.-2) valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
+	  if(icl(nm,4).eq.-1) valcl(nm,4)=chgbottom(kimp)
 	  if(kimp.gt.ligne4) then
-	  iclt(1,3)=-2
 	  valclt(1,3)=tempsurf(ligne4)
-	  icl(1,3)=-2
+	  valclt(nm,4)=tempbottom(ligne4)
 	  zhaut=z(1)+bm(1)/2
 	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
-	  valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
-	  icl(nm,4)=-2
+	  if(icl(1,3).eq.-2) valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
+	  if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(ligne4)
 	  zbas=z(nm)-bm(nm)/2
 	  if(abs(zbas).lt.1e-6) zbas=0D+00
-	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
+	  if(icl(nm,4).eq.-2) then
+        valcl(nm,4)=rho(nm)*g*(chgbottom(ligne4)-zbas)
+        endif
+	  if(icl(nm,4).eq.-1) then
+        valcl(nm,4)=chgbottom(ligne4)
+        endif
 	  endif
 	  if(irptha.eq.0) then
-	  iclt(1,3)=-2
 	  valclt(1,3)=tempsurf(1)
-	  icl(1,3)=-2
+      valclt(nm,4)=tempbottom(1)
 	  zhaut=z(1)+bm(1)/2
 	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
-	  valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
-	  icl(nm,4)=-2
+	  if(icl(1,3).eq.-2) valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
+	  if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(1)
 	  zbas=z(nm)-bm(nm)/2
 	  if(abs(zbas).lt.1e-6) zbas=0D+00
-	  valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
+	  if(icl(nm,4).eq.-2)  valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
+	  if(icl(nm,4).eq.-1)  valcl(nm,4)=chgbottom(1)
 	  endif
 
 	  endif

@@ -2,7 +2,7 @@ iec=1  				iec=0 annule ecoulement ; format i1                                  
 rp=1				rp=1 regime transitoire ; rp=1 regime permanent ; format i1                 C//////////////////////////  CONSTRUCTION MODEL
 ith=1				ith=0 thermique inactif, ith=1 thermique actif	; format i1 			    C//////////////////////////  CONSTRUCTION MODEL
 dt=000900D+00		s	pas de temps ; format d9.0                                              C//////////////////////////  CONSTRUCTION MODEL
-nitt=000001         nombre d'iterations en temps    000001                                     C//////////////////////////  CONSTRUCTION MODEL
+nitt=000100         nombre d'iterations en temps    000001                                     C//////////////////////////  CONSTRUCTION MODEL
 unite=8640D+01 		s	temps total de simulation unite*nitt ;format d8.0                       C//////////////////////////  CONSTRUCTION MODEL
 al=0001D+00    		m 	longueur     ; format d8.0                                              C//////////////////////////  CONSTRUCTION MODEL
 az=5.500e-01       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
@@ -37,7 +37,7 @@ ss=4.00D-03		coefficient d'emmagasinement                                       
 ia2=0			ia2=0 rho=cste, ia2=1 variation temporelle de la densite                      E///////////////////  ECOULEMENT
 iunconfined=CAP   akrh=0 dans les cellule dont la pression est nulle       I//// LIBRE sans calcul ZNS
 ivg=1			ivg=1 Van Genuchten, ivg=0 zone non saturee non prise en compte		Z////////////////////////////ZNS
-ans=0203D-02	n parametre de Van Genuchten										////////////////////////////ZNS
+ans=0503D-02	n parametre de Van Genuchten										////////////////////////////ZNS
 asp=0664D-02	1/m	alpha parametre de Van Genuchten 								////////////////////////////ZNS
 swres=0.0000	saturation residuelle												////////////////////////////ZNS
 itr=0			itr=0 transport inactif, itr=1 transport actif			T////////////////////////////TRANSPORT SOLUTE
