@@ -488,7 +488,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  end if
 	  endif
 
-
+	  if(ytest.eq."ZNS") then
+	  open(unit=32,file='E_zone.dat')
+	  open(unit=321,file='E_zone_parameter.dat')
+	  if (ios /= 0) then
+	  stop 'File E_zone.dat does not exist' 
+	  end if
+	  endif
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C	   LECTURE FICHIER ZNS 1D ou warrick   	  C
@@ -1181,7 +1187,6 @@ cccc	  call flush(13)
 
 
 
-
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C   NUMEROS BAS DE COLONNE	  	      C
@@ -1524,9 +1529,52 @@ CCC...Calcul le nombre de zone
 	      allocate(jzone(nzone))
 	  endif
 
+	  if(ytest.eq."ZNS") then
+	  nzone=0
+	  do i=1,nm
+	  read(32,*)izone(i) 
+  
+	  nzone=max(nzone,izone(i))
 
+CCC...Calcul le nombre de zone
+	  enddo
+ 
+	      allocate(jzone(nzone))
+	      allocate(akzone(nzone))
+	      allocate(omzone(nzone))
+	      allocate(anszone(nzone))
+	      allocate(aspzone(nzone))
+	      allocate(swreszone(nzone))
+	      allocate(swresz(nm))
+	      allocate(rhomzone(nzone))
+	  endif
 
 	  SELECT CASE (ytest)
+        CASE ('ZNS')
+	  do j=1,nzone
+	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
+     &swreszone(j),rhomzone(j)
+
+	  enddo
+
+
+	  do i=1,nm
+	  do j=1,nzone
+	  if (izone(i).eq.jzone(j)) then
+	  ak(i)=akzone(j)
+	  akv(i)=akzone(j)
+	  om(i)=omzone(j)
+	  ss(i)=omzone(j)
+	  ansun(i)=anszone(j)
+	  asun(i)=aspzone(j)
+	  swresz(i)=swreszone(j)
+	  rhos(i)=rhomzone(j)
+	  endif
+ccc test zone
+	  enddo
+ccc loop zone
+	  enddo
+
 	  	  CASE ('AVA' , 'TEX','1DS')
 	      allocate(cpmzone(nzone))
 	      allocate(anszone(nzone))
@@ -1606,6 +1654,7 @@ ccc loop zone
 	  enddo
 ccc loop element
 	  END SELECT
+
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1921,6 +1970,28 @@ cccc....VALEURS NULLES
 	  if (abs(valcl(i,4)).lt.10D-10) valcl(i,4)=0
 	  endif
 	  enddo
+
+
+
+
+	   if(ytest.eq."ZNS") then
+	  if(icl(i,4).eq.-2) then
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=(rho(nm)*g*(valcl_bas- zbas))
+      endif
+
+	  if(icl(i,3).eq.-2) then
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=rho(1)*g*(valcl_haut-zhaut)
+	  endif
+	  endif
+
+
+
+
+
 
 cccc....CDT MAILLES RIVIERE
 	  if (iclriviere.eq.1) then
@@ -3596,11 +3667,9 @@ CCC....FICHIERS these texier
 
 CCC....FICHIERS ZNS 1D
        if(ytest.eq."ZNS") then
-       if (irp.eq.1) then
 	  open(1818,file='S_hydraulic_conductivities_profil_t.dat')
 	  open(18181,file='S_saturation_profil_t.dat')
 	  open(18182,file='S_pressure_profil_t.dat')
-       endif
        endif
 
 CCC....FICHIERS ZNS 1D
@@ -3787,13 +3856,13 @@ CCC....SORTIE ZNS 1D
        if(ytest.eq."ZNS") then
 	  print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),1+z(100)
 	  print*,akr(100),sw(100)
-       if (irp.eq.1.and.irecord.eq.1) then
+c       if (irp.eq.1.and.irecord.eq.1) then
 	   do i=1,nm
 	  write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
 	  write(18181,*)paso/unitsortie,z(i),sw(i)
 	  write(18182,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
 	enddo
-       endif
+c       endif
        endif
 
 CCC....SORTIE ZNS 1D
@@ -7568,7 +7637,7 @@ c       ak(i)=permeabilite intrinseque
 
 
 
-	  if (ytest.eq."WAR".or.ytest.eq."ZNS") then
+	  if (ytest.eq."WAR") then
 	  if(kimp.gt.ligne4) kimp=ligne4
 	  select case (ytest) 
 	  case ("WAR")	    
@@ -7584,28 +7653,28 @@ c       ak(i)=permeabilite intrinseque
 	  case (-1) 
 	  valcl(1,3)=qsurf(kimp)
 	  end select
-	  case ("ZNS")	     
+c	  case ("ZNS")	     
 
 
-	  select case (icl(nm,4)) 
-	  case (-2)
-	  zbas=z(nm)-bm(nm)/2
-	  if(abs(zbas).lt.1e-6) zbas=0D+00
-	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
-	  case (-1) 
-	  valcl(nm,4)=qbottom(kimp)
-	  end select
+c	  select case (icl(nm,4)) 
+c	  case (-2)
+c	  zbas=z(nm)-bm(nm)/2
+c	  if(abs(zbas).lt.1e-6) zbas=0D+00
+c	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
+c	  case (-1) 
+c	  valcl(nm,4)=qbottom(kimp)
+c	  end select
 
-	   if (ivois(1,3).eq.-99) then 
-	  select case (icl(1,3)) 
-	  case (-2)
-	  zhaut=z(1)+bm(1)/2
-	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
-	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
-	  case (-1) 
-	  valcl(1,3)=qsurf(kimp)
-	  end select
-	  endif
+c	   if (ivois(1,3).eq.-99) then 
+c	  select case (icl(1,3)) 
+c	  case (-2)
+c	  zhaut=z(1)+bm(1)/2
+c	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+c	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+c	  case (-1) 
+c	  valcl(1,3)=qsurf(kimp)
+c	  end select
+c	  endif
 	  end select 
 	  endif
 
