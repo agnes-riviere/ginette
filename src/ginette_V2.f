@@ -1552,7 +1552,7 @@ CCC...Calcul le nombre de zone
 	  SELECT CASE (ytest)
         CASE ('ZNS')
 	  do j=1,nzone
-	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
+	  read(321,*)jzone(j),akzone(j),omzone(j),aspzone(j),anszone(j),
      &swreszone(j),rhomzone(j)
 
 	  enddo
@@ -5614,6 +5614,7 @@ CCC....Recalcul des parametre dependant de P
 	  prc=0.D+00
 	  if(pr(i).le.0d+00) prc=-pr(i)
 C       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98.1 Pascals
+        print*,asun(i)
 	  as=(asun(i)/(rho1*g))
 	  ans=ansun(i)
 	sw(i)=swres+(1-swres)*(1./(1+(as*prc)**ans))**((ans-1)/ans)
