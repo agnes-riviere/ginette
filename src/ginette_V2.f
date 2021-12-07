@@ -1046,6 +1046,7 @@ CCC....NOUVEAU NUMERO de MAILLE
 	  endif
 	  enddo
 	  enddo
+        
 
 CCC....NM nombre de mailles reelles!!
 	  nm=kr
@@ -1539,6 +1540,8 @@ CCC...Calcul le nombre de zone
 CCC...Calcul le nombre de zone
 	  enddo
  
+
+
 	      allocate(jzone(nzone))
 	      allocate(akzone(nzone))
 	      allocate(omzone(nzone))
@@ -1797,6 +1800,9 @@ CCC...HYDROSTATIQUE
 	  enddo
 	  END SELECT
 	  endif
+
+
+
 
 CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
 	  if (ichi2.eq.1) then
@@ -2276,6 +2282,7 @@ CCC....ZNS
 	  if (ivg.eq.1.or.yunconfined.eq."UNS") then
 	  Call unsaturated(pr,swp,dswpdp,swres,asp,ans,akr,
      &nm,akrv,rho1,g,ansun,asun)
+
 	  else if (yunconfined.eq."CAP") then
 	  do i=1,nm
 CCC....nappe captive
@@ -2495,6 +2502,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if (irp.eq.0.and.irptha.eq.0) paso=nitt*unitsim
        if (irptha.eq.1.or.irp.eq.1)   paso=dble(dt)+dble(paso)
 
+
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C       Variables et cdt lim old		  C
@@ -2580,6 +2590,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  		   C
 c	    BOUCLE DE PICARD	  	       C
@@ -2604,6 +2615,8 @@ CCC...Sauvegarde de literation picard precedante
 	  tempk(i)=temp(i)
 	  enddo
 	  endif
+
+
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -5614,7 +5627,6 @@ CCC....Recalcul des parametre dependant de P
 	  prc=0.D+00
 	  if(pr(i).le.0d+00) prc=-pr(i)
 C       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98.1 Pascals
-        print*,asun(i)
 	  as=(asun(i)/(rho1*g))
 	  ans=ansun(i)
 	sw(i)=swres+(1-swres)*(1./(1+(as*prc)**ans))**((ans-1)/ans)

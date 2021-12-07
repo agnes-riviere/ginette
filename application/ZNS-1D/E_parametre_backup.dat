@@ -22,7 +22,7 @@ nclog=00000		nb de pas discretisation log x                                     
 ilog=0			progression log du pas d'espace en x : ilog=1 actif, ilog=0 inactif   C//////////////////////////  CONSTRUCTION MODEL
 rho1=1000D+00	kg/m3	densite eau                                       		      C//////////////////////////  CONSTRUCTION MODEL
 irho=0			irho=1 variation spatiale de la densite du fluide                     C//////////////////////////  CONSTRUCTION MODEL
-g=9.81D+00	    m/s2	acceleration gravitationnelle  0981D-02                               E//////////////////////////  ECOULEMENT
+g=9.82D+00	    m/s2	acceleration gravitationnelle  0981D-02                               E//////////////////////////  ECOULEMENT
 amu=0001D-03	kg/m/s	viscosite dynamique                                                   E//////////////////////////  ECOULEMENT
 ipermh=0		ipermh=1 variation spatiale permeabilite, ipermh=0 permeabilite constante     E/////////////////// ECOULEMENT
 ipermv=0		ipermv=1 variation spatiale permeabilite, ipermv=0 permeabilite constante     E///////////////////  ECOULEMENT
