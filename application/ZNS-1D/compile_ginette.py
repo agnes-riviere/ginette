@@ -40,7 +40,7 @@ state=0
 
 #in meter
 z_top=40
-dz=0.04
+dz=0.035
 
 #apply unsaturated flow and thermal 
 #unsat =1 apply
@@ -68,8 +68,8 @@ val_swres=0.26 # S_wr
 
 
 #Boundary conditions hydraulic head h=P/rho g + Z
-top=35 
-bot=35
+top=15
+bot=15
 
 
 ## write the parameters
@@ -165,12 +165,15 @@ subprocess.call(["./ginette"])
 
 saturation_profile = pd.read_table('S_saturation_profil_t.dat',delim_whitespace=True,header=None)
 saturation_profile.columns=[ "time",  "z","sat"]
-print(saturation_profile.head())
-
+#print(saturation_profile.head())
+saturation_profile_s = pd.read_table('/home/ariviere/Documents/Encadrements/2021_These_Ramon/data/data_fig_4_5_6/sandyclay_WT25_prop_model2.txt',delim_whitespace=True,header=None,skiprows=[0,1,2])
+saturation_profile_s.columns=[ "z",  "sat","rho","vp","vs"]
+saturation_profile_s.z=saturation_profile_s.z+40
 plt.figure()
 plt.style.use('seaborn')
 
 plt.scatter(saturation_profile.sat, saturation_profile.z, s=10, alpha=1, color='mediumblue',marker='.')
+plt.scatter(saturation_profile_s.sat,saturation_profile_s.z, s=10, c='r', marker="o")
 plt.xlabel('Saturation')
 plt.ylabel('z (m)')
 plt.show()
@@ -180,12 +183,12 @@ plt.show()
 
 pressure_profile = pd.read_table('S_pressure_profil_t.dat',delim_whitespace=True,header=None)
 pressure_profile.columns=[ "time",  "z","p","h"]
+print(saturation_profile_s)
 
+#plt.figure()
+#plt.style.use('seaborn')
 
-plt.figure()
-plt.style.use('seaborn')
-
-plt.scatter(pressure_profile.p,pressure_profile.z, s=10, alpha=1, color='mediumblue',marker='.')
-plt.xlabel('Pressure (Pa)')
-plt.ylabel('z (m)')
-plt.show()
+#plt.scatter(pressure_profile.p,pressure_profile.z, s=10, alpha=1, color='mediumblue',marker='.')
+#plt.xlabel('Pressure (Pa)')
+#plt.ylabel('z (m)')
+#plt.show()

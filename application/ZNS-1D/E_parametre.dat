@@ -13,11 +13,11 @@ ibuilt=0			construction maillage manuelle et zonage des parametres
 reptop=4.000e+01 m	altitude top  C//////////////////////////  CONSTRUCTION MODEL
 repbot=00000D-03       m	altitude bottom  C//////////////////////////  CONSTRUCTION MODEL
 icolonne=0              icolonne=1 remplir E_colonne.dat, nm valeurs de numero de colonne, sinon icolonne=0   C//////////  CONSTRUCTION MODEL
-nmi=01000       		nombre de mailles actives             C//////////////////////////  CONSTRUCTION MODEL
+nmi=01143       		nombre de mailles actives             C//////////////////////////  CONSTRUCTION MODEL
 nci=00001		nombre de colonnes                                                    C//////////////////////////  CONSTRUCTION MODEL
-nri=01000      		nombre de lignes                        C//////////////////////////  CONSTRUCTION MODEL
+nri=01143      		nombre de lignes                        C//////////////////////////  CONSTRUCTION MODEL
 dx=0001D+00	m	pas d'espace en x                                                     C//////////////////////////  CONSTRUCTION MODEL
-dz=4.00e-02	m	pas d'espace en z  ou y                                                   C//////////////////////////  CONSTRUCTION MODEL
+dz=3.50e-02	m	pas d'espace en z  ou y                                                   C//////////////////////////  CONSTRUCTION MODEL
 nclog=00000		nb de pas discretisation log x                                        C//////////////////////////  CONSTRUCTION MODEL
 ilog=0			progression log du pas d'espace en x : ilog=1 actif, ilog=0 inactif   C//////////////////////////  CONSTRUCTION MODEL
 rho1=1000D+00	kg/m3	densite eau                                       		      C//////////////////////////  CONSTRUCTION MODEL
