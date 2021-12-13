@@ -40,7 +40,7 @@ state=0
 
 #in meter
 z_top=40
-dz=0.035
+dz=0.0035
 
 #apply unsaturated flow and thermal 
 #unsat =1 apply
@@ -173,7 +173,7 @@ plt.figure()
 plt.style.use('seaborn')
 
 plt.scatter(saturation_profile.sat, saturation_profile.z, s=10, alpha=1, color='mediumblue',marker='.')
-plt.scatter(saturation_profile_s.sat,saturation_profile_s.z, s=10, c='r', marker="o")
+plt.scatter(saturation_profile_s.sat,saturation_profile_s.z, s=5, c='r', marker=",")
 plt.xlabel('Saturation')
 plt.ylabel('z (m)')
 plt.show()
