@@ -1046,6 +1046,7 @@ CCC....NOUVEAU NUMERO de MAILLE
 	  endif
 	  enddo
 	  enddo
+        
 
 CCC....NM nombre de mailles reelles!!
 	  nm=kr
@@ -1260,6 +1261,7 @@ c	      allocate(zbot(nm))
 	      allocate(sw(nm))
 	      allocate(asun(nm))
 	      allocate(ansun(nm))
+	      allocate(swresz(nm))
 	      allocate(akrv(nm))
 	      allocate(akv(nm))
 
@@ -1360,6 +1362,7 @@ cccc....pression initiale, alph, moy landa 05/04/2011
 	  akv(ik)=akz
 	  asun(ik)=asp
 	  ansun(ik)=ans
+	  swresz(ik)=swres
 	  akc=akx
 	  akcv=akz
 	  rho(ik)=rho1
@@ -1539,20 +1542,21 @@ CCC...Calcul le nombre de zone
 CCC...Calcul le nombre de zone
 	  enddo
  
+
+
 	      allocate(jzone(nzone))
 	      allocate(akzone(nzone))
 	      allocate(omzone(nzone))
 	      allocate(anszone(nzone))
 	      allocate(aspzone(nzone))
 	      allocate(swreszone(nzone))
-	      allocate(swresz(nm))
 	      allocate(rhomzone(nzone))
 	  endif
 
 	  SELECT CASE (ytest)
         CASE ('ZNS')
 	  do j=1,nzone
-	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
+	  read(321,*)jzone(j),akzone(j),omzone(j),aspzone(j),anszone(j),
      &swreszone(j),rhomzone(j)
 
 	  enddo
@@ -1579,7 +1583,6 @@ ccc loop zone
 	      allocate(cpmzone(nzone))
 	      allocate(anszone(nzone))
 	      allocate(swreszone(nzone))
-	      allocate(swresz(nm))
 	  do j=1,nzone
 	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
      &swreszone(j),alandazone(j),cpmzone(j),rhomzone(j)
@@ -1797,6 +1800,9 @@ CCC...HYDROSTATIQUE
 	  enddo
 	  END SELECT
 	  endif
+
+
+
 
 CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
 	  if (ichi2.eq.1) then
@@ -2274,8 +2280,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCC....DEF PARAMETRES VS CDT INITIALES
 CCC....ZNS
 	  if (ivg.eq.1.or.yunconfined.eq."UNS") then
-	  Call unsaturated(pr,swp,dswpdp,swres,asp,ans,akr,
+	  Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,
      &nm,akrv,rho1,g,ansun,asun)
+
 	  else if (yunconfined.eq."CAP") then
 	  do i=1,nm
 CCC....nappe captive
@@ -2492,8 +2499,11 @@ C	  	  	  	  	       					  C
 C      Compteur temps simulation		  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  if (irp.eq.0.and.irptha.eq.0) paso=nitt*unitsim
+	  if (irp.eq.0.and.irptha.eq.0.and.it.gt.3) paso=nitt*unitsim
        if (irptha.eq.1.or.irp.eq.1)   paso=dble(dt)+dble(paso)
+
+
+
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
@@ -2580,6 +2590,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  		   C
 c	    BOUCLE DE PICARD	  	       C
@@ -2604,6 +2615,8 @@ CCC...Sauvegarde de literation picard precedante
 	  tempk(i)=temp(i)
 	  enddo
 	  endif
+
+
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2646,7 +2659,7 @@ cccc....irecord = booléen si vrai ecriture sinon rien
 
 
 	      paso=dble(dt)+dble(paso)-dble(dto)
-	  if (irp.eq.0.and.irptha.eq.0) paso=nitt*unitsim
+	  if (irp.eq.0.and.irptha.eq.0.and.it.gt.3) paso=nitt*unitsim
 
        if(iclchgt.eq.1) then
 	  select case (ytest) 
@@ -2808,7 +2821,7 @@ C		  ZNS	  	  	      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if (ivg.eq.1.or.yunconfined.eq."UNS") then
-	  Call unsaturated(pr,swp,dswpdp,swres,asp,ans,akr,
+	  Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,
      &nm,akrv,rho1,g,ansun,asun)
 
 	  else if (yunconfined.eq."CAP") then
@@ -5600,22 +5613,22 @@ C		   ZNS	  	  	      C
 C	  	  	  	  		  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-	  subroutine unsaturated(pr,sw,dswdp,swres,asp,ans,akr,
+	  subroutine unsaturated(pr,sw,dswdp,swresz,asp,ans,akr,
      &nm,akrv,rho1,g,ansun,asun)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension pr(nm),sw(nm)
 	  dimension akr(nm),dswdp(nm),akrv(nm)
-	  dimension ansun(nm),asun(nm)
+	  dimension ansun(nm),asun(nm),swresz(nm)
 CCCCC ZNS SSSSSSSSSSSSSSSS
 	  do i=1,nm
-
 CCC....Recalcul des parametre dependant de P
 	  prc=0.D+00
 	  if(pr(i).le.0d+00) prc=-pr(i)
 C       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98.1 Pascals
 	  as=(asun(i)/(rho1*g))
 	  ans=ansun(i)
+      swres=swresz(i)
 	sw(i)=swres+(1-swres)*(1./(1+(as*prc)**ans))**((ans-1)/ans)
 	if(sw(i)-swres.le.1d-05) sw(i)=swres+1d-05
 	dswdp(i)=as*(ans-1)*(1-swres)*(as*prc)**(ans-1)/(1+(as*prc)**ans)
