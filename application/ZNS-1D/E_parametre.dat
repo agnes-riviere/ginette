@@ -5,24 +5,24 @@ dt=000900D+00		s	pas de temps ; format d9.0                                     
 nitt=000100         nombre d'iterations en temps    000001                                     C//////////////////////////  CONSTRUCTION MODEL
 unite=8640D+01 		s	temps total de simulation unite*nitt ;format d8.0                       C//////////////////////////  CONSTRUCTION MODEL
 al=0001D+00    		m 	longueur     ; format d8.0                                              C//////////////////////////  CONSTRUCTION MODEL
-az=5.500e-01       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
+az=4.000e+01       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
 ixy=1           =1 : plan x,z  =0 plan x,y annulation du terme graviatiait ; format i1          C//////////////////////////  CONSTRUCTION MODEL
 imaille=1	    =0 lecture maillage : voisins, coordonnees, def_maille : largeur (am), hauteur (bm), nb colonnes (nci), nb lignes (nri);  =1 construction maillage automatique  C//////  CONSTRUCTION MODEL
 itopo=0         itopo=1 variation de altitude de top bot par colonne  E_geom.dats  C//////////////////////////  CONSTRUCTION MODEL
 ibuilt=0			construction maillage manuelle et zonage des parametres
-reptop=5.500e-01 m	altitude top  C//////////////////////////  CONSTRUCTION MODEL
+reptop=4.000e+01 m	altitude top  C//////////////////////////  CONSTRUCTION MODEL
 repbot=00000D-03       m	altitude bottom  C//////////////////////////  CONSTRUCTION MODEL
 icolonne=0              icolonne=1 remplir E_colonne.dat, nm valeurs de numero de colonne, sinon icolonne=0   C//////////  CONSTRUCTION MODEL
-nmi=00055       		nombre de mailles actives             C//////////////////////////  CONSTRUCTION MODEL
+nmi=11429       		nombre de mailles actives             C//////////////////////////  CONSTRUCTION MODEL
 nci=00001		nombre de colonnes                                                    C//////////////////////////  CONSTRUCTION MODEL
-nri=00055      		nombre de lignes                        C//////////////////////////  CONSTRUCTION MODEL
+nri=11429      		nombre de lignes                        C//////////////////////////  CONSTRUCTION MODEL
 dx=0001D+00	m	pas d'espace en x                                                     C//////////////////////////  CONSTRUCTION MODEL
-dz=1.00e-02	m	pas d'espace en z  ou y                                                   C//////////////////////////  CONSTRUCTION MODEL
+dz=3.50e-03	m	pas d'espace en z  ou y                                                   C//////////////////////////  CONSTRUCTION MODEL
 nclog=00000		nb de pas discretisation log x                                        C//////////////////////////  CONSTRUCTION MODEL
 ilog=0			progression log du pas d'espace en x : ilog=1 actif, ilog=0 inactif   C//////////////////////////  CONSTRUCTION MODEL
 rho1=1000D+00	kg/m3	densite eau                                       		      C//////////////////////////  CONSTRUCTION MODEL
 irho=0			irho=1 variation spatiale de la densite du fluide                     C//////////////////////////  CONSTRUCTION MODEL
-g=9.81D+00	    m/s2	acceleration gravitationnelle  0981D-02                               E//////////////////////////  ECOULEMENT
+g=9.82D+00	    m/s2	acceleration gravitationnelle  0981D-02                               E//////////////////////////  ECOULEMENT
 amu=0001D-03	kg/m/s	viscosite dynamique                                                   E//////////////////////////  ECOULEMENT
 ipermh=0		ipermh=1 variation spatiale permeabilite, ipermh=0 permeabilite constante     E/////////////////// ECOULEMENT
 ipermv=0		ipermv=1 variation spatiale permeabilite, ipermv=0 permeabilite constante     E///////////////////  ECOULEMENT
