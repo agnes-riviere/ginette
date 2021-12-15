@@ -5857,7 +5857,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	 else
 	 ap=-abs(dsidtemp(i))
 	 endif
-	 if(sw(i)+sice(i).ne.1.and.icycle.eq.1) print*,"probleme sat"
+	 if(sw(i)+sice(i).gt.1.and.icycle.eq.1) print*,"probleme sat"
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  		  C
 C	   Termal conductivity average	    C
