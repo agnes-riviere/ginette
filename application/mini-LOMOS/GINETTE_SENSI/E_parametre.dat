@@ -2,7 +2,7 @@ iec=1  				iec=0 annule ecoulement ; format i1                                  
 rp=1				rp=1 regime transitoire ; rp=1 regime permanent ; format i1                 C//////////////////////////  CONSTRUCTION MODEL
 ith=1				ith=0 thermique inactif, ith=1 thermique actif	; format i1 			    C//////////////////////////  CONSTRUCTION MODEL
 dt=000900D+00		s	pas de temps ; format d9.0                                              C//////////////////////////  CONSTRUCTION MODEL
-nitt=864000         nombre d'iterations en temps                                         C//////////////////////////  CONSTRUCTION MODEL
+nitt=1991700         nombre d'iterations en temps                                         C//////////////////////////  CONSTRUCTION MODEL
 unite=0001D+00 		s	temps total de simulation unite*nitt ;format d8.0                       C//////////////////////////  CONSTRUCTION MODEL
 al=0001D+00    		m 	longueur     ; format d8.0                                              C//////////////////////////  CONSTRUCTION MODEL
 az=4.000e-01       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
