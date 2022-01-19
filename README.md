@@ -1,7 +1,16 @@
 ![Ginette-2](Ginette-2.png)
 ==================================================================================
+Ginette is a 2-D variably saturated groundwater flow model with integrated 1-D surface flow for the stream. It uses physically-based equations to rigorously simulate fluxes of water, energy and solute transport in porous media. The coupling of fluid flow and heat transfer, accounting for freezing and thawing processes, is implemented in the code for a fully saturated medium.
 
-Ginette is a model for saturated-unsaturated, variable-density ground-water flow with solute or energy transport.  It is a 2-D variably saturated groundwater flow model with integrated 1-D surface flow for the stream. The coupling of fluid flow and  heat transfer, accounting for freezing and thawing processes, is implemented in the code for a fully saturated medium.
+Ginette strives to provide the user with full control over the the simulation. The command files can be written either with a Python script or with an R script.
+
+Different applications are available in the application directory. 
+1) The test cases of the interfrost group benchmark.
+ The Interfrost group proposes a benchmark exercise dealing with the “Subsurface thermal hydrologic processes” as presented by (Painter et al., 2012) or within the field of Cryohydrogeology (McKenzie et al. 2020) https://tc.copernicus.org/preprints/tc-2020-132/. In a first phase of the project we firstly limit our efforts to the more simple set of equations involving Darcy flow (fully saturated porous medium) coupled with heat transfer with advection and phase change. Extensions of the benchmark to Richard equations or including the air phase are considered for later phases of the project. The benchmark consists of some test cases inspired by existing literature (e.g. Mc Kenzie et al., 2007) as well as new ones. Some experimental cases in cold room will complement the validation approach. In view of a second phase, the benchmark project is open as well to new or alternative cases reflecting a numerical or a process oriented interest or answering a more general concern among the cold region community. 
+
+2) Different test cases in unsaturated zone are available
+
+3) The chain of estimation of the hydraulic and thermal hyporheic zone properties from LOMOS-mini sensor data ( Cucchi et al. 2018 (⟨10.1016/j.jhydrol.2017.10.074⟩. ⟨hal-01656455⟩). 
 
 
 
