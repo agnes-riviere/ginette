@@ -32,6 +32,10 @@ Userguide available in [User_guide.md](User_guide.md)
 - Rivière, A., Gonçalvès, J., Jost, A., & Font, M. (2014). Experimental and numerical assessment of transient stream-aquifer exchange during disconnection. Journal of Hydrology, 517, 574–583. https://doi.org/10.1016/j.jhydrol.2014.05.040
 - Rivière, A., Jost, A., Gonçalvès, J. & Font, M. (2018). Pore water pressure evolution below a freezing front under saturated conditions: Large-scale laboratory experiment and numerical investigation. Cold Regions Science and Technology, 158, 76-94. https://doi.org/10.1016/j.coldregions.2018.11.005
 - Rivière, A., Gonçalvès, J., Jost, A., (2020). agnes-riviere/ginette: Ginette-2020-09 (Version 2020-09). Zenodo. http://doi.org/10.5281/zenodo.4058821
+- Dangeard, M., Rivière, A., Bodet, L., Schneider, S., Guérin, R., Jugnot, D. et Maineult, A. River Corridor Model Constrained by Time‐Lapse Seismic Acquisition. Water Resources Research, American Geophysical Union, 2021, 57 (10), https://doi.org/10.1029/2020WR028911
+- Cucchi, K., Flipo, N., Rivière, A. and Rubin, Y. Estimating Hydrothermal Properties and High-Frequency Fluxes From Geophysical Measurements in the Hyporheic Zone. Frontiers in Water, Frontiers, 2021, 3, https://doi.org/10.3389/frwa.2021.700274
+- Cucchi, K.,  Rivière, A., Baudin, A., Berrhouma, A., Durand, V., Rejiba, F. et Robin, Y. LOMOS-mini: A coupled system quantifying transient water and heat exchanges in streambeds. Journal of Hydrology, Elsevier, 2018, 561, https:/10.1016/j.jhydrol.2017.10.074
+
 
 ## Message:
 "If you use this software, please cite it as below."
