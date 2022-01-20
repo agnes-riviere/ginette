@@ -1,6 +1,6 @@
 #set wd to source file location
 setwd("./")
-
+setwd("~/Programmes/ginette/application/mini-LOMOS/")
 library(hydroGOF)
 library(stringr)
 library(plyr)

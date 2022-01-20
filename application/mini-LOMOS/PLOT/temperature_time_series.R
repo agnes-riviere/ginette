@@ -1,14 +1,16 @@
 library(ggplot2)
 library(stringr)
 library(RColorBrewer)
+library(data.table)
 #paths
+setwd("~/Programmes/ginette/application/mini-LOMOS/PLOT")
 path_output <- "../GINETTE_SENSI/OUTPUT/"
 path_plot <- "./"
 path_obs <- "../GINETTE_SENSI/OBS/"
 path_BC <- "../GINETTE_SENSI/"
 setwd(path_plot)
 sim_name = 1
-date_bg = "03/05/2019 00:00:00"
+date_bg = "12/05/2021 17:00:00"
 date_bg = as.POSIXct(date_bg, '%d/%m/%Y %H:%M', tz = 'GMT')
 
 files_obs <- list.files(path = path_obs, pattern = 'Obs')

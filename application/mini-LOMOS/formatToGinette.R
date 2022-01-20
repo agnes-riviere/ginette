@@ -45,6 +45,9 @@ temp_data=fread(temp_file)
 
 # number obs PT100 in the hyporheic zone, the last (deeper) one is used as boundary condition
 ntemp= ncol(temp_data)-2
+if (ntemp>4) { ntemp=4
+  
+}
 tempHobbo=data.frame(temp_data)
 tempHobbo$dates = as.POSIXct(temp_data$dates,'%d/%m/%Y %H:%M:%S', tz = 'GMT')
 
@@ -53,6 +56,10 @@ river_file=paste0(pres_sensor,"_",point_name,"_",dg_day,"_",dg_month,"_",dg_year
 riverHobbo=fread(river_file)
 riverHobbo$dates = as.POSIXct(temp_data$dates,'%d/%m/%Y %H:%M:%S', tz = 'GMT')
 nriver= ncol(riverHobbo)-2
+
+if (nriver>2) { nriver=2
+
+}
 presDiff=data.frame(riverHobbo$dates,riverHobbo$pressure_differential_m)
 stream_temp=data.frame(riverHobbo$dates,riverHobbo$temperature_stream_C)
 
