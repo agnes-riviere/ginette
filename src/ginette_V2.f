@@ -3869,13 +3869,13 @@ CCC....SORTIE ZNS 1D
        if(ytest.eq."ZNS") then
 	  print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),1+z(100)
 	  print*,akr(100),sw(100)
-c       if (irp.eq.1.and.irecord.eq.1) then
+       if (paso.ne.0) then
 	   do i=1,nm
 	  write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
 	  write(18181,*)paso/unitsortie,z(i),sw(i)
 	  write(18182,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
 	enddo
-c       endif
+       endif
        endif
 
 CCC....SORTIE ZNS 1D
