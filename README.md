@@ -116,7 +116,7 @@ logiciel à leurs besoins dans des conditions permettant d'assurer la
 sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
 à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
 
-Il n'est pas permis de vendre ce logiciel ni de l'utiliser sous une prestation.
+Il n'est pas permis de vendre ce logiciel ni de l'utiliser sous une prestation sans l'accord des développeurs.
 
 Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
 pris connaissance de la licence CeCILL, et que vous en avez accepté les
