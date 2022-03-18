@@ -2,27 +2,27 @@ iec=1  				iec=0 annule ecoulement ; format i1                                  
 rp=1				rp=1 regime transitoire ; rp=1 regime permanent ; format i1                 C//////////////////////////  CONSTRUCTION MODEL
 ith=1				ith=0 thermique inactif, ith=1 thermique actif	; format i1 			    C//////////////////////////  CONSTRUCTION MODEL
 dt=000900D+00		s	pas de temps ; format d9.0                                              C//////////////////////////  CONSTRUCTION MODEL
-nitt=000100         nombre d'iterations en temps    000001                                     C//////////////////////////  CONSTRUCTION MODEL
+nitt=000002         nombre d'iterations en temps    000001                                     C//////////////////////////  CONSTRUCTION MODEL
 unite=8640D+01 		s	temps total de simulation unite*nitt ;format d8.0                       C//////////////////////////  CONSTRUCTION MODEL
 al=0001D+00    		m 	longueur     ; format d8.0                                              C//////////////////////////  CONSTRUCTION MODEL
-az=5.500e-01       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
+az=1.000e+00       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
 ixy=1           =1 : plan x,z  =0 plan x,y annulation du terme graviatiait ; format i1          C//////////////////////////  CONSTRUCTION MODEL
 imaille=1	    =0 lecture maillage : voisins, coordonnees, def_maille : largeur (am), hauteur (bm), nb colonnes (nci), nb lignes (nri);  =1 construction maillage automatique  C//////  CONSTRUCTION MODEL
 itopo=0         itopo=1 variation de altitude de top bot par colonne  E_geom.dats  C//////////////////////////  CONSTRUCTION MODEL
 ibuilt=0			construction maillage manuelle et zonage des parametres
-reptop=00000D-03 m	altitude top  C//////////////////////////  CONSTRUCTION MODEL
-repbot=-5.50e-01       m	altitude bottom  C//////////////////////////  CONSTRUCTION MODEL
+reptop=1.000e+00 m	altitude top  C//////////////////////////  CONSTRUCTION MODEL
+repbot=00000D-03       m	altitude bottom  C//////////////////////////  CONSTRUCTION MODEL
 icolonne=0              icolonne=1 remplir E_colonne.dat, nm valeurs de numero de colonne, sinon icolonne=0   C//////////  CONSTRUCTION MODEL
-nmi=00055       		nombre de mailles actives             C//////////////////////////  CONSTRUCTION MODEL
+nmi=00100       		nombre de mailles actives             C//////////////////////////  CONSTRUCTION MODEL
 nci=00001		nombre de colonnes                                                    C//////////////////////////  CONSTRUCTION MODEL
-nri=00055      		nombre de lignes                        C//////////////////////////  CONSTRUCTION MODEL
+nri=00100      		nombre de lignes                        C//////////////////////////  CONSTRUCTION MODEL
 dx=0001D+00	m	pas d'espace en x                                                     C//////////////////////////  CONSTRUCTION MODEL
 dz=1.00e-02	m	pas d'espace en z  ou y                                                   C//////////////////////////  CONSTRUCTION MODEL
 nclog=00000		nb de pas discretisation log x                                        C//////////////////////////  CONSTRUCTION MODEL
 ilog=0			progression log du pas d'espace en x : ilog=1 actif, ilog=0 inactif   C//////////////////////////  CONSTRUCTION MODEL
 rho1=1000D+00	kg/m3	densite eau                                       		      C//////////////////////////  CONSTRUCTION MODEL
 irho=0			irho=1 variation spatiale de la densite du fluide                     C//////////////////////////  CONSTRUCTION MODEL
-g=9.81D+00	    m/s2	acceleration gravitationnelle  0981D-02                               E//////////////////////////  ECOULEMENT
+g=9.82D+00	    m/s2	acceleration gravitationnelle  0981D-02                               E//////////////////////////  ECOULEMENT
 amu=0001D-03	kg/m/s	viscosite dynamique                                                   E//////////////////////////  ECOULEMENT
 ipermh=0		ipermh=1 variation spatiale permeabilite, ipermh=0 permeabilite constante     E/////////////////// ECOULEMENT
 ipermv=0		ipermv=1 variation spatiale permeabilite, ipermv=0 permeabilite constante     E///////////////////  ECOULEMENT
@@ -35,9 +35,9 @@ omp=0.3800		porosite       0.150                                                
 iss=0			iss=1 variation spatiale du coefficient d'emmagasinement                      E///////////////////  ECOULEMENT
 ss=4.00D-03		coefficient d'emmagasinement                                          C//////////////////////////  CONSTRUCTION MODEL
 ia2=0			ia2=0 rho=cste, ia2=1 variation temporelle de la densite                      E///////////////////  ECOULEMENT
-iunconfined=CAP   akrh=0 dans les cellule dont la pression est nulle       I//// LIBRE sans calcul ZNS
-ivg=1			ivg=1 Van Genuchten, ivg=0 zone non saturee non prise en compte		Z////////////////////////////ZNS
-ans=0503D-02	n parametre de Van Genuchten										////////////////////////////ZNS
+iunconfined=UNS UNC akrh=0 in the unsaturated part -> simplified unconfined aquifer sans calcul ZNS  CAP-> confined aquifer
+ivg=1			ivg=1 Unsatuarted zone with Richards equation		////////////////////////////ZNS
+ans=0203D-02	n parametre de Van Genuchten										////////////////////////////ZNS
 asp=0664D-02	1/m	alpha parametre de Van Genuchten 								////////////////////////////ZNS
 swres=0.0000	saturation residuelle												////////////////////////////ZNS
 itr=0			itr=0 transport inactif, itr=1 transport actif			T////////////////////////////TRANSPORT SOLUTE
@@ -66,9 +66,9 @@ unitsortie=00001D+00    unite temporelle enregistrement sorties				C////////////
 icalvit=1		         calcul vitesse et nb de courant a ne surtout pas annuler pour la thermique ou le transport de masse
 mcol=00001              numero de la colonne enregistrement pression temps                      C//////////////////////////  C FICHIERS DE SORTIE
 nmaille1=00010      		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille2=00025        		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille3=00040         numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille4=00055          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille2=00010        		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille3=00010         numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille4=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
 nmaille5=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
 nmaille6=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
 nmaille7=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE

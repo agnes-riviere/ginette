@@ -31,7 +31,7 @@ setup_model=f_param_bck.read()
 #time step in s
 dt=900
 #duration of the simulation in days
-nb_day=1
+nb_day=2
 
 #in meter
 z_bottom=-0.55
@@ -71,8 +71,8 @@ val_l=3
 val_r=1600
 val_c=2650
 # Van Genuchten parameters
-val_a=6.64 #m-1
-val_nVG= 2.03
+val_a=5.00 #m-1
+val_nVG= 4.03
 val_swres=0.01
 
 # user-defined  parameters zone 2

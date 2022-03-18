@@ -1,6 +1,67 @@
 # Ginette application
 
-### License
+
+
+# Utisation
+compile ginette in the current folder
+use compile_ginette.py to modify the setup and the parameters of the model
+
+
+## Setup
+
+### time step in s
+dt=900
+### duration of the simulation in days
+nb_day=100
+
+### state
+##### 0 steady state
+##### 1 transient state (dynamic state)
+state=0
+
+##### Geometry in meter
+z_top=40
+dz=0.04
+
+#### apply unsaturated flow and thermal 
+##### unsat =1 apply
+##### unsat=0 cancel unsaturated zone
+unsat=1
+
+##### Number of zone 
+
+nb_zone=1
+##### user-defined  parameters zone 1 
+##### intrinsic permeability [m2]  k=K*mu/(rho*g)
+###### K hydraulic conductivity [m.s-1]
+###### mu viscosity [Pa.s]
+###### rho density [kg.m-3]
+######g gravity  9.81 [m2.s-1]
+val_k=3.33333333333333e-15
+##### porosity
+val_n=0.38 # \Phi
+##### solid grain density rho_s=val_r  [kg.m-3]
+val_r=2578
+##### Van Genuchten parameters
+val_a=2.00000 #m-1 alpha_vg
+val_nVG= 1.23  # n_vg
+val_swres=0.26 # S_wr
+
+
+
+### Boundary conditions hydraulic head h=P/rho g + Z (in meter)
+top=15 
+bot=15
+
+# Initial conditions
+
+
+
+
+
+
+
+# License
 
 Authors:
 - ... Riviere , Agnes, agnes.riviere@mines_paristech.fr
@@ -11,11 +72,6 @@ _Created in 2008_. Copyright ©
 - Sorbonne Universite
 - Universite Aix Marseille
 - Mines ParisTech
-
-#Utisation
-compile ginette in the current folder
-use compile_ginette.py to modify the setup and the parameters of the model
-
 
 [describe functionalities and technical features of your software]
 
