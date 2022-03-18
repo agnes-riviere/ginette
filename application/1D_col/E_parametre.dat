@@ -35,7 +35,7 @@ omp=0.3800		porosite       0.150                                                
 iss=0			iss=1 variation spatiale du coefficient d'emmagasinement                      E///////////////////  ECOULEMENT
 ss=4.00D-03		coefficient d'emmagasinement                                          C//////////////////////////  CONSTRUCTION MODEL
 ia2=0			ia2=0 rho=cste, ia2=1 variation temporelle de la densite                      E///////////////////  ECOULEMENT
-iunconfined=UNS UNC akrh=0 in the unsaturated part -> simplified unconfined aquifer sans calcul ZNS  CAP-> confined aquifer
+iunconfined=UNC UNC akrh=0 in the unsaturated part -> simplified unconfined aquifer sans calcul ZNS  CAP-> confined aquifer
 ivg=1			ivg=1 Unsatuarted zone with Richards equation		////////////////////////////ZNS
 ans=0203D-02	n parametre de Van Genuchten										////////////////////////////ZNS
 asp=0664D-02	1/m	alpha parametre de Van Genuchten 								////////////////////////////ZNS
