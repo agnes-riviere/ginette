@@ -5,17 +5,17 @@ dt=000900D+00		s	pas de temps ; format d9.0                                     
 nitt=000002         nombre d'iterations en temps    000001                                     C//////////////////////////  CONSTRUCTION MODEL
 unite=8640D+01 		s	temps total de simulation unite*nitt ;format d8.0                       C//////////////////////////  CONSTRUCTION MODEL
 al=0001D+00    		m 	longueur     ; format d8.0                                              C//////////////////////////  CONSTRUCTION MODEL
-az=1.000e+00       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
+az=1.800e+00       profondeur                     C//////////////////////////  CONSTRUCTION MODEL
 ixy=1           =1 : plan x,z  =0 plan x,y annulation du terme graviatiait ; format i1          C//////////////////////////  CONSTRUCTION MODEL
 imaille=1	    =0 lecture maillage : voisins, coordonnees, def_maille : largeur (am), hauteur (bm), nb colonnes (nci), nb lignes (nri);  =1 construction maillage automatique  C//////  CONSTRUCTION MODEL
 itopo=0         itopo=1 variation de altitude de top bot par colonne  E_geom.dats  C//////////////////////////  CONSTRUCTION MODEL
 ibuilt=0			construction maillage manuelle et zonage des parametres
-reptop=1.000e+00 m	altitude top  C//////////////////////////  CONSTRUCTION MODEL
-repbot=00000D-03       m	altitude bottom  C//////////////////////////  CONSTRUCTION MODEL
+reptop=0.000e+00 m	altitude top  C//////////////////////////  CONSTRUCTION MODEL
+repbot=-1.800e+00       m	altitude bottom  C//////////////////////////  CONSTRUCTION MODEL
 icolonne=0              icolonne=1 remplir E_colonne.dat, nm valeurs de numero de colonne, sinon icolonne=0   C//////////  CONSTRUCTION MODEL
-nmi=00100       		nombre de mailles actives             C//////////////////////////  CONSTRUCTION MODEL
+nmi=00180       		nombre de mailles actives             C//////////////////////////  CONSTRUCTION MODEL
 nci=00001		nombre de colonnes                                                    C//////////////////////////  CONSTRUCTION MODEL
-nri=00100      		nombre de lignes                        C//////////////////////////  CONSTRUCTION MODEL
+nri=00180      		nombre de lignes                        C//////////////////////////  CONSTRUCTION MODEL
 dx=0001D+00	m	pas d'espace en x                                                     C//////////////////////////  CONSTRUCTION MODEL
 dz=1.00e-02	m	pas d'espace en z  ou y                                                   C//////////////////////////  CONSTRUCTION MODEL
 nclog=00000		nb de pas discretisation log x                                        C//////////////////////////  CONSTRUCTION MODEL
@@ -65,15 +65,15 @@ itsortie=00000900       pas enregistrement des resultats                        
 unitsortie=00001D+00    unite temporelle enregistrement sorties				C//////////////////////////    FICHIERS DE SORTIE
 icalvit=1		         calcul vitesse et nb de courant a ne surtout pas annuler pour la thermique ou le transport de masse
 mcol=00001              numero de la colonne enregistrement pression temps                      C//////////////////////////  C FICHIERS DE SORTIE
-nmaille1=00010      		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille2=00010        		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille1=00002      		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille2=00005        		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
 nmaille3=00010         numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille4=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille5=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille6=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille7=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille8=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille9=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille10=00010        numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille4=00020          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille5=00030          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille6=00050          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille7=00070          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille8=00100          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille9=00150          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille10=00180        numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
 iparo=0                  calcul implicite des paramètres                                                C//////////////////////////  CONSTRUCTION MODEL
 ysolv=CGS         BIC BiConjugate Gradient, CGS Conjugate Gradient Squared Method, LIB inria library

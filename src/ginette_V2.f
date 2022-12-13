@@ -365,7 +365,6 @@ cc endif itop
 
 
 
-
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C	   LECTURE FICHIER IBUILT				  C
@@ -471,22 +470,36 @@ C	  	  	  	  	       					  C
 C	   LECTURE FICHIER ZHR	  	  			  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."1DS") then
+	  if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
 	  open(unit=45,file='E_charge_t.dat',iostat=iop)
 	  open(unit=68,file='E_temp_t.dat',iostat=ios)
 	  if (ios /= 0) then
 	  stop 'File E_temp_t.dat does not exist' 
 	  end if
 	  endif
-	  if(ytest.eq."ZHZ"
-     &.or.ytest.eq."1DS") then
+	  if(ytest.eq."ZHZ") then
 	  call open_file('E_zone.dat', An_Error,32)
 	  open(unit=321,file='E_zone_parameter.dat')
 	  if (ios /= 0) then
 	  stop 'File E_zone.dat does not exist' 
 	  end if
 	  endif
+
+
+	  if(ytest.eq."1DS") then
+	  open(unit=45,file='E_ec_bc_t.dat',iostat=iop)
+	  open(unit=68,file='E_temp_t.dat',iostat=ios)
+	  if (ios /= 0) then
+	  stop 'File E_temp_t.dat does not exist' 
+	  end if
+
+	  call open_file('E_zone.dat', An_Error,32)
+	  open(unit=321,file='E_zone_parameter.dat')
+	  if (ios /= 0) then
+	  stop 'File E_zone.dat does not exist' 
+	  end if
+	  endif
+
 
 	  if(ytest.eq."ZNS") then
 	  open(unit=32,file='E_zone.dat')
@@ -542,6 +555,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C   LECTURE FILE CDT VS. TEMPS	  			  C
@@ -576,7 +590,7 @@ CCC....lecture des données
 
       if (ytest.eq."1DS") then
 	  ligne4=0
-CCC....lecture des données
+CCC....lecture des données temperature time
       do while (ios.eq.0)
       read(68,*,iostat=ios)
       if (ios.eq.0) then
@@ -1047,10 +1061,11 @@ CCC....NOUVEAU NUMERO de MAILLE
 	  endif
 	  enddo
 	  enddo
-        
 
 CCC....NM nombre de mailles reelles!!
 	  nm=kr
+
+
 CCC....RECALCUL DE LA GEOMETRIE ET DU TABLEAU DE VOISINAGE
 	  do i=1,nm
 	  x(i)=x(inum(i))
@@ -1694,6 +1709,7 @@ c	  if(i.eq.47405) print*,ak(i)
 ccc loop element
 
 	  	  CASE ('ZHZ')
+
 	  do j=1,nzone
 	  read(321,*)jzone(j),akzone(j),omzone(j),
      &alandazone(j),rhomzone(j)
@@ -3294,10 +3310,20 @@ cccc....cacul vitesse avec CHARGE IMPOSEE
 	  vzm(i)=dble(vzp(i))
 	  endif
 cccc....cacul vitesse avec FLUX IMPOSE
-	  if (icl(i,1).eq.-1) vxp(i)=dble(-valcl(i,1))
-	  if (icl(i,2).eq.-1) vxm(i)=dble(valcl(i,2))
-	  if (icl(i,3).eq.-1) vzp(i)=dble(-valcl(i,3))
-	  if (icl(i,4).eq.-1) vzm(i)=dble(valcl(i,4))
+	  if (icl(i,1).eq.-1) then
+		vxp(i)=dble(-valcl(i,1))
+		endif
+	  if (icl(i,2).eq.-1) then
+		vxm(i)=dble(valcl(i,2))
+	endif
+	  if (icl(i,3).eq.-1) then
+		vzp(i)=dble(-valcl(i,3))
+		vzm(i)=vzp(i)
+      endif
+	  if (icl(i,4).eq.-1) then
+	 vzm(i)=dble(valcl(i,4)) 
+	 vzp(i)=vzm(i)	
+		endif
 	  endif
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -3648,8 +3674,8 @@ c		   TEST PERFORMANCE		  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         
-       if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
-c     &.or.ytest.eq."1DS") then
+       if (ytest.eq."ZHR".or.ytest.eq."ZHZ"
+     &.or.ytest.eq."1DS") then
 	  do i=1,nm
 	  qad(i)=0D+00
 	  qcondu(i)=0D+00
@@ -3870,6 +3896,12 @@ CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
        open(unit=59,file='Sim_temperature_maille1_t.dat')
        open(unit=60,file='Sim_temperature_maille2_t.dat')
        open(unit=61,file='Sim_temperature_maille3_t.dat')
+       open(unit=65,file='Sim_temperature_maille5_t.dat')
+      open(unit=66,file='Sim_temperature_maille6_t.dat')
+      open(unit=67,file='Sim_temperature_maille7_t.dat')
+      open(unit=591,file='Sim_temperature_maille8_t.dat')
+      open(unit=69,file='Sim_temperature_maille9_t.dat')
+    	open(unit=591,file='Sim_temperature_maille10_t.dat')
        open(7782,file='S_vitesse_nmaille2_hb.dat')
 	  open(1818,file='S_flux_therm_velocity_1_t.dat')
 	  open(18181,file='Sim_velocity_profil_t.dat')
@@ -4308,6 +4340,12 @@ CCC....SORTIE sol Emmanuel leger
        write(60,*) paso/unitsortie,temp(nmaille2)
        write(61,*) paso/unitsortie,temp(nmaille3)
        write(64,*) paso/unitsortie,temp(nmaille4)
+      write(65,*) paso/unitsortie,temp(nmaille5)
+      write(66,*) paso/unitsortie,temp(nmaille6)
+      write(67,*) paso/unitsortie,temp(nmaille7)
+      write(592,*) paso/unitsortie,temp(nmaille8)
+      write(69,*) paso/unitsortie,temp(nmaille9)
+      write(591,*) paso/unitsortie,temp(nmaille10)
 	  write(7782,*) paso/unitsortie,vzp(nmaille2),vzm(nmaille2)
 	  write(1818,*) paso/unitsortie,qcondu(1),qad(1),qtherm(1),vzm(1),
      &temp(1),temp(2)

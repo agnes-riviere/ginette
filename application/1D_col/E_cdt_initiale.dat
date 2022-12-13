@@ -1,4 +1,4 @@
-chgi=00.40D+00	m	charge initiale ; d9.0 
+chgi=-1.00D+00	m	charge initiale ; d9.0 
 conci=0015d+00		concentration initiale ; d8.0			
 tempi=0005D+00  C	temperature initiale ; d8.0
 ichi=0			ichi=1 --> E_charge_initiale.dat
