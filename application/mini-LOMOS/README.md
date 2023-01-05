@@ -141,35 +141,29 @@ example for 3 PT100 with 10 cm between each, but one is broken:
 
 ## 4) Completion of the inversion parameter.COMM file
 
-Column 1 = variables of interest:
-
+- Column 1 = variables of interest:
+```
 k = intrinsic permeability [m2]
-
 n = porosity
-
 l = solid thermal conductivity [W m−1 K−1]
-
 r = density of solid [kg m-3]. 
-
+```
 The bulk volumetric heat capacity of the porous medium is calculated by the following equation :
-
+```
 c_mr_m = c_w r_w n + c_s r (1-n)
-
 c_w = specific heat capacity of water [334 000 J kg−1 K−1]
-
 r_w = density of water [1 000 kg m3]. 
-
 c_s = solid specific heat capacity [J kg1 K1]  (imposed value) 
+```
+- Column 2 = number of zones (e.g., clay, sand, etc.)
 
-Column 2 = number of zones (e.g., clay, sand, etc.)
+- Minimum and maximum values in columns 3 and 4 indicate the range for the value test. 
 
-Minimum and maximum values in columns 3 and 4 indicate the range for the value test. 
-
-Column 5 = number of tests within the previously defined range
+- Column 5 = number of tests within the previously defined range
 
 
 
-Column 5 will reflect the number of simulations that will be launched.
+- Column 5 will reflect the number of simulations that will be launched.
 ------------------------------------
 example for 1 zone:
 ```
