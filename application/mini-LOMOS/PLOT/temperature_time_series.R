@@ -1,13 +1,16 @@
 library(ggplot2)
 library(stringr)
 library(RColorBrewer)
+library(data.table)
+
+sim_name = 1
+
 #paths
 path_output <- "../GINETTE_SENSI/OUTPUT/"
-path_plot <- "./"
+path_plot <- "../PLOT/"
 path_obs <- "../GINETTE_SENSI/OBS/"
 path_BC <- "../GINETTE_SENSI/"
-setwd("~/Programmes/ginette/application/mini-LOMOS/GINETTE_SENSI/")
-sim_name = 3
+
 date_bg = "11/04/2022 00:00:00"
 date_bg = as.POSIXct(date_bg, '%d/%m/%Y %H:%M', tz = 'GMT')
 
@@ -142,4 +145,6 @@ g_temp_ts <-
   scale_x_datetime(date_labels = " %d %b") +
   theme_bw() 
 g_temp_ts
+
+ggsave("../PLOT/temperature_time_series.png", plot = g_temp_ts, width = 11, height = 8)
 

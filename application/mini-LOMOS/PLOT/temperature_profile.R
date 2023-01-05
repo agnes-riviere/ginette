@@ -1,13 +1,12 @@
 #' Plots temperature profile timeseries
-
+temperature_profile <-function(sim_name = 1) {
 library(ggplot2)
 library(reshape2)
 library(akima)
 
-path_output <- '/home/ariviere/Programmes/ginette/application/mini-LOMOS/GINETTE_SENSI/OUTPUT/'
- path_plot <- "./"
+path_output <- "../GINETTE_SENSI/OUTPUT/"
+ path_plot <- "../PLOT/"
 
-sim_name=1
 
 # 
 # setwd(path_plot)
@@ -37,9 +36,11 @@ p <- ggplot(data = D_sim, aes(x = time, y = depth, z = temperature)) +
         legend.text = element_text(size = 10))
 p
 
-ggsave("./temperature_profile.png", plot = p, width = 11, height = 8)
+ggsave("./temperature_profile_day.png", plot = p, width = 11, height = 8)
 
 
 #library(directlabels)
 #direct.label(p, list("far.from.others.borders", "calc.boxes", "enlarge.box", 
 #                     hjust = 1, vjust = 1, box.color = NA, fill = "transparent", "draw.rects"))
+
+}

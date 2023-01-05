@@ -30,6 +30,7 @@ for (i in seq_len(nb_PT100))  {
 
 for (i in seq_len(nb_PT100*nb_simu))  { 
   a <- read.csv(paste0(path_output, files_output)[i], sep = " ", header = FALSE)
+  a=a[, apply(a, 2, function(x) !all(is.na(x)))]
   name <- str_remove(files_output[i], ".dat")
   assign(name, a)
 }

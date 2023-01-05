@@ -2,36 +2,37 @@ library(ggplot2)
 library(reshape2)
 library(data.table)
 library(rgl)
+library(akima)
 
 namePointT <- 'T3_Point3Nelly_14_04_22.csv'
 namePointP <- 'P2_Point3Nelly_14_04_22.csv'
-iFile=58
-isim=40
+isim=2
 date_begin=as.POSIXct('14/04/2022 17:45:00',tz = 'GMT',format='%d/%m/%Y %H:%M:%S')
-path_sim='/home/ariviere/Programmes/ginette/application/mini-LOMOS/GINETTE_SENSI/'
-path_plot='/home/ariviere/Programmes/ginette/application/mini-LOMOS/PLOT/'
+# -- read files with ginette outputs --
+path_output <- "../GINETTE_SENSI/OUTPUT/"
+path_plot <- "../PLOT/"
+path_obs <- "../GINETTE_SENSI/OBS/"
+path_sim <- "../GINETTE_SENSI/"
 
-# setwd("C:/Data/compte_linux/Documents/in_zip/")
-D_sim<-fread(paste0(path_sim,"Sim_velocity_profil_t.dat"),header = FALSE)
 
-x=D_sim[,1]/86400
-y=D_sim[,2]
-z=D_sim[,3]*3600*100*24
-fld <- with(D_sim, akima::interp(x = x, y = y, z = z))
 
-# prepare data in long format
-D_sim <- reshape2::melt(fld$z, na.rm = TRUE)
-names(D_sim) <- c("x", "y", "velocity")
-D_sim$time <- fld$x[D_sim$x]
-D_sim$depth <- fld$y[D_sim$y]
+# read velocity profile
+dat_velocity <- fread(paste0(path_output,"Sim_velocity_profil_t_",isim,".dat"),header = FALSE)
+names(dat_velocity) <- c('t_s','z','q')
 
-p <- ggplot(data = D_sim, aes(x = time, y = depth, z = velocity)) +
-  geom_tile(aes(fill = velocity)) +
-  # stat_contour(colour = "black") +
-  xlab("Time (days)") +
-  ylab("Depth (m)") + 
-  scale_fill_gradientn(colours = terrain.colors(10),name="Darcy velocity") +                              
+dat_velocity$q_cmPerDay <- dat_velocity$q * 100 * (3600*24)
+
+g_velocity <-
+  ggplot(data = dat_velocity, aes(x = t_s, y = z)) +
+  geom_raster(aes(fill=q_cmPerDay),interpolate = TRUE) +
+  xlab('day') +
+  ylab("Depth [m]") + 
+  scale_fill_gradientn(colours = rainbow(100),
+                       na.value = "grey98",
+                       limits = c(floor(min(D_sim$q_cmPerDay)), ceiling(max(D_sim$q_cmPerDay))),
+                       name="Darcy\nvelocity\n[cm/day]") +                              
   theme_bw()+
-  theme(legend.title = element_text(size = 15),
+  theme(legend.title = element_text(size = 10),
         legend.text = element_text(size = 10)) 
-p
+
+ggsave("./velocity_profile_day.png", plot = g_velocity, width = 11, height = 8)

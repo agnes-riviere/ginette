@@ -3,9 +3,11 @@
 library(ggplot2)
 library(reshape2)
 library(akima)
-path_output <-'/home/ariviere/Programmes/ginette/application/mini-LOMOS/GINETTE_SENSI/OUTPUT/'
-path_plot <- "./"
-
+#paths
+path_output <- "../GINETTE_SENSI/OUTPUT/"
+path_plot <- "../PLOT/"
+path_obs <- "../GINETTE_SENSI/OBS/"
+path_BC <- "../GINETTE_SENSI/"
 sim_name=1
 
 
@@ -37,4 +39,4 @@ p <- ggplot(data = D_sim, aes(x = time, y = depth, z = advection)) +
   theme(legend.title = element_text(size = 15),
         legend.text = element_text(size = 10)) 
 p
-ggsave("advective_fluxes.png", plot = p, width = 11, height = 8)
+ggsave("advective_fluxes_day.png", plot = p, width = 11, height = 8)

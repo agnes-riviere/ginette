@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-
 import os
+import sys
 import numpy as np
 from pathlib import Path
 import pandas as pd
@@ -14,8 +14,7 @@ libs_gfortran = ['gfortran']
 # path of the 1D_col directory
 path_mini_lomos='/home/ariviere/Programmes/ginette/application/mini-LOMOS/'
 os.chdir(path_mini_lomos)
-# Print the current working directory
-print("Current working directory: {0}".format(os.getcwd()))
+
 path_one_sim='GINETTE_SENSI'
 
 if os.path.isfile(os.path.join(path_one_sim,'ginette')):
@@ -26,74 +25,171 @@ else:
     print(" gfortran -o GINETTE_SENSI/ginette ../../src/ginette_V2.f")
     subprocess.call(["gfortran","-o","GINETTE_SENSI/ginette","../../src/ginette_V2.f"])  #creat
 
-########### Setup
-# /Users/mbp/Documents/my-project/python-snippets/notebook
-f_param_bck=open("GINETTE_SENSI/E_parametre_backup.dat", "r")
-setup_model=f_param_bck.read()
-#time step in s
-dt=900
-#duration of the simulation in days
-nb_day=2
+# Print the current working directory
+print("Current working directory: {0}".format(os.getcwd()))
+
+####################################################################### READ COMM FILE #######################################################################
+File_com = "inversion.COMM"
+Inversion_PT100 = "inversion_PT100.COMM"
+
+if os.path.isfile(os.path.join(File_com)):
+    print ("inversion.COMM exists")
+else:
+    print ("inversion.COMM not exist")
+    print ("$1 : point name (no space) ex: Point1")
+    print ("$2 : year (two last characters YY) ex for 2014: 14 ")
+    print ("$3 : month (two last characters MM) ex for November: 11")
+    print ("$4 : day (two last characters DD) ex: 07 ")
+    print ("$5 : name temperature sensor (four first characters) ex: t502")
+    print ("$6 : name pressure sensor (four first characters) ex: p502")
+    print ("$7 : time step (s) ex: 900")
+    print ("$8 : nb of observations ex: 3 if the 4 PT100 work, 2 if one is broken, etc. $8 = nb of working PT100-1; as the deepest working PT100 is used as a boundary condition. The upper boundary condition is the temperature sensor in the stream, in the pressure differential file.")
+    print ("$9 : number of zones (clay, sand...) ex: 1 More than 2 would require more PT100 so it wouldn't make a lot of sense here.")
+    print ("$10 : thickness of the upper zone (m) distance between the riverbed and the bottom of the upper zones. Type in 0 if there is just 1 zone.")
+    print ("$11: maximum duration of the inversion (s) ex : 864000 (= 10 days)")
+    
+    
+if os.path.isfile(os.path.join(Inversion_PT100)):
+    print ("inversion_PT100.COMM exists")
+
+else:
+    print ("inversion_PT100.COMM not exist")
+    print("each line each dz between 2 PT100")
+
+with open(File_com, "r") as file_com:
+    f_com = [i for line in file_com for i in line.split(' ') if i.strip()]
+    COMM = f_com[0:12]
+d = {ord(x):"" for x in "\n"}
+COMM = [x.translate(d) for x in COMM]
+
+
+print(COMM)
+
+
+##################################### TREAT TME SERIES ##############################################################################################################################################
+import subprocess
+script_R=os.path.join(path_mini_lomos,'/formatToGinette.R')
+form_file = subprocess.call("Rscript formatToGinette.R",shell=True)
+                      
+import numpy as np
+import matplotlib.pyplot as plt
+
+############################################################################ Generate parameters ########################################################################################################
+inversion_parameter = "inversion_parameter.COMM"
+if os.path.isfile(os.path.join(inversion_parameter)):
+    print ("inversion_parameter.COMM exists")
+
+else:
+    print ("inversion_parameter.COMM not exist")
+    print("Column 1 = parameters of interest: k = intrinsic permeability [m2], n = porosity , l = solid thermal conductivity [W m−1 K−1], r = solid density [kg m-3]")
+    print("The bulk volumetric heat capacity of the porous medium is calculated  by the following equation : **c_mr_m = c_w r_w n + c_s r (1-n)**")
+    print("c_w = specific heat capacity of water [334 000 J kg−1 K−1], r_w = water density [1 000 kg m-3], c_s = specific heat capacity of solid [J kg−1 K−1]")
+    print("Column 2 = number of zones (e.g. clay, sand...)")
+    print("Column 3 and 4 (respectively min and max) = range for the value test")
+    print("Column 5 = number of tests within the previously defined range, Column 5 will be responsible for the number of simulations that will be launched.")
+    print("-----------------------------------")
+    print("example for 1 zone:")
+    print("k 1 0001D-15 0001D-11 0003")
+    print("n 1 0.40 0.40 0001")
+    print("l 1 1300D-03 8400D-03 0002")
+    print("r 1 2600D+00 2600D+00  0001")
+
+
+import re
+
+df_parameter = [] #as you want these as your headers 
+with open(inversion_parameter) as parameter_com:
+    for line in parameter_com:
+        # remove whitespace at the start and the newline at the end
+        line = line.strip()
+        # split each column on whitespace
+        col_param = re.split('\s+', line, maxsplit=5)
+        df_parameter.append(col_param)
+
+import pandas as pd
+df = pd.DataFrame(df_parameter,columns=['parameter','zone','min','max','nb_values'])
+df=df.set_index('parameter')
+
+df = df.astype(float)
+
+res_k=[]
+res_n=[]
+res_l=[]
+res_r=[]
+# Initializing variable
+y = range(1,int(df.loc['k']['nb_values'])+1)
+# Calculating result
+if int(df.loc['k']['nb_values']) == 1:
+    res_k.append(df.loc['k']['min'])
+else : 
+    res_k = np.logspace(np.log10(df.loc['k']['min']),np.log10(df.loc['k']['max']),int(df.loc['k']['nb_values']), endpoint = True)
+if int(df.loc['n']['nb_values']) == 1:
+    res_n.append(df.loc['n']['min'])
+else :
+    res_n = np.arange(df.loc['n']['min'],df.loc['n']['max'],int(df.loc['n']['nb_values']), endpoint = True)
+if int(df.loc['l']['nb_values']) == 1:
+    res_l.append(df.loc['l']['min'])
+else :
+    res_l = np.arange(df.loc['l']['min'],df.loc['l']['max'],int(df.loc['l']['nb_values']), endpoint = True)
+if int(df.loc['r']['nb_values']) == 1:
+    res_r.append(df.loc['r']['min'])
+else :
+    res_r = np.arange(df.loc['r']['min'],df.loc['r']['max'],int(df.loc['r']['nb_values']), endpoint = True)
+
+# comment if you want run simulations
+# Plotting the graph
+""" fig, ax = plt.subplots(figsize = (9, 6))
+ax.scatter(res_k, y, color = 'green')
+ax.set_xscale("log")
+plt.title('permeability')
+plt.show() """
+# porosity
+""" y = range(1,int(df.loc['n']['nb_values'])+1)
+fig, ax = plt.subplots(figsize = (9, 6))
+ax.scatter(res_n, y, color = 'green')
+plt.title('porosity')
+plt.show() """
+# thermal conductivity
+""" y = range(1,int(df.loc['l']['nb_values'])+1)
+fig, ax = plt.subplots(figsize = (9, 6))
+ax.scatter(res_l, y, color = 'green')
+plt.title('thermal conductivity')
+plt.show() """
+# heat capacity
+""" y = range(1,int(df.loc['r']['nb_values'])+1)
+fig, ax = plt.subplots(figsize = (9, 6))
+ax.scatter(res_r, y, color = 'green')
+plt.title('heat capacity')
+plt.show() """
+
+####### Parameter #####
+print("Generating parameters' values")
+lst_parameter=[]
+from itertools import product
+for x in product(res_k,res_n,res_l,res_r):
+    lst_parameter.append(x)
+np_parameter=np.array(lst_parameter)
+print("your parameters are: k, n,l,r")
+print(np_parameter)
+
+ftestedvalues=os.path.join(path_one_sim,'tested_values')
+with open(ftestedvalues, 'w') as f:
+    f.writelines(','.join(str(j) for j in i) + '\n' for i in lst_parameter)
+
+####################################################################### position of PT100 #######################################################################
+#Observation in meter
+with open(Inversion_PT100, "r") as file1:
+    f_list = [float(line) for line in file1 ]
+
+Obs1=-f_list[0]/100
+Obs2=Obs1-f_list[1]/100
+Obs3=Obs2-f_list[2]/100
+Obs4=Obs3-f_list[3]/100
 
 #in meter
-z_bottom=-0.40
+z_bottom=Obs4
 z_top=0
 dz=0.01
-
-
-
-#Observation in meter
-Obs1=-0.1
-Obs2=-0.2
-Obs3=-0.30
-Obs4=-0.40
-
-nb_zone=1
-# user-defined  parameters zone 1 
-# intrinsic permeability
-val_k=1e-11
-# porosity
-val_n=0.3
-# solid thermal conductivity
-# the porous media thermal conductivity is calculated bu the Woodside relationship
-#l_w = 0,598	   kg.m/s-3/C
-val_l=3
-# Heat capacity is calculated  by the following relationship
-#  c_pm= c_w r_w n + c_s r (1-n)
-# density
-# c_s solid specific heat capacity
-#val_c= c_s m2/s2/C I advice to let this value constant.
-# There are no way to calibrate the both parameter rho and c in the same time.
-#c_w=4185D+00	       m2/s2/C
-#r_w=1000  kg/m3
-# solid density r=val_r 
-val_r=1600
-
-# user-defined  parameters zone 2
-# altitude of the limit between zone 1 and zone 2
-thk2=-0.2
-# intrinsic permeability
-val_k2=1e-15
-# porosity
-val_n2=0.01
-# Solid thermal conductivity
-val_l2=4
-#solid density
-val_r2=2100
-
-# user-defined  parameters zone 2
-# altitude of the limit between zone 1 and zone 2
-thk3=-0.6
-# intrinsic permeability
-val_k3=1e-12
-# porosity
-val_n3=0.01
-# Solid thermal conductivity
-val_l3=4
-#solid density
-val_r3=2100
-
-
 
 ## write the parameters
 nb_cell=-z_bottom/dz
@@ -101,128 +197,33 @@ cell1=-Obs1/dz
 cell2=-Obs2/dz
 cell3=-Obs3/dz
 cell4=-Obs4/dz
-state=0
 
-setup_model=setup_model.replace('[dt]','%06.0fD+00' % dt)
-setup_model=setup_model.replace('[nb_day]','%06.0f' % nb_day)
-setup_model=setup_model.replace('[z_bottom]','%6.2e' % z_bottom)
-setup_model=setup_model.replace('[az]','%7.3e' % -z_bottom)
-setup_model=setup_model.replace('[dz]','%6.2e' % dz)
-setup_model=setup_model.replace('[nb_cell]','%05.0f' % nb_cell)
-setup_model=setup_model.replace('[cell1]','%05d' % cell1)
-setup_model=setup_model.replace('[cell2]','%05d' % cell2)
-setup_model=setup_model.replace('[cell3]','%05d' % cell3)
-setup_model=setup_model.replace('[cell4]','%05d' % cell4)
+#time step in s
+dt=int(COMM[6])
 
-setup_model=setup_model.replace('[state]','%1i' % state)
+#duration of the simulation in days
+nb_day=int(COMM[10])/86400
 
-########### Zone
-f_coor=open("GINETTE_SENSI/E_coordonnee.dat", "r")
-f_zone=open("GINETTE_SENSI/E_zone.dat", 'w')
-f_paramZ_bck=open("GINETTE_SENSI/E_zone_parameter_backup.dat", "r")
-f_cdi_bck = open("GINETTE_SENSI/E_cdt_initiale_bck.dat", 'r')
-f_cdl_bck = open("GINETTE_SENSI/E_cdt_aux_limites_bck.dat",'r')
-f_paramZ_new = open("GINETTE_SENSI/E_zone_parameter.dat", 'w')
-f_param_new = open("GINETTE_SENSI/E_parametre.dat", 'w')
-f_cdi_new = open("GINETTE_SENSI/E_cdt_initiale.dat", 'w')
-f_cdl_new = open("GINETTE_SENSI/E_cdt_aux_limites.dat",'w')
-param_zone=f_paramZ_bck.read()
-cdi=f_cdi_bck.read()
-cdl=f_cdl_bck.read()
-coord=pd.DataFrame()
-coord = pd.read_csv(f_coor, names=["id", "x", "z"], header=None, delim_whitespace=True)
+nb_zone=int(COMM[8])
 
+########### Setup
+# /Users/mbp/Documents/my-project/python-snippets/notebook
+f_param_bck=open("GINETTE_SENSI/E_parametre_backup.dat", "r")
+setup_model=f_param_bck.read()
 
-
-param_zone=param_zone.replace('[k1]','%8.2e' % val_k)
-param_zone=param_zone.replace('[n1]','%6.2f' % val_n)
-param_zone=param_zone.replace('[l1]','%6.2f' % val_l)
-param_zone=param_zone.replace('[r1]','%6.2f' % val_r)
-
-
-
-param_zone=param_zone.replace('[k2]','%8.2e' % val_k2)
-param_zone=param_zone.replace('[r3]','%6.2f' % val_r3)
-
-
-
-
-
-
-coord['zone'] =1
-
-if nb_zone >= 2:
-    coord['zone'] = np.where(coord['z'] <= thk2, 2,coord['zone'])
-    coord['zone'] = np.where(coord['z'] <= thk3, 3,coord['zone'])
-
-#display(coord)
-
-f_param_new.write(setup_model)
-f_paramZ_new.write(param_zone)
-coord.zone.to_csv(f_zone, index = False, header=False)
-f_zone.close()
-f_paramZ_new.close()
-f_paramZ_bck.close()
-
-f_coor.close()
+#####################################
+## INITIALIZE PARAMETERS AND FILES ##
+#####################################
+# store name of file where parameters are stored
 os.chdir(path_one_sim)
-print("Ginette's steady")
+myModules = os.path.join(path_mini_lomos,path_one_sim)
+if not myModules in sys.path:
+    sys.path.append(myModules)
+myModules
+import  one_sim #
+one_sim.HZ1D(dt,nb_day,z_bottom,dz,nb_cell,cell1,cell2,cell3,cell4,np_parameter)
+os.chdir(path_mini_lomos)
 
-# change parameters in input files for steady state
-setup_model=setup_model.replace('[state]','%1i' % state)
-ichi2=0
-itempi=0
-iclchgt=0
-cdi=cdi.replace('[ichi2]','%1i' % ichi2)
-cdi=cdi.replace('[itempi]','%1i' % itempi)
-cdl=cdl.replace('[iclchgt]','%1i' % iclchgt)
-f_cdl_new.write(cdl)
-f_cdi_new.write(cdi)
+script_R=os.path.join(path_mini_lomos,'Comparaison_mailles_sim-obs.R')
+form_file = subprocess.call("Rscript Comparaison_mailles_sim-obs.R",shell=True)
 
-f_param_bck.close()
-f_param_new.close()
-f_cdi_bck.close()
-f_cdi_new.close()
-f_cdl_bck.close()
-f_cdl_new.close()
-
-subprocess.call(["./ginette"])   
-
-
-print("Ginette transient")
-f_param_bck2=open("E_parametre_backup.dat", "r")
-f_cdi_bck2 = open("E_cdt_initiale_bck.dat", 'r')
-f_cdl_bck2 = open("E_cdt_aux_limites_bck.dat",'r')
-f_param_new2 = open("E_parametre.dat", 'w')
-f_cdi_new2 = open("E_cdt_initiale.dat", 'w')
-f_cdl_new2 = open("E_cdt_aux_limites.dat",'w')
-cdi=f_cdi_bck2.read()
-cdl=f_cdl_bck2.read()
-setup_model=f_param_bck2.read()
-cdi=f_cdi_bck2.read()
-cdl=f_cdl_bck2.read()
-state=1
-ichi2=1
-itempi=1
-iclchgt=1
-cdi=cdi.replace('[ichi2]','%1i' % ichi2)
-cdi=cdi.replace('[itempi]','%1i' % itempi)
-cdl=cdl.replace('[iclchgt]','%1i' % iclchgt)
-setup_model=setup_model.replace('[state]','%1i' % state)
-f_cdl_new2.write(cdl)
-f_cdi_new2.write(cdi)
-f_param_new2.write(setup_model)
-
-# paste pressure results from steady state
-shutil.copyfile('S_pression_charge_temperature.dat','E_pression_initiale.dat')
-
-f_param_bck2.close()
-f_param_new2.close()
-f_cdi_bck2.close()
-f_cdi_new2.close()
-f_cdl_bck2.close()
-f_cdl_new2.close()
-
-subprocess.call(["./ginette"])   
-
-os.chdir(path_mini_lomos)# use copyfile()
