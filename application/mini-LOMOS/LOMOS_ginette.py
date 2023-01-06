@@ -171,7 +171,7 @@ print(np_parameter)
 
 ftestedvalues=os.path.join(path_one_sim,'tested_values')
 with open(ftestedvalues, 'w') as f:
-    f.writelines(','.join(str(j) for j in i) + '\n' for i in lst_parameter)
+    f.writelines(' '.join(str(j) for j in i) + '\n' for i in lst_parameter)
 
 ####################################################################### position of PT100 #######################################################################
 #Observation in meter
