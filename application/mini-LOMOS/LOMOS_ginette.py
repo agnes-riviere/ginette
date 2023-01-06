@@ -2,13 +2,10 @@
 import os
 import sys
 import numpy as np
-from pathlib import Path
 import pandas as pd
 from scipy import interpolate
 import matplotlib.pyplot as plt
-from IPython.display import display
 import subprocess
-import shutil
 libs_gfortran = ['gfortran']
 # please compile ginette in the folder 1D_col
 # path of the 1D_col directory

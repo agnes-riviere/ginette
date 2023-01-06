@@ -46,7 +46,6 @@ colnames(temp_data)=c('n','dates','T1','T2','T3','T4')
 # number obs PT100 in the hyporheic zone, the last (deeper) one is used as boundary condition
 ntemp= ncol(temp_data)-2
 tempHobbo=data.frame(temp_data)
-tempHobbo <- tempHobbo[, colSums(is.na(tempHobbo)) == 0]
 
 tempHobbo$dates = as.POSIXct(temp_data$dates,'%d/%m/%Y %H:%M:%S', tz = 'GMT')
 
@@ -68,12 +67,9 @@ timeFinal = as.POSIXct(tempHobbo$dates[dim(tempHobbo)[1]],'%d/%m/%Y %H:%M',tz='G
 
 ### DEPEND DE cal_time !!!!
 end_date = max(timeInitial,ini_pres) + cal_time
-begin_date=max(timeInitial,ini_pres)
-tempHobbo<-subset(tempHobbo, dates > begin_date )
-presDiff<-subset(presDiff,riverHobbo.dates>begin_date)
-stream_temp<-subset(stream_temp,riverHobbo.dates>begin_date)
+
 # reference times and dates starting from max(timeInitial,ini_obs)
-t_time = seq(from = begin_date,
+t_time = seq(from = max(timeInitial,ini_pres),
              to = min(end_pres,timeFinal, end_date),
              by = as.difftime(Deltat, units = "secs"))
 
@@ -140,18 +136,6 @@ depthsInv=-sensorDepths[1:(length(sensorDepths)-1)]/Deltaz #en cm
 
 #---- save Data ----
 tOut = as.numeric(difftime(t_time,t_time[1],units = "secs"))
-for (i in 1:nPT100) {
-  data=data.frame(tOut,tempHobboInterp[,i])
-  write.table(data,file = paste0("./GINETTE_SENSI/OBS/Obs_temperature_maille",i,"_t.dat"),col.names = FALSE,row.names = FALSE)
-}
-write.table(presBC,file = "./GINETTE_SENSI/E_charge_t.dat", col.names = FALSE,row.names = FALSE)
-write.table(tempBC,file = "./GINETTE_SENSI/E_temp_t.dat",col.names = FALSE,row.names = FALSE)
-write.table(presIC,file = "./GINETTE_SENSI/E_pression_initiale.dat", col.names = FALSE,row.names = FALSE)
-write.table(tempIC,file = "./GINETTE_SENSI/E_temperature_initiale.dat",col.names = FALSE,row.names = FALSE)
-write.table(tOut[length(tOut)],"nitt.dat",col.names = FALSE,row.names = FALSE)
-model=data.frame(sensorDepths[length(sensorDepths)]/Deltaz*-1,sensorDepths[ntemp]*-1,t(depthsInv[seq(1,length(depthsInv))]))
-write.table(model,"model.dat",col.names = FALSE,row.names = FALSE)
-
 
 # #
 # #
@@ -160,73 +144,74 @@ write.table(model,"model.dat",col.names = FALSE,row.names = FALSE)
 # #
 # 
 # # Temperature data
-# Temp <- cbind(xOut, tempStreamInterp, tempHobboInterp)
+Temp <- cbind(xOut, tempStreamInterp, tempHobboInterp)
 # 
 # # Nommer colonnes en fonction du nombre de PT100
-# T_colomn_names <- c("time", "Stream")
+T_colomn_names <- c("time", "Stream")
 # 
-# for (i in seq_len(ntemp)) {
-#   T_colomn_names[i+2] <- paste0(sensorDepths[i], " m")
-# }
-# colnames(Temp) <- T_colomn_names
+for (i in seq_len(ntemp)) {
+  T_colomn_names[i+2] <- paste0(sensorDepths[i], " m")
+ }
+ colnames(Temp) <- T_colomn_names
 # 
-# Temp <- as.data.frame(Temp)
-# Temp$time <- Temp$time + ini_date
+Temp <- as.data.frame(Temp)
+Temp$time <- Temp$time + ini_date
 # 
 # # Mise en forme du data frame contenant les temperatures avec la fonction melt avant de tracer
-# Melted_obs_t <- reshape2::melt(Temp, id.var = "time")
-# colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
-# 
+Melted_obs_t <- reshape2::melt(Temp, id.var = "time")
+colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
+ 
 # # Recupération des éléments nécessaires pour nommer correctement les graphes
-# T_titre <- paste0("T_Cal_Check_", as.character(point_name))
+T_titre <- paste0("T_Cal_Check_", as.character(point_name))
 # 
 # # Define colors
-# colpal <-  brewer.pal(6, "Dark2")
+ colpal <-  brewer.pal(6, "Dark2")
 # 
 # # Plot
-# g_temp_ts <-
-#   ggplot() +
-#   geom_line(data = Melted_obs_t,
-#             mapping = aes(x = time, y = Temperature, color = Depth))  +
-#   scale_color_manual(values = c(colpal)) +
-#   labs(x = "", y = "T (C)", color = "Depth", title = T_titre) +
-#   scale_x_datetime(date_labels = " %d %b %y") +
-#   theme_bw()
+ g_temp_ts <-
+   ggplot() +
+   geom_line(data = Melted_obs_t,
+             mapping = aes(x = time, y = Temperature, color = Depth))  +
+   scale_color_manual(values = c(colpal)) +
+   labs(x = "", y = "T (C)", color = "Depth", title = T_titre) +
+   scale_x_datetime(date_labels = " %d %b %y") +
+   theme_bw()
 # 
 # #Save plot
-# # png(paste0("PLOT/Data_check/", T_titre, ".png"))
-# # g_temp_ts
-# # dev.off()
+ png(paste0("PLOT/Data_check/", T_titre, ".png"))
+ g_temp_ts
+ dev.off()
 # 
 # 
 # # IL FAUT UN TRAITEMENT AVANT
 # 
 # ## Head differential data
-# Press <- as.data.frame(cbind(xOut, presDiffInterp))
+ Press <- as.data.frame(cbind(xOut, presDiffInterp))
 # 
 # # Nommer colonnes
-# P_colomn_names <- c("p_time", "Head_differential")
-# colnames(Press) <- P_colomn_names
+P_colomn_names <- c("p_time", "Head_differential")
+colnames(Press) <- P_colomn_names
 # 
 # #adaptation date
-# Press$p_time <- Press$p_time + ini_dateme <- Press$p_time + ini_date
+Press$p_time <- Press$p_time + ini_date
 # 
 # 
 # # Recupération des éléments nécessaires pour nommer correctement les graphes
-# P_titre <- paste0("P_Cal_Check_", as.character(point_name))
+P_titre <- paste0("P_Cal_Check_", as.character(point_name))
 # 
 # #plot
-# g_meas_head_differential <-
-#   ggplot() +
-#   geom_line(data = Press,
-#             mapping = aes(x = p_time,y = Head_differential)) +
-#   expand_limits(y = 0) +
-#   geom_hline(mapping = aes(yintercept = 0),linetype = "dashed") +
-#   labs(x="",y = expression(Delta*'H = H'['HZ'] *'- H'['riv'] * ' (in m)'), title = P_titre) +
-#   scale_x_datetime(date_labels ="%d %b %y") +
-#   theme_bw()
+g_meas_head_differential <-
+ggplot() +
+geom_line(data = Press,
+             mapping = aes(x = p_time,y = Head_differential)) +
+   expand_limits(y = 0) +
+   geom_hline(mapping = aes(yintercept = 0),linetype = "dashed") +
+   labs(x="",y = expression(Delta*'H = H'['HZ'] *'- H'['riv'] * ' (in m)'), title = P_titre) +
+   scale_x_datetime(date_labels ="%d %b %y") +
+   theme_bw()
 # 
 # # #Save plot
-# # png(paste0("PLOT/Data_check/", P_titre, ".png"))
-# # g_meas_head_differential
-# # dev.off()
+png(paste0("PLOT/Data_check/", P_titre, ".png"))
+g_meas_head_differential
+dev.off()
+

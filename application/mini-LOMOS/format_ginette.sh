@@ -98,10 +98,10 @@ R CMD BATCH formatToGinette.R
 
 ##fichier observation pour inversion
 
-for i in `seq 1 ${6}`;
-do
-mv Obs_temperature_maille$i\_t.dat ./GINETTE_SENSI/OBS/Obs_temperature_maille$i\_t.dat
-done #done i
+##for i in `seq 1 ${6}`;
+##do
+##mv Obs_temperature_maille$i\_t.dat ./GINETTE_SENSI/OBS/Obs_temperature_maille$i\_t.dat
+##done #done i
 
 for i in E_pression_initiale.dat E_charge_t.dat E_temp_t.dat E_temperature_initiale.dat nitt.dat model.dat
 do

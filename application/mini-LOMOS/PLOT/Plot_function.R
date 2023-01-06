@@ -4,6 +4,7 @@ library(RColorBrewer)
 library(data.table)
 library(reshape2)
 library(akima)
+library(cowplot)
 #paths
 path_output <- "../GINETTE_SENSI/OUTPUT/"
 path_plot <- "../PLOT/"
@@ -11,8 +12,8 @@ path_obs <- "../GINETTE_SENSI/OBS/"
 path_BC <- "../GINETTE_SENSI/"
 
 
-temperature_ts <-function(sim_name = 1,date_bg= "11/04/2022 00:00:00") {
-  date_bg = as.POSIXct(date_bg, '%d/%m/%Y %H:%M', tz = 'GMT')
+temperature_ts <-function(sim_name = 1,date_begin= "11/04/2022 00:00:00") {
+  date_begin = as.POSIXct(date_begin, '%d/%m/%Y %H:%M', tz = 'GMT')
   
   files_obs <- list.files(path = path_obs, pattern = 'Obs')
   files_BC <- list.files(path = path_BC, pattern = 'E_temp_t.dat')
@@ -65,7 +66,7 @@ temperature_ts <-function(sim_name = 1,date_bg= "11/04/2022 00:00:00") {
     )
   Melted_obs_t <- reshape2::melt(df_obs_t, id.var = "time")
   colnames(Melted_obs_t) = c("time", "Depth", "Temperature")
-  Melted_obs_t$time = Melted_obs_t$time + date_bg
+  Melted_obs_t$time = Melted_obs_t$time + date_begin
   
   Melted_obs_t$type='Observation' 
   
@@ -113,10 +114,10 @@ temperature_ts <-function(sim_name = 1,date_bg= "11/04/2022 00:00:00") {
   
   Melted_sim_t <- reshape2::melt(df_sim_t, id.var = "time")
   colnames(Melted_sim_t) = c("time", "Depth", "Temperature")
-  Melted_sim_t$time = Melted_sim_t$time + date_bg
+  Melted_sim_t$time = Melted_sim_t$time + date_begin
   Melted_sim_t$type='Simulation'
   
-  df_BC_t$time = df_BC_t$time + date_bg
+  df_BC_t$time = df_BC_t$time + date_begin
   Melted_BC_t <- reshape2::melt(df_BC_t, id.var = "time")
   colnames(Melted_BC_t)  = c("time", "Depth", "Temperature")
   Melted_BC_t$type='Observation'
@@ -144,7 +145,8 @@ temperature_ts <-function(sim_name = 1,date_bg= "11/04/2022 00:00:00") {
     labs(x = "", y =  expression('Temperature ('*~degree*C*')'), color = "depth",linetype="") +
     scale_x_datetime(date_labels = " %d %b") +
     theme_bw() 
-  g_temp_ts
+#uncomment to print
+  #  g_temp_ts
   
   ggsave("../PLOT/temperature_time_series.png", plot = g_temp_ts, width = 11, height = 8)
 }
@@ -179,7 +181,8 @@ p <- ggplot(data = D_sim, aes(x = time, y = depth, z = temperature)) +
   theme_bw()+
   theme(legend.title = element_text(size = 15),
         legend.text = element_text(size = 10))
-p
+#Uncomment to print
+# p
 
 ggsave("../PLOT/temperature_profile_day.png", plot = p, width = 11, height = 8)
 
@@ -222,7 +225,8 @@ p <- ggplot(data = D_sim, aes(x = time, y = depth, z = conduction)) +
   theme_bw()+
   theme(legend.title = element_text(size = 15),
         legend.text = element_text(size = 10)) 
-p
+#Uncomment to print
+#p
 
 ggsave("../PLOT/conductive_fluxes_day.png", plot = p, width = 11, height = 8)
 }
@@ -260,7 +264,8 @@ p <- ggplot(data = D_sim, aes(x = time, y = depth, z = advection)) +
   theme_bw()+
   theme(legend.title = element_text(size = 15),
         legend.text = element_text(size = 10)) 
-p
+#Uncomment to print
+#p
 ggsave("../PLOT/advective_fluxes_day.png", plot = p, width = 11, height = 8)
 }
 
@@ -515,15 +520,15 @@ tot_fig<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   
   
   # read velocity profile
-  dat_velocity <- fread(paste0(path_output,"Sim_velocity_profil_t_",isim,".dat"),header = FALSE)
+  dat_velocity <- fread(paste0(path_output,"Sim_velocity_profil_t_",sim_name,".dat"),header = FALSE)
   names(dat_velocity) <- c('t_s','z','q')
   
   # read temperature profile
-  dat_temperature <- fread(paste0(path_output,"Sim_temperature_profil_t_",isim,".dat"),header = FALSE)
+  dat_temperature <- fread(paste0(path_output,"Sim_temperature_profil_t_",sim_name,".dat"),header = FALSE)
   names(dat_temperature) <- c('t_s','z','T')
   
   # read heat profile
-  dat_heat <- fread(paste0(path_output,"Sim_heat_flux_profil_t_",isim,".dat"),header = FALSE)
+  dat_heat <- fread(paste0(path_output,"Sim_heat_flux_profil_t_",sim_name,".dat"),header = FALSE)
   D_sim <- data.frame(
     t_s=dat_heat$V1[seq(from=1,to=nrow(dat_heat),by=2)],
     z=dat_heat$V2[seq(from=1,to=nrow(dat_heat),by=2)],
