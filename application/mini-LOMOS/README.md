@@ -94,9 +94,9 @@ An R script will use this file to read the data.
 Format the inversion.COMM command file columns as follows:
 ```
  $1 : point name (no space) ex: Point1
- $2 : year (two last characters YY) ex for 2014: 14 
- $3 : month (two last characters MM) ex for November: 11 
- $4 : day (two last characters DD) ex: 07 
+ $2 : This is to find the file : year (two last characters YY) ex for 2014: 14 
+ $3 : This is to find the file : month (two last characters MM) ex for November: 11 
+ $4 : This is to find the file : day (two last characters DD) ex: 07 
  $5 : name temperature sensor (four first characters) ex: t502
  $6 : name pressure sensor (four first characters) ex: p502
  $7 : time step (s) ex: 900
@@ -104,6 +104,9 @@ Format the inversion.COMM command file columns as follows:
  $9 : number of zones (clay, sand...) ex: 1 More than 2 would require more PT100 so it wouldn't make a lot of sense here.
  $10 : thickness of the upper zone (m) distance between the riverbed and the bottom of the upper zones. Type in "0" if there is just 1 zone.
  $11: maximum duration of the inversion (s) ex : 864000 (= 10 days)
+ $12 : begin of the simulation : year (two last characters YY) ex for 2014: 14 
+ $13 : begin of the simulation : month (two last characters MM) ex for November: 11 
+ $14 : begin of the simulation : day (two last characters DD) ex: 07 
 ```
 
 If the duration of the field fexperiment is shorter than the prescribed duration, the shorter duration will be utilized.
@@ -191,11 +194,10 @@ Batch Userguide is available in [User_guide.md](User_guide.md)
 Python Userguide is available in [User_guide_python.md](User_guide_python.md)
 
 # OUTPUTS
-The simulated results per mesh are in ginette/application/mini-LOMOS/GINETTE_SENSI/OUTPUT/
+## Results of simulations
+The simulated results per run are in ginette/application/mini-LOMOS/GINETTE_SENSI/OUTPUT/
 
 This repertory contains:
-
-
 - S_flux_therm_velocity_1_t_1.dat : time, conductive heat flux, advective heat flux, total heat flux, water exhganges, temperature(1) ,temperature(2)
 - Sim_heat_flux_profil_t_1.dat : time, depth,  conductive heat flux, advective heat flux, total heat flux
 - Sim_temperature_maille1_1.dat: time, temperature
@@ -205,16 +207,14 @@ This repertory contains:
 - Sim_velocity_profil_t_1.dat:  time, z, water velocity
 - S_vitesse_nmaille2_hb_1.dat: time velocity top cell 1, velocity bottom cell1
 
-
-
-
+## Comparison between observation and simulations
 "Comparaison_mailles_sim-obs.R" generates a simulated versus observed table in ginette/application/mini-LOMOS/SENSI/. It is named "Results_Stats_sim-obs".
 
-This file contains "Sum KGE";"KGE m1";"KGE m2";"KGE m3";"RMSE m1";"RMSE m2";"RMSE m3";"MAE m1";"MAE m2";"MAE m3";"COR m1";"COR m2";"COR m3";"PBIAS m1";"PBIAS m2";"PBIAS m3" for each simulatioThe simulated results per mesh are in _ginette/application/mini-LOMOS/GINETTE_SENSI/OUTPUT/_
-
+This file contains "Sum KGE";"KGE m1";"KGE m2";"KGE m3";"RMSE m1";"RMSE m2";"RMSE m3";"MAE m1";"MAE m2";"MAE m3";"COR m1";"COR m2";"COR m3";"PBIAS m1";"PBIAS m2";"PBIAS m3" for each simulation. 
 A comparative table of simulated versus observed is generated in _ginette/application/mini-LOMOS/SENSI/_ by "Comparaison_mailles_sim-obs.R". It is named "Results_Stats_sim-obs".
 
-
+To plot the observation and simulation, run the script temperature_time_series.R
+Fill the date_bg = "11/04/2022 00:00:00" and sim_name = 1.
 _____________________________________________________________________________________________________________________________
 ## PLOTS
 ### Python users
@@ -248,6 +248,26 @@ run the script LOMOS_ginette_plot.R
 The repertoire PLOT encompasses the entirety of the plot:
 
  The time series of  temperatures (temperature_time_series.png), the stream and aquifer water exchanges (velocity_profile.png). The total, conductive, and advective heat fluxes are in the plot (flux_timeseries.png). The interpolation of temperature data based on depth and time is depected in the plot (jolie_frise_fr.png jolie_frise_EN.png). All fluxes will be interpolated in this figures.
+### Simple plot
+#### Comparison
+run temperature_time_series.R
+Fill the date_bg = "11/04/2022 00:00:00" and sim_name = 1.
+#### Plot water and heat exchange between river and aquifer
+time_series_fluxes.R_______________________________________
+#### Plot interpolated temperature profile
+run temperature_profile.R
+#### Plot interpolated advective fluxes
+advective_fluxes.R
+#### Plot interpolated advective fluxes
+conductive_fluxes.R
+
+#### Plot interpolated water velocities
+velocity.R
+
+### Plot all interpolated fluxes
+plot_frises.R
+
+
 
 # License
 
