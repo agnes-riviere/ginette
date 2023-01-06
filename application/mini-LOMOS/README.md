@@ -217,9 +217,34 @@ A comparative table of simulated versus observed is generated in _ginette/applic
 
 _____________________________________________________________________________________________________________________________
 ## PLOTS
+### Python users
+open the script LOMOS_ginette_plot.py
+Fill the information
+```
+path_mini_lomos = '/home/ariviere/Programmes/ginette/application/mini-LOMOS/'
+namePointT='T3_Point3Nelly_14_04_22.csv'
+namePointP='P2_Point3Nelly_14_04_22.csv'
+date_begin='14/04/2022 17:45:00'
+sim_name=2
+```
+sim_name is the number of the simulation that you want plot
 
 run the script LOMOS_ginette_plot.py
+### Batch users
+open the script LOMOS_ginette_plot.R
+Fill the information
+```
+path_mini_lomos = '/home/ariviere/Programmes/ginette/application/mini-LOMOS/'
+namePointT='T3_Point3Nelly_14_04_22.csv'
+namePointP='P2_Point3Nelly_14_04_22.csv'
+date_begin='14/04/2022 17:45:00'
+sim_name=2
+```
+sim_name is the number of the simulation that you want plot
 
+run the script LOMOS_ginette_plot.R
+
+### PLOTS
 The repertoire PLOT encompasses the entirety of the plot:
 
  The time series of  temperatures (temperature_time_series.png), the stream and aquifer water exchanges (velocity_profile.png). The total, conductive, and advective heat fluxes are in the plot (flux_timeseries.png). The interpolation of temperature data based on depth and time is depected in the plot (jolie_frise_fr.png jolie_frise_EN.png). All fluxes will be interpolated in this figures.
