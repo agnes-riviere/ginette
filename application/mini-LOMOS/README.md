@@ -267,7 +267,15 @@ velocity.R
 ### Plot all interpolated fluxes
 plot_frises.R
 
+```
 
+fill the date and the number of simulation 
+
+```
+isim=2
+
+date_begin=as.POSIXct('14/04/2022 17:45:00',tz = 'GMT',format='%d/%m/%Y %H:%M:%S')
+```
 
 # License
 
