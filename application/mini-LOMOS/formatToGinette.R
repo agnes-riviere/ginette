@@ -148,9 +148,9 @@ write.table(presBC,file = "./GINETTE_SENSI/E_charge_t.dat", col.names = FALSE,ro
 write.table(tempBC,file = "./GINETTE_SENSI/E_temp_t.dat",col.names = FALSE,row.names = FALSE)
 write.table(presIC,file = "./GINETTE_SENSI/E_pression_initiale.dat", col.names = FALSE,row.names = FALSE)
 write.table(tempIC,file = "./GINETTE_SENSI/E_temperature_initiale.dat",col.names = FALSE,row.names = FALSE)
-write.table(tOut[length(tOut)],"nitt.dat",col.names = FALSE,row.names = FALSE)
+write.table(tOut[length(tOut)]/86400,"./GINETTE_SENSI/nitt.dat",col.names = FALSE,row.names = FALSE)
 model=data.frame(sensorDepths[length(sensorDepths)]/Deltaz*-1,sensorDepths[ntemp]*-1,t(depthsInv[seq(1,length(depthsInv))]))
-write.table(model,"model.dat",col.names = FALSE,row.names = FALSE)
+write.table(model,"./GINETTE_SENSI/model.dat",col.names = FALSE,row.names = FALSE)
 
 
 # #
