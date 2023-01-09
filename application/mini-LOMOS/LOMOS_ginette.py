@@ -44,6 +44,9 @@ else:
     print ("$9 : number of zones (clay, sand...) ex: 1 More than 2 would require more PT100 so it wouldn't make a lot of sense here.")
     print ("$10 : thickness of the upper zone (m) distance between the riverbed and the bottom of the upper zones. Type in 0 if there is just 1 zone.")
     print ("$11: maximum duration of the inversion (s) ex : 864000 (= 10 days)")
+    print("$12 : begin of the simulation : year (two last characters YY) ex for 2014: 14 ")
+    print ("$13 : begin of the simulation : month (two last characters MM) ex for November: 11 ")
+    print ("$14 : begin of the simulation : day (two last characters DD) ex: 07 ")
     
     
 if os.path.isfile(os.path.join(Inversion_PT100)):
@@ -55,7 +58,7 @@ else:
 
 with open(File_com, "r") as file_com:
     f_com = [i for line in file_com for i in line.split(' ') if i.strip()]
-    COMM = f_com[0:12]
+    COMM = f_com[0:14]
 d = {ord(x):"" for x in "\n"}
 COMM = [x.translate(d) for x in COMM]
 
