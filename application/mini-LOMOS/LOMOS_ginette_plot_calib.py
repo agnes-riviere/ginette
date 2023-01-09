@@ -26,21 +26,21 @@ robjects.r.source("Plot_function.R")
 robjects.r['temperature_ts'](sim_name,date_begin)
 
 #Plot Temperature profile
-robjects.r['temperature_profile'](sim_name)
+#robjects.r['temperature_profile'](sim_name)
 
 
 
 #Plot conductive_fluxes interpolated with time and depth
-robjects.r['conductive_fluxes'](sim_name)
+#robjects.r['conductive_fluxes'](sim_name)
 
 #Plot advective_fluxes
-robjects.r['advective_fluxes'](sim_name)
+#robjects.r['advective_fluxes'](sim_name)
 
 
 #Plot fluxes interface stream-aquifer
-robjects.r['flux_ts'](namePointT,namePointP,sim_name,date_begin)
+#robjects.r['flux_ts'](namePointT,namePointP,sim_name,date_begin)
 
 
 #All profile with date
-robjects.r['tot_fig'](namePointT,namePointP,sim_name,date_begin)
+#robjects.r['tot_fig'](namePointT,namePointP,sim_name,date_begin)
 
