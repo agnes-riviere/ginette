@@ -11,7 +11,7 @@ namePointT = 'T3_Point3Nelly_14_04_22.csv'
 namePointP = 'P2_Point3Nelly_14_04_22.csv'
 
 # set date
-date_begin = '14/04/2022 17:45:00'
+date_begin = '24/05/2022 17:45:00'
 
 # set simulation name
 sim_name = 2

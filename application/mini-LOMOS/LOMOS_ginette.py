@@ -178,13 +178,24 @@ with open(ftestedvalues, 'w') as f:
 with open(Inversion_PT100, "r") as file1:
     f_list = [float(line) for line in file1 ]
 
-Obs1=-f_list[0]/100
-Obs2=Obs1-f_list[1]/100
-Obs3=Obs2-f_list[2]/100
-Obs4=Obs3-f_list[3]/100
+if len(f_list) ==4:
+    Obs1=-f_list[0]/100
+    Obs2=Obs1-f_list[1]/100
+    Obs3=Obs2-f_list[2]/100
+    Obs4=Obs3-f_list[3]/100
+if len(f_list) ==3:
+    Obs1=-f_list[0]/100
+    Obs2=Obs1-f_list[1]/100
+    Obs3=Obs2-f_list[2]/100
+    Obs4=Obs3-f_list[2]/100
+if len(f_list) ==2:
+    Obs1=-f_list[0]/100
+    Obs2=Obs1-f_list[1]/100
+    Obs3=Obs2-f_list[1]/100
+    Obs4=Obs3-f_list[1]/100
 
 #in meter
-z_bottom=Obs4
+z_bottom=-sum(f_list)/100
 z_top=0
 dz=0.01
 

@@ -32,6 +32,16 @@ ini_date = paste0(ini_day, '/', ini_month, '/', ini_year)
 ini_date = as.POSIXct(ini_date, '%d/%m/%Y', tz = 'GMT')
 cal_time=com$V11
 
+dg_year_cal =com$V12
+ini_year_cal = as.numeric(paste0('20',dg_year_cal))
+ini_month_cal = com$V13
+dg_month_cal = sapply(ini_month_cal, function(x) paste(paste(rep(0, 2 - nchar(x)), collapse = ""), x, sep = ""))
+ini_day_cal = com$V14
+dg_day_cal=sapply(ini_day_cal, function(x) paste(paste(rep(0, 2 - nchar(x)), collapse = ""), x, sep = ""))
+ini_date_cal = paste0(ini_day_cal, '/', ini_month_cal, '/', ini_year_cal)
+ini_date_cal = as.POSIXct(ini_date_cal, '%d/%m/%Y', tz = 'GMT')
+
+
 # #---- discretisation parameters for Ginette ----
 Deltaz = 0.01 # [m]
 Deltat = com$V7 # [s]
@@ -42,7 +52,17 @@ nPT100 = com$V8
 # name HZ temperature
 temp_file=paste0(temp_sensor,"_",point_name,"_",dg_day,"_",dg_month,"_",dg_year,".csv")
 temp_data=fread(temp_file,header = T)
-colnames(temp_data)=c('n','dates','T1','T2','T3','T4')
+
+if (ncol(temp_data)==6) {
+  colnames(temp_data)=c('n','dates','T1','T2','T3','T4')
+}
+if (ncol(temp_data)==5) {
+  colnames(temp_data)=c('n','dates','T2','T3','T4')
+}
+if (ncol(temp_data)==4) {
+  colnames(temp_data)=c('n','dates','T3','T4')
+}
+
 # number obs PT100 in the hyporheic zone, the last (deeper) one is used as boundary condition
 ntemp= ncol(temp_data)-2
 tempHobbo=data.frame(temp_data)
@@ -53,6 +73,7 @@ tempHobbo$dates = as.POSIXct(temp_data$dates,'%d/%m/%Y %H:%M:%S', tz = 'GMT')
 # read data pressure and river temperature
 river_file=paste0(pres_sensor,"_",point_name,"_",dg_day,"_",dg_month,"_",dg_year,".csv")
 riverHobbo=fread(river_file,header = T)
+riverHobbo <- riverHobbo[,1:4]
 colnames(riverHobbo)=c('n','dates','pressure_differential_m','temperature_stream_C')
 riverHobbo$dates = as.POSIXct(riverHobbo$dates,'%d/%m/%Y %H:%M', tz = 'GMT')
 nriver= ncol(riverHobbo)-2
@@ -67,8 +88,8 @@ timeInitial = as.POSIXct(tempHobbo$dates[1],'%d/%m/%Y %H:%M',tz='GMT')
 timeFinal = as.POSIXct(tempHobbo$dates[dim(tempHobbo)[1]],'%d/%m/%Y %H:%M',tz='GMT')
 
 ### DEPEND DE cal_time !!!!
-end_date = max(timeInitial,ini_pres) + cal_time
-begin_date=max(timeInitial,ini_pres)
+end_date = max(timeInitial,ini_pres,ini_date_cal) + cal_time
+begin_date=max(timeInitial,ini_pres,ini_date_cal)
 tempHobbo<-subset(tempHobbo, dates > begin_date )
 presDiff<-subset(presDiff,riverHobbo.dates>begin_date)
 stream_temp<-subset(stream_temp,riverHobbo.dates>begin_date)
@@ -137,7 +158,10 @@ tsInv = tempHobboInterp[,1:nPT100]
 
 #depths of the temperature timeseries for inversion
 depthsInv=-sensorDepths[1:(length(sensorDepths)-1)]/Deltaz #en cm
-
+#Delete old files
+file_path_obs<-"./GINETTE_SENSI/OBS/"
+f_obs<-list.files(file_path_obs)
+file.remove(f_obs)
 #---- save Data ----
 tOut = as.numeric(difftime(t_time,t_time[1],units = "secs"))
 for (i in 1:nPT100) {

@@ -4,13 +4,14 @@ setwd("./")
 library(hydroGOF)
 library(stringr)
 library(plyr)
+library(data.table)
 
 path_obs <- "GINETTE_SENSI/OBS/"
 path_output <- "GINETTE_SENSI/OUTPUT/"
-
+File_com = "inversion.COMM"
 files_obs <- list.files(path = path_obs, pattern = 'Obs')
 files_output <- list.files(path = path_output, pattern = 'temperature_maille')
-
+com = read.csv(File_com, sep = " ", header = FALSE)
 nb_PT100 <- length(files_obs)
 num_PT100 <- substr(files_obs, 23, 23)
 
@@ -27,6 +28,7 @@ for (i in seq_len(nb_PT100))  {
 
 for (i in seq_len(nb_PT100*nb_simu))  { 
   a <- read.csv(paste0(path_output, files_output)[i], sep = " ", header = FALSE)
+  a <- a[, colSums(is.na(a)) == 0]
   name <- str_remove(files_output[i], ".dat")
   assign(name, a)
 }
@@ -41,7 +43,7 @@ for (j in seq_len(nb_PT100)) {
 }
 
 #Creation of a data-frame with all the simulated temperatures
-
+Sim_temperature_maille1_1 <- Sim_temperature_maille1_1[, colSums(is.na(Sim_temperature_maille1_1)) == 0]
 data_output <- Sim_temperature_maille1_1[1]
 
 for (i in seq_len(nb_simu)) {
