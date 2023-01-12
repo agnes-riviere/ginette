@@ -7,14 +7,14 @@ path_plot = 'PLOT'
 setwd(paste(path_mini_lomos, path_plot, sep = ""))
 
 # set input file names
-namePointT = 'T3_Point3Nelly_14_04_22.csv'
-namePointP = 'P2_Point3Nelly_14_04_22.csv'
+namePointT = 't5_p5amont1_12_05_21.csv'
+namePointP = 'p5_p5amont1_12_05_21.csv'
 
 # set date
-date_begin = '24/05/2022 17:45:00'
+date_begin = '12/05/2021 17:00:00'
 
 # set simulation name
-sim_name = 2
+sim_name = 1
 
 # source R script with functions
 source("Plot_function.R")
@@ -23,13 +23,13 @@ source("Plot_function.R")
 temperature_ts(sim_name, date_begin)
 
 # plot temperature profile
-temperature_profile(sim_name)
+#temperature_profile(sim_name)
 
 # plot conductive fluxes
-conductive_fluxes(sim_name)
+#conductive_fluxes(sim_name)
 
 # plot advective fluxes
-advective_fluxes(sim_name)
+#advective_fluxes(sim_name)
 
 # plot fluxes at interface between stream and aquifer
 flux_ts(namePointT, namePointP, sim_name, date_begin)
