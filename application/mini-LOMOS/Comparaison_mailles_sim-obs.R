@@ -7,6 +7,9 @@ library(plyr)
 
 path_obs <- "GINETTE_SENSI/OBS/"
 path_output <- "GINETTE_SENSI/OUTPUT/"
+File_com = "inversion.COMM"
+Inversion_PT100 = "inversion_PT100.COMM"
+depth_PT100 = read.csv(Inversion_PT100, sep = " ", header = FALSE) #écart entre les PT100 en cm
 
 files_obs <- list.files(path = path_obs, pattern = 'Obs')
 files_output <- list.files(path = path_output, pattern = 'temperature_maille')
@@ -24,13 +27,16 @@ param_simu <- read.table(file = "GINETTE_SENSI/tested_values", sep = " ", header
 
 for (i in seq_len(nb_PT100))  { 
   a <- read.csv(paste0(path_obs, files_obs)[i], sep=" ", header = FALSE)
+  a<- a[-1,]
   name <- str_remove(files_obs[i], ".dat")
   assign(name, a)
 }
-
+n_time=a[nrow(a),1]
 for (i in seq_len(nb_PT100*nb_simu))  { 
   a <- read.csv(paste0(path_output, files_output)[i], sep = " ", header = FALSE)
   a=a[, apply(a, 2, function(x) !all(is.na(x)))]
+  names(a)=c('time','t')
+  a=subset(a,a$time<n_time)
   name <- str_remove(files_output[i], ".dat")
   assign(name, a)
 }

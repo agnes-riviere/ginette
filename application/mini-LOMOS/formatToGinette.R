@@ -52,6 +52,7 @@ nPT100 = com$V8
 # name HZ temperature
 temp_file=paste0(temp_sensor,"_",point_name,"_",dg_day,"_",dg_month,"_",dg_year,".csv")
 temp_data=fread(temp_file,header = T)
+temp_data=temp_data[, Filter(function(x) any(!is.na(x)), .SD)]
 
 if (ncol(temp_data)==6) {
   colnames(temp_data)=c('n','dates','T1','T2','T3','T4')
@@ -73,6 +74,7 @@ tempHobbo$dates = as.POSIXct(temp_data$dates,'%d/%m/%Y %H:%M:%S', tz = 'GMT')
 # read data pressure and river temperature
 river_file=paste0(pres_sensor,"_",point_name,"_",dg_day,"_",dg_month,"_",dg_year,".csv")
 riverHobbo=fread(river_file,header = T)
+riverHobbo=riverHobbo[, Filter(function(x) any(!is.na(x)), .SD)]
 riverHobbo <- riverHobbo[,1:4]
 colnames(riverHobbo)=c('n','dates','pressure_differential_m','temperature_stream_C')
 riverHobbo$dates = as.POSIXct(riverHobbo$dates,'%d/%m/%Y %H:%M', tz = 'GMT')
@@ -88,9 +90,12 @@ timeInitial = as.POSIXct(tempHobbo$dates[1],'%d/%m/%Y %H:%M',tz='GMT')
 timeFinal = as.POSIXct(tempHobbo$dates[dim(tempHobbo)[1]],'%d/%m/%Y %H:%M',tz='GMT')
 
 ### DEPEND DE cal_time !!!!
-end_date = max(timeInitial,ini_pres,ini_date_cal) + cal_time
+end_date = min(end_pres,timeFinal,max(timeInitial,ini_pres,ini_date_cal) + cal_time)
 begin_date=max(timeInitial,ini_pres,ini_date_cal)
 tempHobbo<-subset(tempHobbo, dates > begin_date )
+tempHobbo<-subset(tempHobbo, dates < end_date )
+presDiff<-subset(presDiff,riverHobbo.dates<end_date)
+stream_temp<-subset(stream_temp,riverHobbo.dates<end_date)
 presDiff<-subset(presDiff,riverHobbo.dates>begin_date)
 stream_temp<-subset(stream_temp,riverHobbo.dates>begin_date)
 # reference times and dates starting from max(timeInitial,ini_obs)

@@ -308,35 +308,43 @@ flux_ts<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   
   # ---- plot all together ----
   
-  time1 = date_begin
+  time1 = date_begin+86400
   time2 = max(data_flux_raw$dates,na.rm=T)
   # -- read files to get dates --
   
   pathMeas = paste0(path_BC,'../',namePointT)
   data_meas <- fread(file = pathMeas,header = T,sep = ',')
-  colnames(data_meas)=c('id','dates','T_depth_10cm_C','T_depth_20cm_C','T_depth_30cm_C','T_depth_40cm_C')
+  data_meas=data_meas[, Filter(function(x) any(!is.na(x)), .SD)]
+  colnames(data_meas)[1]<-'id'
+  colnames(data_meas)[2]<-'dates'
+  if( ncol(data_meas)>=3) {colnames(data_meas)[3]<-'T_depth_1_C'}
+  if( ncol(data_meas)>=4)  colnames(data_meas)[4]<-'T_depth_2_C'
+  if( ncol(data_meas)>=5)  colnames(data_meas)[5]<-'T_depth_3_C'
+  if( ncol(data_meas)>=6)  colnames(data_meas)[6]<-'T_depth_4_C'
   data_meas$dates <- as.POSIXct(x = data_meas$dates,tz = 'GMT',format='%d/%m/%Y %H:%M:%S')
   data_meas=data_meas[data_meas$dates >= time1&data_meas$dates <= time2, ]
   pathMeasP = paste0(path_BC,'../',namePointP)
   data_measP <- fread(file = pathMeasP,header = T,sep = ',')
+  data_measP=data_measP[, Filter(function(x) any(!is.na(x)), .SD)]
   colnames(data_measP)=c('id','dates','dh','T_stream_C')
   data_measP$dates <- as.POSIXct(x = data_measP$dates,tz = 'GMT',format='%d/%m/%Y %H:%M:%S')
   
-  date_end=min(max(data_meas$dates),max(data_measP$dates))
-  dates_perDay <- seq(from=date_begin,
+  
+  time1 = max(date_begin+86400,min(data_measP$dates))
+  time2 = min(c(max(data_flux_raw$dates,na.rm=T),max(data_meas$dates,na.rm=T),max(data_measP$dates,na.rm=T)))
+  
+  date_end=min(time2,max(data_meas$dates),max(data_measP$dates))
+  dates_perDay <- seq(from=time1,
                       to=date_end,
                       by="day")
   dates_perWeek <- dates_perDay[seq(from=1,to=length(dates_perDay),by=7)]
   data_measP=data_measP[data_measP$dates >= time1 &data_measP$dates <= time2 , ]
-  
-  ## change later - 
-  # j'avais oublie de changer le nombre de pas de temps dans ginette
-  # a faire automatiquement
-  data_velocity <- data_velocity[1:nrow(data_meas),]
-  data_flux_raw <- data_flux_raw[1:nrow(data_meas),]
-  
-  
-  
+  class(data_meas) <- class(as.data.frame(data_meas))
+  class(data_measP) <- class(as.data.frame(data_measP))
+  data_meas<-subset(data_meas,data_meas$dates>time1)
+  data_measP<-subset(data_measP,data_measP$dates>time1)
+  data_meas<-subset(data_meas,data_meas$dates<time2)
+  data_measP<-subset(data_measP,data_measP$dates<time2)
   
   
   # in the plot we want to add
@@ -346,14 +354,14 @@ flux_ts<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   # to do so, check the temperature timeseries
   # in the river and at the bottom of the HZ
   data_measP$T_stream_C <- as.numeric(data_measP$T_stream_C)
-  data_meas$T_depth_40cm_C <- as.numeric(data_meas$T_depth_40cm_C)
+  data_meas[,ncol(data_meas)] <- as.numeric(data_meas[,ncol(data_meas)])
   
   plot(data_measP$T_stream_C,type='l')
-  lines(data_meas$T_depth_40cm_C)
+  lines(data_meas[,ncol(data_meas)])
   
   # isPosTherm contains true if the thermal gradient is positive
   # (ie warmer in the stream than in the hyporheic zone)
-  data_meas$isPosTherm <- ((data_measP$T_stream_C - data_meas$T_depth_40cm_C) > 0)
+  data_meas$isPosTherm <- ((data_measP$T_stream_C - data_meas[,ncol(data_meas)]) > 0)
   idx_pos2neg <- 1 + which(diff(data_meas$isPosTherm) == -1)
   idx_neg2pos <- 1 + which(diff(data_meas$isPosTherm) == 1)
   df_isPos <- data.frame(begin=c(idx_neg2pos), end=idx_pos2neg)
@@ -364,15 +372,15 @@ flux_ts<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
             col='peachpuff',border = NA
     )
   }
-  lines(data_meas$T_stream_C)
-  lines(data_meas$T_depth_40cm_C)
+  lines(data_meas$T_stream_C,type='l',col='black')
+  lines(data_meas[,ncol(data_meas)])
   dev.off()
   # how to plot that now....
   # 
   
   png(file = paste0('../PLOT/flux_timeseries.png'),width = 1000,height = 500)
   op<-par(oma=c(1,1,1,1),mar = c(1, 3, 0, 3)+0.1,cex=1,cex.main=1.5, cex.lab=1.5, cex.axis=1.2)
-  
+  data_flux_raw=subset(data_flux_raw,data_flux_raw$time>86400)
   # plot Darcy velocity on first y-axis
   plot(x = data_flux_raw$dates,y = data_flux_raw$darcy,type='l',
        xlab='',ylab='',xaxt='n',xlim=c(time1,time2),ylim=c(min(data_flux_raw$darcy,na.rm = T),max(data_flux_raw$darcy,na.rm = T)))
@@ -399,12 +407,12 @@ flux_ts<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   
   # start plotting heat exchanges on 2nd axis
   par(new=T)
-  plot(x = data_meas$dates,y=data_flux_raw$cond,lty=2,
+  plot(x = data_flux_raw$dates,y=data_flux_raw$cond,lty=2,
        xaxt='n',yaxt='n',xlab='',ylab='',
        xlim=c(time1,time2),
        ylim=c(min(c(data_flux_raw$cond,data_flux_raw$adv),na.rm = T),max(c(data_flux_raw$cond,data_flux_raw$adv),na.rm = T)), # similar to other y-axis to have zeros aligned
        type='l',col='salmon3')
-  lines(x = data_meas$dates,y=data_flux_raw$adv,col='salmon3')
+  lines(x = data_flux_raw$dates,y=data_flux_raw$adv,col='salmon3')
   axis(side = 4,col='salmon3',col.axis = 'salmon3')
   abline(h=0,lty=2,col='salmon3')
   mtext(text = expression('vertical heat flux [W/m'^'2'*']'),
@@ -452,7 +460,7 @@ flux_ts<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   
   # start plotting heat exchanges on 2nd axis
   # par(new=T)
-  plot(x = data_meas$dates,y=data_flux_raw$cond,lty=2,
+  plot(x = data_flux_raw$dates,y=data_flux_raw$cond,lty=2,
        xaxt='n',yaxt='n',xlab='',ylab='',
        xlim=c(time1,time2),
        ylim=c(min(c(data_flux_raw$cond,data_flux_raw$adv),na.rm = T),max(c(data_flux_raw$cond,data_flux_raw$adv),na.rm = T)),
@@ -464,7 +472,7 @@ flux_ts<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   for(i in 1:nrow(df_isPos)){
     datesLim_i <- data_meas$dates[as.numeric(df_isPos[i,])]
     polygon(x=c(datesLim_i,rev(datesLim_i)),
-            y=c(rep(-100,2),rep(100,2)),
+            y=c(rep(min(c(data_flux_raw$cond,data_flux_raw$adv),na.rm = T),2),rep(max(c(data_flux_raw$cond,data_flux_raw$adv),na.rm = T),2)),
             col='peachpuff',border = NA
     )
   }
@@ -479,8 +487,8 @@ flux_ts<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   # add tick every day
   abline(v=dates_perDay,lty=2,col='lightblue')
   # replot Darcy velocity on top
-  lines(x = data_meas$dates,y=data_flux_raw$cond,col='salmon3',lty=2)
-  lines(x = data_meas$dates,y=data_flux_raw$adv,col='salmon3')
+  lines(x = data_flux_raw$dates,y=data_flux_raw$cond,col='salmon3',lty=2)
+  lines(x = data_flux_raw$dates,y=data_flux_raw$adv,col='salmon3')
   # replot box around plot
   box()
   
@@ -550,6 +558,14 @@ tot_fig<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   library(ggplot2)
   
   # first plot velocity
+  D_sim<-subset(D_sim,D_sim$t_s>86400)
+  D_sim$q_cmPerDay <- D_sim$q * 100 * (3600*24)
+  limits = c(floor(min(D_sim$q_cmPerDay)), ceiling(max(D_sim$q_cmPerDay)))
+  
+  if(limits[2]==1) {
+    limits = c(min(D_sim$q_cmPerDay), max(D_sim$q_cmPerDay))
+  }
+  
   
   D_sim$q_cmPerDay <- D_sim$q * 100 * (3600*24)
   
@@ -562,7 +578,7 @@ tot_fig<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
     ylab("Depth [m]") + 
     scale_fill_gradientn(colours = rainbow(100),
                          na.value = "grey98",
-                         limits = c(floor(min(D_sim$q_cmPerDay)), ceiling(max(D_sim$q_cmPerDay))),
+                         limits =limits,
                          name="Darcy\nvelocity\n[cm/day]") +                              
     theme_bw()+
     theme(legend.title = element_text(size = 10),
@@ -590,7 +606,9 @@ tot_fig<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   bl <- colorRampPalette(c("navy","royalblue","lightskyblue"))(200)                      
   re <- colorRampPalette(c("mistyrose", "red2","darkred"))(200)
   color_lim_ad <- c(floor(min(D_sim$advection)), ceiling(max(D_sim$advection)))
-  
+  if(color_lim_ad[1]==-1) {
+    color_lim_ad <- c(min(D_sim$advection), max(D_sim$advection))
+  }
   g_advection <-
     ggplot(data = D_sim, aes(x = datesPosix, y = z)) +
     geom_raster(aes(fill=advection),interpolate = TRUE) +
@@ -613,7 +631,9 @@ tot_fig<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   bl <- colorRampPalette(c("navy","royalblue","lightskyblue"))(200)                      
   re <- colorRampPalette(c("mistyrose", "red2","darkred"))(200)
   color_lim_con <- c(floor(min(D_sim$conduction)), ceiling(max(D_sim$conduction)))
-  
+  if(color_lim_con[1]==-1) {
+    color_lim_con <- c(min(D_sim$conduction), max(D_sim$conduction))
+  }
   g_conduction <- 
     ggplot(data = D_sim, aes(x = datesPosix, y = z)) +
     geom_raster(aes(fill=conduction),interpolate = TRUE) +
@@ -637,7 +657,9 @@ tot_fig<-function(  namePointT='T3_Point3Nelly_14_04_22.csv',namePointP='P2_Poin
   bl <- colorRampPalette(c("navy","royalblue","lightskyblue"))(200)                      
   re <- colorRampPalette(c("mistyrose", "red2","darkred"))(200)
   color_lim_tot <- c(floor(min(D_sim$total_heat)), ceiling(max(D_sim$total_heat)))
-  
+  if(color_lim_tot[1]==-1) {
+    color_lim_tot<- c(min(D_sim$total_heat), max(D_sim$total_heat))
+  }
   g_sum <- 
     ggplot(data = D_sim, aes(x = datesPosix, y = z)) +
     geom_raster(aes(fill=total_heat),interpolate = TRUE) +

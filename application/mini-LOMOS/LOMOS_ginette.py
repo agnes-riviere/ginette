@@ -180,6 +180,7 @@ with open(ftestedvalues, 'w') as f:
 #Observation in meter
 with open(Inversion_PT100, "r") as file1:
     f_list = [float(line) for line in file1 ]
+    print(line)
 
 if len(f_list) ==4:
     Obs1=-f_list[0]/100

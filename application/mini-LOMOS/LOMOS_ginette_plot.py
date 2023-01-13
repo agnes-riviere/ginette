@@ -14,10 +14,10 @@ os.chdir(path_mini_lomos)
 path_plot='PLOT'
 os.chdir(os.path.join(path_mini_lomos,path_plot))
 import subprocess
-namePointT='T3_Point3Nelly_14_04_22.csv'
-namePointP='P2_Point3Nelly_14_04_22.csv'
-date_begin='14/04/2022 17:45:00'
-sim_name=2
+namePointT='t5_p5amont1_12_05_21.csv'
+namePointP='p5_p5amont1_12_05_21.csv'
+date_begin='12/05/2021 17:45:00'
+sim_name=1
 
 #functions R# - 
 robjects.r.source("Plot_function.R")
@@ -26,15 +26,15 @@ robjects.r.source("Plot_function.R")
 robjects.r['temperature_ts'](sim_name,date_begin)
 
 #Plot Temperature profile
-robjects.r['temperature_profile'](sim_name)
+#robjects.r['temperature_profile'](sim_name)
 
 
 
 #Plot conductive_fluxes interpolated with time and depth
-robjects.r['conductive_fluxes'](sim_name)
+#robjects.r['conductive_fluxes'](sim_name)
 
 #Plot advective_fluxes
-robjects.r['advective_fluxes'](sim_name)
+#robjects.r['advective_fluxes'](sim_name)
 
 
 #Plot fluxes interface stream-aquifer

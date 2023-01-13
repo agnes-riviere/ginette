@@ -4,9 +4,9 @@ library(cowplot)
 library(data.table)
 
 
-isim=2
+isim=1
 
-date_begin=as.POSIXct('14/04/2022 17:45:00',tz = 'GMT',format='%d/%m/%Y %H:%M:%S')
+date_begin=as.POSIXct('12/05/2021 17:00:00',tz = 'GMT',format='%d/%m/%Y %H:%M:%S')
 # -- read files with ginette outputs --
 path_output <- "../GINETTE_SENSI/OUTPUT/"
 path_plot <- "../PLOT/"
@@ -50,8 +50,13 @@ D_sim <- D_sim[!is.na(D_sim$datesPosix),]
 library(ggplot2)
 
 # first plot velocity
-
+D_sim<-subset(D_sim,D_sim$t_s>86400)
 D_sim$q_cmPerDay <- D_sim$q * 100 * (3600*24)
+limits = c(floor(min(D_sim$q_cmPerDay)), ceiling(max(D_sim$q_cmPerDay)))
+
+if(limits[2]==1) {
+  limits = c(min(D_sim$q_cmPerDay), max(D_sim$q_cmPerDay))
+}
 
 g_velocity <-
   ggplot(data = D_sim, aes(x = datesPosix, y = z)) +
@@ -62,7 +67,7 @@ g_velocity <-
   ylab("Depth [m]") + 
   scale_fill_gradientn(colours = rainbow(100),
                        na.value = "grey98",
-                       limits = c(floor(min(D_sim$q_cmPerDay)), ceiling(max(D_sim$q_cmPerDay))),
+                       limits = limits,
                        name="Darcy\nvelocity\n[cm/day]") +                              
   theme_bw()+
   theme(legend.title = element_text(size = 10),
@@ -90,7 +95,9 @@ ggsave("./temperature_profile.png", plot = g_temperature, width = 11, height = 8
 bl <- colorRampPalette(c("navy","royalblue","lightskyblue"))(200)                      
 re <- colorRampPalette(c("mistyrose", "red2","darkred"))(200)
 color_lim_ad <- c(floor(min(D_sim$advection)), ceiling(max(D_sim$advection)))
-
+if(color_lim_ad[1]==-1) {
+  color_lim_ad <- c(min(D_sim$advection), max(D_sim$advection))
+}
 g_advection <-
   ggplot(data = D_sim, aes(x = datesPosix, y = z)) +
   geom_raster(aes(fill=advection),interpolate = TRUE) +
