@@ -492,7 +492,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if (ios /= 0) then
 	  stop 'File E_temp_t.dat does not exist' 
 	  end if
-
 	  call open_file('E_zone.dat', An_Error,32)
 	  open(unit=321,file='E_zone_parameter.dat')
 	  if (ios /= 0) then
@@ -500,14 +499,20 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  end if
 	  endif
 
+	  if(ytest.eq."1DJ") then
+	  open(unit=45,file='E_ec_bc_t.dat',iostat=iop)
+	  endif
 
-	  if(ytest.eq."ZNS") then
+	  if(ytest.eq."ZNS".or.ytest.eq."1DJ") then
 	  open(unit=32,file='E_zone.dat')
 	  open(unit=321,file='E_zone_parameter.dat')
 	  if (ios /= 0) then
 	  stop 'File E_zone.dat does not exist' 
 	  end if
 	  endif
+	  
+	  
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C	   LECTURE FICHIER ZNS 1D ou warrick   	  C
@@ -600,6 +605,8 @@ CCC....lecture des données temperature time
 
 
 
+
+
         if (allocated(chgbot)) deallocate(chgbot)
 
 	      allocate(chgbot(ligne4))
@@ -613,6 +620,25 @@ CCC....lecture des données temperature time
 	enddo
       endif
 
+      if (ytest.eq."1DJ") then
+	  ligne4=0
+CCC....lecture des données temperature time
+      do while (ios.eq.0)
+      read(45,*,iostat=ios)
+      if (ios.eq.0) then
+      ligne4=ligne4+1
+	endif
+	enddo
+        if (allocated(chgbot)) deallocate(chgbot)
+
+	      allocate(chgbot(ligne4))
+	      allocate(chgsurf(ligne4))
+
+	rewind(45)
+	do j=1,ligne4
+	read(45,*,iostat=iop) chgsurf(j),chgbot(j)
+	enddo
+      endif
 
 
 CCC....ZNS 1D ou Warrick
@@ -907,6 +933,7 @@ CCC....THERMIQUE
 
 
 
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C	  		   MAILLAGE		  C
@@ -1023,6 +1050,7 @@ ccccc....Modif 19-09-2014- point repere haut de colonne pour modele 1D
 	  else
 	  print*, probleme dans votre constuction de modele
 	  print*,'reptop-repbot=',reptop-repbot+1D-08,'et az=',az
+	  print*,reptop,repbot,reptop-repbot
 	  stop
 	  endif
 
@@ -1234,8 +1262,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-
-
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C	  		   PARAMETRES_ALL	  C
@@ -1329,6 +1355,8 @@ c	      allocate(zbot(nm))
 	  	if(ichi.eq.1) then
 	  	 select case (ytest)
       	  	case ("1DS") 
+     	  	 allocate(chg(nm))
+     	  	case ("1DJ") 
      	  	 allocate(chg(nm))
       	  	case ("ZNS") 
      	  	 allocate(chg(nm))
@@ -1436,6 +1464,7 @@ cccc....pression initiale, alph, moy landa 05/04/2011
 	  ito=0
 	  ita=0
 	  paso=0.D+00
+
 
 
 
@@ -1592,13 +1621,28 @@ CCC...Calcul le nombre de zone
 	      allocate(swreszone(nzone))
 	  endif
 
+	  if(ytest.eq."1DJ") then
+	  nzone=0
+	  do i=1,nm
+	  read(32,*)izone(i) 
+	  nzone=max(nzone,izone(i))
+CCC...Calcul le nombre de zone
+	  enddo
+
+	      allocate(jzone(nzone))
+	      allocate(akzone(nzone))
+	      allocate(omzone(nzone))
+	      allocate(anszone(nzone))
+	      allocate(aspzone(nzone))
+	      allocate(swreszone(nzone))
+	  endif
 
 
 	  SELECT CASE (ytest)
         CASE ('ZNS')
 	  do j=1,nzone
 	  read(321,*)jzone(j),akzone(j),omzone(j),aspzone(j),anszone(j),
-     &swreszone(j),rhomzone(j)
+     &swreszone(j)
 
 	  enddo
 
@@ -1613,7 +1657,6 @@ CCC...Calcul le nombre de zone
 	  ansun(i)=anszone(j)
 	  asun(i)=aspzone(j)
 	  swresz(i)=swreszone(j)
-	  rhos(i)=rhomzone(j)
 	  endif
 ccc test zone
 	  enddo
@@ -1627,8 +1670,6 @@ ccc loop zone
      &swreszone(j),alandazone(j),cpmzone(j),rhomzone(j)
 
 	  enddo
-
-
 	  do i=1,nm
 
 	  do j=1,nzone
@@ -1649,7 +1690,35 @@ ccc test zone
 	  enddo
 ccc loop zone
 	  enddo
+   
+	 CASE ('1DJ')
+	  do j=1,nzone
+	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
+     &swreszone(j)
+
+	  enddo
+
+
+
+	  do i=1,nm
+
+	  do j=1,nzone
+	  if (izone(i).eq.jzone(j)) then
+	  ak(i)=akzone(j)
+	  akv(i)=akzone(j)
+	  om(i)=omzone(j)
+	  ss(i)=omzone(j)
+	  ansun(i)=anszone(j)
+	  asun(i)=aspzone(j)
+	  swresz(i)=swreszone(j)
+	  endif
+ccc test zone
+	  enddo
+ccc loop zone
+	  enddo
 ccc loop element
+
+
 
 	  	  CASE ('AVA','TEX')
 	      allocate(cpmzone(nzone))
@@ -1731,6 +1800,9 @@ ccc loop zone
 	  enddo
 ccc loop element
 	  END SELECT
+
+
+
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1868,6 +1940,16 @@ CCC...HYDROSTATIQUE
 	  if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
 	  pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
 	  enddo
+	  
+	  	  	  CASE ("1DJ") 
+	  do i=1,nm
+       	read(24,*) chg(i)
+	  if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+	  pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
+	  enddo
+	  
+
+	  
 	  	  case default
 	  do j=1,nc
        read(24,*) chg(j)
@@ -1883,8 +1965,6 @@ CCC...HYDROSTATIQUE
 	  enddo
 	  END SELECT
 	  endif
-
-
 
 
 CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
@@ -2014,6 +2094,9 @@ c       write(37,*) icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
 c     &valcl(i,2),valcl(i,3),valcl(i,4)
 c       endif
 	  endif
+
+
+
 cccc....message erreur
 	  do j=1,4
 	  if (ivois(i,j).eq.-99.and.icl(i,j).eq.1) then
@@ -2056,11 +2139,10 @@ cccc....VALEURS NULLES
 	   valcl(i,4)=(rho(i)*g*(valcl(i,4)-z(i)+bm(i)/2))
 
 	  if(ytest.eq."WAR") valcl(i,4)=valcl_bas*rho1*g
+
 cccc....VALEURS NULLES
 	  if (abs(valcl(i,4)).lt.10D-10) valcl(i,4)=0
 	  endif
-	  enddo
-
 
 
 
@@ -2071,13 +2153,17 @@ cccc....VALEURS NULLES
 	  valcl(nm,4)=(rho(nm)*g*(valcl_bas- zbas))
       endif
 
+
+
 	  if(icl(i,3).eq.-2) then
 	  zhaut=z(1)+bm(1)/2
 	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
 	  valcl(1,3)=rho(1)*g*(valcl_haut-zhaut)
 	  endif
 	  endif
+	  enddo
 
+   
 
 
 
@@ -2155,6 +2241,8 @@ c     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
 	  enddo
 	  enddo
 	  endif
+
+
 
 
 
@@ -2420,6 +2508,7 @@ c	  akr(i)=0D+00
 
 
 
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C   PARAMETRE VS. TEMPERATURE INITIALE	  C
@@ -2543,6 +2632,9 @@ cccc....nappe captive
 	   enddo
 	  endif
 
+
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  		   C
 C	       BOUCLE TEMPS	  		  C
@@ -2565,9 +2657,11 @@ CCC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
 cccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
 cccc....dt record = temps ecoulé depuis le dernier enregistrement
 cccc....irecord = booléen si vrai ecriture sinon rien
+
 	     if(dtreco+dt.lt.itsortie*unitsortie) then
 	      dtrecord=dble(dtreco)+dble(dt)
 	      irecord=0
+
 	     elseif (dtreco+dt.eq.itsortie*unitsortie) then
 	     irecord=1
 	     dtrecord=0
@@ -2689,14 +2783,21 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         if(ligne3.eq.0) ligne3=1
         if(ligne4.eq.0) ligne4=1
         if(ligne5.eq.0) ligne5=1
+        if(ligne6.eq.0) ligne6=1
+       case ("1DJ")
+	  	ntsortie=ligne4
+        if(ligne.eq.0) ligne=1
+        if(ligne1.eq.0) ligne1=1
+        if(ligne2.eq.0) ligne2=1
+        if(ligne3.eq.0) ligne3=1
+        if(ligne4.eq.0) ligne4=1
+        if(ligne5.eq.0) ligne5=1
         if(ligne6.eq.0) ligne6=1 	   
 	  case ("ZHZ")
 	  	ntsortie=ligne4 
    	  case default	    
 	  	ntsortie=ligne2	  
 	  end select
-
-
 
 
        call variation_cdt_limites(nm,paso,itlecture,ytest,
@@ -2712,6 +2813,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &tempDTS,x,icol,nc,tempo,pro,slopeRH,
      &qsurf,qbot)
        endif
+
+
 
 
 
@@ -2753,8 +2856,13 @@ C	  	  	  	  		   C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(nk.eq.iteration-1.or.pr(1)+1.eq.pr(1)
      &.or.dt.le.1D-5) then
-	  if(dtreco.ne.0) then
+	  if(dtreco.ge.0) then
       dtrecord=dble(dtreco)-dble(dt)
+      irecord=0
+	  endif
+
+	  if(dtreco.le.0) then
+      dtrecord=0
       irecord=0
 	  endif
 
@@ -2781,7 +2889,7 @@ cccc....irecord = booléen si vrai ecriture sinon rien
 	     dtrecord=0
 	     dtreco=0
 	     endif
-
+		
 
 	      it=it+1
 	      nk=1
@@ -2801,6 +2909,8 @@ cccc....irecord = booléen si vrai ecriture sinon rien
 	  case ("ZHR")
 	  	ntsortie=ligne4	  
 	  case ("1DS")
+	  	ntsortie=ligne4
+	  case ("1DJ")
 	  	ntsortie=ligne4	 	   
 	  case ("ZHZ")
 	  	ntsortie=ligne4 
@@ -3199,6 +3309,12 @@ CCC....CONSTRUCTION DE LA MATRICE PRESSION
 c	      allocate(icol_ind(nmax))
 c	      allocate(irow_ptr(nmax1))
 c	      allocate(val(nmax)
+
+
+
+
+
+		
 
 	  call matp(val,icol_ind,irow_ptr,x,z,b,am,ivois,
      &rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,
@@ -3903,6 +4019,7 @@ CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
       open(unit=69,file='Sim_temperature_maille9_t.dat')
     	open(unit=591,file='Sim_temperature_maille10_t.dat')
        open(7782,file='S_vitesse_nmaille2_hb.dat')
+	  open(181822,file='Sim_pressure_profil_t.dat')
 	  open(1818,file='S_flux_therm_velocity_1_t.dat')
 	  open(18181,file='Sim_velocity_profil_t.dat')
 	  open(18182,file='Sim_heat_flux_profil_t.dat')
@@ -3915,6 +4032,21 @@ CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
 
        endif
        endif
+
+CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
+       if(ytest.eq."1DJ") then
+
+       if (irpth.eq.1.and.irp.ne.0) then
+       open(7782,file='S_vitesse_nmaille2_hb.dat')
+       open(7782,file='S_vitesse_nmaille2_hb.dat')
+	  open(181822,file='Sim_pressure_profil_t.dat')
+	  open(18181,file='Sim_velocity_profil_t.dat')
+       OPEN(94,FILE='S_permeabilite_t.dat')
+       OPEN(941,FILE='S_saturation_profil_t.dat')
+
+       endif
+       endif
+
 
 
 CCC....SORTIE MAQ GEL/DEGEL
@@ -4046,9 +4178,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 CCC....SORTIE ZNS 1D
        if(ytest.eq."ZNS") then
-c	  print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),1+z(100)
-c	  print*,akr(100),sw(100)
-       if (paso.ne.0) then
+	  print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),
+     &valcl(1,3),sw(1),sw(50),sw(2),akr(1)
+		if(modulo(int(paso),itsortie).eq.0) then
+			irecord=1
+		endif
+
+       if (irp.eq.1.and.irecord.eq.1) then
 	   do i=1,nm
 	  write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
 	  write(18181,*)paso/unitsortie,z(i),sw(i)
@@ -4060,6 +4196,11 @@ c	  print*,akr(100),sw(100)
 CCC....SORTIE ZNS 1D
        if(ytest.eq."WAR") then
 	  print*,"time",paso,"dt",dt,vzm(1),pr(1),"K",ak(1)*akr(1)
+
+		if(modulo(int(paso),itsortie).eq.0) then
+			irecord=1
+		endif
+
        if (irp.eq.1.and.irecord.eq.1) then
 	   do i=1,nm
 	  write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
@@ -4333,7 +4474,11 @@ CCC....SORTIE ZH Karina
 
 CCC....SORTIE sol Emmanuel leger 
       if(ytest.eq."1DS") then
-
+		
+		print*,paso/unitsortie,dt,pr(1)/9800+z(1),pr(nm)/9800+z(nm)
+		print*,'bas=',valcl(nm,4)/9800+z(nm)
+		print*,'pluie=',valcl(1,3)*1000*86400,'mm/j'
+		print*,'sat=',sw(1)
 
        if(irecord.eq.1.and.irpth.eq.1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
@@ -4359,9 +4504,32 @@ CCC....SORTIE sol Emmanuel leger
 	  write(943,*)paso/unitsortie,z(i),om(i)*sw(i)*rho(i)*cpe+
      &om(i)*sice(i)*rhoi(i)*cpice+
      &(1.-om(i))*rhos(i)*cps(i)
+	  write(181822,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
 	  enddo
 	  endif
 	  endif
+
+
+CCC....SORTIE sol Jose
+      if(ytest.eq."1DJ") then
+
+		print*,paso/unitsortie,dt,pr(1)/9800+z(1),pr(nm)/9800+z(nm)
+		print*,'bas=',valcl(nm,4)/9800+z(nm)
+		print*,'pluie=',valcl(1,3)*1000*86400,'mm/j'
+		print*,'sat=',sw(1)
+
+       if(irecord.eq.1.and.irpth.eq.1) then
+	  write(7782,*) paso/unitsortie,vzp(nmaille2),vzm(nmaille2)
+	   do i=1,nm
+	  write(18181,*)paso/unitsortie,z(i),vzm(i)
+	  write(94,*)paso/unitsortie,z(i),akv(i)*akrv(i)*rho(i)*g/amu
+	  write(941,*)paso/unitsortie,z(i),sw(i)
+	  write(181822,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
+	  enddo
+	  endif
+	  endif
+
+
 
 CCC....SORTIES TEST LUNARDINI
 	  if(ytest.eq."THL") then
@@ -5370,6 +5538,11 @@ cccc....Face basse a potentiel impose....
 	  val(ilik)=dble(val(ilik)-1/dzbi*rho(ik)*akv(ik)*akrv(ik)/amu)
 	  b(ik)=dble(b(ik)-1/dzbi*rho(ik)*akv(ik)*akrv(ik)/amu
      &*valcl(ik,4))+ixy*1/bm(ik)*rho(ik)*akv(ik)*akrv(ik)/amu*rho(ik)*g
+	  endif
+
+	  if(icl(ik,4).eq.-3) then
+cccc....Face basse a free drainage..
+	  b(ik)=dble(b(ik)-rho(ik)*akv(ik)*akrv(ik)/amu/bm(ik)*rho(ik))
 	  endif
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -7853,13 +8026,15 @@ c       ak(i)=permeabilite intrinseque
 
 
 
-	  if (ytest.eq."WAR") then
-	  if(kimp.gt.ligne4) kimp=ligne4
+	
+
 	  select case (ytest) 
-	  case ("WAR")	    
+
+	  case ("WAR")	  
+	  if(kimp.gt.ligne4) kimp=ligne4  
 	  select case (icl(nm,4)) 
 	  case (-2)
-	  valcl(nm,4)=chgbottom(kimp)*rho(nm)*g 
+	  valcl(nm,4)=chgbottom(kimp)*rho(nm)*g
 	  case (-1) 
 	  valcl(nm,4)=qbottom(kimp)
 	  end select
@@ -7869,30 +8044,30 @@ c       ak(i)=permeabilite intrinseque
 	  case (-1) 
 	  valcl(1,3)=qsurf(kimp)
 	  end select
-c	  case ("ZNS")	     
+	  case ("ZNS")	
+   
+	  if(kimp.gt.ligne4) kimp=ligne4
+	  select case (icl(nm,4)) 
+	  case (-2)
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
+	  case (-1) 
+	  valcl(nm,4)=qbottom(kimp)
+	  end select
 
-
-c	  select case (icl(nm,4)) 
-c	  case (-2)
-c	  zbas=z(nm)-bm(nm)/2
-c	  if(abs(zbas).lt.1e-6) zbas=0D+00
-c	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
-c	  case (-1) 
-c	  valcl(nm,4)=qbottom(kimp)
-c	  end select
-
-c	   if (ivois(1,3).eq.-99) then 
-c	  select case (icl(1,3)) 
-c	  case (-2)
-c	  zhaut=z(1)+bm(1)/2
-c	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
-c	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
-c	  case (-1) 
-c	  valcl(1,3)=qsurf(kimp)
-c	  end select
-c	  endif
-	  end select 
+	   if (ivois(1,3).eq.-99) then 
+	  select case (icl(1,3)) 
+	  case (-2)
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+	  case (-1) 
+	  valcl(1,3)=qsurf(kimp)
+	  end select
 	  endif
+	  end select 
+
 
 
 
@@ -7948,6 +8123,9 @@ c	  endif
 
 
 	  if (ytest.eq."1DS") then
+	  if(kimp.lt.1) kimp=1
+
+
 
 	  if(kimp.gt.ligne4) kimp=ligne4
 	  valclt(1,3)=tempsurf(kimp)
@@ -7960,13 +8138,13 @@ c	  endif
 	  if(icl(nm,4).eq.-2) valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
 	  if(icl(nm,4).eq.-1) valcl(nm,4)=chgbottom(kimp)
 	  valclt(nm,4)=tempbottom(kimp)
+
 	  if(kimp.gt.ligne4) then
 	  valclt(1,3)=tempsurf(ligne4)
 	  zhaut=z(1)+bm(1)/2
 	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
 	  if(icl(1,3).eq.-2) valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
 	  if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(ligne4)
-
 	  zbas=z(nm)-bm(nm)/2
 	  if(abs(zbas).lt.1e-6) zbas=0D+00
 	  if(icl(nm,4).eq.-2) then
@@ -7977,6 +8155,8 @@ c	  endif
         endif
 	  valclt(nm,4)=tempbottom(ligne4)
 	  endif
+
+
 	  if(irptha.eq.0) then
 	  iclt(1,3)=-2
 	  valclt(1,3)=tempsurf(1)
@@ -8001,7 +8181,55 @@ c	  endif
 
 
 
+	  if (ytest.eq."1DJ") then
+	  if(kimp.lt.1) kimp=1
 
+
+
+	  if(kimp.gt.ligne4) kimp=ligne4
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  if(icl(1,3).eq.-2) valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+	  if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(kimp)
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  if(icl(nm,4).eq.-2) valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
+	  if(icl(nm,4).eq.-1) valcl(nm,4)=chgbottom(kimp)
+
+	  if(kimp.gt.ligne4) then
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  if(icl(1,3).eq.-2) valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
+	  if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(ligne4)
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  if(icl(nm,4).eq.-2) then
+        valcl(nm,4)=rho(nm)*g*(chgbottom(ligne4)-zbas)
+        endif
+	  if(icl(nm,4).eq.-1) then
+        valcl(nm,4)=chgbottom(ligne4)
+        endif
+	  endif
+
+
+	  if(irptha.eq.0) then
+	  iclt(1,3)=-2
+	  icl(1,3)=-2
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  if(icl(1,3).eq.-2) valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
+	  if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(1)
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  if(icl(nm,4).eq.-2)  valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
+	  if(icl(nm,4).eq.-1)  valcl(nm,4)=chgbottom(1)
+	  endif
+
+
+
+
+
+	  endif
 
 
 
