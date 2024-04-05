@@ -1,0 +1,8 @@
+chgi=-0002D+00 	m	charge initiale ; d9.0 
+conci=0015d+00		concentration initiale ; d8.0			
+tempi=0005D+00  C	temperature initiale ; d8.0
+ichi=1			ichi=1 --> E_charge_initiale.dat
+ichi2=0			ichi2=1 --> E_pression_initiale.dat   ou E_charge_initiale.dat 
+iconci=0		iconci=1 --> E_conc_initiale.dat
+itempi=0		itempi=1 --> E_temperature_initiale.dat
+
