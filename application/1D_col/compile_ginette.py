@@ -21,7 +21,7 @@ if os.path.isfile('ginette'):
 else:
     print ("ginette not exist")
     print("you must compile ginette in the current directory")
-    print(" gfortran -o ginette ../../src/ginette_V2.f")
+    print(" gfortran -o ginette ../../src/ginette_V3.f")
 
 
 ########### Setup
