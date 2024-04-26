@@ -18,3 +18,5 @@ GINETTE_SENSI/E_tested_ranges.dat
 GINETTE_SENSI/E_zone_parameter.dat
 GINETTE_SENSI/awk.ginette
 GINETTE_SENSI/tested_values
+*.csv
+*.CSV

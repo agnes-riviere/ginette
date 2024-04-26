@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import os
 import sys
 import numpy as np
@@ -19,8 +20,8 @@ if os.path.isfile(os.path.join(path_one_sim,'ginette')):
 else:
     print ("ginette not exist")
     print("ginette will be compile in GINETTE_SENSI")
-    print(" gfortran -o GINETTE_SENSI/ginette ../../src/ginette_V2.f")
-    subprocess.call(["gfortran","-o","GINETTE_SENSI/ginette","../../src/ginette_V2.f"])  #creat
+    print(" gfortran -o GINETTE_SENSI/ginette ../../src/ginette_V3.f")
+    subprocess.call(["gfortran","-o","GINETTE_SENSI/ginette","../../src/ginette_V3.f"])  #creat
 
 # Print the current working directory
 print("Current working directory: {0}".format(os.getcwd()))
