@@ -215,6 +215,8 @@ A comparative table of simulated versus observed is generated in _ginette/applic
 
 To plot the observation and simulation, run the script temperature_time_series.R
 Fill the date_bg = "11/04/2022 00:00:00" and sim_name = 1.
+
+To plot the time series, you can use the script LOMOS_ginette_plot_calib.py or the script temperature_time_series.R. The plot will be in the directory PLOT/
 _____________________________________________________________________________________________________________________________
 ## PLOTS
 ### Python users

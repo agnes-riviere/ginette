@@ -10,7 +10,7 @@ ixy=1           =1 : plan x,z  =0 plan x,y annulation du terme graviatiait ; for
 imaille=1	    =0 lecture maillage : voisins, coordonnees, def_maille : largeur (am), hauteur (bm), nb colonnes (nci), nb lignes (nri);  =1 construction maillage automatique  C//////  CONSTRUCTION MODEL
 itopo=0         itopo=1 variation de altitude de top bot par colonne  E_geom.dats  C//////////////////////////  CONSTRUCTION MODEL
 ibuilt=0			construction maillage manuelle et zonage des parametres
-reptop=0000D-03 m	altitude top  C//////////////////////////  CONSTRUCTION MODEL
+reptop=[z_top] m	altitude top  C//////////////////////////  CONSTRUCTION MODEL
 repbot=[z_bottom]       m	altitude bottom  C//////////////////////////  CONSTRUCTION MODEL
 icolonne=0              icolonne=1 remplir E_colonne.dat, nm valeurs de numero de colonne, sinon icolonne=0   C//////////  CONSTRUCTION MODEL
 nmi=[nb_cell]       		nombre de mailles actives             C//////////////////////////  CONSTRUCTION MODEL
@@ -65,10 +65,10 @@ itsortie=00000900       pas enregistrement des resultats                        
 unitsortie=00001D+00    unite temporelle enregistrement sorties				C//////////////////////////    FICHIERS DE SORTIE
 icalvit=1		         calcul vitesse et nb de courant a ne surtout pas annuler pour la thermique ou le transport de masse
 mcol=00001              numero de la colonne enregistrement pression temps                      C//////////////////////////  C FICHIERS DE SORTIE
-nmaille1=00010       		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille2=00020       		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille3=00030        numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
-nmaille4=00040          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille1=[cell1]      		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille2=[cell2]        		 numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille3=[cell3]         numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille4=[cell4]          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
 nmaille5=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
 nmaille6=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
 nmaille7=00010          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
