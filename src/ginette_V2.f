@@ -499,11 +499,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  end if
 	  endif
 
-	  if(ytest.eq."1DJ") then
+	  if(ytest.eq."1DJ".or.ytest.eq."ZND") then
 	  open(unit=45,file='E_ec_bc_t.dat',iostat=iop)
 	  endif
 
-	  if(ytest.eq."ZNS".or.ytest.eq."1DJ") then
+	  if(ytest.eq."ZNS".or.ytest.eq."1DJ".or.ytest.eq."ZND") then
 	  open(unit=32,file='E_zone.dat')
 	  open(unit=321,file='E_zone_parameter.dat')
 	  if (ios /= 0) then
@@ -620,7 +620,7 @@ CCC....lecture des données temperature time
 	enddo
       endif
 
-      if (ytest.eq."1DJ") then
+      if (ytest.eq."1DJ".or.ytest.eq."ZND") then
 	  ligne4=0
 CCC....lecture des données temperature time
       do while (ios.eq.0)
@@ -1578,7 +1578,8 @@ CCC...Calcul le nombre de zone
 	      allocate(jzone(nzone))
 	  endif
 
-	  if(ytest.eq."ZNS") then
+	  if(ytest.eq."ZNS".or.ytest.eq."ZND") then
+
 	  nzone=0
 	  do i=1,nm
 	  read(32,*)izone(i) 
@@ -1598,7 +1599,6 @@ CCC...Calcul le nombre de zone
 	      allocate(swreszone(nzone))
 	      allocate(rhomzone(nzone))
 	  endif
-
 
 
 	  if(ytest.eq."1DS") then
@@ -1638,6 +1638,7 @@ CCC...Calcul le nombre de zone
 	  endif
 
 
+
 	  SELECT CASE (ytest)
         CASE ('ZNS')
 	  do j=1,nzone
@@ -1662,16 +1663,40 @@ ccc test zone
 	  enddo
 ccc loop zone
 	  enddo
+        CASE ('ZND')
 
-   
+	  do j=1,nzone
+	  read(321,*)jzone(j),akzone(j),omzone(j),aspzone(j),anszone(j),
+     &swreszone(j)
+
+	  enddo
+
+ 
+	  do i=1,nm
+	  do j=1,nzone
+	  if (izone(i).eq.jzone(j)) then
+	  ak(i)=akzone(j)
+	  akv(i)=akzone(j)
+	  om(i)=omzone(j)
+	  ss(i)=omzone(j)
+	  ansun(i)=anszone(j)
+	  asun(i)=aspzone(j)
+	  swresz(i)=swreszone(j)
+	  endif
+ccc test zone
+	  enddo
+
+ccc loop zone
+	  enddo
+
 	 CASE ('1DS')
 	  do j=1,nzone
 	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
      &swreszone(j),alandazone(j),cpmzone(j),rhomzone(j)
-
 	  enddo
-	  do i=1,nm
+	  
 
+	  do i=1,nm
 	  do j=1,nzone
 	  if (izone(i).eq.jzone(j)) then
 	  alandas(i)=alandazone(j)
@@ -1686,11 +1711,15 @@ ccc loop zone
 	  swresz(i)=swreszone(j)
 	  rhos(i)=rhomzone(j)
 	  endif
+	  	  	  	  print*,ak(1)
+
 ccc test zone
 	  enddo
 ccc loop zone
 	  enddo
+
    
+
 	 CASE ('1DJ')
 	  do j=1,nzone
 	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
@@ -1928,6 +1957,12 @@ CCC...HYDROSTATIQUE
 	  if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
 	  pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
 	  enddo
+	  CASE ("ZND") 
+	  do i=1,nm
+       	read(24,*) chg(i)
+	  if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+	  pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
+	  enddo
 	  	  CASE ("WAR") 
 	  do i=1,nm
        	read(24,*) chg(i)
@@ -2146,7 +2181,7 @@ cccc....VALEURS NULLES
 
 
 
-	   if(ytest.eq."ZNS") then
+	   if(ytest.eq."ZNS".or.ytest.eq."ZND") then
 	  if(icl(i,4).eq.-2) then
 	  zbas=z(nm)-bm(nm)/2
 	  if(abs(zbas).lt.1e-6) zbas=0D+00
@@ -2772,7 +2807,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
   	   case ("WAR")	    
 	  	ntsortie=ligne4	  
 	  case ("ZNS")
-	  	ntsortie=ligne4	  	   
+	  	ntsortie=ligne4
+	  		  case ("ZND")
+	  	ntsortie=ligne4	 	   
 	  case ("ZHR")
 	  	ntsortie=ligne4	 
 	  case ("1DS")
@@ -2905,7 +2942,9 @@ cccc....irecord = booléen si vrai ecriture sinon rien
   	   case ("WAR")	    
 	  	ntsortie=ligne4	  
 	  case ("ZNS")
-	  	ntsortie=ligne4	  	   
+	  	ntsortie=ligne4
+	  case ("ZND")
+	  	ntsortie=ligne4	 	  	  	   
 	  case ("ZHR")
 	  	ntsortie=ligne4	  
 	  case ("1DS")
@@ -3974,6 +4013,12 @@ CCC....FICHIERS ZNS 1D
 	  open(18182,file='S_pressure_profil_t.dat')
        endif
 
+       if(ytest.eq."ZND") then
+	  open(1818,file='S_hydraulic_conductivities_profil_t.dat')
+	  open(18181,file='S_saturation_profil_t.dat')
+	  open(18182,file='S_pressure_profil_t.dat')
+       endif       
+
 CCC....FICHIERS ZNS 1D
        if(ytest.eq."WAR") then
        if (irp.eq.1) then
@@ -4037,7 +4082,6 @@ CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
        if(ytest.eq."1DJ") then
 
        if (irpth.eq.1.and.irp.ne.0) then
-       open(7782,file='S_vitesse_nmaille2_hb.dat')
        open(7782,file='S_vitesse_nmaille2_hb.dat')
 	  open(181822,file='Sim_pressure_profil_t.dat')
 	  open(18181,file='Sim_velocity_profil_t.dat')
@@ -4192,6 +4236,23 @@ CCC....SORTIE ZNS 1D
 	enddo
        endif
        endif
+       
+       
+       if(ytest.eq."ZND") then
+	  print*,"time",paso,"dt",dt,pr(1)/rho1/g+z(1),
+     &valcl(1,3)/rho1/g+z(1),sw(100),ak(100)
+		if(modulo(int(paso),itsortie).eq.0) then
+			irecord=1
+		endif
+
+       if (irp.eq.1.and.irecord.eq.1) then
+	   do i=1,nm
+	  write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
+	  write(18181,*)paso/unitsortie,z(i),sw(i)
+	  write(18182,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
+	enddo
+       endif
+       endif       
 
 CCC....SORTIE ZNS 1D
        if(ytest.eq."WAR") then
@@ -8066,6 +8127,39 @@ c       ak(i)=permeabilite intrinseque
 	  valcl(1,3)=qsurf(kimp)
 	  end select
 	  endif
+	  
+	  	  case ("ZND")	
+   
+	  if(kimp.gt.ligne4) kimp=ligne4
+	  select case (icl(nm,4)) 
+	  case (-2)
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
+	  case (-1) 
+	  valcl(nm,4)=0
+	  end select
+
+	   if (ivois(1,3).eq.-99) then 
+	   zhaut=z(1)+bm(1)/2
+	   if(chgsurf(kimp)-zhaut.ge.0.001) then
+	    icl(1,3) =-2
+	   else
+	    icl(1,3) =-1
+	   endif 
+	  select case (icl(1,3)) 	   
+	  case (-2)
+	  print*,'coucou',chgsurf(kimp)
+	  zhaut=z(1)+bm(1)/2
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+	  case (-1) 
+	  valcl(1,3)=0
+	  end select
+	  endif
+	  
+	  
+	  
 	  end select 
 
 
