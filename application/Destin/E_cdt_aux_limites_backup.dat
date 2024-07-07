@@ -1,0 +1,31 @@
+icl_gauche=-1		icl=-1 flux imposé sur une face, icl=-2 potentiel impose sur une face		 		c Bord gauche	C ECOULEMENT
+valcl_gauche=00000000d+00	valeur flux (m/s) valeur charge (m)								c Bord gauche	C ECOULEMENT
+icl_droite=-1													 	c Bord droit	C ECOULEMENT
+valcl_droite=00000000d+00	valeur flux (m/s) valeur charge (m)								c Bord droit	C ECOULEMENT
+icl_haut=-1													c Surface	C ECOULEMENT
+valcl_haut=00000000d+00	valeur flux (m/s) valeur charge (m)								c Surface  	C ECOULEMENT
+icl_bas=-1														c Base		C ECOULEMENT
+valcl_bas=00000000d+00	valeur flux (m/s) valeur charge (m)								c Base		C ECOULEMENT
+iclc_gauche=-1														c Bord gauche	C TRANSPORT
+valclc_gauche=00000000d+00													c Bord gauche	C TRANSPORT
+iclc_droite=-1													 	c Bord droit	C TRANSPORT
+valclc_droite=00000000d+00													c Bord droit	C TRANSPORT
+iclc_haut=-1														c Surface	C TRANSPORT
+valclc_haut=00000000d+00													c Surface  	C TRANSPORT
+iclc_bas=-1														c Base 		C TRANSPORT
+valclc_bas=00000000d+00													c Base  	C TRANSPORT
+iclt_gauche=-1													 	c Bord gauche  	C THERMIQUE
+valclt_gauche=00000000d+00	valeur flux  valeur temperature (C)								c Bord gauche  	C THERMIQUE
+iclt_droite=-1													 	c Bord droit  	C THERMIQUE
+valclt_droite=00000000d+00	valeur flux  valeur temperature (C)								c Bord droit  	C THERMIQUE
+iclt_haut=-2													 	c Surface  	C THERMIQUE
+valclt_haut=0001.287D+01	valeur flux  valeur temperature (C)								c Surface  	C THERMIQUE
+iclt_bas=-2														c Base 	 	C THERMIQUE
+valclt_bas=00009153D-03    aleur flux  valeur temperature (C)								c Base  	C THERMIQUE
+iclect=0		E_cl_ecoulement.dat : icl, valcl D G H B						C ECOULEMENT
+icltherm=0		E_cl_thermique.dat : iclt, valclt D G H B						C THERMIQUE
+iclectchgt=0		iclectchgt=1										c CL
+iclchgt=1		iclthermchgt=1, modification des conditions aux limites au cours du temps		c CL
+icldrain=0		icldrain=1 condition autour du drain							c CL
+iclriviere=0		icldrain=1, modification condition riviere en fonction du temps				c CL
+itlecture=[itlecture]  pas de temps des conditions aux limites												c CL
