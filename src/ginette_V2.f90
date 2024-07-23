@@ -1561,7 +1561,7 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if(ytest.eq."AVA".or.ytest.eq."ZHZ"&
-     .or.ytest.eq."DTS".or.ytest.eq."TEX") then
+     &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
 	  nzone=0
 	  do i=1,nm
 	  read(32,*)izone(i)
@@ -3830,7 +3830,7 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
        if (ytest.eq."ZHR".or.ytest.eq."ZHZ"&
-     .or.ytest.eq."1DS") then
+     &.or.ytest.eq."1DS") then
 	  do i=1,nm
 	  qad(i)=0D+00
 	  qcondu(i)=0D+00
@@ -4515,8 +4515,7 @@
 
 
 !CC....SORTIE ZH Karina
-      if(ytest.eq."ZHR".or.ytest.eq."ZHZ"&
-     ) then
+      if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
        if(irecord.eq.1.and.irpth.eq.1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
        write(60,*) paso/unitsortie,temp(nmaille2)
@@ -5060,7 +5059,7 @@
 	  endif
 
 	  if(ytest.eq."AVA".or.ytest.eq."ZHZ"&
-     .or.ytest.eq."DTS".or.ytest.eq."TEX") then
+     &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
 	  if	(allocated(alandazone))	DEALLOCATE(alandazone)
 	  if	(allocated(cpmzone))	DEALLOCATE(cpmzone)
 	  if	(allocated(rhomzone))	DEALLOCATE(rhomzone)
