@@ -18,7 +18,7 @@
       double precision pas
       integer nc,nr,n,iec,irp,ith,nitt,ixy,ii
       integer imaille,itopo,ibuilt,icolone
-      integer ni,nci,nri,nclog,ilog,irho
+      integer nci,nri,nclog,ilog,irho
       integer ipermh,ipermv,iom,iss,ia2,ivg
       integer iteration,itsortie,icalvit
       integer mcol,nmaille1,nmaille2,nmaille3,nmaille4
@@ -80,7 +80,6 @@
       double precision,dimension(:),allocatable::qcondin_h,qcondin_hR
       double precision,dimension(:),allocatable::qad,qcondu
       integer           :: nm
-      character(LEN=40) :: FileName
       LOGICAL           :: An_Error
 
 
@@ -1546,7 +1545,7 @@
 
         call DTS_read(nc,xpool,ligne,ligne1,&
      ligne2,ligne3,ligne4,&
-     ligne6,timeDTS,xDTS,tempDTS,&
+     ligne6,timeDTS,tempDTS,&
      chgRG,cRivG,timeG,tempRG,&
      chgRD,cRivD,timeD,tempRD,&
      xriffle,slopeRH)
@@ -2487,7 +2486,7 @@
 !CC....DEF PARAMETRES VS CDT INITIALES
 !CC....ZNS
       if (ivg.eq.1.or.yunconfined.eq."UNS") then
-      Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,&
+      Call unsaturated(pr,swp,dswpdp,swresz,ans,akr,&
      nm,akrv,rho1,g,ansun,asun)
 
 !CC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL AVEC ZONE NON SATUREE
@@ -2611,7 +2610,7 @@
 !ccc....sw (liquide) = (1D0 - sice)
 !CC....Implicite
       if(icycle.ne.0.and.ibigridice.ne.1.and.iparo.eq.1) then
-       CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,tempo,&
+       CALL icesatperm(nm,tl,ts,akr,akrv,dk,tempo,&
      dsipdtemp,igelzns,ytypakrice,&
      sicep,om,sw,swressi,ytypsice,&
      cimp,tempoo,omega,siceo)
@@ -2623,7 +2622,7 @@
       endif
 !CC....Explicite
       if(icycle.ne.0.and.ibigridice.ne.1.and.iparo.eq.0) then
-       CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,&
+       CALL icesatperm(nm,tl,ts,akr,akrv,dk,temp,&
      dsipdtemp,igelzns,ytypakrice,&
      sicep,om,sw,swressi,ytypsice,&
      cimp,tempo,omega,siceo)
@@ -2635,8 +2634,8 @@
       endif
 !CC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
       if(icycle.ne.0.and.ibigridice.EQ.1) then
-      CALL biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,&
-     col,nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,&
+      CALL biggridice(nm,tl,ts,akr,akrv,dk,temp,igel,&
+     nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,&
      sicep,swressi,siceo,tempo)
       endif
 
@@ -2841,12 +2840,11 @@
      ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,&
      icl,valcl,iclt,valclt,ivois,&
      z,g,ntsortie,bm,irptha,&
-     rho,tempsol,tempriver,qpluie,chgriver,&
+     rho,qpluie,chgriver,&
      chgRD,chgRG,tempRD,tempRG,&
      id_RD,id_RG,id_river,id_rivert,tempsurf,&
      tempbot,chgsurf,chgbot,&
-     cRivG,timeG,cRivD,timeD,&
-     timeDTS,xDTS,&
+     cRivG,cRivD,&
      tempDTS,x,icol,nc,tempo,pro,slopeRH,&
      qsurf,qbot)
        endif
@@ -2978,12 +2976,11 @@
      ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,&
      icl,valcl,iclt,valclt,ivois,&
      z,g,ntsortie,bm,irptha,&
-     rho,tempsol,tempriver,qpluie,chgriver,&
+     rho,qpluie,chgriver,&
      chgRD,chgRG,tempRD,tempRG,&
      id_RD,id_RG,id_river,id_rivert,tempsurf,&
      tempbot,chgsurf,chgbot,&
-     cRivG,timeG,cRivD,timeD,&
-     timeDTS,xDTS,&
+     cRivG,cRivD,&
      tempDTS,x,icol,nc,tempo,pro,slopeRH,&
      qsurf,qbot)
        endif
@@ -3117,7 +3114,7 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       if (ivg.eq.1.or.yunconfined.eq."UNS") then
-      Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,&
+      Call unsaturated(pr,swp,dswpdp,swresz,ans,akr,&
      nm,akrv,rho1,g,ansun,asun)
     if(igelzns.eq.0.and.ith.eq.1) then
     if (ymoycondtherm.eq."WOODS") then
@@ -3257,7 +3254,7 @@
 !CC....sw (liquide) = (1D0 - sice)
 !CC....Implicite
       if(ibigridice.ne.1.and.iparo.eq.1) then
-       CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,tempo,&
+       CALL icesatperm(nm,tl,ts,akr,akrv,dk,tempo,&
      dsipdtemp,igelzns,ytypakrice,&
      sicep,om,sw,swressi,ytypsice,&
      cimp,tempoo,omega,siceo)
@@ -3270,7 +3267,7 @@
 
 !CC....Explicite
       if(ibigridice.ne.1.and.iparo.eq.0) then
-       CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,&
+       CALL icesatperm(nm,tl,ts,akr,akrv,dk,temp,&
      dsipdtemp,igelzns,ytypakrice,&
      sicep,om,sw,swressi,ytypsice,&
      cimp,tempo,omega,siceo)
@@ -3282,8 +3279,8 @@
       endif
 !CC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
       if(ibigridice.EQ.1) then
-      CALL biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,&
-     col,nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,&
+      CALL biggridice(nm,tl,ts,akr,akrv,dk,temp,igel,&
+     nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,&
      sicep,swressi,siceo,tempo)
       endif
 
@@ -3358,7 +3355,7 @@
       call matp(val,icol_ind,irow_ptr,x,z,b,am,ivois,&
      rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,&
      sw,nz,irp,nmax1,nmax,bm,akv,akrv,&
-     igel,ysupdp,rhoi,ixy,dsidtemp,temp,tempo,ysolv)
+     igel,ysupdp,rhoi,ixy,dsidtemp,temp,tempo)
 !CC....Resolution
       n1=nm
       nmaxz=nmax
@@ -3618,8 +3615,8 @@
       nz=nm
       dtc=dt
       call matc(val,icol_ind,irow_ptr,x,b,am,ivois,conco,&
-     dtc,iclc,valclc,om,nm,nz,allg,alt,&
-     nmax,nmax1,bm,z,vxp,vxm,vzp,vzm,ysolv)
+     dtc,iclc,valclc,om,nm,allg,alt,&
+     nmax,nmax1,bm,z,vxp,vxm,vzp,vzm)
       n1=nm
       nmaxz=nmax
       nmaxzz=nmax1
@@ -3654,7 +3651,7 @@
 
 
       call matt(val,icol_ind,irow_ptr,x,b,am,ivois,tempo,&
-     rho,dt,iclt,valclt,om,nm,nth,bll,blt,&
+     rho,dt,iclt,valclt,om,nm,bll,blt,&
      cpe,cps,rhos,alanda,chlat,nmaxth,igel,nmaxthh,&
      z,bm,temp,ithec,irpth,ts,tl,&
      alandae,alandas,alandai,rhoi,cpice,sice,sw,&
@@ -3712,7 +3709,7 @@
       nz=n
       nmz=nm
       ncz=nc
-      call upheaval(nz,ncz,nmz,igel,zs,zsoo,ivois,pr,pro,&
+      call upheaval(ncz,nmz,igel,zs,zsoo,ivois,pr,pro,&
      alph,dl,def,defo,icol)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
@@ -3720,9 +3717,9 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       call interpol(nc,zs,nm,icol,temp,ivois,igel,&
-     bm,z,ncmax,n,valclt,ts,iclt,topo)
+     bm,z,ncmax,valclt,ts,iclt,topo)
       call interpol(nc,zl,nm,icol,temp,ivois,igel,&
-     bm,z,ncmax,n,valclt,tl,iclt,topo)
+     bm,z,ncmax,valclt,tl,iclt,topo)
     endif
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !         fin thermique calcule           C
@@ -4146,7 +4143,7 @@
 
       ts=0
     call interpolsurf(nc,zs,nm,icol,pr,ivois,&
-     bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,&
+     bm,z,valcl,icl,id_river,id_rivert,chgriver,&
      ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
        if (ith.eq.1) then
         OPEN(181819,FILE='S_temp_zns1.dat')
@@ -4207,7 +4204,7 @@
       if(irecord.eq.1) then
       ts=0
     call interpolsurf(nc,zs,nm,icol,pr,ivois,&
-     bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,&
+     bm,z,valcl,icl,id_river,id_rivert,chgriver,&
      ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
       do i=1,nm
       write(7782,*)paso/unitsortie,paso/86400,x(i),&
@@ -4381,7 +4378,7 @@
       if(ytest.eq."VAU") then
       ts=0
       call interpolsurf(nc,zs,nm,icol,pr,ivois,&
-     bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,&
+     bm,z,valcl,icl,id_river,id_rivert,chgriver,&
      ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
         print*,"out",paso,zs(1,1),zs(nc,1)
       if(irecord.eq.1) then
@@ -5174,7 +5171,6 @@
       character(*), INTENT(IN   ) :: FileName
       LOGICAL  ,        INTENT(  OUT) :: An_Error
 
-      character(256)              :: TextLine
       Integer, INTENT(IN   )       :: My_LUN
       LOGICAL                         :: It_Exists
 
@@ -5207,7 +5203,6 @@
       SUBROUTINE count_file(My_LUN,iosnew,Num)
       integer  ,        INTENT(  OUT) :: num
       integer :: iosnew
-      character(256)              :: TextLine
       Integer                         :: My_LUN
 
 
@@ -5337,7 +5332,6 @@
       enddo
       enddo
    11  continue
-   10  return
        end
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                         C
@@ -5354,9 +5348,8 @@
       implicit double precision(A-H,O-Z),integer*4(I-N)
     integer k
     dimension val(nmax),icol_ind(nmax),irow_ptr(nmax1)
-    dimension x(n),r(n),u(n),p(n),v(n),vc(n)
+    dimension x(n),r(n),u(n),p(n),vc(n)
     dimension b(n),q(n),rt(n),qc(n),uc(n),pc(n)
-    dimension xo(n)
 !ccccccResidu INITIAL
 ! produit matrice vecteur
     do i=1,n
@@ -5464,7 +5457,6 @@
 
 
    11  continue
-   10  return
 
 
 
@@ -5484,11 +5476,10 @@
       subroutine matp(val,icol_ind,irow_ptr,x,z,b,am,ivois,&
      rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,sw,nm,&
      irp,nmax,nmax1,bm,akv,akrv,igel,&
-     ysupdp,rhoi,ixy,dsidtemp,temp,tempo,ysolv)
+     ysupdp,rhoi,ixy,dsidtemp,temp,tempo)
       implicit double precision(a-h,o-x,z),integer(I-N)
       implicit CHARACTER*5(y)
-      CHARACTER(3) :: ysolv
-      dimension pr(nm),b(nm),x(nm),z(nm)
+      dimension b(nm),x(nm),z(nm)
       dimension ivois(nm,4),dsidtemp(nm),temp(nm)
       dimension val(nmax),icol_ind(nmax),irow_ptr(nmax1)
       dimension dswdp(nm),om(nm),rhold(nm)
@@ -5763,11 +5754,10 @@
 !CC....TODOLIST
 !ccc....
       subroutine matc(val,icol_ind,irow_ptr,x,b,am,ivois,conco,&
-     dt,iclc,valclc,om,nm,n,allg,alt,&
-     nmax,nmax1,bm,z,vxp,vxm,vzp,vzm,ysolv)
+     dt,iclc,valclc,om,nm,allg,alt,&
+     nmax,nmax1,bm,z,vxp,vxm,vzp,vzm)
       implicit double precision(a-h,o-x,z),integer(I-N)
       implicit CHARACTER*5(y)
-      CHARACTER(3) :: ysolv
       dimension b(nm),x(nm),z(nm),am(nm)
       dimension ivois(nm,4)
       dimension val(nmax),icol_ind(nmax),irow_ptr(nmax1)
@@ -5979,7 +5969,7 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-      subroutine upheaval(n,nc,nm,igel,zs,zsoo,ivois,pr,pro,&
+      subroutine upheaval(nc,nm,igel,zs,zsoo,ivois,pr,pro,&
      alph,dl,def,defo,icol)
       implicit double precision(a-h,o-x,z),integer(I-N)
       implicit CHARACTER*5(y)
@@ -6033,7 +6023,7 @@
 !                         C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      subroutine unsaturated(pr,sw,dswdp,swresz,asp,ans,akr,&
+      subroutine unsaturated(pr,sw,dswdp,swresz,ans,akr,&
      nm,akrv,rho1,g,ansun,asun)
       implicit double precision(a-h,o-x,z),integer(I-N)
       implicit CHARACTER*5(y)
@@ -6074,7 +6064,7 @@
 !CC....TODOLIST
 !ccc....
       subroutine cdt_riviere(hriv,g,nm,z,hbot,&
-     bm,ivois,am,rho,xberg,x,n,icl,valcl,iclt,valclt,&
+     bm,ivois,am,rho,xberg,x,icl,valcl,iclt,valclt,&
      tempriv,aklit,aklitv,ak,akv,elit,&
      akc,akcv,it,ita,tempo,ts)
       implicit double precision(a-h,o-x,z),integer(I-N)
@@ -6170,7 +6160,7 @@
 !ccc....
 
       subroutine debit_riviere(hriv,qriva,qriv,nm,z,hbot,&
-     bm,ivois,qinf,am,xberg,x,al,n,&
+     bm,ivois,qinf,am,xberg,x,al,&
      rug,pent,iqriv,vxp,vzp,qruis)
       implicit double precision(a-h,o-x,z),integer(I-N)
       implicit CHARACTER*5(y)
@@ -6236,7 +6226,7 @@
 !CC....TODOLIST
 !ccc....
     subroutine matt(val,icol_ind,irow_ptr,x,b,am,ivois,tempo,&
-     rho,dt,iclt,valclt,om,nm,n,bll,blt,&
+     rho,dt,iclt,valclt,om,nm,bll,blt,&
      cpe,cps,rhos,alanda,chlat,nmax,igel,nmax1,&
      z,bm,temp,ithec,irpth,ts,tl,&
      alandae,alandas,alandai,rhoi,cpice,sice,sw,&
@@ -6739,7 +6729,7 @@
 !CC....TODOLIST
 !ccc....
       subroutine interpol(nc,zo,nm,icol,temp,ivois,igel,&
-     bm,z,ncmax,n,valclt,to,iclt,topo)
+     bm,z,ncmax,valclt,to,iclt,topo)
       implicit double precision(a-h,o-x,z),integer(I-N)
       implicit CHARACTER*5(y)
       dimension z(nm)
@@ -6854,7 +6844,7 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-      subroutine icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,&
+      subroutine icesatperm(nm,tl,ts,akr,akrv,dk,temp,&
      dsidtemp,igelzns,ytypakrice,&
      sice,om,sw,swressi,ytypsice,&
      cimp,tempo,omega,siceo)
@@ -7046,7 +7036,7 @@
 ! --- PURPOSE :
 !CCC SUBROUTINE DATANT ET NON VERIFIEE A NE PAS UTILISEE
 !
-      SUBROUTINE unsatpermice(n,nm,akr,akrv,dk,&
+      SUBROUTINE unsatpermice(nm,akr,akrv,dk,&
      ytypakrice,ans,&
      sice,om,sw,swressi,rlamb)
       implicit double precision(a-h,o-x,z),integer(I-N)
@@ -7123,8 +7113,8 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-      subroutine biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,&
-     col,nc,z,zl,zs,bm,dsidtemp,valclt,ivois,&
+      subroutine biggridice(nm,tl,ts,akr,akrv,dk,temp,igel,&
+     nc,z,zl,zs,bm,dsidtemp,valclt,ivois,&
      sice,swressi,siceo,tempo)
       implicit double precision(a-h,o-x,z),integer(I-N)
       implicit CHARACTER*5(y)
@@ -7747,7 +7737,7 @@
 !CC....TODOLIST
 !ccc....
       subroutine interpolsurf(nc,zo,nm,icol,pr,ivois,&
-     bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,&
+     bm,z,valcl,icl,id_river,id_rivert,chgriver,&
      ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
       implicit double precision(a-h,o-x,z),integer(I-N)
       implicit CHARACTER*5(y)
@@ -7953,14 +7943,14 @@
 
       subroutine DTS_read(nc,xpool,ligne,ligne1,&
      ligne2,ligne3,ligne4,&
-     ligne6,timeDTS,xDTS,tempDTS,&
+     ligne6,timeDTS,tempDTS,&
      chgRG,cRivG,timeG,tempRG,&
      chgRD,cRivD,timeD,tempRD,&
      xriffle,slopeRH)
 
       implicit double precision(a-h,o-z)
       implicit integer (i-n)
-      dimension  timeDTS(ligne),xDTS(nc),tempDTS(ligne,nc)
+      dimension  timeDTS(ligne),tempDTS(ligne,nc)
       dimension  chgRG(ligne1),cRivG(ligne1),timeG(ligne1)
       dimension  tempRG(ligne1),chgRD(ligne2),cRivD(ligne2)
       dimension  timeD(ligne2),tempRD(ligne2),xriffle(2,ligne6)
@@ -8028,12 +8018,11 @@
      ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,&
      icl,valcl,iclt,valclt,ivois,&
      z,g,ntsortie,bm,irptha,&
-     rho,tempsol,tempriver,qpluie,chgriver,&
+     rho,qpluie,chgriver,&
      chgRD,chgRG,tempRD,tempRG,&
      id_RD,id_RG,id_river,id_rivert,tempsurf,&
      tempbottom,chgsurf,chgbottom,&
-     cRivG,timeG,cRivD,timeD,&
-     timeDTS,xDTS,&
+     cRivG,cRivD,&
      tempDTS,x,icol,nc,tempo,pro,slopeRH,&
      qsurf,qbottom)
 !     nc nb de colonnes
@@ -8065,20 +8054,16 @@
       dimension icol(nm)
       dimension chgbottom(ntsortie),chgsurf(ntsortie)
       dimension qbottom(ntsortie),qsurf(ntsortie)
-      dimension tempsol(ligne)
       dimension qpluie(ligne1),chgRD(ligne2)
       dimension chgRG(ligne2),tempRD(ligne2)
-      dimension tempriver(ligne2)
       dimension id_RD(ligne3),id_RG(ligne4)
       dimension id_river(ligne5),chgriver(ligne2)
       dimension tempRG(ligne1),id_rivert(ligne6)
       dimension tempsurf(ntsortie),tempbottom(ntsortie)
       dimension cRivG(ligne1)
-      dimension timeG(ligne1)
       dimension cRivD(ligne2)
-      dimension timeD(ligne2)
-      dimension timeDTS(ligne),pro(nm)
-      dimension xDTS(nc),tempo(nm)
+      dimension pro(nm)
+      dimension tempo(nm)
       dimension tempDTS(ligne,nc)
       dimension slopeRH(2,ligne3)
       CHARACTER(3) :: ytest
