@@ -1,12 +1,12 @@
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC GINETTE CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C AUCUNE MODIFICATION DU CODE N'IMPLIQUE LES DEVELLOPEURS AGNES RIVIERE JULIO GONCALVES ANNE JOST	   C
-C contacts agnes.riviere@mines_paristech.fr	  	  	  	  	  	  		   C
-C	    goncalves@cerege.fr	  	  	  	  	  	  	  	  	      C
-c	    anne.jost@upmc.fr	  	  	  	  	  	  	  	  		  C
-C Toute utilisation ou copie de ce code implique la citation des auteurs	  	  	  	    C
-C	  	  	  	  	  	  	      	  	  	  	  	  	  C
-C Toute vente commerciale en temps que service ou logiciel doit obtenir l'accord des auteurs	     C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC GINETTE CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! AUCUNE MODIFICATION DU CODE N'IMPLIQUE LES DEVELLOPEURS AGNES RIVIERE JULIO GONCALVES ANNE JOST	   C
+! contacts agnes.riviere@mines_paristech.fr	  	  	  	  	  	  		   C
+!	    goncalves@cerege.fr	  	  	  	  	  	  	  	  	      C
+!	    anne.jost@upmc.fr	  	  	  	  	  	  	  	  		  C
+! Toute utilisation ou copie de ce code implique la citation des auteurs	  	  	  	    C
+!	  	  	  	  	  	  	      	  	  	  	  	  	  C
+! Toute vente commerciale en temps que service ou logiciel doit obtenir l'accord des auteurs	     C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       program pression_ecoulement_transport_thermique
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
@@ -41,7 +41,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       double precision,dimension(:,:),allocatable:: valclt,valclc,valcl
       double precision,dimension(:,:),allocatable:: valclto
       double precision,dimension(:),allocatable:: rhos,alanda,cps
-c	   dimension icpiso(:)
+!	   dimension icpiso(:)
       double precision,dimension(:),allocatable::dl,def,defo,dsidtempo
       double precision,dimension(:),allocatable::alph,dsidtempoo
       double precision,dimension(:),allocatable::vxm,vxp,vzp,vzm
@@ -49,7 +49,7 @@ c	   dimension icpiso(:)
       double precision,dimension(:),allocatable::chg,alandas,ss,topo,bot
       integer,dimension(:), allocatable :: irow
       double precision,dimension(:),allocatable::sice,rhoi,siceo,siceoo
-c	  allocatable :: zbot(:),zaqui(:)
+!	  allocatable :: zbot(:),zaqui(:)
       double precision,dimension(:),allocatable::tempoo,swp,sicep,dswpdp
       double precision,dimension(:),allocatable::dsipdp,dsidp
       double precision,dimension(:),allocatable::dsidtemp,dsipdtemp
@@ -86,158 +86,158 @@ c	  allocatable :: zbot(:),zaqui(:)
 
 
 
-c	  integer(4) :: deg_max_gc
-c	  integer(4) :: sw_int(12)
-c	  real(8) :: sw_reel(10)
+!	  integer(4) :: deg_max_gc
+!	  integer(4) :: sw_int(12)
+!	  real(8) :: sw_reel(10)
 
-C	include 'dump.h'
-C	  common /entsor/ lec,imp
-C	  lec = 5
-C	  imp = 6
+!	include 'dump.h'
+!	  common /entsor/ lec,imp
+!	  lec = 5
+!	  imp = 6
 
-C	  call GC_set_dump ('solgc',0)
+!	  call GC_set_dump ('solgc',0)
 
-c	  nsys = 1
-c	  initb0 = 0
-c	  nivprop = 0
-c	  lmac5prop = 0
-c	  niter = 10
-c	  itrait = 1
-c	  istgrc = 1
-c	  i_cal_pc = 1
-c	  ieco = 0
-c	  epsgc = 1.e-9
-c	  deg_max_gc = 10
-c	  iappli = 1
-c
-c	  sw_int(1) = nsys
-c	  sw_int(2) = initb0
-c	  sw_int(3) = nivprop
-c	  sw_int(4) = lmac5prop
-c	  sw_int(5) = niter
-c	  sw_int(6) = itrait
-c	  sw_int(7) = istgrc
-c	  sw_int(8) = i_cal_pc
-c	  sw_int(9) = ieco
-c	  sw_int(10) = deg_max_gc
-c	  sw_int(11) = message
-c	  sw_int(12) = iappli
-c	  sw_reel(1) = epsgc
-c	  sw_reel(2:10) = 0.
-
-
-
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	       MODIFICATIONS	  	     C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....Modification du format de swres f6.4 swres
-CCC....Modification format porosite f6.4
-CCC....Modification du format parametre chaleur latente format de chlat L (m2/s2) en D8.0
-CCC....19-11-2014 TEST avec densite de la glace dans l'equation de la chaleur
-
-CCC....13-07-2010 modif matp BILAN D EAU
-CCC....13-07-2010 modif matt matc vitesse
-CCC....11-2010 Loi AP
-CCC....23-03-2011 variation de dz
-CCC....modif vitesse, matp, matc, matt
-CCC....modif vitesse x ajout de rho g * dz/dx
-CCC....ajout condition cdt imposee vitesse
-CCC....ajout permeabilite vertical
-CCC....ajout coefficient d emmagasinement quand pas de zone non sature
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C      COMMENTAIRE+TODOLIST	  	     C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....si utilisation variation densite moyenne a changer dans matp!!!!
-ccc au depart tsolidus et liquidus = GEl
+!	  nsys = 1
+!	  initb0 = 0
+!	  nivprop = 0
+!	  lmac5prop = 0
+!	  niter = 10
+!	  itrait = 1
+!	  istgrc = 1
+!	  i_cal_pc = 1
+!	  ieco = 0
+!	  epsgc = 1.e-9
+!	  deg_max_gc = 10
+!	  iappli = 1
+!
+!	  sw_int(1) = nsys
+!	  sw_int(2) = initb0
+!	  sw_int(3) = nivprop
+!	  sw_int(4) = lmac5prop
+!	  sw_int(5) = niter
+!	  sw_int(6) = itrait
+!	  sw_int(7) = istgrc
+!	  sw_int(8) = i_cal_pc
+!	  sw_int(9) = ieco
+!	  sw_int(10) = deg_max_gc
+!	  sw_int(11) = message
+!	  sw_int(12) = iappli
+!	  sw_reel(1) = epsgc
+!	  sw_reel(2:10) = 0.
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C      SIGNIFICATION	  	  	    C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....al longeur
-CCC....az profondeur
-CCC....nc nb de icolones
-CCC....nr nb de ligne
-CCC....qre debit pluie
-CCC....rho1 densite eau
-CCC....ia2 variation temporelle de la densite prise en compte dans matp
-CCC....ans=n
-CCC....as=alpha
-CCC....ivois(ik,1)= voisin droite
-CCC....ivois(ik,2)= voisin gauche
-CCC....ivois(ik,3)= voisin haut
-CCC....ivois(ik,4)= voisin ibas
-CCC....nm nombre de mailles reelles
-CCC....inum ancien numeros de maille avant recalcul
-CCC....inum2 numero maille apres recalcul
-CCC....am=largeur de la maille
-c ECOULEMENT icl condition valcl valeur
-CCC....ICL=-1 Flux impose sur une face
-CCC....ICL=-2 potentiel impose sur une face
-CCC....ICL=1 Mailles 'normale'
-CCC.... ICL(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
-c TRANSPORT iclc condition valclc valeur
-CCC....ICLT=-1 Flux impose sur une face
-CCC....ICLT=-2 potentiel impose sur une face
-CCC....ICLT=1 Mailles 'normale'
-CCC....ICLT(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
-CCCCC  N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
-c THERMIQUE iclt condition valclt valeur
-CCC....ICLT=-1 Flux impose sur une face
-CCC....ICLT=-2 potentiel impose sur une face
-CCC....ICLT=1 Mailles 'normale'
-CCC....ICLT(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
-cCCCCC  N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
-CCC....pr(i)=pression
-CCC....akr(i)=permeabilite relative
-CCC....ak(i)=permeabilite intrinseque
-CCC....sw(i)=saturation
-CCC....om(i)=porosite
-CCC....dswdp(i)=0.
-CCC....rho(i)=densite
-CCC....conc(i)=concentration
-CCC....temp(i)=temperature
-CCC....alanda(i)=conductivite thermauque
-CCC....alandae conductivite thermique eau
-CCC....alandam conductivite thermique milieu
-CCC....igel=2 degel
-CCC....igel=1 gel
-CCC....igel=0 pas de variation de temperature
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C		  FICHIERS ENTREES				  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	       MODIFICATIONS	  	     C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....Modification du format de swres f6.4 swres
+!CC....Modification format porosite f6.4
+!CC....Modification du format parametre chaleur latente format de chlat L (m2/s2) en D8.0
+!CC....19-11-2014 TEST avec densite de la glace dans l'equation de la chaleur
+
+!CC....13-07-2010 modif matp BILAN D EAU
+!CC....13-07-2010 modif matt matc vitesse
+!CC....11-2010 Loi AP
+!CC....23-03-2011 variation de dz
+!CC....modif vitesse, matp, matc, matt
+!CC....modif vitesse x ajout de rho g * dz/dx
+!CC....ajout condition cdt imposee vitesse
+!CC....ajout permeabilite vertical
+!CC....ajout coefficient d emmagasinement quand pas de zone non sature
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!      COMMENTAIRE+TODOLIST	  	     C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....si utilisation variation densite moyenne a changer dans matp!!!!
+!cc au depart tsolidus et liquidus = GEl
+
+
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!      SIGNIFICATION	  	  	    C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....al longeur
+!CC....az profondeur
+!CC....nc nb de icolones
+!CC....nr nb de ligne
+!CC....qre debit pluie
+!CC....rho1 densite eau
+!CC....ia2 variation temporelle de la densite prise en compte dans matp
+!CC....ans=n
+!CC....as=alpha
+!CC....ivois(ik,1)= voisin droite
+!CC....ivois(ik,2)= voisin gauche
+!CC....ivois(ik,3)= voisin haut
+!CC....ivois(ik,4)= voisin ibas
+!CC....nm nombre de mailles reelles
+!CC....inum ancien numeros de maille avant recalcul
+!CC....inum2 numero maille apres recalcul
+!CC....am=largeur de la maille
+! ECOULEMENT icl condition valcl valeur
+!CC....ICL=-1 Flux impose sur une face
+!CC....ICL=-2 potentiel impose sur une face
+!CC....ICL=1 Mailles 'normale'
+!CC.... ICL(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
+! TRANSPORT iclc condition valclc valeur
+!CC....ICLT=-1 Flux impose sur une face
+!CC....ICLT=-2 potentiel impose sur une face
+!CC....ICLT=1 Mailles 'normale'
+!CC....ICLT(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
+!CCCC  N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
+! THERMIQUE iclt condition valclt valeur
+!CC....ICLT=-1 Flux impose sur une face
+!CC....ICLT=-2 potentiel impose sur une face
+!CC....ICLT=1 Mailles 'normale'
+!CC....ICLT(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
+!CCCCC  N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
+!CC....pr(i)=pression
+!CC....akr(i)=permeabilite relative
+!CC....ak(i)=permeabilite intrinseque
+!CC....sw(i)=saturation
+!CC....om(i)=porosite
+!CC....dswdp(i)=0.
+!CC....rho(i)=densite
+!CC....conc(i)=concentration
+!CC....temp(i)=temperature
+!CC....alanda(i)=conductivite thermauque
+!CC....alandae conductivite thermique eau
+!CC....alandam conductivite thermique milieu
+!CC....igel=2 degel
+!CC....igel=1 gel
+!CC....igel=0 pas de variation de temperature
+
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!		  FICHIERS ENTREES				  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	open(unit=11,file='E_coordonnee.dat',iostat=iocell)
 	open(unit=12,file='E_def_maille.dat')
 	open(unit=13,file='E_voisins.dat')
 	open(unit=40,file='E_colonne.dat')
-c	open(unit=21,file='E_row.dat')
-c
+!	open(unit=21,file='E_row.dat')
+!
 
 
-c	open(unit=41,file='E_cl_drain_t.dat',iostat=io)
-c	open(unit=42,file='E_cl_riv_pluie1_t.dat',iostat=iot)
-c	open(unit=43,file='E_cl_riv_pluie2_t.dat',iostat=io2)
-c	open(unit=44,file='E_cl_riv_pluie3_t.dat',iostat=io3)
-
-
-
+!	open(unit=41,file='E_cl_drain_t.dat',iostat=io)
+!	open(unit=42,file='E_cl_riv_pluie1_t.dat',iostat=iot)
+!	open(unit=43,file='E_cl_riv_pluie2_t.dat',iostat=io2)
+!	open(unit=44,file='E_cl_riv_pluie3_t.dat',iostat=io3)
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	     lecture parameters	  	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+
+
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	     lecture parameters	  	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       call lecture_parametre(
      &ilog,ipermh,ipermv,
@@ -272,30 +272,30 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	     LECTURE CDT INITALES				  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	     LECTURE CDT INITALES				  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  call lecture_cdt_ini(chgi,conci,tempini,ichi,ichi2,iconci,
      &itempi)
 
 
       if (iconci.eq.1) open(unit=22,file='E_conc_initiale.dat')
       if (itempi.eq.1) open(unit=23,file='E_temperature_initiale.dat')
-CCC...charge imposee
+!CC...charge imposee
       if (ichi.eq.1) open(unit=24,file='E_charge_initiale.dat')
-CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
+!CC...VARIATION DE LA CHARGE INITIALE sur tout le model
        if (ichi2.eq.1)	open(unit=242,file='E_pression_initiale.dat')
 
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	     LECTURE CDT LIMITES				  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	     LECTURE CDT LIMITES				  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  call lecture_cdt_lt(icl_gauche,valcl_gauche,icl_droite,
      &valcl_droite,icl_haut,valcl_haut,icl_bas,valcl_bas,iclc_gauche,
      &valclc_gauche,iclc_droite,valclc_droite,iclc_haut,valclc_haut,
@@ -304,11 +304,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &valclt_haut,iclt_bas,valclt_bas,iclect,icltherm,iclectchgt
      &,iclchgt,icldrain,iclriviere,itlecture)
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	   LECTURE FICHIER Variation spatiale	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	   LECTURE FICHIER Variation spatiale	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 	  if (ipermh.eq.1)
@@ -327,7 +327,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &open(unit=17,file='E_conductivite_thermique.dat')
 	  if(icpm.eq.1)
      &open(unit=27,file='E_capacit_calorifique.dat')
-CCC....Fichiers variations conditions aux limites
+!CC....Fichiers variations conditions aux limites
 	  if(iclect.eq.1)
      &	open(unit=37,file='E_cl_ecoulement.dat')
 	  if(icltherm.eq.1)
@@ -335,11 +335,11 @@ CCC....Fichiers variations conditions aux limites
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	   GEOMETRIE MODEL	  	  			  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	   GEOMETRIE MODEL	  	  			  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	      allocate(ibas(nci))
 	      allocate(topo(nci))
 	      allocate(bot(nci))
@@ -360,21 +360,21 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  topo(i)=(reptop)
 	  bot(i)=(repbot)
 	  enddo
-cc endif itop
+!c endif itop
 	  end select
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	   LECTURE FICHIER IBUILT				  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	   LECTURE FICHIER IBUILT				  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 	  if(ytest.eq."VIT") then
-c	  open(unit=453,file='E_vitesse.dat')
-c	open(unit=452,file='E_pres_t.dat',iostat=iop2)
+!	  open(unit=453,file='E_vitesse.dat')
+!	open(unit=452,file='E_pres_t.dat',iostat=iop2)
 	  open(unit=45,file='E_charge_t.dat',iostat=iop)
 	  open(unit=68,file='E_temp_t.dat',iostat=ios)
         open(unit=23,file='E_temperature_initiale.dat')
@@ -416,18 +416,18 @@ c	open(unit=452,file='E_pres_t.dat',iostat=iop2)
 	  open(unit=226,file='E_PluieR.dat',iostat=i226)
 	  open(unit=227,file='E_chargeT_RD.dat',iostat=iCRD)
 	  open(unit=228,file='E_chargeT_RG.dat')
-c	  open(unit=229,file='E_tempT_RD.dat')
-c	  open(unit=230,file='E_tempT_RG.dat')
-c	  open(unit=231,file='E_tempT_Riv.dat')
+!	  open(unit=229,file='E_tempT_RD.dat')
+!	  open(unit=230,file='E_tempT_RG.dat')
+!	  open(unit=231,file='E_tempT_Riv.dat')
 	  open(unit=232,file='E_chargeT_Riv.dat')
 
 	  endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C    FICHIERS DTS							  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!    FICHIERS DTS							  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if(ytest.eq."DTS") then
 	  icolone=1
@@ -444,11 +444,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C    FICHIERS Construction manuelle maillage  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!    FICHIERS Construction manuelle maillage  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(imaille.eq.0.or.ibuilt.eq.1) then
 	  open(unit=11,file='E_coordonnee.dat')
 	  open(unit=12,file='E_def_maille.dat')
@@ -465,11 +465,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	   LECTURE FICHIER ZHR	  	  			  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	   LECTURE FICHIER ZHR	  	  			  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
 	  open(unit=45,file='E_charge_t.dat',iostat=iop)
 	  open(unit=68,file='E_temp_t.dat',iostat=ios)
@@ -513,11 +513,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	   LECTURE FICHIER ZNS 1D ou warrick   	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	   LECTURE FICHIER ZNS 1D ou warrick   	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(ytest.eq."ZNS".or.ytest.eq."WAR") then
 	  	if(iclchgt.eq.1) then
 	  	 select case (icl_bas)
@@ -534,25 +534,25 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
    	  	  end select
 	  	endif
 	  endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	   FICHIERS ERREUR VERIF		  		  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C       open(46,file='S_erreur_t.dat')
-C       open(20,file='S_pb_resolution.dat')
-C       open(55,file='S_saturation.dat')
-C       open(6001,file='S_permeabilite_longitudinale_verticale.dat')
-C       open(75,file='S_charge_initiale.dat')
-C       open(1000,file='S_pb_cfl.dat')
-C       open(97,FILE='S_verif_drain_t.dat')
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	   FICHIERS ERREUR VERIF		  		  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!       open(46,file='S_erreur_t.dat')
+!       open(20,file='S_pb_resolution.dat')
+!       open(55,file='S_saturation.dat')
+!       open(6001,file='S_permeabilite_longitudinale_verticale.dat')
+!       open(75,file='S_charge_initiale.dat')
+!       open(1000,file='S_pb_cfl.dat')
+!       open(97,FILE='S_verif_drain_t.dat')
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C    INITIALISATION DU PAS DE TEMPS	   		  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!    INITIALISATION DU PAS DE TEMPS	   		  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  inano=0
 	  inan=0
@@ -561,16 +561,16 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C   LECTURE FILE CDT VS. TEMPS	  			  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....INITIALISATION COMPTEUR LIGNES
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!   LECTURE FILE CDT VS. TEMPS	  			  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....INITIALISATION COMPTEUR LIGNES
 
       if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
 	  ligne4=0
-CCC....lecture des données
+!CC....lecture des données
       do while (ios.eq.0)
       read(68,*,iostat=ios)
       if (ios.eq.0) then
@@ -595,7 +595,7 @@ CCC....lecture des données
 
       if (ytest.eq."1DS") then
 	  ligne4=0
-CCC....lecture des données temperature time
+!CC....lecture des données temperature time
       do while (ios.eq.0)
       read(68,*,iostat=ios)
       if (ios.eq.0) then
@@ -622,7 +622,7 @@ CCC....lecture des données temperature time
 
       if (ytest.eq."1DJ".or.ytest.eq."ZND") then
 	  ligne4=0
-CCC....lecture des données temperature time
+!CC....lecture des données temperature time
       do while (ios.eq.0)
       read(45,*,iostat=ios)
       if (ios.eq.0) then
@@ -641,11 +641,11 @@ CCC....lecture des données temperature time
       endif
 
 
-CCC....ZNS 1D ou Warrick
+!CC....ZNS 1D ou Warrick
 	  if(ytest.eq."ZNS".or.ytest.eq."WAR") then
 	  	if(iclchgt.eq.1) then
 	  ligne4=0
-CCC....lecture des données
+!CC....lecture des données
       do while (ios.eq.0)
       read(68,*,iostat=ios)
       if (ios.eq.0) then
@@ -686,23 +686,23 @@ CCC....lecture des données
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C MARINE
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C   LECTURE FILE CDT VS. TEMPS	  	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....INITIALISATION COMPTEUR LIGNES
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! MARINE
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!   LECTURE FILE CDT VS. TEMPS	  	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....INITIALISATION COMPTEUR LIGNES
       if (ytest.eq."AVA".or.ytest.eq."TEX") then
 
 	   ligne=0
 	   ligne1=0
 	   ligne2=0
 
-CCC....lecture des données
-cccc...tempsol
+!CC....lecture des données
+!ccc...tempsol
       do while (iTsol.eq.0)
       read(225,*,iostat=iTsol)
       if (iTsol.eq.0) then
@@ -715,7 +715,7 @@ cccc...tempsol
       read(225,*,iostat=iTsol)tempsol(j)
       enddo
 
-cccc...qpluie
+!ccc...qpluie
       do while (ipluie.eq.0)
       read(226,*,iostat=i226)
       if (ipluie.eq.0) then
@@ -730,7 +730,7 @@ cccc...qpluie
       enddo
 
 
-cccc...boundaries wall
+!ccc...boundaries wall
       do while (iCRD.eq.0)
       read(227,*,iostat=iCRD)
       if (iCRD.eq.0) then
@@ -750,20 +750,20 @@ cccc...boundaries wall
       do j=1,ligne2
       read(228,*)chgRG(j)
       read(227,*,iostat=iCRD)chgRD(j)
-c      read(229,*)tempRD(j)
-c      read(230,*)tempRG(j)
-c      read(231,*)tempriver(j)
+!      read(229,*)tempRD(j)
+!      read(230,*)tempRG(j)
+!      read(231,*)tempriver(j)
       read(232,*)chgriver(j)
       enddo
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C   LECTURE FILE IBUILT   IDENTIFIANT	   C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!   LECTURE FILE IBUILT   IDENTIFIANT	   C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCC....INITIALISATION COMPTEUR LIGNES
+!CC....INITIALISATION COMPTEUR LIGNES
 	  ligne3=0
 	  ligne4=0
 	  ligne5=0
@@ -771,8 +771,8 @@ CCC....INITIALISATION COMPTEUR LIGNES
 	  ligne7=0
 
 
-CCC....lecture des données
-cccc...bord droit
+!CC....lecture des données
+!ccc...bord droit
 
       do while (iidRD.eq.0)
       read(222,*,iostat=iidRD)
@@ -789,7 +789,7 @@ cccc...bord droit
 
 
 
-cccc...bord gauche
+!ccc...bord gauche
 
 
       do while (iidRG.eq.0)
@@ -807,7 +807,7 @@ cccc...bord gauche
 
 
 
-cccc...riviere
+!ccc...riviere
       do while (iidrv.eq.0)
       read(224,*,iostat=iidrv)
       if (iidrv.eq.0) then
@@ -823,7 +823,7 @@ cccc...riviere
       enddo
 
 
-cccc...riviere a tester
+!ccc...riviere a tester
       do while (iidrvtest.eq.0)
       read(2244,*,iostat=iidrvtest)
       if (iidrvtest.eq.0) then
@@ -841,7 +841,7 @@ cccc...riviere a tester
       enddo
 
 
-CCC if ZH pour flux
+!CC if ZH pour flux
 
 
       do while (iidZH.eq.0)
@@ -867,62 +867,62 @@ CCC if ZH pour flux
 
 
 
-c       ligne5=0
-CCC....TEST POUR MAQUETTE DECONNECTION
-c       if (icldrain.eq.1.or.iclriviere.eq.1) then
-c       ligne=0
-c       ligne1=0
-c       ligne2=0
-c       ligne3=0
-c       ligne4=0
-c       ligne5=0
-c       eo1=0D+00
-c       eo2=0D+00
-c       eo3=0D+00
-c       eo4=0D+00
-c       eo5=0D+00
-c       eo6=0D+00
-c       eoinf=0D+00
-c       seo1=0D+00
-c       seo2=0D+00
-c       seo3=0D+00
-c       seo4=0D+00
-c       seo5=0D+00
-c       seo6=0D+00
-c       seoinf=0D+00
-c       endif
+!       ligne5=0
+!CC....TEST POUR MAQUETTE DECONNECTION
+!       if (icldrain.eq.1.or.iclriviere.eq.1) then
+!       ligne=0
+!       ligne1=0
+!       ligne2=0
+!       ligne3=0
+!       ligne4=0
+!       ligne5=0
+!       eo1=0D+00
+!       eo2=0D+00
+!       eo3=0D+00
+!       eo4=0D+00
+!       eo5=0D+00
+!       eo6=0D+00
+!       eoinf=0D+00
+!       seo1=0D+00
+!       seo2=0D+00
+!       seo3=0D+00
+!       seo4=0D+00
+!       seo5=0D+00
+!       seo6=0D+00
+!       seoinf=0D+00
+!       endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C Initialisation des variables d'enregistrementC
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+! Initialisation des variables d'enregistrementC
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	   dtrecord=0
 	   irecord=0
 
-c Regime Permanent
-c       if(irp.eq.0) then
-c       nitt=1.
-c       endif
-c Regime Permanent
-c       if(irpth.eq.0) then
-c       nitt=1.
-c       endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	     Indice CONVERCENCE	  	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....ECOULEMENT
+! Regime Permanent
+!       if(irp.eq.0) then
+!       nitt=1.
+!       endif
+! Regime Permanent
+!       if(irpth.eq.0) then
+!       nitt=1.
+!       endif
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	     Indice CONVERCENCE	  	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....ECOULEMENT
 	  amaxp=0.D+00
 	  if(iec.eq.1)amaxp=1D+05
 	  if(iec.eq.0) amaxp=crconvp
-CCC....TRANSPORT
+!CC....TRANSPORT
 	  amaxc=0.D+00
 	  if(itr.eq.1) amaxc=1D+05
 	  if(itr.eq.0) amaxc=crconvc
-CCC....THERMIQUE
+!CC....THERMIQUE
 	  amaxt=0.D+00
 	  if(ith.eq.1) amaxt=1D+05
 	  if(ith.eq.0) amaxt=crconvt
@@ -934,12 +934,12 @@ CCC....THERMIQUE
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  		   MAILLAGE		  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....CALCUL LIGNES COLONNES
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  		   MAILLAGE		  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....CALCUL LIGNES COLONNES
 
 	  select case (imaille)
 	  CASE (0)
@@ -976,18 +976,18 @@ CCC....CALCUL LIGNES COLONNES
 
 	  select case (imaille)
 	  CASE (1)
-CCC....MAILLAGE AUTO
-CCCC....DEFINITION DU MAILLAGE BRUT
-ccccc....Premiere possibilite maillage a pas d espace dx variable
-ccccc....Progression logarithmique --> plus de precision au contact
-ccccc....reseau de surface
-CCC....INTERFROST TEST TH2
+!CC....MAILLAGE AUTO
+!CCC....DEFINITION DU MAILLAGE BRUT
+!cccc....Premiere possibilite maillage a pas d espace dx variable
+!cccc....Progression logarithmique --> plus de precision au contact
+!cccc....reseau de surface
+!CC....INTERFROST TEST TH2
 	  if(ytest.eq."TH2") then
 	    dx=dble(0.1D+00/12D+00)
 	    dz=dble(0.1D+00/12D+00)
 	  endif
 
-ccccc....Progression log du pas d espace en X ILOG+1
+!cccc....Progression log du pas d espace en X ILOG+1
 	  select case (ilog)
 	  CASE (1)
 	  sum=0
@@ -1021,13 +1021,13 @@ ccccc....Progression log du pas d espace en X ILOG+1
 	  am(k)=dble(am(j))
 	  inum(k)=0
 	  inum2(k)=0
-ccccc....initialisation tableau voisinage
+!cccc....initialisation tableau voisinage
 	  do ij=1,4
 	  ivois(k,ij)=-99
 	  enddo
-ccccc....definition des coordonnees
-ccccc....modif  23/03/2011
-ccccc....log en z
+!cccc....definition des coordonnees
+!cccc....modif  23/03/2011
+!cccc....log en z
 	  select case (ilog)
 	  CASE (1)
 	  if(j.eq.1) then
@@ -1042,7 +1042,7 @@ ccccc....log en z
 
 	  if(i.eq.1) then
 	  z(k)=dble(az-bm(k)/2)
-ccccc....Modif 19-09-2014- point repere haut de colonne pour modele 1D
+!cccc....Modif 19-09-2014- point repere haut de colonne pour modele 1D
 	  if (itopo.eq.0) then
 	  if (abs(reptop-repbot)+1D-08.gt.az.and.
      &abs(reptop-repbot)-1D-08.lt.az) then
@@ -1059,11 +1059,11 @@ ccccc....Modif 19-09-2014- point repere haut de colonne pour modele 1D
 
 	  z(k)=dble(z(k-nc)-(bm(k-nc)+bm(k))/2)
 	  endif
-CCC....CREATION TABLEAU DE VOISINAGE
-ccccc....ivois(ik,1)= voisin droite
-ccccc....ivois(ik,2)= voisin gauche
-ccccc....ivois(ik,3)= voisin haut
-ccccc....ivois(ik,4)= voisin ibas
+!CC....CREATION TABLEAU DE VOISINAGE
+!cccc....ivois(ik,1)= voisin droite
+!cccc....ivois(ik,2)= voisin gauche
+!cccc....ivois(ik,3)= voisin haut
+!cccc....ivois(ik,4)= voisin ibas
 	  if(j.ne.nc) ivois(k,1)=k+1
 	  if(j.ne.1) ivois(k,2)=k-1
 	  if(i.ne.1) ivois(k,3)=k-nc
@@ -1072,7 +1072,7 @@ ccccc....ivois(ik,4)= voisin ibas
 	  enddo
 
 
-CCC....RENUMEROTATION en FONCTION DE TOPO ET BOTTOM
+!CC....RENUMEROTATION en FONCTION DE TOPO ET BOTTOM
 
 
 	  kr=0
@@ -1081,7 +1081,7 @@ CCC....RENUMEROTATION en FONCTION DE TOPO ET BOTTOM
 	  ii=(i-1)*nc+j
 	  if(z(ii).le.topo(j).and.z(ii).ge.bot(j)) then
 	  kr=kr+1
-CCC....NOUVEAU NUMERO de MAILLE
+!CC....NOUVEAU NUMERO de MAILLE
 	  inum(kr)=ii
 	  inum2(ii)=kr
 	  if(i.gt.1.and.z(ivois(ii,3)).gt.topo(j)) ivois(ii,3)=-99
@@ -1090,11 +1090,11 @@ CCC....NOUVEAU NUMERO de MAILLE
 	  enddo
 	  enddo
 
-CCC....NM nombre de mailles reelles!!
+!CC....NM nombre de mailles reelles!!
 	  nm=kr
 
 
-CCC....RECALCUL DE LA GEOMETRIE ET DU TABLEAU DE VOISINAGE
+!CC....RECALCUL DE LA GEOMETRIE ET DU TABLEAU DE VOISINAGE
 	  do i=1,nm
 	  x(i)=x(inum(i))
 	  z(i)=z(inum(i))
@@ -1103,7 +1103,7 @@ CCC....RECALCUL DE LA GEOMETRIE ET DU TABLEAU DE VOISINAGE
 	  do j=1,4
 	  if(ivois(inum(i),j).ne.-99) then
 	  ivois(i,j)=inum2(ivois(inum(i),j))
-cccc....si inum2(ivois(inum(i),j))=0 c est que le voisin ds lancien maillage n est pas actif!!!
+!ccc....si inum2(ivois(inum(i),j))=0 c est que le voisin ds lancien maillage n est pas actif!!!
 	  if(ivois(i,j).eq.0) ivois(i,j)=-99.
 	  else
 	  ivois(i,j)=-99
@@ -1116,7 +1116,7 @@ cccc....si inum2(ivois(inum(i),j))=0 c est que le voisin ds lancien maillage n e
 	  nm=nc*nr
 
 	  case(0)
-CC imaille =0
+!C imaille =0
 	  nc=nci
 	  nr=nri
 	  nm=linecell
@@ -1189,19 +1189,19 @@ CC imaille =0
 	  if(ivois(ii,3).ne.-99) then
 	  if(i.gt.1.and.z(ivois(ii,3)).gt.topo(icol(ii))) ivois(ii,3)=-99
 	  endif
-cc endif ivoi haut
+!c endif ivoi haut
 	  if(ivois(ii,4).ne.-99) then
 	  if(i.lt.nr.and.z(ivois(ii,4)).lt.bot(icol(ii))) ivois(ii,4)=-99
 	  endif
-cc endif ivoi bas
+!c endif ivoi bas
 	  endif
-cc endif dans domain
+!c endif dans domain
 	  enddo
 
-CCC....NM nombre de mailles reelles!!
+!CC....NM nombre de mailles reelles!!
 	  nm=kr
 
-CCC....RECALCUL DE LA GEOMETRIE ET DU TABLEAU DE VOISINAGE
+!CC....RECALCUL DE LA GEOMETRIE ET DU TABLEAU DE VOISINAGE
 	  do i=1,nm
 	  x(i)=x(inum(i))
 	  z(i)=z(inum(i))
@@ -1210,19 +1210,19 @@ CCC....RECALCUL DE LA GEOMETRIE ET DU TABLEAU DE VOISINAGE
 	  do j=1,4
 	  if(ivois(inum(i),j).ne.-99) then
 	  ivois(i,j)=inum2(ivois(inum(i),j))
-cccc....si inum2(ivois(inum(i),j))=0 c est que le voisin ds lancien maillage n est pas actif!!!
+!ccc....si inum2(ivois(inum(i),j))=0 c est que le voisin ds lancien maillage n est pas actif!!!
 	  if(ivois(i,j).eq.0) ivois(i,j)=-99
 	  else
 	  ivois(i,j)=-99
 	  endif
 	  enddo
-c c      write(11,*) x(i),z(i)
-c	  write(12,*)am(i),bm(i)
-c	  write(13,*)ivois(i,1),ivois(i,2),ivois(i,3),ivois(i,4)
+! c      write(11,*) x(i),z(i)
+!	  write(12,*)am(i),bm(i)
+!	  write(13,*)ivois(i,1),ivois(i,2),ivois(i,3),ivois(i,4)
 	  enddo
-c	  call flush(11)
-cccc	  call flush(12)
-cccc	  call flush(13)
+!	  call flush(11)
+!ccc	  call flush(12)
+!ccc	  call flush(13)
 
 		endif
 
@@ -1232,11 +1232,11 @@ cccc	  call flush(13)
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C   NUMEROS BAS DE COLONNE	  	      C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!   NUMEROS BAS DE COLONNE	  	      C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
@@ -1262,11 +1262,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  		   PARAMETRES_ALL	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  		   PARAMETRES_ALL	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	      nmax=5*nm+1
 
@@ -1277,8 +1277,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	      allocate(icol_ind(nmax))
 	      allocate(irow_ptr(nmax1))
 	      allocate(val(nmax))
-c	      allocate(zaqui(nc))
-c	      allocate(zbot(nm))
+!	      allocate(zaqui(nc))
+!	      allocate(zbot(nm))
 	      allocate(b(nm))
 	      allocate(pr(nm))
 	      allocate(pro(nm))
@@ -1398,9 +1398,9 @@ c	      allocate(zbot(nm))
 
 
 	  do ik=1,nm
-cccc....MODIF AVRIL 2011
-cccc....Variation spatiale 05/04/2011
-cccc....pression initiale, alph, moy landa 05/04/2011
+!ccc....MODIF AVRIL 2011
+!ccc....Variation spatiale 05/04/2011
+!ccc....pression initiale, alph, moy landa 05/04/2011
 	  ss(ik)=(sss)
 	  akr(ik)=akrx
 	  ak(ik)=akx
@@ -1470,11 +1470,11 @@ cccc....pression initiale, alph, moy landa 05/04/2011
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C    READ DTS							  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!    READ DTS							  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if(ytest.eq."DTS") then
 
@@ -1554,11 +1554,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C		  Zonage des parametres	    C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!		  Zonage des parametres	    C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if(ytest.eq."AVA".or.ytest.eq."ZHZ"
      &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
@@ -1566,7 +1566,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  do i=1,nm
 	  read(32,*)izone(i)
 	  nzone=max(nzone,izone(i))
-CCC...Calcul le nombre de zone
+!CC...Calcul le nombre de zone
 	  enddo
 
 
@@ -1586,7 +1586,7 @@ CCC...Calcul le nombre de zone
 
 	  nzone=max(nzone,izone(i))
 
-CCC...Calcul le nombre de zone
+!CC...Calcul le nombre de zone
 	  enddo
 
 
@@ -1606,7 +1606,7 @@ CCC...Calcul le nombre de zone
 	  do i=1,nm
 	  read(32,*)izone(i)
 	  nzone=max(nzone,izone(i))
-CCC...Calcul le nombre de zone
+!CC...Calcul le nombre de zone
 	  enddo
 
 
@@ -1626,7 +1626,7 @@ CCC...Calcul le nombre de zone
 	  do i=1,nm
 	  read(32,*)izone(i)
 	  nzone=max(nzone,izone(i))
-CCC...Calcul le nombre de zone
+!CC...Calcul le nombre de zone
 	  enddo
 
 	      allocate(jzone(nzone))
@@ -1659,9 +1659,9 @@ CCC...Calcul le nombre de zone
 	  asun(i)=aspzone(j)
 	  swresz(i)=swreszone(j)
 	  endif
-ccc test zone
+!cc test zone
 	  enddo
-ccc loop zone
+!cc loop zone
 	  enddo
         CASE ('ZND')
 
@@ -1683,10 +1683,10 @@ ccc loop zone
 	  asun(i)=aspzone(j)
 	  swresz(i)=swreszone(j)
 	  endif
-ccc test zone
+!cc test zone
 	  enddo
 
-ccc loop zone
+!cc loop zone
 	  enddo
 
 	 CASE ('1DS')
@@ -1713,9 +1713,9 @@ ccc loop zone
 	  endif
 	  	  	  	  print*,ak(1)
 
-ccc test zone
+!cc test zone
 	  enddo
-ccc loop zone
+!cc loop zone
 	  enddo
 
 
@@ -1741,11 +1741,11 @@ ccc loop zone
 	  asun(i)=aspzone(j)
 	  swresz(i)=swreszone(j)
 	  endif
-ccc test zone
+!cc test zone
 	  enddo
-ccc loop zone
+!cc loop zone
 	  enddo
-ccc loop element
+!cc loop element
 
 
 
@@ -1771,11 +1771,11 @@ ccc loop element
 	  cps(i)=cpmzone(j)
 	  rhos(i)=rhomzone(j)
 	  endif
-ccc test zone
+!cc test zone
 	  enddo
-ccc loop zone
+!cc loop zone
 	  enddo
-ccc loop element
+!cc loop element
 	  	  CASE ('DTS')
 	  do j=1,nzone
 	  read(321,*)jzone(j),akzone(j),omzone(j),
@@ -1793,18 +1793,18 @@ ccc loop element
 	  alandas(i)=alandazone(j)
 	  rhos(i)=rhomzone(j)
 	  endif
-ccc test zone
+!cc test zone
 	  enddo
 
 
 
-ccc loop zone
+!cc loop zone
 
-c	  if(i.eq.10001) print*,ak(i)
-c	  if(i.eq.12101) print*,ak(i)
-c	  if(i.eq.47405) print*,ak(i)
+!	  if(i.eq.10001) print*,ak(i)
+!	  if(i.eq.12101) print*,ak(i)
+!	  if(i.eq.47405) print*,ak(i)
 	  enddo
-ccc loop element
+!cc loop element
 
 	  	  CASE ('ZHZ')
 
@@ -1823,23 +1823,23 @@ ccc loop element
 	  alandas(i)=alandazone(j)
 	  rhos(i)=rhomzone(j)
 	  endif
-ccc test zone
+!cc test zone
 	  enddo
-ccc loop zone
+!cc loop zone
 	  enddo
-ccc loop element
+!cc loop element
 	  END SELECT
 
 
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C        INITIALISATION DES PARAMETRES        C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....ISOTHERMES
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!        INITIALISATION DES PARAMETRES        C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....ISOTHERMES
 	  do kkcol=1,nc
 	  do kg=1,2
 	  zs(kkcol,kg)=-99
@@ -1850,18 +1850,18 @@ CCC....ISOTHERMES
 
 
 
-CCC....INITIALISATION PRESSURE
+!CC....INITIALISATION PRESSURE
 	  do ik=1,nm
 	  if (ichi2.ne.1.and.ichi.ne.1) then
 	  pr(ik)=(rho1*g*(chgi-z(ik)))
-c       write(75,*) x(ik),z(ik),pr(ik)
+!       write(75,*) x(ik),z(ik),pr(ik)
 	  endif
 	  enddo
 
 
 
 
-CCC....INITIALISATION CONCENTRATION
+!CC....INITIALISATION CONCENTRATION
 	  if(itr.eq.1) then
 	  do ik=1,nm
 	  conc(ik)=(conci)
@@ -1869,7 +1869,7 @@ CCC....INITIALISATION CONCENTRATION
 	  enddo
 	  endif
 
-CCC....INITIALISATION TEMPERATURE
+!CC....INITIALISATION TEMPERATURE
 	  do ik=1,nm
 	  tempoo(ik)=(tempini)
 	  tempo(ik)=(tempini)
@@ -1886,13 +1886,13 @@ CCC....INITIALISATION TEMPERATURE
 	  tempoo(ik)=temp(ik)
 	  enddo
 	  endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C		  Thermal conductivity	    C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!		  Thermal conductivity	    C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL SANS ZONE NON SATUREE
+!CC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL SANS ZONE NON SATUREE
 	  SELECT CASE (ymoycondtherm)
 	  	  CASE ("WOODS")
 	  do ik=1,nm
@@ -1918,7 +1918,7 @@ CCC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL SANS ZONE NON SATUREE
 	  END SELECT
 
 
-CCC....ISOTHERMES
+!CC....ISOTHERMES
 	  do kkcol=1,nc
 	  do kg=1,2
 	  zl(kkcol,kg)=-99
@@ -1932,7 +1932,7 @@ CCC....ISOTHERMES
 	  do kkcol=1,nc
 	  dl(kkcol)=0.D00
 	  def(kkcol)=0.D00
-c	  zaqui(kkcol)=-99
+!	  zaqui(kkcol)=-99
 	  enddo
 	  endif
 
@@ -1943,12 +1943,12 @@ c	  zaqui(kkcol)=-99
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C    VARIATION DE LA CHARGE INITIALE	    C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...HYDROSTATIQUE
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!    VARIATION DE LA CHARGE INITIALE	    C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...HYDROSTATIQUE
 	  if (ichi.eq.1) then
 	  SELECT CASE (ytest)
 	  	  CASE ("ZNS")
@@ -2002,7 +2002,7 @@ CCC...HYDROSTATIQUE
 	  endif
 
 
-CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
+!CC...VARIATION DE LA CHARGE INITIALE sur tout le model
 	  if (ichi2.eq.1) then
 	  do i=1,nm
 	  read(242,*) pr(i)
@@ -2013,90 +2013,90 @@ CCC...VARIATION DE LA CHARGE INITIALE sur tout le model
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  		   BASSINS				  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...AQUITARD TEST PETIT BASSIN 1 COUCHE AQUITARD
-c       if(iaquitard.eq.1) then
-c       do i=1,nm
-c       read(21,*) irow(i)
-c       if(irow(i).eq.nrowtard) then
-c       ak(i)=(aktardx)
-c       akv(i)=(aktardz)
-c       om(i)=(omptard)
-c       alandas(i)=(alandatard)
-c       ss(i)=(sstard)
-c       do j=1,nc
-c       if(icol(i).eq.j) zaqui(j)=z(i)
-c       enddo
-c       endif
-c       do jk=nrowtard-nmailleaqui+1,nrowtard-1
-c		   if(irow(i).eq.jk) then
-c		   ak(i)=(aktardx)
-c		   akv(i)=(aktardz)
-c		   om(i)=(omptard)
-c		   alandas(i)=(alandatard)
-c		   ss(i)=(sstard)
-c		   endif
-c		   enddo
-c       enddo
-c       endif
-CCC...Terme de surpression
-C	  if (ysupdp.eq."SPWAL") then
-C	  	  if(iaquitard.eq.0) then
-c	  	  do i=1,nm
-c c		   do j=1,nc
-c	  	  if(icol(i).eq.j) zbot(i)=bot(j)
-c	  	  enddo
-c	  	  enddo
-c	  	  endif
-c       if(iaquitard.eq.1) then
-c		   do j=1,nc
-c		   do i=1,nm
-c		   if(icol(i).eq.j) then
-c		   if (zaqui(j).ne.-99.and.z(i).ge.zaqui(j)) zbot(i)=zaqui(j)
-c		   if (zaqui(j).eq.-99) zbot(i)=bot(j)
-c		   if (z(i).lt.zaqui(j)) zbot(i)=bot(j)
-c	  		   endif
-c		   enddo
-c		   enddo
-c		   endif
-c	  endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C       temperature liquidus solidus	    C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  		   BASSINS				  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...AQUITARD TEST PETIT BASSIN 1 COUCHE AQUITARD
+!       if(iaquitard.eq.1) then
+!       do i=1,nm
+!       read(21,*) irow(i)
+!       if(irow(i).eq.nrowtard) then
+!       ak(i)=(aktardx)
+!       akv(i)=(aktardz)
+!       om(i)=(omptard)
+!       alandas(i)=(alandatard)
+!       ss(i)=(sstard)
+!       do j=1,nc
+!       if(icol(i).eq.j) zaqui(j)=z(i)
+!       enddo
+!       endif
+!       do jk=nrowtard-nmailleaqui+1,nrowtard-1
+!		   if(irow(i).eq.jk) then
+!		   ak(i)=(aktardx)
+!		   akv(i)=(aktardz)
+!		   om(i)=(omptard)
+!		   alandas(i)=(alandatard)
+!		   ss(i)=(sstard)
+!		   endif
+!		   enddo
+!       enddo
+!       endif
+!CC...Terme de surpression
+!	  if (ysupdp.eq."SPWAL") then
+!	  	  if(iaquitard.eq.0) then
+!	  	  do i=1,nm
+! c		   do j=1,nc
+!	  	  if(icol(i).eq.j) zbot(i)=bot(j)
+!	  	  enddo
+!	  	  enddo
+!	  	  endif
+!       if(iaquitard.eq.1) then
+!		   do j=1,nc
+!		   do i=1,nm
+!		   if(icol(i).eq.j) then
+!		   if (zaqui(j).ne.-99.and.z(i).ge.zaqui(j)) zbot(i)=zaqui(j)
+!		   if (zaqui(j).eq.-99) zbot(i)=bot(j)
+!		   if (z(i).lt.zaqui(j)) zbot(i)=bot(j)
+!	  		   endif
+!		   enddo
+!		   enddo
+!		   endif
+!	  endif
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!       temperature liquidus solidus	    C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  ts=tsg
 	  tl=tlg
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C CONDITIONS LIMITES SANS VARIATION SPATIALE  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...ECOULEMENT
-CCC...Tableau ICL et VALCL
-cccc....-1 Flux impose sur une face
-cccc....-2 potentiel impose sur une face
-cccc.... 1 Mailles 'normale'
-cccc.... ICL(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
-cccc....Conditions aux limites appliquees sur les faces!!!!
-cccc....VALCL(ik,1), valeur de la condition limite sur ces meme faces..
-CCC....INITIALISATION DES CONDITIONS AUX LIMITES=FLUX NUL
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+! CONDITIONS LIMITES SANS VARIATION SPATIALE  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...ECOULEMENT
+!CC...Tableau ICL et VALCL
+!ccc....-1 Flux impose sur une face
+!ccc....-2 potentiel impose sur une face
+!ccc.... 1 Mailles 'normale'
+!ccc.... ICL(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
+!ccc....Conditions aux limites appliquees sur les faces!!!!
+!ccc....VALCL(ik,1), valeur de la condition limite sur ces meme faces..
+!CC....INITIALISATION DES CONDITIONS AUX LIMITES=FLUX NUL
 	  do i=1,nm
 
 	  do j=1,4
 	  icl(i,j)=1
-CCC....FLUX NUL PAR DEFAUT
+!CC....FLUX NUL PAR DEFAUT
 	  if(ivois(i,j).eq.-99) icl(i,j)=-1
 	   valcl(i,j)=0.D+00
 	  enddo
 	  enddo
 
-CCC....ECOULEMENT
+!CC....ECOULEMENT
 	  do i=1,nm
 	  if(ivois(i,1).eq.-99) then
 	  icl(i,1)=icl_droite
@@ -2119,20 +2119,20 @@ CCC....ECOULEMENT
 
 
 
-cccc....VARIATION SPATIALE : une condition par maille
+!ccc....VARIATION SPATIALE : une condition par maille
 	  if(iclect.eq.1) then
 	  read(37,*)icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
      &valcl(i,2),valcl(i,3),valcl(i,4)
-c       else
-c       if(iclect.ne.1) then
-c       write(37,*) icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
-c     &valcl(i,2),valcl(i,3),valcl(i,4)
-c       endif
+!       else
+!       if(iclect.ne.1) then
+!       write(37,*) icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
+!     &valcl(i,2),valcl(i,3),valcl(i,4)
+!       endif
 	  endif
 
 
 
-cccc....message erreur
+!ccc....message erreur
 	  do j=1,4
 	  if (ivois(i,j).eq.-99.and.icl(i,j).eq.1) then
 	  print*,i,
@@ -2141,30 +2141,30 @@ cccc....message erreur
 	  enddo
 	  enddo
 	  do i=1,nm
-cccc....CHARGE IMPOSEE aux faces (attention pas au centre des mailles !!!)
+!ccc....CHARGE IMPOSEE aux faces (attention pas au centre des mailles !!!)
 	  if(icl(i,1).eq.-2) then
 	   valcl(i,1)=(rho(i)*g*(valcl(i,1)-z(i)))
-cccc....TEST INTERFROST TH2 TH3
+!ccc....TEST INTERFROST TH2 TH3
 	   if(ytest.eq."TH2".or.ytest.eq."TH3") then
 	   valcl(i,1)=(rho(i)*g*valcl_droite)
 	   endif
-cccc....VALEURS NULLES
+!ccc....VALEURS NULLES
 	  if (abs(valcl(i,1)).lt.10D-10) valcl(i,1)=0D+00
 	  endif
 
 	  if(icl(i,2).eq.-2) then
 	  valcl(i,2)=(rho(i)*g*(valcl(i,2)-z(i)))
-cccc....TEST INTERFROST TH2 TH
+!ccc....TEST INTERFROST TH2 TH
 	   if(ytest.eq."TH2".or.ytest.eq."TH3") then
 	   valcl(i,2)=(rho(i)*g*valcl_gauche)
 	   endif
-cccc....VALEURS NULLES
+!ccc....VALEURS NULLES
 	  if (abs(valcl(i,2)).lt.10D-10) valcl(i,2)=0
 	  endif
 
 	  if(icl(i,3).eq.-2) then
 	   valcl(i,3)=dble(rho(i)*g*(valcl(i,3)-z(i)-bm(i)/2))
-cccc....VALEURS NULLES
+!ccc....VALEURS NULLES
 	  if(ytest.eq."WAR") valcl(i,3)=valcl_haut*rho1*g
 	   if (abs(valcl(i,3)).lt.10D-10) valcl(i,3)=0D+00
 	  endif
@@ -2175,7 +2175,7 @@ cccc....VALEURS NULLES
 
 	  if(ytest.eq."WAR") valcl(i,4)=valcl_bas*rho1*g
 
-cccc....VALEURS NULLES
+!ccc....VALEURS NULLES
 	  if (abs(valcl(i,4)).lt.10D-10) valcl(i,4)=0
 	  endif
 
@@ -2204,7 +2204,7 @@ cccc....VALEURS NULLES
 
 
 
-cccc....CDT MAILLES RIVIERE
+!ccc....CDT MAILLES RIVIERE
 	  if (iclriviere.eq.1) then
 	  do i=1,nm
 	  if(ivois(i,3).eq.-99) then
@@ -2214,16 +2214,16 @@ cccc....CDT MAILLES RIVIERE
 	  enddo
 	  endif
 
-CCC....TRANSPORT
-cccc....Tableau ICL et VALCL
-cccc....TABLEAU ICLC 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
-cccc....TABLEAU VALCLC VALEURS CORRESPONDANTES
-cccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
+!CC....TRANSPORT
+!ccc....Tableau ICL et VALCL
+!ccc....TABLEAU ICLC 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
+!ccc....TABLEAU VALCLC VALEURS CORRESPONDANTES
+!ccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
 	   if(itr.eq.1) then
 	  do ik=1,nm
 	  do j=1,4
 	  iclc(ik,j)=1
-cccc....FLUX NUL PAR DEFAUT
+!ccc....FLUX NUL PAR DEFAUT
 	  if(ivois(ik,j).eq.-99) iclc(ik,j)=-1
 	   valclc(ik,j)=0.D+00
 	  enddo
@@ -2232,11 +2232,11 @@ cccc....FLUX NUL PAR DEFAUT
 
 
 
-CCC....THERMIQUE
-cccc....Conditions limites
-cccc....TABLEAU ICLT 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
-cccc....TABLEAU VALCLT VALEURS CORRESPONDANTES
-cccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
+!CC....THERMIQUE
+!ccc....Conditions limites
+!ccc....TABLEAU ICLT 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
+!ccc....TABLEAU VALCLT VALEURS CORRESPONDANTES
+!ccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
 	   if(ith.eq.1) then
 	  do ik=1,nm
 	  do j=1,4
@@ -2260,13 +2260,13 @@ cccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
 	  endif
 
 
-cccc....VARIATION SPATIALE : une condition par maille
+!ccc....VARIATION SPATIALE : une condition par maille
 	  if(icltherm.eq.1) then
 	  read(38,*) iclt(ik,1),iclt(ik,2),iclt(ik,3)
      &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
-c	  else
-c	  write(38,*) iclt(ik,1),iclt(ik,2),iclt(ik,3)
-c     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
+!	  else
+!	  write(38,*) iclt(ik,1),iclt(ik,2),iclt(ik,3)
+!     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
 	  endif
 	  do j=1,4
 	  if (ivois(ik,j).eq.-99.and.iclt(ik,j).eq.1) then
@@ -2282,105 +2282,105 @@ c     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
 
 
 
-CCC....EXUTOIRE
-c       if(iexutoire.eq.1) then
-c       do i=1,nm
-c       if(x(i).lt.xexutoire.and.ivois(i,3).eq.-99) then
-c       valclt(i,3)=tempexutoite
-c       iclt(i,3)=-2
-c       endif
-c       enddo
-c       endif
-c       qruis=0.D+00
-c	   if (iinfil.eq.1) then
-c       call infiltration(pr,nm,n,icol,nc,om,ss,bm,rho,pore,
-c     &am,valcl,icl,qtpore,ruis,ivois,z,g,dt,xberg,x,qre,qruis)
-c       endif
-c       if (iriv.eq.1) then
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	      RIVIERE	  	  	    C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....Conditions limites
-cccc....CONDITION LIMITES BORDS BERGE RIVIERE TEST CELLULES VOISINES DE LA RIVIERE
-cccc....CONDITION TEMPERATURE IMPOSE SUR BERGE ET LIT DE RIVIERE
-cccc....MAILLE VOISINE RIVIERE PERMEABILITE DU LIT DE LA RIVIERE
-C       if(iqriv.eq.1) then
-C       hriv=((qre*xberg*1+qriva+qruis)**(3./5.))*(rug**(-3./5.))*
-C     &((al-xberg)**(-3./5.))*(pent**(-3./10.))
-C       endif
-cccc....CDT LIMITE RIVIERE
-C       call cdt_riviere(hriv,g,nm,z,hbot,
-C     &bm,ivois,am,rho,xberg,x,al,n,icl,valcl,iclt,valclt,
-C     &tempriv,aklit,aklitv,ak,akv,akr,akrv,dsw,sw,elit,
-C     &akc,akcv,it,ita,tempo,ts)
-C       endif
-cccc....Variation conditions limites lecture fichier
-c       if(iclriviere.eq.1) then
-c       do while (iot.eq.0)
-c       read(42,*,iostat=iot)
-c       if (iot.eq.0) then
-c       ligne1=ligne1+1
-c       endif
-c       enddo
-c       rewind(42)
-c       do j=1,ligne1-1
-c       read(42,*,iostat=iot),qrivent1(j),qpluie1(j)
-c       enddo
-c       do while (io2.eq.0)
-c       read(43,*,iostat=io2)
-c       if (io2.eq.0) then
-c       ligne2=ligne2+1
-c       endif
-c       enddo
-c       rewind(43)
-c       do j=1,ligne2
-c       read(43,*,iostat=io2),qrivent2(j),qpluie2(j)
-c       enddo
-c       do while (io3.eq.0)
-c       read(44,*,iostat=io3)
-c       if (io3.eq.0) then
-c       ligne3=ligne3+1
-c       ENDIF
-c       enddo
-c       rewind(44)
-c       do j=1,ligne3
-c       read(44,*,iostat=io3),qrivent3(j),qpluie3(j)
-c       enddo
-c       endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C      Topo en marche d escalier		  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-c       if (itopomch.eq.1) then
-c	  do i=1,nm
-c	  if(x(i).lt.xberg-am(i).and.ivois(i,1).eq.-99
-c     &.and.ivois(i,3).eq.-99) then
-c       valcl(i,1)=qre/2
-c       valcl(i,3)=qre/2
-c	  icl(i,1)=-1
-c	  icl(i,3)=-1
-c       valclt(i,1)=10D+00
-c	  valclt(i,3)=10D+00
-c	  iclt(i,1)=-2
-c	  iclt(i,3)=-2
-c	  endif
-c	  write(37,*) icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
-c     &valcl(i,2),valcl(i,3),valcl(i,4)
-c	  enddo
-c	  endif
+!CC....EXUTOIRE
+!       if(iexutoire.eq.1) then
+!       do i=1,nm
+!       if(x(i).lt.xexutoire.and.ivois(i,3).eq.-99) then
+!       valclt(i,3)=tempexutoite
+!       iclt(i,3)=-2
+!       endif
+!       enddo
+!       endif
+!       qruis=0.D+00
+!	   if (iinfil.eq.1) then
+!       call infiltration(pr,nm,n,icol,nc,om,ss,bm,rho,pore,
+!     &am,valcl,icl,qtpore,ruis,ivois,z,g,dt,xberg,x,qre,qruis)
+!       endif
+!       if (iriv.eq.1) then
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	      RIVIERE	  	  	    C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....Conditions limites
+!ccc....CONDITION LIMITES BORDS BERGE RIVIERE TEST CELLULES VOISINES DE LA RIVIERE
+!ccc....CONDITION TEMPERATURE IMPOSE SUR BERGE ET LIT DE RIVIERE
+!ccc....MAILLE VOISINE RIVIERE PERMEABILITE DU LIT DE LA RIVIERE
+!       if(iqriv.eq.1) then
+!       hriv=((qre*xberg*1+qriva+qruis)**(3./5.))*(rug**(-3./5.))*
+!     &((al-xberg)**(-3./5.))*(pent**(-3./10.))
+!       endif
+!ccc....CDT LIMITE RIVIERE
+!       call cdt_riviere(hriv,g,nm,z,hbot,
+!     &bm,ivois,am,rho,xberg,x,al,n,icl,valcl,iclt,valclt,
+!     &tempriv,aklit,aklitv,ak,akv,akr,akrv,dsw,sw,elit,
+!     &akc,akcv,it,ita,tempo,ts)
+!       endif
+!ccc....Variation conditions limites lecture fichier
+!       if(iclriviere.eq.1) then
+!       do while (iot.eq.0)
+!       read(42,*,iostat=iot)
+!       if (iot.eq.0) then
+!       ligne1=ligne1+1
+!       endif
+!       enddo
+!       rewind(42)
+!       do j=1,ligne1-1
+!       read(42,*,iostat=iot),qrivent1(j),qpluie1(j)
+!       enddo
+!       do while (io2.eq.0)
+!       read(43,*,iostat=io2)
+!       if (io2.eq.0) then
+!       ligne2=ligne2+1
+!       endif
+!       enddo
+!       rewind(43)
+!       do j=1,ligne2
+!       read(43,*,iostat=io2),qrivent2(j),qpluie2(j)
+!       enddo
+!       do while (io3.eq.0)
+!       read(44,*,iostat=io3)
+!       if (io3.eq.0) then
+!       ligne3=ligne3+1
+!       ENDIF
+!       enddo
+!       rewind(44)
+!       do j=1,ligne3
+!       read(44,*,iostat=io3),qrivent3(j),qpluie3(j)
+!       enddo
+!       endif
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!      Topo en marche d escalier		  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!       if (itopomch.eq.1) then
+!	  do i=1,nm
+!	  if(x(i).lt.xberg-am(i).and.ivois(i,1).eq.-99
+!     &.and.ivois(i,3).eq.-99) then
+!       valcl(i,1)=qre/2
+!       valcl(i,3)=qre/2
+!	  icl(i,1)=-1
+!	  icl(i,3)=-1
+!       valclt(i,1)=10D+00
+!	  valclt(i,3)=10D+00
+!	  iclt(i,1)=-2
+!	  iclt(i,3)=-2
+!	  endif
+!	  write(37,*) icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
+!     &valcl(i,2),valcl(i,3),valcl(i,4)
+!	  enddo
+!	  endif
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C CDT INTERFROST INITIALE ET GEOMETRIE	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+! CDT INTERFROST INITIALE ET GEOMETRIE	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCC....CDT TEST TH2
+!CC....CDT TEST TH2
 	  if(ytest.eq."TH2") then
 	  do i=1,nm
 	  if(x(i).ge.1-0.333/2.and.x(i).le.1+0.333/2.) then
@@ -2398,7 +2398,7 @@ CCC....CDT TEST TH2
 	  tempo(i)=(temp(i))
 	  enddo
 	  endif
-CCC....CDT TEST TH3 demi cercle
+!CC....CDT TEST TH3 demi cercle
 	  if(ytest.eq."TH3") then
 	  do i=1,nm
 	  ab=(x(i)-0.5D+00)**2+(z(i)+0.1D+00)**2
@@ -2422,75 +2422,75 @@ CCC....CDT TEST TH3 demi cercle
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C     MESSAGE UTILISATEUR	  	       C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-c	   if (iec.eq.0) then
-c       print*,'attention vous avez annule l ecoulement'
-c       print*,'vous devez indiquer des flux imposes en ecoulement'
-c       print*,'dans le cas contraire calcul de conduction'
-c	   endif
-c	   if  (irp.eq.1) then
-c	   Print*,'nb de lignes dans les fichiers temporaires ='
-c	   print*,nitt*unitsim/(itsortie*us)
-c	   Print*,'attention cela doit etre un entier'
-c	   endif
-c	  if (iec.eq.1) then
-c	   do i=1,nm
-c       if (icl(i,1).eq.-2) then
-c       if (ivois(i,2).eq.-99) then
-c       print*,'pb de configuration 2 cellule par ligne'
-c       print*,'avec une charge imposee'
-c       endif
-c       endif
-c       if (icl(i,2).eq.-2) then
-c       if (ivois(i,1).eq.-99) then
-c       print*,'pb de configuration 2 cellule par ligne'
-c       print*,'avec une charge imposee'
-c       endif
-c       endif
-c       if (icl(i,3).eq.-2) then
-c       if (ivois(i,4).eq.-99) then
-c       print*,'pb de configuration 2 cellule par ligne'
-c       print*,'avec une charge imposee'
-c       endif
-c       endif
-c       if (icl(i,4).eq.-2) then
-c       if (ivois(i,3).eq.-99) then
-c       print*,'pb de configuration 2 cellule par ligne'
-c       print*,'avec une charge imposee'
-c       endif
-c       endif
-c       enddo
-c       endif
-c       if(ithec.eq.1) then
-c       do j=1,4
-c       do i=1,nm
-c       if (icl(i,j).eq.-1.and.iclt(i,j).eq.-1) then
-c       if(abs(valcl(i,j)).gt.0) then
-cc      print*,'Attention si vous imposez un flux nul en temperature'
-c       print*,'vous allez convecter une temperature nulle'
-cc      endif
-c       endif
-c       enddo
-c       enddo
-c       endif
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!     MESSAGE UTILISATEUR	  	       C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	   if (iec.eq.0) then
+!       print*,'attention vous avez annule l ecoulement'
+!       print*,'vous devez indiquer des flux imposes en ecoulement'
+!       print*,'dans le cas contraire calcul de conduction'
+!	   endif
+!	   if  (irp.eq.1) then
+!	   Print*,'nb de lignes dans les fichiers temporaires ='
+!	   print*,nitt*unitsim/(itsortie*us)
+!	   Print*,'attention cela doit etre un entier'
+!	   endif
+!	  if (iec.eq.1) then
+!	   do i=1,nm
+!       if (icl(i,1).eq.-2) then
+!       if (ivois(i,2).eq.-99) then
+!       print*,'pb de configuration 2 cellule par ligne'
+!       print*,'avec une charge imposee'
+!       endif
+!       endif
+!       if (icl(i,2).eq.-2) then
+!       if (ivois(i,1).eq.-99) then
+!       print*,'pb de configuration 2 cellule par ligne'
+!       print*,'avec une charge imposee'
+!       endif
+!       endif
+!       if (icl(i,3).eq.-2) then
+!       if (ivois(i,4).eq.-99) then
+!       print*,'pb de configuration 2 cellule par ligne'
+!       print*,'avec une charge imposee'
+!       endif
+!       endif
+!       if (icl(i,4).eq.-2) then
+!       if (ivois(i,3).eq.-99) then
+!       print*,'pb de configuration 2 cellule par ligne'
+!       print*,'avec une charge imposee'
+!       endif
+!       endif
+!       enddo
+!       endif
+!       if(ithec.eq.1) then
+!       do j=1,4
+!       do i=1,nm
+!       if (icl(i,j).eq.-1.and.iclt(i,j).eq.-1) then
+!       if(abs(valcl(i,j)).gt.0) then
+!c      print*,'Attention si vous imposez un flux nul en temperature'
+!       print*,'vous allez convecter une temperature nulle'
+!c      endif
+!       endif
+!       enddo
+!       enddo
+!       endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C      TERME dswdp  CDT INITIALE		  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....DEF PARAMETRES VS CDT INITIALES
-CCC....ZNS
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!      TERME dswdp  CDT INITIALE		  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....DEF PARAMETRES VS CDT INITIALES
+!CC....ZNS
 	  if (ivg.eq.1.or.yunconfined.eq."UNS") then
 	  Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,
      &nm,akrv,rho1,g,ansun,asun)
 
-CCC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL AVEC ZONE NON SATUREE
+!CC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL AVEC ZONE NON SATUREE
 	if(igelzns.eq.0.and.ith.eq.1) then
 	if (ymoycondtherm.eq."WOODS") then
 	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+
@@ -2509,26 +2509,26 @@ CCC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL AVEC ZONE NON SATUREE
 
 	  else if (yunconfined.eq."CAP") then
 	  do i=1,nm
-CCC....nappe captive
-cccc....COEFFICIENT D EMMAGASINEMENT
+!CC....nappe captive
+!ccc....COEFFICIENT D EMMAGASINEMENT
 	   swp(i)=1.D00
 	   dswpdp(i)=ss(i)/(rho1*g*om(i))
-cccc....Test Interfrost
+!ccc....Test Interfrost
       if (ytest.eq."TH2".or.ytest.eq."TH3") then
       dswpdp(i)=sw(i)*ss(i)
 	      endif
 	  enddo
-CCC....nappe libre
-cccc....simplification solution analytique
+!CC....nappe libre
+!ccc....simplification solution analytique
 	  else  if (yunconfined.eq."UNC") then
 	  do i=1,nm
 	  akr(i)=1D+00
 	  akrv(i)=1D+00
 	  swp(i)=1D+00
 	  if (irp.eq.1) dswpdp(i)=1D+00/(rho1*g*bm(i))
-c       if (irp.eq.1) dswpdp(i)=1D+00/(rho1*g)
+!       if (irp.eq.1) dswpdp(i)=1D+00/(rho1*g)
 	  if(pr(i).lt.0d+00) then
-c	  akr(i)=0D+00
+!	  akr(i)=0D+00
 	  akrv(i)=1D+00
 	  swp(i)=0D+00
 	  endif
@@ -2544,13 +2544,13 @@ c	  akr(i)=0D+00
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C   PARAMETRE VS. TEMPERATURE INITIALE	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....Indice gel/degel
-cccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maille 1 à améliorer
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!   PARAMETRE VS. TEMPERATURE INITIALE	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....Indice gel/degel
+!ccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maille 1 à améliorer
 
 	  if(icycle.ne.0) then
 	  if (temp(1).lt.0.and.tempo(1)-temp(1).gt.0) igel=1
@@ -2560,11 +2560,11 @@ cccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maill
 	  if (paso.le.49.1*86400) igel=1
 	  if (paso.gt.49.1*86400) igel=2
 	  endif
-c	    if(ytest.eq."MAQ") then
-c	  if (paso.le.1180*3600) igel=1
-c	  if (paso.gt.1180*3600) then
-c	  igel=2
-c	  endif
+!	    if(ytest.eq."MAQ") then
+!	  if (paso.le.1180*3600) igel=1
+!	  if (paso.gt.1180*3600) then
+!	  igel=2
+!	  endif
  	  else
 	   igel=0
 	  endif
@@ -2576,27 +2576,27 @@ c	  endif
 	    enddo
 	    if(ytest.eq."MAQ") then
 	  do i=1,nm
-CCC....Changement coef emmagasinement
+!CC....Changement coef emmagasinement
 	  if(temp(i).lt.tl) dswpdp(i)=ss(i)/g/rho(i)/om(i)
 	  if(temp(i).gt.tl) dswpdp(i)=1
 	  do kcol=1,nc
-CCC...GEL....dswpd subpermafrost
+!CC...GEL....dswpd subpermafrost
 	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
      &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.zs(kcol,1)) then
 	  dswpdp(i)=ss(i)/g/rho(i)/om(i)
 	  endif
-CCC...GEL....dswpd subpermafrost
+!CC...GEL....dswpd subpermafrost
 	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
      &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.topo(kcol))
      & then
 	  dswpdp(i)=ss(i)/g/rho(i)/om(i)
 	  endif
-CCC....DEGEL....dswpd suprapermafrost
+!CC....DEGEL....dswpd suprapermafrost
       if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
      &z(i).gt.zs(kcol,1).and.temp(i).gt.tl)then
       dswpdp(i)=1
       endif
-CCC....DEGEL....dswpd subpermafrost
+!CC....DEGEL....dswpd subpermafrost
       if (igel.eq.2.and.zs(kcol,2).ne.-99.and.icol(i).eq.kcol.and.
      &z(i).lt.zs(kcol,2).and.temp(i).gt.tl)then
       dswpdp(i)=ss(i)/(rho1*g*om(i))
@@ -2605,11 +2605,11 @@ CCC....DEGEL....dswpd subpermafrost
 	  enddo
 	  endif
 	  endif
-CCC....Calcul saturation permeabilite
-cccc....Cas completement sature en eau
-cccc....derivation de la saturation en glace en fonction de la temperature dsice
-cccc....sw (liquide) = (1D0 - sice)
-CCC....Implicite
+!CC....Calcul saturation permeabilite
+!ccc....Cas completement sature en eau
+!ccc....derivation de la saturation en glace en fonction de la temperature dsice
+!ccc....sw (liquide) = (1D0 - sice)
+!CC....Implicite
       if(icycle.ne.0.and.ibigridice.ne.1.and.iparo.eq.1) then
 	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,tempo,
      &dsipdtemp,igelzns,ytypakrice,
@@ -2621,7 +2621,7 @@ CCC....Implicite
 	   dsipdtemp(i)= 0.D0
       enddo
       endif
-CCC....Explicite
+!CC....Explicite
       if(icycle.ne.0.and.ibigridice.ne.1.and.iparo.eq.0) then
 	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,
      &dsipdtemp,igelzns,ytypakrice,
@@ -2633,14 +2633,14 @@ CCC....Explicite
 	   dsipdtemp(i)= 0.D0
       enddo
       endif
-CCC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
+!CC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
 	  if(icycle.ne.0.and.ibigridice.EQ.1) then
 	  CALL biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,
      &col,nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,
      &sicep,swressi,siceo,tempo)
 	  endif
 
-cccc.....SWTOT est la quantite total d'eau (liquide+glace)
+!ccc.....SWTOT est la quantite total d'eau (liquide+glace)
 	  do i=1,nm
 	   swtot=swp(i)
 	   sice(i)=MAX(0.D0,swtot-(1.D0-sicep(i)))
@@ -2652,7 +2652,7 @@ cccc.....SWTOT est la quantite total d'eau (liquide+glace)
 	      dsidtemp(i)=0.D0
 	      else
 	      dswdp(i)=ss(i)/(rho1*g*om(i))
-cccc....nappe captive
+!ccc....nappe captive
 	      dswdt(i)=-dsipdtemp(i)
 	      dsidp(i)=dswpdp(i)
 	      dsidtemp(i)=dsipdtemp(i)
@@ -2670,28 +2670,28 @@ cccc....nappe captive
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		   C
-C	       BOUCLE TEMPS	  		  C
-C	  	  	  	  		   C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....COMPTEUR
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		   C
+!	       BOUCLE TEMPS	  		  C
+!	  	  	  	  		   C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....COMPTEUR
 	  icpt=0
 	  it=0
-CCC....indice regime permanant thermique
+!CC....indice regime permanant thermique
 	  irptha=irpth
-CCC....Boucle temps jusqu a fin de simulation
+!CC....Boucle temps jusqu a fin de simulation
 	  do while (nitt*unitsim-paso.gt.0)
 	  it=it+1
-CCC....Compteur iteration calcul PICARD
+!CC....Compteur iteration calcul PICARD
 	  nk=0
-CCC...Retour pas de temps initial impose par l utilisateur
+!CC...Retour pas de temps initial impose par l utilisateur
 	  dt=dble(dta)
 	  dtreco=dble(dtrecord)
-CCC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
-cccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
-cccc....dt record = temps ecoulé depuis le dernier enregistrement
-cccc....irecord = booléen si vrai ecriture sinon rien
+!CC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
+!ccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
+!ccc....dt record = temps ecoulé depuis le dernier enregistrement
+!ccc....irecord = booléen si vrai ecriture sinon rien
 
 	     if(dtreco+dt.lt.itsortie*unitsortie) then
 	      dtrecord=dble(dtreco)+dble(dt)
@@ -2709,29 +2709,29 @@ cccc....irecord = booléen si vrai ecriture sinon rien
 	     endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	     Indice CONVERCENCE	  	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....ECOULEMENT
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	     Indice CONVERCENCE	  	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....ECOULEMENT
 	  amaxp=0.D+00
 	  if(iec.eq.1)amaxp=1D+05
 	  if(iec.eq.0) amaxp=crconvp
-CCC....TRANSPORT
+!CC....TRANSPORT
 	  amaxc=0.D+00
 	  if(itr.eq.1) amaxc=1D+05
 	  if(itr.eq.0) amaxc=crconvc
-CCC....THERMIQUE
+!CC....THERMIQUE
 	  amaxt=0.D+00
 	  if(ith.eq.1) amaxt=1D+05
 	  if(ith.eq.0) amaxt=crconvt
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C      Compteur temps simulation		  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!      Compteur temps simulation		  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if (irp.eq.0.and.irptha.eq.0.and.it.gt.3) paso=nitt*unitsim
        if (irptha.eq.1.or.irp.eq.1)   paso=dble(dt)+dble(paso)
 
@@ -2740,11 +2740,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C       Variables et cdt lim old		  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!       Variables et cdt lim old		  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	do i=1,nm
 	if (pr(i)+1.ne.pr(i)) pro(i)=pr(i)
 	rhold(i)=rho(i)
@@ -2794,11 +2794,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	   C
-C  Variation des conditions aux limites vs. temps C
-C	  	  	  	  	  	   C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	   C
+!  Variation des conditions aux limites vs. temps C
+!	  	  	  	  	  	   C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
@@ -2857,18 +2857,18 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		   C
-c	    BOUCLE DE PICARD	  	       C
-C	  	  	  	  		   C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		   C
+!	    BOUCLE DE PICARD	  	       C
+!	  	  	  	  		   C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  do while (amaxp.gt.crconvp.or.pr(1)+1.eq.pr(1)
      &.or.amaxt.gt.crconvt.or.temp(1)+1.eq.temp(1)
      &.or.temp(1)-temp(1).ne.0
      &.or.pr(1)-pr(1).ne.0.or.nk.eq.iteration-1)
 	  nk=nk+1
 
-CCC...Sauvegarde de literation picard precedante
+!CC...Sauvegarde de literation picard precedante
 	  do i=1,nm
 	  prk(i)=pr(i)
 	  enddo
@@ -2885,12 +2885,12 @@ CCC...Sauvegarde de literation picard precedante
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		   C
-C	      non convergence ou NaN	       C
-C	      pas de temps adaptatif	       C
-C	  	  	  	  		   C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		   C
+!	      non convergence ou NaN	       C
+!	      pas de temps adaptatif	       C
+!	  	  	  	  		   C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(nk.eq.iteration-1.or.pr(1)+1.eq.pr(1)
      &.or.dt.le.1D-5) then
 	  if(dtreco.ge.0) then
@@ -2909,10 +2909,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(dt.gt.dta) dt=dta
 	  if(modulo(dta,dt).ne.0) dt=dble(dta)/10
 	  it=int(it-1)
-CCC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
-cccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
-cccc....dt record = temps ecoulé depuis le dernier enregistrement
-cccc....irecord = booléen si vrai ecriture sinon rien
+!CC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
+!ccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
+!ccc....dt record = temps ecoulé depuis le dernier enregistrement
+!ccc....irecord = booléen si vrai ecriture sinon rien
 	     if(dtreco+dt.lt.itsortie*unitsortie) then
 	      dtrecord=dble(dtreco)+dble(dt)
 	      irecord=0
@@ -2959,12 +2959,12 @@ cccc....irecord = booléen si vrai ecriture sinon rien
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	   C
-C  Variation des conditions aux limites vs. temps C
-C	  	  	  	  	  	   C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-cc aaaaaaaaaaaaaaaaaaaaaaaaaaa
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	   C
+!  Variation des conditions aux limites vs. temps C
+!	  	  	  	  	  	   C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!c aaaaaaaaaaaaaaaaaaaaaaaaaaa
         if(ligne.eq.0) ligne=1
         if(ligne1.eq.0) ligne1=1
         if(ligne2.eq.0) ligne2=1
@@ -2973,7 +2973,7 @@ cc aaaaaaaaaaaaaaaaaaaaaaaaaaa
         if(ligne5.eq.0) ligne5=1
         if(ligne6.eq.0) ligne6=1
 
-cccc....recalcul car chgt pas temps
+!ccc....recalcul car chgt pas temps
        call variation_cdt_limites(nm,paso,itlecture,ytest,
      &ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,
      &icl,valcl,iclt,valclt,ivois,
@@ -3001,13 +3001,13 @@ cccc....recalcul car chgt pas temps
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		   C
-C		  PAS DE CONVERGENCE		   C
-C	  	  	  	  		   C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....arret du calcul
-CCC....impression du dernier pas de temps
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		   C
+!		  PAS DE CONVERGENCE		   C
+!	  	  	  	  		   C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....arret du calcul
+!CC....impression du dernier pas de temps
 
 	  if(dt.lt.1D-5.and.nk.eq.iteration) then
 	  if (iec.eq.1) then
@@ -3052,69 +3052,69 @@ CCC....impression du dernier pas de temps
 	  endif
 	  endif
 
-c	   if(rtrho.eq.1) then
-c       print*,'non convergence Picard apres', iteration, 'iterations'
-c       print*,'pas de temps =',dt
-c       print*, 'rtrho',rtrho
-c       do i=1,nm
-c       write(74,*) i,x(i),z(i),pro(i),pro(i)/(rho1*g)+z(i),tempo(i)
-c       enddo
-c       stop
-c c     endif
-CCCCCCCCCC fin  non convergence
+!	   if(rtrho.eq.1) then
+!       print*,'non convergence Picard apres', iteration, 'iterations'
+!       print*,'pas de temps =',dt
+!       print*, 'rtrho',rtrho
+!       do i=1,nm
+!       write(74,*) i,x(i),z(i),pro(i),pro(i)/(rho1*g)+z(i),tempo(i)
+!       enddo
+!       stop
+! c     endif
+!CCCCCCCCC fin  non convergence
 	goto 15
 	  endif
 
-CCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCC
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C   subroutine a netoyer	  	  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC Topo en marche d escalier
-c	  if (itopomch.eq.1) then
-c	  do i=1,nm
-c	  if(x(i).lt.xberg-am(i).and.ivois(i,1).eq.-99
-c     &.and.ivois(i,3).eq.-99) then
-c	  valcl(i,1)=qre/2
-c       valcl(i,3)=qre/2
-c	  icl(i,1)=-1
-c	  icl(i,3)=-1
-c	  valclt(i,1)=10D+00
-c	  valclt(i,3)=10+00
-c	  iclt(i,1)=-2
-c	  iclt(i,3)=-2
-c	  endif
-c	  enddo
-c	  endif
-c	     qruis=0.
-c	   if (iinfil.eq.1) then
-c       call infiltration(pr,nm,n,icol,nc,om,ss,bm,rho,pore,
-c     &am,valcl,icl,qtpore,ruis,ivois,z,g,dt,xberg,x,qre,qruis)
-c       endif
-c       if(iriv.eq.1) then
-CCCriviere
-c       n2=n
-c       qinf=0
-c       qriv=0
-c       call debit_riviere(hriv,qriva,qriv,nm,z,hbot,
-c     &bm,ivois,qinf,am,xberg,x,al,n,
-c     &rug,pent,iqriv,vxp,vzp,qruis)
-c       endif
-c       if(iriv.eq.0) goto 79
-c RIVIERE
-c       call cdt_riviere(hriv,g,nm,z,hbot,
-c     &bm,ivois,am,rho,xberg,x,al,n,icl,valcl,iclt,valclt,
-c     &tempriv,aklit,aklitv,ak,akv,akr,akrv,dswdp,sw,elit,
-c     &akc,akcv,it,ita,tempo,ts)
-c79     continue
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C		  TERME dswdp  temporel	    C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C		  ZNS	  	  	      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!   subroutine a netoyer	  	  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC Topo en marche d escalier
+!	  if (itopomch.eq.1) then
+!	  do i=1,nm
+!	  if(x(i).lt.xberg-am(i).and.ivois(i,1).eq.-99
+!     &.and.ivois(i,3).eq.-99) then
+!	  valcl(i,1)=qre/2
+!       valcl(i,3)=qre/2
+!	  icl(i,1)=-1
+!	  icl(i,3)=-1
+!	  valclt(i,1)=10D+00
+!	  valclt(i,3)=10+00
+!	  iclt(i,1)=-2
+!	  iclt(i,3)=-2
+!	  endif
+!	  enddo
+!	  endif
+!	     qruis=0.
+!	   if (iinfil.eq.1) then
+!       call infiltration(pr,nm,n,icol,nc,om,ss,bm,rho,pore,
+!     &am,valcl,icl,qtpore,ruis,ivois,z,g,dt,xberg,x,qre,qruis)
+!       endif
+!       if(iriv.eq.1) then
+!CCriviere
+!       n2=n
+!       qinf=0
+!       qriv=0
+!       call debit_riviere(hriv,qriva,qriv,nm,z,hbot,
+!     &bm,ivois,qinf,am,xberg,x,al,n,
+!     &rug,pent,iqriv,vxp,vzp,qruis)
+!       endif
+!       if(iriv.eq.0) goto 79
+! RIVIERE
+!       call cdt_riviere(hriv,g,nm,z,hbot,
+!     &bm,ivois,am,rho,xberg,x,al,n,icl,valcl,iclt,valclt,
+!     &tempriv,aklit,aklitv,ak,akv,akr,akrv,dswdp,sw,elit,
+!     &akc,akcv,it,ita,tempo,ts)
+!79     continue
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!		  TERME dswdp  temporel	    C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!		  ZNS	  	  	      C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if (ivg.eq.1.or.yunconfined.eq."UNS") then
 	  Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,
@@ -3135,10 +3135,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	endif
 	  else if (yunconfined.eq."CAP".and.ivg.ne.1) then
 	  do i=1,nm
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	       nappe captive	  	     C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-cccc....COEFFICIENT D EMMAGASINEMENT
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	       nappe captive	  	     C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!ccc....COEFFICIENT D EMMAGASINEMENT
 	   swp(i)=1.D00
 	   dswpdp(i)=ss(i)/(rho1*g*om(i))
       if (ytest.eq."TH2".or.ytest.eq."TH3") then
@@ -3146,18 +3146,18 @@ cccc....COEFFICIENT D EMMAGASINEMENT
 	      endif
 	  enddo
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  nappe libre	  	    C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  nappe libre	  	    C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  else  if (yunconfined.eq."UNC".and.ivg.ne.1) then
 	  do i=1,nm
 	  akr(i)=1D+00
 	  akrv(i)=1D+00
 	  swp(i)=1D+00
        dswpdp(i)=1D+00/(rho1*g*bm(i))
-c	  dswpdp(i)=1D+00/(rho1*g)
+!	  dswpdp(i)=1D+00/(rho1*g)
 	  if(pr(i).lt.0d+00) then
-c	  akr(i)=0D+00
+!	  akr(i)=0D+00
 	  akrv(i)=1D+00
 	  swp(i)=0D+00
 	  endif
@@ -3170,13 +3170,13 @@ c	  akr(i)=0D+00
       endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	      PARAMETRE VS. TEMPERATURE	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....Indice gel/degel
-cccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maille 1 à améliorer
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	      PARAMETRE VS. TEMPERATURE	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....Indice gel/degel
+!ccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maille 1 à améliorer
 	  if(icycle.eq.0) igel=0
 
 
@@ -3187,21 +3187,21 @@ cccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maill
 	  if (temp(1).lt.0.and.tempo(1)-temp(1).lt.0) igel=2
 	  endif
 	  if(ytest.eq."TH1".or.ytest.eq."TH2".or.ytest.eq."TH3") igel=2
-CCC... SPECIAL CASES
+!CC... SPECIAL CASES
 
-CCC.... TESTS Interfrost
+!CC.... TESTS Interfrost
       if (ytest.eq."TH2".or.ytest.eq."TH3") then
 	  do i=1,nm
        dswpdp(i)=ss(i)*sw(i)
        enddo
 	     endif
 
-c	    if(ytest.eq."MAQ") then
-c	  if (paso.le.1180*3600) igel=1
-c	  if (paso.gt.1180*3600) then
-c	  	igel=2
-c	  cimp=0006d-01
-c	  endif
+!	    if(ytest.eq."MAQ") then
+!	  if (paso.le.1180*3600) igel=1
+!	  if (paso.gt.1180*3600) then
+!	  	igel=2
+!	  cimp=0006d-01
+!	  endif
 	    if(ytest.eq."MAQ") then
 	  if (paso.le.49.1*86400) igel=1
 	  if (paso.gt.49.1*86400) then
@@ -3209,27 +3209,27 @@ c	  endif
 	  igel=2
 	  endif
 
-CCC....Changement coef emmagasinement
+!CC....Changement coef emmagasinement
 	  do i=1,nm
 	  if(temp(i).lt.tl) dswpdp(i)=ss(i)/g/rho(i)/om(i)
 	  if(temp(i).gt.tl) dswpdp(i)=1
 	  do kcol=1,nc
-CCC...GEL....dswpd subpermafrost
+!CC...GEL....dswpd subpermafrost
 	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
      &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.zs(kcol,1)) then
 	  dswpdp(i)=ss(i)/g/rho(i)/om(i)
 	  endif
-CCC...GEL....dswpd subpermafrost
+!CC...GEL....dswpd subpermafrost
 	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
      &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.topo(kcol)) then
 	  dswdp(i)=ss(i)/g/rho(i)/om(i)
 	  endif
-CCC....DEGEL....dswpd suprapermafrost
+!CC....DEGEL....dswpd suprapermafrost
       if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
      &z(i).gt.zs(kcol,1).and.temp(i).gt.tl)then
       dswpdp(i)=1
       endif
-CCC....DEGEL....dswpd subpermafrost
+!CC....DEGEL....dswpd subpermafrost
       if (igel.eq.2.and.zs(kcol,2).ne.-99.and.icol(i).eq.kcol.and.
      &z(i).lt.zs(kcol,2))then
       dswpdp(i)=ss(i)/(rho1*g*om(i))
@@ -3251,11 +3251,11 @@ CCC....DEGEL....dswpd subpermafrost
 	  endif
 
 
-CCC....Calcul saturation permeabilite
-CCC....Cas completement sature en eau
-CCC....Derivation de la saturation en glace en fonction de la temperature dsice
-CCC....sw (liquide) = (1D0 - sice)
-CCC....Implicite
+!CC....Calcul saturation permeabilite
+!CC....Cas completement sature en eau
+!CC....Derivation de la saturation en glace en fonction de la temperature dsice
+!CC....sw (liquide) = (1D0 - sice)
+!CC....Implicite
       if(ibigridice.ne.1.and.iparo.eq.1) then
 	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,tempo,
      &dsipdtemp,igelzns,ytypakrice,
@@ -3268,7 +3268,7 @@ CCC....Implicite
       enddo
       endif
 
-CCC....Explicite
+!CC....Explicite
       if(ibigridice.ne.1.and.iparo.eq.0) then
 	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,
      &dsipdtemp,igelzns,ytypakrice,
@@ -3280,14 +3280,14 @@ CCC....Explicite
 	   dsipdtemp(i)= 0.D0
       enddo
       endif
-CCC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
+!CC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
 	  if(ibigridice.EQ.1) then
 	  CALL biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,
      &col,nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,
      &sicep,swressi,siceo,tempo)
 	  endif
 
-CCC.....SWTOT est la quantite total d'eau (liquide+glace)
+!CC.....SWTOT est la quantite total d'eau (liquide+glace)
 	  do i=1,nm
 
 	   swtot=swp(i)
@@ -3300,33 +3300,33 @@ CCC.....SWTOT est la quantite total d'eau (liquide+glace)
 	      dsidtemp(i)=0.D0
 	      else
 	      dswdp(i)=ss(i)/(rho1*g*om(i))
-CCC....nappe captive
+!CC....nappe captive
 	      dswdt(i)=-dsipdtemp(i)
 	      dsidp(i)=dswpdp(i)
 	      dsidtemp(i)=dsipdtemp(i)
 	   endif
-CCC....Regime permanant
+!CC....Regime permanant
 	  if (irp.eq.0) dswdp(i)=0D+00
 	   enddo
 	  else
-ccc fin icycle=1
-ccc debut icycle=0
+!cc fin icycle=1
+!cc debut icycle=0
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  c
-C	  	  PAS DE GEL	  	  	  	  	  	  	  	  c
-C	  	  	  	  	  	  	  	  	  	  c
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  c
+!	  	  PAS DE GEL	  	  	  	  	  	  	  	  c
+!	  	  	  	  	  	  	  	  	  	  c
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  do i=1,nm
 	   sw(i)=swp(i)
-c	   sice(i)=0
+!	   sice(i)=0
 	   dswdp(i)=dswpdp(i)
 	   dswdt(i)=0.D0
-c	   dsidp(i)=0.D0
-c	   dsidtemp(i)=0.D0
+!	   dsidp(i)=0.D0
+!	   dsidtemp(i)=0.D0
 
-CCC....Regime permanant
+!CC....Regime permanant
 	  if (irp.eq.0) dswdp(i)=0D+00
 
 	   enddo
@@ -3335,19 +3335,19 @@ CCC....Regime permanant
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  	      ECOULEMENT		   C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....CONSTRUCTION DE LA MATRICE PRESSION
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  	      ECOULEMENT		   C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....CONSTRUCTION DE LA MATRICE PRESSION
 	  if(iec.eq.1) then
 	  nz=nm
 	  nmaxz=nmax
 	  nmaxzz=nmax1
-c	      allocate(icol_ind(nmax))
-c	      allocate(irow_ptr(nmax1))
-c	      allocate(val(nmax)
+!	      allocate(icol_ind(nmax))
+!	      allocate(irow_ptr(nmax1))
+!	      allocate(val(nmax)
 
 
 
@@ -3359,7 +3359,7 @@ c	      allocate(val(nmax)
      &rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,
      &sw,nz,irp,nmax1,nmax,bm,akv,akrv,
      &igel,ysupdp,rhoi,ixy,dsidtemp,temp,tempo,ysolv)
-CCC....Resolution
+!CC....Resolution
 	  n1=nm
 	  nmaxz=nmax
 	  nmaxzz=nmax1
@@ -3371,48 +3371,48 @@ CCC....Resolution
 	  endif
 
 
-C	  if (ysolv.eq."LIB") then
-C	  	do i=1,nm+1
-C	  	irow_ptr(i)=irow_ptr(i)-1
-C	  	enddo
-C	  call GC_init_sys(irow_ptr,icol_ind,n1)
-C      	call GC_solve (val,irow_ptr(nmax1),b,n1,pr,pr,sw_int,sw_reel)
-C	  	k=0
-C	  endif
+!	  if (ysolv.eq."LIB") then
+!	  	do i=1,nm+1
+!	  	irow_ptr(i)=irow_ptr(i)-1
+!	  	enddo
+!	  call GC_init_sys(irow_ptr,icol_ind,n1)
+!      	call GC_solve (val,irow_ptr(nmax1),b,n1,pr,pr,sw_int,sw_reel)
+!	  	k=0
+!	  endif
 
-CCC....calcul de critere amaxp
-CCC....Test du Picard
-c	  if(ivg.eq.1.or.iriv.eq.1.or.iqriv.eq.0.or.
-c     &icycle.eq.0.or.igelzns.eq.0.or.iomdegel.eq.0.or.irp.eq.0) then
+!CC....calcul de critere amaxp
+!CC....Test du Picard
+!	  if(ivg.eq.1.or.iriv.eq.1.or.iqriv.eq.0.or.
+!     &icycle.eq.0.or.igelzns.eq.0.or.iomdegel.eq.0.or.irp.eq.0) then
 	  amaxp=0D+00
 	    do ii=1,nm
 	    if (abs(prk(ii)-pr(ii)).ge.amaxp) amaxp=abs(prk(ii)-pr(ii))
 	    if (abs(prk(ii)-pr(ii)).ge.amaxp) ipb=ii
-c	  	print*,"coucou",amaxp,pr(ii),prk(ii)
+!	  	print*,"coucou",amaxp,pr(ii),prk(ii)
 	    enddo
 	    if (k.gt.999) amaxp=1000
 	    if (k.gt.999) ipb=-9999
 
-c	  else
-c	  amaxp=0D00
-c	  endif
+!	  else
+!	  amaxp=0D00
+!	  endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	      Calcul de vitesse	  	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	      Calcul de vitesse	  	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	    do i=1,nm
-CCC....VITESSE EN X A TRAVERS LES FACES
-cccc....vxm(i) face gauche
-cccc....vxp(i) face droite
-cccc....vzm(i) face du dessous
-cccc....vzp(i) face du dessus
+!CC....VITESSE EN X A TRAVERS LES FACES
+!ccc....vxm(i) face gauche
+!ccc....vxp(i) face droite
+!ccc....vzm(i) face du dessous
+!ccc....vzp(i) face du dessus
 	  if(iec.eq.1.and.idecouplage.eq.0) then
-cccc....Horizontal INITIALISATION
+!ccc....Horizontal INITIALISATION
 	  vxm(i)=0.D+00
 	  vxp(i)=0.D+00
-cccc....cacul vitesse face DROITE
+!ccc....cacul vitesse face DROITE
 	  if (icl(i,1).eq.1) then
 	  rhom=dble((rho(i)+rho(ivois(i,1)))/2D+00)
 	  iv=ivois(i,1)
@@ -3421,7 +3421,7 @@ cccc....cacul vitesse face DROITE
 	  vxp(i)=dble(-vxp(i)/amu*((pr(i)-pr(iv))/(x(i)-x(iv))
      &+ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i))))
 	  endif
-cccc....cacul vitesse face GAUCHE
+!ccc....cacul vitesse face GAUCHE
 	  if (icl(i,2).eq.1) then
 	  rhom=dble((rho(i)+rho(ivois(i,2)))/2D+00)
 	  iv=ivois(i,2)
@@ -3430,10 +3430,10 @@ cccc....cacul vitesse face GAUCHE
 	  vxm(i)=dble(-vxm(i)/amu*((pr(iv)-pr(i))/(x(iv)-x(i))
      &+ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i))))
 	  endif
-cccc....vertical INITIALISATION
+!ccc....vertical INITIALISATION
        vzm(i)=0.D+00
        vzp(i)=0.D+00
-cccc....cacul vitesse face BAS
+!ccc....cacul vitesse face BAS
 	  if (icl(i,4).eq.1) then
 	  rhom=dble((rho(i)+rho(ivois(i,4)))/2D+00)
 	  iv=ivois(i,4)
@@ -3442,7 +3442,7 @@ cccc....cacul vitesse face BAS
 	  vzm(i)=dble((-vzm(i)/amu*((pr(i)-pr(iv))/(z(i)-z(iv))
      &+ixy*g*rhom)))
 	  endif
-cccc....cacul vitesse face HAUT
+!ccc....cacul vitesse face HAUT
 	  if (icl(i,3).eq.1) then
 	  rhom=dble((rho(i)+rho(ivois(i,3)))/2D+00)
 	  iv=ivois(i,3)
@@ -3451,7 +3451,7 @@ cccc....cacul vitesse face HAUT
 	  vzp(i)=dble((-vzp(i)/amu*((pr(iv)-pr(i))/(z(iv)-z(i))
      &+ixy*g*rhom)))
 	  endif
-cccc....cacul vitesse avec CHARGE IMPOSEE
+!ccc....cacul vitesse avec CHARGE IMPOSEE
 	  if (icl(i,1).eq.-2) then
 	  vxp(i)=dble(vxm(i))
 	  endif
@@ -3464,7 +3464,7 @@ cccc....cacul vitesse avec CHARGE IMPOSEE
 	  if (icl(i,4).eq.-2) then
 	  vzm(i)=dble(vzp(i))
 	  endif
-cccc....cacul vitesse avec FLUX IMPOSE
+!ccc....cacul vitesse avec FLUX IMPOSE
 	  if (icl(i,1).eq.-1) then
 		vxp(i)=dble(-valcl(i,1))
 		endif
@@ -3481,16 +3481,16 @@ cccc....cacul vitesse avec FLUX IMPOSE
 		endif
 	  endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	      DECOUPLAGE	  		   C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....cacul vitesse face  decouplage code  =1
-CCC....utilisation des pression n-1 pour le terme adveectif
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	      DECOUPLAGE	  		   C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....cacul vitesse face  decouplage code  =1
+!CC....utilisation des pression n-1 pour le terme adveectif
 	  if(iec.eq.1.and.idecouplage.eq.1) then
-CCC....INITIALISATION
+!CC....INITIALISATION
 	  vxm(i)=0.D+00
 	  vxp(i)=0.D+00
-cccc....cacul vitesse face DROITE
+!ccc....cacul vitesse face DROITE
 	  if (icl(i,1).eq.1) then
 	  rhom=(rho(i)+rho(ivois(i,1)))/2
 	  iv=ivois(i,1)
@@ -3503,7 +3503,7 @@ cccc....cacul vitesse face DROITE
 	  vxp(i)=-ak(i)*akr(i)/amu*(valcl(i,1)-pro(i))/am(i)*2
 	  endif
 	  if (icl(i,1).eq.-1)     vxp(i)=-valcl(i,1)
-cccc....cacul vitesse face GAUCHE
+!ccc....cacul vitesse face GAUCHE
 	  if (icl(i,2).eq.1) then
 	  rhom=(rho(i)+rho(ivois(i,2)))/2
 	  iv=ivois(i,2)
@@ -3518,7 +3518,7 @@ cccc....cacul vitesse face GAUCHE
 	  if (icl(i,2).eq.-1)  vxm(i)=valcl(i,2)
 	  vzm(i)=0.D+00
 	  vzp(i)=0.D+00
-cccc....cacul vitesse face BAS
+!ccc....cacul vitesse face BAS
 	  if (icl(i,4).eq.1) then
 	  rhom=(rho(i)+rho(ivois(i,4)))/2
 	  iv=ivois(i,4)
@@ -3532,7 +3532,7 @@ cccc....cacul vitesse face BAS
      &+ixy*g*rho(i))
 	  endif
 	  if (icl(i,4).eq.-1) vzm(i)=valcl(i,4)
-cccc....cacul vitesse face HAUT
+!ccc....cacul vitesse face HAUT
 	  if (icl(i,3).eq.1) then
 	  rhom=(rho(i)+rho(ivois(i,3)))/2
 	  iv=ivois(i,3)
@@ -3546,7 +3546,7 @@ cccc....cacul vitesse face HAUT
      &+ixy*g*rho(i))
 	  endif
 	  if (icl(i,3).eq.-1) vzp(i)=-valcl(i,3)
-cccc....cacul vitesse avec CHARGE IMPOSEE
+!ccc....cacul vitesse avec CHARGE IMPOSEE
 	  if (icl(i,1).eq.-2) then
 	  vxp(i)=vxm(i)
 	  endif
@@ -3560,46 +3560,46 @@ cccc....cacul vitesse avec CHARGE IMPOSEE
 	  vzm(i)=vzp(i)
 	  endif
 	  endif
-CCC....VITESSE NULLE
+!CC....VITESSE NULLE
 	   if (abs(vxp(i)).lt.1D-17)      vxp(i)=0D+00
 	   if (abs(vxm(i)).lt.1D-17)      vxm(i)=0D+00
 	   if (abs(vzm(i)).lt.1D-17)      vzm(i)=0D+00
 	   if (abs(vzp(i)).lt.1D-17)      vzp(i)=0D+00
 	  enddo
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	       Fin alcul de vitesse	      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	      fin ecoulement calcule	     C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	       Fin alcul de vitesse	      C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	      fin ecoulement calcule	     C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  endif
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C    Advection sans calcul de l'ecoulement     C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....avec des vitesses donnees par l'utilisateur
-CCC.... ou annulation de l'advection C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!    Advection sans calcul de l'ecoulement     C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....avec des vitesses donnees par l'utilisateur
+!CC.... ou annulation de l'advection C
 	  if(iec.eq.0) then
 	  do i=1,nm
 	  if (ithec.eq.1) then
-cccc....Vitesse face DROITE
+!ccc....Vitesse face DROITE
 	  vxp(i)=dble(-valcl_droite)
-cccc....Vitesse face GAUCHE
+!ccc....Vitesse face GAUCHE
 	  vxm(i)=dble(valcl_gauche)
-cccc....Vitesse face BAS
+!ccc....Vitesse face BAS
 	  vzm(i)=dble(valcl_bas)
-cccc....Vitesse face HAUT
+!ccc....Vitesse face HAUT
 	  vzp(i)=dble(-valcl_haut)
-CCC....VITESSE NULLE
+!CC....VITESSE NULLE
 	   if (abs(vxp(i)).lt.1D-17)      vxp(i)=0D+00
 	   if (abs(vxm(i)).lt.1D-17)      vxm(i)=0D+00
 	   if (abs(vzm(i)).lt.1D-17)      vzm(i)=0D+00
 	   if (abs(vzp(i)).lt.1D-17)      vzp(i)=0D+00
 	  else
-CCC....PAS D'ADVECTION
+!CC....PAS D'ADVECTION
 	  vxp(i)=0.D+00
 	  vxm(i)=0.D+00
 	  vzm(i)=0.D+00
@@ -3607,12 +3607,12 @@ CCC....PAS D'ADVECTION
 	  endif
 	  enddo
 	  endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	     TRANSPORT	  	  	   C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....SI ITR=0, ON ZAPPE LE TRANSPORT!!!!
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	     TRANSPORT	  	  	   C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....SI ITR=0, ON ZAPPE LE TRANSPORT!!!!
 
 	  if(itr.eq.1) then
 	  nz=nm
@@ -3623,9 +3623,9 @@ CCC....SI ITR=0, ON ZAPPE LE TRANSPORT!!!!
 	  n1=nm
 	  nmaxz=nmax
 	  nmaxzz=nmax1
-CCC....resolution
+!CC....resolution
 	  call cgs(conc,b,n1,k,val,icol_ind,irow_ptr,nmaxz,nmaxzz)
-CCC....Test du Picard transport
+!CC....Test du Picard transport
 	  amaxc=0.D+00
 	  do ii=1,nm
 	  rho(ii)=rho1+1/38.D+00*25.D+00*conc(ii)
@@ -3633,18 +3633,18 @@ CCC....Test du Picard transport
 	  amaxc=abs(conck(ii)-conc(ii))
 	  endif
 	  enddo
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	      fin transport calcule	      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	      fin transport calcule	      C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  THERMIQUE	  	  	      C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....SI ITh=0, ON ZAPPE LE Thermique!!!!
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  THERMIQUE	  	  	      C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....SI ITh=0, ON ZAPPE LE Thermique!!!!
 	  if(ith.eq.1) then
 	  nth=nm
 	  nmaxth=nmax
@@ -3661,7 +3661,7 @@ CCC....SI ITh=0, ON ZAPPE LE Thermique!!!!
      &icycle,rhog,alandag,cpg,igelzns,
      &vxp,vxm,vzp,vzm,
      &ymoycondtherm,dsidtemp,ytest,ysolv)
-CCC....resolution
+!CC....resolution
 	  n1=nm
 	  nmaxz=nmax
 	  nmaxzz=nmax1
@@ -3672,22 +3672,22 @@ CCC....resolution
 	  call cgs(temp,b,n1,k,val,icol_ind,irow_ptr,nmaxz,nmaxzz)
 	  endif
 
-C	  if (ysolv.eq."LIB") then
-C	  	do i=1,nm+1
-C	  	irow_ptr(i)=irow_ptr(i)-1
-C	  	enddo
-C	  do ii=1,10
-C	  print*,irow_ptr(ii),val(ii),icol_ind(ii)
-C	  enddo
-C	  sw_int(12)=1
-C	  call GC_init_sys(irow_ptr,icol_ind,n1)
-C C     	call GC_solve (val,irow_ptr(nmax1),b,n1,temp,temp,sw_int,sw_reel)
-C	  	k=0
-C	  endif
+!	  if (ysolv.eq."LIB") then
+!	  	do i=1,nm+1
+!	  	irow_ptr(i)=irow_ptr(i)-1
+!	  	enddo
+!	  do ii=1,10
+!	  print*,irow_ptr(ii),val(ii),icol_ind(ii)
+!	  enddo
+!	  sw_int(12)=1
+!	  call GC_init_sys(irow_ptr,icol_ind,n1)
+! C     	call GC_solve (val,irow_ptr(nmax1),b,n1,temp,temp,sw_int,sw_reel)
+!	  	k=0
+!	  endif
 
 
 
-CCC....Test du Picard thermique
+!CC....Test du Picard thermique
 	  if(iriv.eq.1.or.iqriv.eq.0.or.
      &icycle.eq.0.or.igelzns.eq.0.or.iomdegel.eq.0) then
 	  amaxt=0D+00
@@ -3703,43 +3703,43 @@ CCC....Test du Picard thermique
 	  amaxt=0D00
 	  endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  calcul du soulevement	  	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  calcul du soulevement	  	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(icycle.eq.1) then
 	  nz=n
 	  nmz=nm
 	  ncz=nc
 	  call upheaval(nz,ncz,nmz,igel,zs,zsoo,ivois,pr,pro,
      &alph,dl,def,defo,icol)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  ISOTHERMES	  	  	     C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  ISOTHERMES	  	  	     C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  call interpol(nc,zs,nm,icol,temp,ivois,igel,
      &bm,z,ncmax,n,valclt,ts,iclt,topo)
 	  call interpol(nc,zl,nm,icol,temp,ivois,igel,
      &bm,z,ncmax,n,valclt,tl,iclt,topo)
 	endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	      fin thermique calcule	      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	      fin thermique calcule	      C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  	  endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  nombre de courant	  	      C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  nombre de courant	  	      C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  	  amaxcfl=-1
 	  	  amazcfl=-1
 	  	if(ithec.eq.1) then
 	    do i=1,nm
-CC      CCCCCC
+!C      CCCCCC
 	  if ((abs(vxm(i)+vxp(i))/2*dt/am(i)).gt.amaxcfl) then
 	  amaxcfl=(abs(vxm(i)+vxp(i))/2*dt/am(i))
 	  endif
@@ -3750,84 +3750,84 @@ CC      CCCCCC
 	  enddo
 	  	endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C  fin boucle while (tests convergence	  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!  fin boucle while (tests convergence	  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-CCC....CATTENTION ENDDO A NE SURTOUT PAS VIRER BOUCLE DE PICARD TEST DE CONVERGENCE
+!CC....CATTENTION ENDDO A NE SURTOUT PAS VIRER BOUCLE DE PICARD TEST DE CONVERGENCE
 15	continue
 
 	  enddo
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-c	  		   VERIF	  	   C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C   bilan flux ecoulement	  	       C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....VITESSE EN X A TRAVERS LES FACES
-cccc....vxm(i) face gauche
-cccc....vxp(i) face droite
-cccc....vzm(i) face du dessous
-cccc....vzp(i) face du dessus
-CCC....ivois(ik,1)= voisin droite
-CCC....ivois(ik,2)= voisin gauche
-CCC....ivois(ik,3)= voisin haut
-CCC....ivois(ik,4)= voisin ibas
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  		   VERIF	  	   C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!   bilan flux ecoulement	  	       C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....VITESSE EN X A TRAVERS LES FACES
+!ccc....vxm(i) face gauche
+!ccc....vxp(i) face droite
+!ccc....vzm(i) face du dessous
+!ccc....vzp(i) face du dessus
+!CC....ivois(ik,1)= voisin droite
+!CC....ivois(ik,2)= voisin gauche
+!CC....ivois(ik,3)= voisin haut
+!CC....ivois(ik,4)= voisin ibas
 	  sumflux=0D+00
 	  do i=1,nm
 	  sumflux=sumflux-vxp(i)*bm(i)+vxm(i)*bm(i)+vzm(i)*am(i)
      &-vzp(i)*am(i)
 	  enddo
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C  CDT DE DRAIN	  	  		   C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-c       if (icldrain.eq.1.or.iriviere.eq.1) then
-c       call mse(n,nmaille1,nmaille2,nmaille3,nmaille4,nmaille5,
-c     &nmaille6,pr,qinf,qinfobs,paso,itlecture,chgobs1,chgobs2,
-c     &chgobs3,chgobs4,rho,g,chgobs5,chgobs6,eo1,eo2,eo3,eo4,eo5,
-c     &eo6,eoinf,z,seo1,seo2,seo3,seo4,seo5,
-c     &seo6,seoinf)
-c       if(modulo(paso,itsortie*unitsortie).eq.0.and.paso.ge.itsortie*unitsortie) then
-c       write(46,*) paso/unitsortie,ans,asp,seo6,qinf,seoinf
-c       endif
-c       endif
-CCC....TEST COND PARTICULIERES IMPOSEES SUR CELLULE VOISINE DRAIN
-C       if (icldrain.eq.1) then
-C		   drain=0
-C		   do i=1,nm
-C       if (z(i).gt.0.05.and.z(i).le.0.05+bm(i)
-C     &.and.ivois(i,4).eq.-99) then
-C       drain=drain+vzm(i)*am(i)*1
-C       endif
-C       if (ivois(i,2).eq.-99
-C     &.and.x(i).le.0.05+am(i).and.
-C     &x(i).gt.0.05) then
-C       drain=drain+vxm(i)*bm(i)*1
-C       endif
-C       enddo
-CCC....somme flux en fonction du temps
-C       sumflux=0
-C       do i=1,nm
-C       sumflux=sumflux-vxp(i)*bm(i)+vxm(i)*bm(i)+vzm(i)*am(i)
-C     &-vzp(i)*am(i)
-C       enddo
-C       endif
-C       if (pr(1)+1.eq.pr(1).or.pr(1).ne.pr(1).or.
-C     &temp(1).eq.temp(1)+1.or.temp(1).ne.temp(1)) then
-C       print*,'ca ne marche pas pr ou temp=nan ou infiny '
-C       stop
-C       endif
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!  CDT DE DRAIN	  	  		   C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!       if (icldrain.eq.1.or.iriviere.eq.1) then
+!       call mse(n,nmaille1,nmaille2,nmaille3,nmaille4,nmaille5,
+!     &nmaille6,pr,qinf,qinfobs,paso,itlecture,chgobs1,chgobs2,
+!     &chgobs3,chgobs4,rho,g,chgobs5,chgobs6,eo1,eo2,eo3,eo4,eo5,
+!     &eo6,eoinf,z,seo1,seo2,seo3,seo4,seo5,
+!     &seo6,seoinf)
+!       if(modulo(paso,itsortie*unitsortie).eq.0.and.paso.ge.itsortie*unitsortie) then
+!       write(46,*) paso/unitsortie,ans,asp,seo6,qinf,seoinf
+!       endif
+!       endif
+!CC....TEST COND PARTICULIERES IMPOSEES SUR CELLULE VOISINE DRAIN
+!       if (icldrain.eq.1) then
+!		   drain=0
+!		   do i=1,nm
+!       if (z(i).gt.0.05.and.z(i).le.0.05+bm(i)
+!     &.and.ivois(i,4).eq.-99) then
+!       drain=drain+vzm(i)*am(i)*1
+!       endif
+!       if (ivois(i,2).eq.-99
+!     &.and.x(i).le.0.05+am(i).and.
+!     &x(i).gt.0.05) then
+!       drain=drain+vxm(i)*bm(i)*1
+!       endif
+!       enddo
+!CC....somme flux en fonction du temps
+!       sumflux=0
+!       do i=1,nm
+!       sumflux=sumflux-vxp(i)*bm(i)+vxm(i)*bm(i)+vzm(i)*am(i)
+!     &-vzp(i)*am(i)
+!       enddo
+!       endif
+!       if (pr(1)+1.eq.pr(1).or.pr(1).ne.pr(1).or.
+!     &temp(1).eq.temp(1)+1.or.temp(1).ne.temp(1)) then
+!       print*,'ca ne marche pas pr ou temp=nan ou infiny '
+!       stop
+!       endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-c		   TEST PERFORMANCE		  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!		   TEST PERFORMANCE		  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
        if (ytest.eq."ZHR".or.ytest.eq."ZHZ"
      &.or.ytest.eq."1DS") then
@@ -3836,7 +3836,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  qcondu(i)=0D+00
 	  qtherm(i)=0D+00
 	  enddo
-CCC....flux THERMIQUE
+!CC....flux THERMIQUE
 	  do i=1,nm
        	if (ymoycondtherm.eq."WOODS") then
 	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)
@@ -3851,30 +3851,30 @@ CCC....flux THERMIQUE
      &+alandai*(om(i)*sice(i))+alandag*(om(i)*(1D+00-sw(i)-sice(i))))
 	endif
 
-CCC....FACE INF
-cccc....vzp(i) face du dessous entrante kg/m3 J⋅kg−1⋅K−1 m/s K  > J /s  > W/m2
+!CC....FACE INF
+!ccc....vzp(i) face du dessous entrante kg/m3 J⋅kg−1⋅K−1 m/s K  > J /s  > W/m2
 	if(vzm(i).gt.0.and.iclt(i,4).eq.1) then
 	qad(i)=dble(rho(ivois(i,4))*cpe*vzm(i))*temp(ivois(i,4))
 	endif
-c	if(vzm(i).gt.0.and.iclt(i,4).eq.-2) then
-c	qad(i)=dble(rho(i)*cpe*vzm(i)*valclt(i,4))
-c	endif
+!	if(vzm(i).gt.0.and.iclt(i,4).eq.-2) then
+!	qad(i)=dble(rho(i)*cpe*vzm(i)*valclt(i,4))
+!	endif
 	if(vzm(i).lt.0) then
 	qad(i)=dble(rho(i)*cpe*vzm(i)*temp(i))
 	endif
-CCC...conduction dispersion
+!CC...conduction dispersion
 	dtjm=dble(blt*rho(i)*cpe*((vxm(i)+vxp(i))**2./4.
      &+(vzm(i)+vzp(i))**2./4.)**0.5+alanda(i))
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  FACE BASSE	  	      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  FACE BASSE	  	      C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(iclt(i,4).eq.1) then
 	qcondu(i)=-dble(dtjm/(z(i)-z(ivois(i,4)))*
      &(temp(i)-temp(ivois(i,4))))
 
 	endif
-CCC....temperature imposee W·m−1·K−1 K /m  > W/m2
+!CC....temperature imposee W·m−1·K−1 K /m  > W/m2
 	if(iclt(i,4).eq.-2) then
 	qcondu(i)=-dble(dtjm*(temp(i)-valclt(i,4))/bm(i)*2.D00)
 	endif
@@ -3893,7 +3893,7 @@ CCC....temperature imposee W·m−1·K−1 K /m  > W/m2
 	  swtotal=0D+00
 	  sicetotal=0D+00
 	  tempmin=temp(1924)
-CCC....BILAN THERMIQUE
+!CC....BILAN THERMIQUE
 	  do i=1,nm
 	  	  if(ivois(i,2).eq.-99) then
 	  	  qtin=qtin+(rho(i)*cpe*(temp(i)-5)*vxp(i)-dble(alanda(i)*
@@ -3913,7 +3913,7 @@ CCC....BILAN THERMIQUE
 	  	   PF2=(qtout-qtin)/az
 
 	  	  endif
-CCC....Critere performance Interfrost
+!CC....Critere performance Interfrost
        if (ytest.eq."TH3") then
 	  qtcol=0D+00
 	  qeout=0D+00
@@ -3922,18 +3922,18 @@ CCC....Critere performance Interfrost
 	  pt1=0D+00
 	  pt2=0D+00
 
-cccc....BILAN THERMIQUE
+!ccc....BILAN THERMIQUE
 	  do i=1,nm
 	  qtherm(i)=(temp(i)+273.15)*(om(i)*sw(i)*rho(i)*cpe+
      &om(i)*sice(i)*rhoi(i)*cpice+
      &(1.-om(i))*rhos(i)*cps(i))*bm(i)*am(i)
 	  qthermtot=qthermtot+qtherm(i)
-cccc....Terme advectif
-cccc....VITESSE EN X A TRAVERS LES FACES
-cccc....vxm(i) face gauche
-cccc....vxp(i) face droite
-cccc....vzm(i) face du dessous
-cccc....vzp(i) face du dessus
+!ccc....Terme advectif
+!ccc....VITESSE EN X A TRAVERS LES FACES
+!ccc....vxm(i) face gauche
+!ccc....vxp(i) face droite
+!ccc....vzm(i) face du dessous
+!ccc....vzp(i) face du dessus
 	  if(ivois(i,4).eq.-99) then
 	  qtcol=qtcol+alanda(i)*(temp(i)-valclt_bas)
      &/z(i)*am(i)
@@ -3943,7 +3943,7 @@ cccc....vzp(i) face du dessus
 	  endif
        enddo
 	  qthermtot=qthermtot*2
-c	  grad=0.06D+00
+!	  grad=0.06D+00
 	  grad=valcl_gauche
 	  akeq=(qeout/grad)*2
 	  qtcol=qtcol/al*2
@@ -3951,7 +3951,7 @@ c	  grad=0.06D+00
 	  pt2=(temp(nmaille5)+temp(nmaille6)+
      &temp(nmaille7)+temp(nmaille8))/4.
        endif
-CCC....TEST NEUMAN
+!CC....TEST NEUMAN
        if (ytest.eq."TH1") then
        gxl=2D0-zl(1,1)
        gxs=2D0-zs(1,1)
@@ -3967,46 +3967,46 @@ CCC....TEST NEUMAN
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  	      C
-C	  	  	  	  	  	  	  	  	  	  	      C
-C	  	  	  		  OUTPUTS	  	  	  	  		   C
-C	  	  	  	  	  	  	  	  	  	  	      C
-C	  	  	  	  	  	  	  	  	  	  	      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C     OUVERTURE FICHIERS SORTIES		  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  	      C
+!	  	  	  	  	  	  	  	  	  	  	      C
+!	  	  	  		  OUTPUTS	  	  	  	  		   C
+!	  	  	  	  	  	  	  	  	  	  	      C
+!	  	  	  	  	  	  	  	  	  	  	      C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!     OUVERTURE FICHIERS SORTIES		  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
 
 
-CCC....FICHIER FIN DE SIMULATION
+!CC....FICHIER FIN DE SIMULATION
 	  open(74,file='S_pression_charge_temperature.dat')
-CCC....FICHIERS A TRIER
-C       open(49,file='S_profil_temp_colonne_choisie_t.dat')
-C       open(91,file='S_pression_charge_temperature_t.dat')
-c       open(62,file='S_bound_permafrost_t.dat')
-c       open(63,file='S_soulevemnt_t.dat')
-C       open(67,file='S_debit_riviere_t.dat')
-C       open(782,file='S_moy_vitesses.dat')
-C       open(786,file='S_flux.dat')
-C       open(52,file='S_pression_charge_temperature_maillechoisie.dat')
-C       open(53,file='S_charge_capteurs.dat')
-C       OPEN(94,FILE='S_permeabilite_t.dat')
-C       open(96,FILE='S_surpression_t.dat')
+!CC....FICHIERS A TRIER
+!       open(49,file='S_profil_temp_colonne_choisie_t.dat')
+!       open(91,file='S_pression_charge_temperature_t.dat')
+!       open(62,file='S_bound_permafrost_t.dat')
+!       open(63,file='S_soulevemnt_t.dat')
+!       open(67,file='S_debit_riviere_t.dat')
+!       open(782,file='S_moy_vitesses.dat')
+!       open(786,file='S_flux.dat')
+!       open(52,file='S_pression_charge_temperature_maillechoisie.dat')
+!       open(53,file='S_charge_capteurs.dat')
+!       OPEN(94,FILE='S_permeabilite_t.dat')
+!       open(96,FILE='S_surpression_t.dat')
 
-CCC....FICHIERS these texier
+!CC....FICHIERS these texier
        if(ytest.eq."TEX") then
        if (irpth.eq.1) then
        open(7782,file='S_fichier_tot.dat')
        endif
        endif
 
-CCC....FICHIERS ZNS 1D
+!CC....FICHIERS ZNS 1D
        if(ytest.eq."ZNS") then
 	  open(1818,file='S_hydraulic_conductivities_profil_t.dat')
 	  open(18181,file='S_saturation_profil_t.dat')
@@ -4019,7 +4019,7 @@ CCC....FICHIERS ZNS 1D
 	  open(18182,file='S_pressure_profil_t.dat')
        endif
 
-CCC....FICHIERS ZNS 1D
+!CC....FICHIERS ZNS 1D
        if(ytest.eq."WAR") then
        if (irp.eq.1) then
 	  open(1818,file='S_hydraulic_conductivities_profil_t.dat')
@@ -4031,7 +4031,7 @@ CCC....FICHIERS ZNS 1D
 
 
 
-CCC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
+!CC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
        if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
 
        if (irpth.eq.1.and.irp.ne.0) then
@@ -4044,12 +4044,12 @@ CCC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
 	  open(18181,file='Sim_velocity_profil_t.dat')
 	  open(18182,file='Sim_heat_flux_profil_t.dat')
 	  open(18183,file='Sim_temperature_profil_t.dat')
-c       open(unit=64,file='Sim_temperature_maille4_t.dat')
-c       open(unit=65,file='Sim_temperature_maille5_t.dat')
+!       open(unit=64,file='Sim_temperature_maille4_t.dat')
+!       open(unit=65,file='Sim_temperature_maille5_t.dat')
        endif
        endif
 
-CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
+!CC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
        if(ytest.eq."1DS") then
 
        if (irpth.eq.1.and.irp.ne.0) then
@@ -4078,7 +4078,7 @@ CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
        endif
        endif
 
-CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
+!CC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
        if(ytest.eq."1DJ") then
 
        if (irpth.eq.1.and.irp.ne.0) then
@@ -4093,7 +4093,7 @@ CCC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
 
 
 
-CCC....SORTIE MAQ GEL/DEGEL
+!CC....SORTIE MAQ GEL/DEGEL
 	  if(ytest.eq."MAQ") then
        open(19,file='S_soulevement_1_t.dat')
        open(53,file='S_Charges_cap_t.dat')
@@ -4101,26 +4101,26 @@ CCC....SORTIE MAQ GEL/DEGEL
        open(56,file='S_temp_PT100_t.dat')
 	  open(18,file='S_bound_permaf_1_t.dat')
 	  endif
-CCC...INTERFROST LUNARDINI
+!CC...INTERFROST LUNARDINI
 	  if(ytest.eq."THL") then
 	open(743,file='S_pression_charge_temperature_day_3.dat')
 	open(742,file='S_pression_charge_temperature_day_2.dat')
 	open(741,file='S_pression_charge_temperature_day_1.dat')
 	  endif
-CCC...INTERFROST TEST NEUMAN
+!CC...INTERFROST TEST NEUMAN
        if(ytest.eq."TH1") then
 	  open(18,file='S_bound_permaf_1_t.dat')
 	  open(53,file='S_Temp_id400_t.dat')
 	  open(1818,file='S_bilan_therm_t.dat')
        endif
-CCC....INTERFROST TEST TH3
+!CC....INTERFROST TEST TH3
 	  if(ytest.eq."TH3") then
     	OPEN(181818,FILE='S_TH3.dat',form='unformatted')
 	    OPEN(181819,FILE='S_TH31.dat')
     	OPEN(181820,FILE='S_TH3nm.dat')
 	  endif
 
-CCC....INTERFROST TEST TH2
+!CC....INTERFROST TEST TH2
 	  if(ytest.eq."TH2") then
     	OPEN(181819,FILE='S_TH21.dat')
     	OPEN(181820,FILE='S_sortie_TH2nm.dat')
@@ -4136,13 +4136,13 @@ CCC....INTERFROST TEST TH2
           endif
 
 
-CCC...AVAV Marine Dangead
+!CC...AVAV Marine Dangead
 	  if(ytest.eq."AVA") then
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  SURFACE PIEZO	  	  	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  SURFACE PIEZO	  	  	  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  ts=0
 	call interpolsurf(nc,zs,nm,icol,pr,ivois,
@@ -4169,11 +4169,11 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  endif
 
 
-CCC...DTS
+!CC...DTS
 	  if(ytest.eq."DTS") then
-c    	OPEN(181819,FILE='S_velocity.dat')
-c    	OPEN(181820,FILE='S_temperature.dat')
-c    	OPEN(181821,FILE='S_pressure.dat')
+!    	OPEN(181819,FILE='S_velocity.dat')
+!    	OPEN(181820,FILE='S_temperature.dat')
+!    	OPEN(181821,FILE='S_pressure.dat')
 	  open(751,file='S_charge_initiale_10days.dat')
     	OPEN(181822,FILE='S_MolTempP40.dat')
     	OPEN(181823,FILE='S_MolTempP42.dat')
@@ -4181,28 +4181,28 @@ c    	OPEN(181821,FILE='S_pressure.dat')
 	  OPEN(181841,FILE='S_MolTempP43.dat')
 	  OPEN(181842,FILE='S_MolTempP44.dat')
 	  OPEN(181843,FILE='S_MolTempP45.dat')
-c	  OPEN(181845,FILE='S_MolFluxpP41.dat')
-c	  OPEN(181846,FILE='S_MolFluxP43.dat')
-c	  OPEN(181847,FILE='S_MolFluxP44.dat')
-c	  OPEN(181848,FILE='S_MolFluxP45.dat')
-c	  OPEN(329,FILE='S_Hd_P_month1.dat')
-c	  OPEN(330,FILE='S_Hd_P_month2.dat')
-c	  OPEN(331,FILE='S_Hd_P_month3.dat')
+!	  OPEN(181845,FILE='S_MolFluxpP41.dat')
+!	  OPEN(181846,FILE='S_MolFluxP43.dat')
+!	  OPEN(181847,FILE='S_MolFluxP44.dat')
+!	  OPEN(181848,FILE='S_MolFluxP45.dat')
+!	  OPEN(329,FILE='S_Hd_P_month1.dat')
+!	  OPEN(330,FILE='S_Hd_P_month2.dat')
+!	  OPEN(331,FILE='S_Hd_P_month3.dat')
 	  endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C       ECRITURE  FICHIERS SORTIES	      C
-C	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!       ECRITURE  FICHIERS SORTIES	      C
+!	  	  	  	  	       					  C
 
-CCC....SORTIE these texier
+!CC....SORTIE these texier
        if(ytest.eq."TEX") then
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	  SURFACE PIEZO  INTERPOLATION LINEAR  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	       					  C
+!	  SURFACE PIEZO  INTERPOLATION LINEAR  C
+!	  	  	  	  	       					  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(irp.eq.1) then
 	  if(irecord.eq.1) then
 	  ts=0
@@ -4220,7 +4220,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCC....SORTIE ZNS 1D
+!CC....SORTIE ZNS 1D
        if(ytest.eq."ZNS") then
 	  print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),
      &valcl(1,3),sw(1),sw(50),sw(2),akr(1)
@@ -4254,7 +4254,7 @@ CCC....SORTIE ZNS 1D
        endif
        endif
 
-CCC....SORTIE ZNS 1D
+!CC....SORTIE ZNS 1D
        if(ytest.eq."WAR") then
 	  print*,"time",paso,"dt",dt,vzm(1),pr(1),"K",ak(1)*akr(1)
 
@@ -4273,7 +4273,7 @@ CCC....SORTIE ZNS 1D
 
 
 
-CCC...SORTIES DTS
+!CC...SORTIES DTS
 	  if(ytest.eq."DTS") then
 	  if(irecord.eq.1) then
 
@@ -4285,98 +4285,98 @@ CCC...SORTIES DTS
 	   enddo
 	  endif
 
-c	  if(paso.eq.1559500) then
-c	  do i=1,nm
-c    	 write(329,*)paso/unitsortie,paso/86400,x(i),
-c     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
-c     &vxm(i),vzp(i),vzm(i)
-c	   enddo
-c	  endif
+!	  if(paso.eq.1559500) then
+!	  do i=1,nm
+!    	 write(329,*)paso/unitsortie,paso/86400,x(i),
+!     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
+!     &vxm(i),vzp(i),vzm(i)
+!	   enddo
+!	  endif
 
-c	  if(paso.eq.4238000) then
-c	  do i=1,nm
-c    	 write(330,*)paso/unitsortie,paso/86400,x(i),
-c     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
-c     &vxm(i),vzp(i),vzm(i)
-c	   enddo
-c	  endif
+!	  if(paso.eq.4238000) then
+!	  do i=1,nm
+!    	 write(330,*)paso/unitsortie,paso/86400,x(i),
+!     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
+!     &vxm(i),vzp(i),vzm(i)
+!	   enddo
+!	  endif
 
-c	  if(paso.eq.6830000) then
-c	  do i=1,nm
-c    	 write(331,*)paso/unitsortie,paso/86400,x(i),
-c     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
-c     &vxm(i),vzp(i),vzm(i)
-c	   enddo
-c	  endif
+!	  if(paso.eq.6830000) then
+!	  do i=1,nm
+!    	 write(331,*)paso/unitsortie,paso/86400,x(i),
+!     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
+!     &vxm(i),vzp(i),vzm(i)
+!	   enddo
+!	  endif
 
-CCCC MOLONARI PRINT start time record
-cccc.... to add an end time paso.lt.XXXX)
+!CCC MOLONARI PRINT start time record
+!ccc.... to add an end time paso.lt.XXXX)
 
-cccc....molonari40
-c	print*, izone(), x(55), z(55)
-c        stop
+!ccc....molonari40
+!	print*, izone(), x(55), z(55)
+!        stop
 
-cccc....molonari40
-CCCC			print*,z(60469),izone(60469)
-CCCC			stop
+!ccc....molonari40
+!CCC			print*,z(60469),izone(60469)
+!CCC			stop
 
 	  if(paso.gt.86400*2) then
-ccc...Temperature for the surface and each depth of the molonari
-cccc....molonari40
-c    	write(181822,*)paso/unitsortie,(temp(60445)+temp(60446))/2,
-c     &(temp(23960)+temp(23961))/2,(temp(84873)+temp(84874))/2,
-c     &(temp(91895)+temp(91896))/2
-cccc....molonari42
+!cc...Temperature for the surface and each depth of the molonari
+!ccc....molonari40
+!    	write(181822,*)paso/unitsortie,(temp(60445)+temp(60446))/2,
+!     &(temp(23960)+temp(23961))/2,(temp(84873)+temp(84874))/2,
+!     &(temp(91895)+temp(91896))/2
+!ccc....molonari42
     	write(181823,*)paso/unitsortie,
      &(temp(98524)+temp(98525))/2,(temp(98505)+temp(98506))/2,
      &(temp(98483)+temp(98484))/2,(temp(98445)+temp(98446))/2
-cccc....molonari41
+!ccc....molonari41
        write(181840,*)paso/unitsortie,
-c     &(valclt(91896,3)+valclt(92463,3))/2,
+!     &(valclt(91896,3)+valclt(92463,3))/2,
      &(temp(91297)+temp(91298))/2,(temp(90670)+temp(90671))/2,
      &(temp(90031)+temp(90032))/2,(temp(89379)+temp(89380))/2
-cccc....molonari43
+!ccc....molonari43
        write(181841,*)paso/unitsortie,
-c     &(valclt(70796,3)+valclt(69588,3))/2,
+!     &(valclt(70796,3)+valclt(69588,3))/2,
      &(temp(69588)+temp(68589))/2,(temp(68372)+temp(67128))/2,
      &(temp(67128)+temp(67129))/2,(temp(65866)+temp(65867))/2
-cccc....molonari44
+!ccc....molonari44
        write(181842,*)paso/unitsortie,
-c     &(valclt(65723,3)+valclt(65722,3))/2,
+!     &(valclt(65723,3)+valclt(65722,3))/2,
      &(temp(64445)+temp(64446))/2,(temp(63145)+temp(63146))/2,
      &(temp(61830)+temp(61831))/2,(temp(60469)+temp(60470))/2
-cccc....molonari45
+!ccc....molonari45
        write(181843,*)paso/unitsortie,
-c     &(valclt(33221,3)+valclt(33220,3))/2,
+!     &(valclt(33221,3)+valclt(33220,3))/2,
      &(temp(23960)+temp(23961))/2,(temp(22055)+temp(22056))/2,
      &(temp(20118)+temp(20119))/2,(temp(18148)+temp(18149))/2
 	  endif
 	  endif
 
 
-cccccccc Find Location of Molonari
-c	  	  do i=1,nm
-c	  	  if(x(i).ge.773.5.and.x(i).le.774.5) then
-c		   print*,i,x(i),z(i),ivois(i,3)
-c	  	  endif
-c	  	  if(x(i).ge.436.5.and.x(i).le.437.5) then
-cc	  	  print*,i,x(i),z(i),ivois(i,3)
-c	  	  endif
-c	  	  if(x(i).ge.364.5.and.x(i).le.365.5) then
-c	  	  print*,i,x(i),z(i),ivois(i,3)
-c	  	  endif
-c	  	  if(x(i).ge.74.5.and.x(i).le.75.5) then
-c	  	  print*,i,x(i),z(i),ivois(i,3)
-c	  	  endif
-c	  	  enddo
+!ccccccc Find Location of Molonari
+!	  	  do i=1,nm
+!	  	  if(x(i).ge.773.5.and.x(i).le.774.5) then
+!		   print*,i,x(i),z(i),ivois(i,3)
+!	  	  endif
+!	  	  if(x(i).ge.436.5.and.x(i).le.437.5) then
+!c	  	  print*,i,x(i),z(i),ivois(i,3)
+!	  	  endif
+!	  	  if(x(i).ge.364.5.and.x(i).le.365.5) then
+!	  	  print*,i,x(i),z(i),ivois(i,3)
+!	  	  endif
+!	  	  if(x(i).ge.74.5.and.x(i).le.75.5) then
+!	  	  print*,i,x(i),z(i),ivois(i,3)
+!	  	  endif
+!	  	  enddo
 	  print*,	"cell ","time ","hh","temp "
 	  print*,"cell 1",paso/86400,pr(98445)/rho1/g+z(98445),temp(98445)
 	  print*,"cell 1",paso/86400,pr(98525)/rho1/g+z(98525),temp(98525)
 	  print*,"cell 1",izone(98524)
 	  endif
 
-CCC...SORTIES VAUCLIN parametre clement
-c    	print*,paso/86400,dtCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...SORTIES VAUCLIN parametre clement
+!    	print*,paso/86400,dtCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if(ytest.eq."VAU") then
 	  ts=0
@@ -4430,8 +4430,8 @@ c    	print*,paso/86400,dtCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCC...SORTIES AVAV
-CCCC     id_ZH(j)
+!CC...SORTIES AVAV
+!CCC     id_ZH(j)
 
 	  if(ytest.eq."AVA") then
 	  if(irecord.eq.1) then
@@ -4442,36 +4442,36 @@ CCCC     id_ZH(j)
 	  write(181830,*)paso/unitsortie,qflux
 
     	print*,"out",paso/86400,am(id_ZH(1)),qflux
-c     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
-c     &zs(65,1),zs(217,1)
+!     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
+!     &zs(65,1),zs(217,1)
 	   if (ith.eq.1) then
-cccc....S_temp_zns1.dat') au milieu RD
+!ccc....S_temp_zns1.dat') au milieu RD
 	  write(181819,*)paso/unitsortie,temp(257),temp(578),
      &temp(866),temp(1335)
-cccc....S_temp_zns2.dat') proche riviere RD
+!ccc....S_temp_zns2.dat') proche riviere RD
 	  write(181820,*)paso/unitsortie,temp(1301),temp(2146),
      &temp(3036),temp(3958)
-cccc....S_temp_zns3.dat') loin riv RD
+!ccc....S_temp_zns3.dat') loin riv RD
 	  write(181818,*)paso/unitsortie,temp(137),temp(511),
      &temp(1035),temp(1856)
-cccc....S_temp_TRes1.dat') proche riv
+!ccc....S_temp_TRes1.dat') proche riv
 	  write(181821,*)paso/unitsortie,temp(187),temp(495),temp(763),
      &temp(1175),temp(1840),temp(2358)
-cccc....S_temp_TRes2.dat') loin riv
+!ccc....S_temp_TRes2.dat') loin riv
 	  write(181822,*)paso/unitsortie,temp(125),temp(420),temp(674),
      &temp(1023),temp(1675),temp(2188)
-cccc....S_temp_HoboRD.dat')
+!ccc....S_temp_HoboRD.dat')
 	  write(181823,*)paso/unitsortie,temp(6683),temp(7863),temp(8748),
      &temp(9633)
-cccc....S_temp_HoboRG.dat')
+!ccc....S_temp_HoboRG.dat')
 	  write(181824,*)paso/unitsortie,temp(6927),temp(8107),temp(8992),
      &temp(9877)
 	  endif
 
-cccc....S_piezoB_RG.dat') zone 4
+!ccc....S_piezoB_RG.dat') zone 4
 	  write(181826,*)paso/unitsortie,pr(2706)/rho(2706)/g+z(2706),
      &zs(65,1)
-cccc....piezoB_RD.dat' zone 7
+!ccc....piezoB_RD.dat' zone 7
 	  write(181825,*)paso/unitsortie,pr(2858)/rho(2858)/g+z(2858),
      &zs(217,1)
 
@@ -4514,7 +4514,7 @@ cccc....piezoB_RD.dat' zone 7
 	  endif
 
 
-CCC....SORTIE ZH Karina
+!CC....SORTIE ZH Karina
       if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
      &) then
        if(irecord.eq.1.and.irpth.eq.1) then
@@ -4533,7 +4533,7 @@ CCC....SORTIE ZH Karina
 	  endif
 
 
-CCC....SORTIE sol Emmanuel leger
+!CC....SORTIE sol Emmanuel leger
       if(ytest.eq."1DS") then
 
 		print*,paso/unitsortie,dt,pr(1)/9800+z(1),pr(nm)/9800+z(nm)
@@ -4571,7 +4571,7 @@ CCC....SORTIE sol Emmanuel leger
 	  endif
 
 
-CCC....SORTIE sol Jose
+!CC....SORTIE sol Jose
       if(ytest.eq."1DJ") then
 
 		print*,paso/unitsortie,dt,pr(1)/9800+z(1),pr(nm)/9800+z(nm)
@@ -4592,7 +4592,7 @@ CCC....SORTIE sol Jose
 
 
 
-CCC....SORTIES TEST LUNARDINI
+!CC....SORTIES TEST LUNARDINI
 	  if(ytest.eq."THL") then
     	print*,"OUT",dt,paso
        if(irecord.eq.1) then
@@ -4615,10 +4615,10 @@ CCC....SORTIES TEST LUNARDINI
 	  endif
 	  endif
 	  endif
-CCC...SORTIES MAQUETTE EXP CYCLE 2
-c    	print*,paso/86400,dt
-c    	print*,pr(nm)/rho(nm)/g+z(nm)
-c     &,akr(7666),cimp,alanda(10321),temp(1)
+!CC...SORTIES MAQUETTE EXP CYCLE 2
+!    	print*,paso/86400,dt
+!    	print*,pr(nm)/rho(nm)/g+z(nm)
+!     &,akr(7666),cimp,alanda(10321),temp(1)
 
 	  if(ytest.eq."MAQ") then
        if(irecord.eq.1) then
@@ -4641,37 +4641,37 @@ c     &,akr(7666),cimp,alanda(10321),temp(1)
       write(54,*) paso/unitsortie,temp(nmaille1),
      &temp(nmaille2),temp(nmaille3),temp(nmaille4),temp(nmaille5),
      &temp(nmaille6),temp(nmaille7),temp(nmaille8),temp(nmaille9)
-CCC...POSITION PT100 MILIEU MAQUETTE ID X Z
-cccc....81       1.0062500000000001      1.0062499999999999
-cccc....1361       1.0062500000000001       0.90625000000000022
-cccc....2641       1.0062500000000001       0.80625000000000058
-cccc....3921       1.0062500000000001       0.70625000000000093
-cccc....5201       1.0062500000000001       0.60625000000000129
-cccc....6481       1.0062500000000001       0.50625000000000164
-cccc....7761       1.0062500000000001       0.40625000000000155
-cccc....9041       1.0062500000000001       0.30625000000000147
-cccc....10321       1.0062500000000001       0.20625000000000138
-cccc....11601       1.0062500000000001       0.10625000000000132
-cccc....12881       1.0062500000000001      6.2500000000013309E-003
+!CC...POSITION PT100 MILIEU MAQUETTE ID X Z
+!ccc....81       1.0062500000000001      1.0062499999999999
+!ccc....1361       1.0062500000000001       0.90625000000000022
+!ccc....2641       1.0062500000000001       0.80625000000000058
+!ccc....3921       1.0062500000000001       0.70625000000000093
+!ccc....5201       1.0062500000000001       0.60625000000000129
+!ccc....6481       1.0062500000000001       0.50625000000000164
+!ccc....7761       1.0062500000000001       0.40625000000000155
+!ccc....9041       1.0062500000000001       0.30625000000000147
+!ccc....10321       1.0062500000000001       0.20625000000000138
+!ccc....11601       1.0062500000000001       0.10625000000000132
+!ccc....12881       1.0062500000000001      6.2500000000013309E-003
       write(56,*) paso/unitsortie,temp(81),temp(1361),temp(2641),
      &temp(3921),temp(5201),temp(6481),temp(7761),
      &temp(9041),temp(10321),temp(11601),temp(12881)
-CCC....Position isotherm 0 et liquidus
+!CC....Position isotherm 0 et liquidus
       write(18,*) paso/unitsortie,zs(20,1),zs(20,2),zl(20,1),zl(20,2)
-CCC....Soulevement
+!CC....Soulevement
       write(19,*) paso/unitsortie,dl(20),def(20)
 	  call flush(19)
 	  call flush(56)
 	  call flush(53)
-c      do kkcol=1,nc
-c      write(62,*) paso/unitsortie,kkcol,x(ibas(kkcol)),zs(kkcol,1),zs(kkcol,2),
-c     &zl(kkcol,1),zl(kkcol,2)
-c      write(63,*) paso/unitsortie,dl(kkcol),def(kkcol)
-c      enddo
+!      do kkcol=1,nc
+!      write(62,*) paso/unitsortie,kkcol,x(ibas(kkcol)),zs(kkcol,1),zs(kkcol,2),
+!     &zl(kkcol,1),zl(kkcol,2)
+!      write(63,*) paso/unitsortie,dl(kkcol),def(kkcol)
+!      enddo
 	   endif
 	  endif
-CCC....sortie tests performances
-CCC...TEST NEUMAN
+!CC....sortie tests performances
+!CC...TEST NEUMAN
        if(ytest.eq."TH1") then
        print*,"OUT",paso/unitsortie,irecord
        if(irecord.eq.1) then
@@ -4691,7 +4691,7 @@ CCC...TEST NEUMAN
        rewind(unit=74)
        endif
        endif
-CCC....TEST TH2
+!CC....TEST TH2
        if(ytest.eq."TH2") then
        if(irecord.eq.1) then
        write(181818) real(paso/unitsortie),real(tempmin),
@@ -4705,14 +4705,14 @@ CCC....TEST TH2
        rewind(unit=74)
        endif
        endif
-CCC....TEST TH3
+!CC....TEST TH3
        if(ytest.eq."TH3") then
 	  print*,real(paso/unitsortie),real(akeq),real(qtcol),
      &real(qthermtot),real(pt1),real(pt2)
        if(irecord.eq.1) then
        write(181818) real(paso/unitsortie),real(akeq),
      &real(qtcol),real(qthermtot),real(pt1),real(pt2)
-c	  	       t,PM1,PM2,PM3,PM4_Pt1,PM4_Pt2
+!	  	       t,PM1,PM2,PM3,PM4_Pt1,PM4_Pt2
        call flush(181818)
        open(74,file='S_pts',position='rewind',
      &		   form='unformatted')
@@ -4725,28 +4725,28 @@ c	  	       t,PM1,PM2,PM3,PM4_Pt1,PM4_Pt2
        endif
        endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	       C
-C       Compteur temps simul	    C
-C	  	  	  	       C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-c       CALL CPU_Time(Seconds)
-c       trest=(nitt-it)*(Seconds-seicold)
-c       if(it.gt.1) then
-c       seicold=Seconds
-c       print*,it,' temps restant: ',trest/60.,dt,pr(1),paso
-c       endif
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	       C
+!       Compteur temps simul	    C
+!	  	  	  	       C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!       CALL CPU_Time(Seconds)
+!       trest=(nitt-it)*(Seconds-seicold)
+!       if(it.gt.1) then
+!       seicold=Seconds
+!       print*,it,' temps restant: ',trest/60.,dt,pr(1),paso
+!       endif
 	  enddo
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	       C
-C       FIN BOUCLE TEMPS		  C
-C	  	  	  	       C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-c       CALL CPU_Time(Seconds)
-C...FICHIERS FIN DE SIMULATION
-cccc....Dernier pas de temps ou regime permanant
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	       C
+!       FIN BOUCLE TEMPS		  C
+!	  	  	  	       C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!       CALL CPU_Time(Seconds)
+!...FICHIERS FIN DE SIMULATION
+!ccc....Dernier pas de temps ou regime permanant
        do i=1,nm
 	  write(74,FMT='(i6,BN,F14.2,F14.2,F14.3,F14.3,F14.2)')
      &i,x(i),z(i),pr(i),
@@ -4786,7 +4786,7 @@ cccc....Dernier pas de temps ou regime permanant
 		print*,'Z_Obs3',z(nmaille3)
 		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut
      &-(prbas/(rho1*g)+zbas))/(zhaut-zbas)
-CCC vitessse face haute si sortant négatif, entrant positif
+!CC vitessse face haute si sortant négatif, entrant positif
 		print*,'velocity=',-vzp(1)
 		endif
 
@@ -4807,7 +4807,7 @@ CCC vitessse face haute si sortant négatif, entrant positif
 		enddo
 		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut
      &-(prbas/(rho1*g)+zbas))/(zhaut-zbas)
-CCC vitessse face haute si sortant négatif, entrant positif
+!CC vitessse face haute si sortant négatif, entrant positif
 		print*,'velocity=',-vzp(1)
         write(59,*)paso/us,temp(nmaille1)
        write(60,*)paso/us,temp(nmaille2)
@@ -4821,8 +4821,8 @@ CCC vitessse face haute si sortant négatif, entrant positif
 
 
 
-CCC....Fermeture des fichiers!!!
-c	  call purge_noms_fichiers
+!CC....Fermeture des fichiers!!!
+!	  call purge_noms_fichiers
 
 
 	  close(96)
@@ -4975,7 +4975,7 @@ c	  call purge_noms_fichiers
 
 	  if	(allocated(ibas))	DEALLOCATE(ibas)
 
-c	  if	(allocated(zbot))	DEALLOCATE(zbot)
+!	  if	(allocated(zbot))	DEALLOCATE(zbot)
 
 
 	  if	(allocated(vxm))	DEALLOCATE(vxm)
@@ -5133,19 +5133,19 @@ c	  if	(allocated(zbot))	DEALLOCATE(zbot)
 
 
 
-c	  if	(allocated(zaqui))	DEALLOCATE(zaqui)
+!	  if	(allocated(zaqui))	DEALLOCATE(zaqui)
 
 
 	  end program
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	       C
-C	  	  	  	  	  	  	  	       C
-C		  SUBROUTINES APPELEES DS Le PG PCPAL	  	      C
-c	  	  	  	  	  	  	  	       C
-C	  	  	  	  	  	  	  	       C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	       C
+!	  	  	  	  	  	  	  	       C
+!		  SUBROUTINES APPELEES DS Le PG PCPAL	  	      C
+!	  	  	  	  	  	  	  	       C
+!	  	  	  	  	  	  	  	       C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
@@ -5160,17 +5160,17 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C    open file	  		  C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!    open file	  		  C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  SUBROUTINE open_file(FileName, An_Error,My_LUN)
 	  character(*), INTENT(IN   ) :: FileName
 	  LOGICAL  ,        INTENT(  OUT) :: An_Error
@@ -5194,17 +5194,17 @@ cccc....
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C    compter ligne  		  C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!    compter ligne  		  C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  SUBROUTINE count_file(My_LUN,iosnew,Num)
 	  integer  ,        INTENT(  OUT) :: num
 	  integer :: iosnew
@@ -5233,17 +5233,17 @@ cccc....
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C    Bi-gradient conjugue	  		  C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!    Bi-gradient conjugue	  		  C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine bicg (x,b,n,k,val,icol_ind,irow_ptr,nmax,nmax1)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
@@ -5251,8 +5251,8 @@ cccc....
 	  dimension val(nmax),icol_ind(nmax),irow_ptr(nmax1)
 	  dimension x(n),r(n),z(n),p(n)
 	  dimension b(n),q(n),rt(n),qt(n),zt(n),pt(n)
-CCC....Residu INITIAL
-cccc....produit matrice vecteur
+!CC....Residu INITIAL
+!ccc....produit matrice vecteur
 	  do i=1,n
 	  sum=0.D+00
 	  do j=irow_ptr(i),irow_ptr(i+1)-1
@@ -5261,7 +5261,7 @@ cccc....produit matrice vecteur
 	  r(i)=b(i)-sum
 	  rt(i)=r(i)
 	  enddo
-cccc....meth gradient conjugue
+!ccc....meth gradient conjugue
 	  amaxr=1.
 	  k=0
 	  do while (amaxr.ge.1.e-10.and.k.le.1000)
@@ -5278,8 +5278,8 @@ cccc....meth gradient conjugue
 	  rho=rho+rt(i)*z(i)
 	  enddo
 	  if (rho.eq.0.) then
-c       print*,'attention rho=0'
-c       write (20,*) 'rho=0'
+!       print*,'attention rho=0'
+!       write (20,*) 'rho=0'
 	  go to 11
 	  endif
 	  if(k.eq.1) then
@@ -5290,8 +5290,8 @@ c       write (20,*) 'rho=0'
 	  else
 	  beta=rho/rhoo
 	  if (beta.eq.0.) then
-c       print*,'attention beta=0'
-c       write (20,*) 'sum=0'
+!       print*,'attention beta=0'
+!       write (20,*) 'sum=0'
 	  endif
 	  do i=1,n
 	  p(i)=z(i)+beta*p(i)
@@ -5303,8 +5303,8 @@ c       write (20,*) 'sum=0'
 	  sum=0.D+00
 	  do i=1,n
 	  q(i)=0.D+00
-c       sum=0.
-cccc....produit matrice vecteur
+!       sum=0.
+!ccc....produit matrice vecteur
 	  do j=irow_ptr(i),irow_ptr(i+1)-1
 	  q(i)=q(i)+val(j)*p(icol_ind(j))
 	  enddo
@@ -5328,7 +5328,7 @@ cccc....produit matrice vecteur
 
 	  enddo
 
-cccc....limitation du nombre d iteration
+!ccc....limitation du nombre d iteration
 	  amaxr=0.D+00
 	  do i=1,n
 	  if (abs(r(i)).gt.amaxr) then
@@ -5340,17 +5340,17 @@ cccc....limitation du nombre d iteration
    11  continue
    10  return
        end
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C   CGS	  	  	  	  	  C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!   CGS	  	  	  	  	  C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	subroutine cgs (x,b,n,k,val,icol_ind,irow_ptr,nmax,nmax1)
       implicit double precision(A-H,O-Z),integer*4(I-N)
 	integer k
@@ -5358,8 +5358,8 @@ cccc....
 	dimension x(n),r(n),u(n),p(n),v(n),vc(n)
 	dimension b(n),q(n),rt(n),qc(n),uc(n),pc(n)
 	dimension xo(n)
-cccccccResidu INITIAL
-c produit matrice vecteur
+!ccccccResidu INITIAL
+! produit matrice vecteur
 	do i=1,n
 	sum=0.
 	do j=irow_ptr(i),irow_ptr(i+1)-1
@@ -5372,7 +5372,7 @@ c produit matrice vecteur
 
 
 
-cccccccmeth gradient conjugue
+!ccccccmeth gradient conjugue
 
 	amaxr=1.
 	k=0
@@ -5389,8 +5389,8 @@ cccccccmeth gradient conjugue
 
 
 	if (rho.eq.0.) then
-c	print*,'attention rho=0'
-c	write (20,*)'rho=0'
+!	print*,'attention rho=0'
+!	write (20,*)'rho=0'
 	go to 11
 	endif
 
@@ -5404,8 +5404,8 @@ c	write (20,*)'rho=0'
 	else
 	beta=rho/rhoo
 	if (beta.eq.0.) then
-c	print*,'attention beta=0'
-c	write (20,*)'sum=0'
+!	print*,'attention beta=0'
+!	write (20,*)'sum=0'
 	endif
 	do i=1,n
 	u(i)=r(i)+beta*q(i)
@@ -5422,8 +5422,8 @@ c	write (20,*)'sum=0'
 	sum=0.
 	do i=1,n
 	vc(i)=0.
-c	sum=0.
-c produit matrice vecteur
+!	sum=0.
+! produit matrice vecteur
 	do j=irow_ptr(i),irow_ptr(i+1)-1
 	vc(i)=vc(i)+val(j)*pc(icol_ind(j))
 	enddo
@@ -5438,7 +5438,7 @@ c produit matrice vecteur
 	   uc(i)=u(i)+q(i)
 	x(i)=x(i)+alfa*uc(i)
 		   enddo
-c produit matrice vecteur
+! produit matrice vecteur
 	do i=1,n
 	qc(i)=0.
 	do j=irow_ptr(i),irow_ptr(i+1)-1
@@ -5471,17 +5471,17 @@ c produit matrice vecteur
 
 	end
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	  	  	    ECOULEMENT	  	  	  	  	    C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	  	  	    ECOULEMENT	  	  	  	  	    C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine matp(val,icol_ind,irow_ptr,x,z,b,am,ivois,
      &rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,sw,nm,
      &irp,nmax,nmax1,bm,akv,akrv,igel,
@@ -5498,11 +5498,11 @@ cccc....
 	  dimension bm(nm),tempo(nm)
 	  dimension akrv(nm),akv(nm)
 	  dimension rhoi(nm)
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C   Definition de la matrice pr lecoulement    C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!   Definition de la matrice pr lecoulement    C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  irow_ptr(1)=1
 	  il=0
@@ -5512,29 +5512,29 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  il=il+1
 	  val(il)=0D+00
 
-CCC....Stockage du numero de la diagonale
+!CC....Stockage du numero de la diagonale
 	  ilik=il
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C   transient state: storage yield	       C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....irp=0 steady state annule term
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!   transient state: storage yield	       C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....irp=0 steady state annule term
 	  icol_ind(il)=ik
 	  val(il)=dble(-rho(ik)*om(ik)*dswdp(ik)/dt*irp)
 	  irow_ptr(ik+1)=irow_ptr(ik)+1
-CCC....terme b
+!CC....terme b
 	  b(ik)=dble(b(ik)-sw(ik)*ia2
      &*om(ik)*(rho(ik)-rhold(ik))/dt*irp
      &-rho(ik)*om(ik)*dswdp(ik)*pro(ik)/dt*irp)
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C		  FACE HAUTE	  		  C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!		  FACE HAUTE	  		  C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(icl(ik,3).eq.1) then
-cccc....Maille du haut existe terme gravite J+1/2 negatif annuler avec ixy
+!ccc....Maille du haut existe terme gravite J+1/2 negatif annuler avec ixy
 	  il=il+1
 	  jp=ivois(ik,3)
 	  icol_ind(il)=jp
@@ -5551,12 +5551,12 @@ cccc....Maille du haut existe terme gravite J+1/2 negatif annuler avec ixy
 	  endif
 
 	  if(icl(ik,3).eq.-1) then
-cccc....Face haute a flux impose....
+!ccc....Face haute a flux impose....
 	  b(ik)=dble(b(ik)-valcl(ik,3)/bm(ik)*rho(ik))
 	  endif
 
 	  if(icl(ik,3).eq.-2) then
-cccc....Face haute a potentiel impose....
+!ccc....Face haute a potentiel impose....
 	  dzhi=dble((bm(ik)*bm(ik)/2))
 	  val(ilik)=dble(val(ilik)-1/dzhi*rho(ik)*akv(ik)*akrv(ik)/amu)
 	  b(ik)=dble(b(ik)-ixy*1/dzhi*rho(ik)*akv(ik)*akrv(ik)/amu
@@ -5567,14 +5567,14 @@ cccc....Face haute a potentiel impose....
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C		  FACE BASSE	  		  C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-cccc....terme gravite j-1/2 positif
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!		  FACE BASSE	  		  C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!ccc....terme gravite j-1/2 positif
 	  if(icl(ik,4).eq.1) then
-cccc....Maille du ibas existe
+!ccc....Maille du ibas existe
 	  il=il+1
 	  jm=ivois(ik,4)
 	  icol_ind(il)=jm
@@ -5590,11 +5590,11 @@ cccc....Maille du ibas existe
 	  irow_ptr(ik+1)=irow_ptr(ik+1)+1
 	  endif
 	  if(icl(ik,4).eq.-1) then
-cccc....Face BASSE a flux impose....
+!ccc....Face BASSE a flux impose....
 	  b(ik)=dble(b(ik)-valcl(ik,4)/bm(ik)*rho(ik))
 	  endif
 	  if(icl(ik,4).eq.-2) then
-cccc....Face basse a potentiel impose....
+!ccc....Face basse a potentiel impose....
 	  dzbi=dble((bm(ik)*bm(ik)/2))
 	  val(ilik)=dble(val(ilik)-1/dzbi*rho(ik)*akv(ik)*akrv(ik)/amu)
 	  b(ik)=dble(b(ik)-1/dzbi*rho(ik)*akv(ik)*akrv(ik)/amu
@@ -5602,18 +5602,18 @@ cccc....Face basse a potentiel impose....
 	  endif
 
 	  if(icl(ik,4).eq.-3) then
-cccc....Face basse a free drainage..
+!ccc....Face basse a free drainage..
 	  b(ik)=dble(b(ik)-rho(ik)*akv(ik)*akrv(ik)/amu/bm(ik)*rho(ik))
 	  endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C		  FACE GAUCHE	  	       C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!		  FACE GAUCHE	  	       C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(icl(ik,2).eq.1) then
 
-cccc....Maille de gauche existe CORRECTION TERME DZ/DX*RHO*G/AM terme i-1/2 positif
+!ccc....Maille de gauche existe CORRECTION TERME DZ/DX*RHO*G/AM terme i-1/2 positif
 
 
 	  il=il+1
@@ -5635,23 +5635,23 @@ cccc....Maille de gauche existe CORRECTION TERME DZ/DX*RHO*G/AM terme i-1/2 posi
 	  endif
 
 	  if(icl(ik,2).eq.-1) then
-cccc....Face gauche a flux impose....
+!ccc....Face gauche a flux impose....
 	  b(ik)=dble(b(ik)-valcl(ik,2)/am(ik)*rho(ik))
 	  endif
 	  if(icl(ik,2).eq.-2) then
-ccccccc Face gauchee a potentiel impose....
+!cccccc Face gauchee a potentiel impose....
 	  b(ik)=dble(b(ik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu*
      &valcl(ik,2))
 	  val(ilik)=dble(val(ilik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu)
 	  endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C		  FACE DROITE	  	       C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!		  FACE DROITE	  	       C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if(icl(ik,1).eq.1) then
-cccc....Maille de droite existe CORRECTION TERME DZ/DX*RHO*G/AM terme i+1/2 negatif
+!ccc....Maille de droite existe CORRECTION TERME DZ/DX*RHO*G/AM terme i+1/2 negatif
 	  il=il+1
 	  ip=ivois(ik,1)
 	  icol_ind(il)=ip
@@ -5667,51 +5667,51 @@ cccc....Maille de droite existe CORRECTION TERME DZ/DX*RHO*G/AM terme i+1/2 nega
 	  endif
 
 	  if(icl(ik,1).eq.-1) then
-cccc....Face droite a flux impose....
+!ccc....Face droite a flux impose....
 	  b(ik)=dble(b(ik)-valcl(ik,1)/am(ik)*rho(ik))
 	  endif
 
 
 	  if(icl(ik,1).eq.-2) then
-cccc....Face droite a potentiel impose....
+!ccc....Face droite a potentiel impose....
 	  b(ik)=dble(b(ik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu*
      &valcl(ik,1))
 	  val(ilik)=dble(val(ilik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu)
 	  endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C  Terme de supression expansion glace	   C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....MCKENZIE CALCUL TAUX DE PRODUCTION DE GLACE
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!  Terme de supression expansion glace	   C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....MCKENZIE CALCUL TAUX DE PRODUCTION DE GLACE
 	  if (ysupdp.eq."SPMCK") then
-cccc....GEL TERME SURPRESSION
+!ccc....GEL TERME SURPRESSION
 	  if (igel.eq.1) then
 	  b(ik)=b(ik)-
      &abs((rho(ik)-rhoi(ik))*om(ik)*(dsidtemp(ik))
      &*(tempo(ik)-temp(ik))/dt)
 	  endif
-cccc....fin gel
+!ccc....fin gel
 
-cccc....DEGEL  TERME SURPRESSION
+!ccc....DEGEL  TERME SURPRESSION
        if (igel.eq.2) then
 	  b(ik)=b(ik)+
      &abs((rho(ik)-rhoi(ik))*om(ik)*(dsidtemp(ik))
      &*(tempo(ik)-temp(ik))/dt)
 	  endif
 	  endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C	    Ordonner Vecteurs CRS				  C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....ORDONNER LES TABLEAUX icol_IND ET VAL
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!	    Ordonner Vecteurs CRS				  C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....ORDONNER LES TABLEAUX icol_IND ET VAL
 	  ideb=irow_ptr(ik)
 	  ifin=irow_ptr(ik+1)-1
 	  if(ifin.eq.ideb) goto 4
-c	  if (ysolv.eq."BIC".or.ysolv.eq."CGS") then
+!	  if (ysolv.eq."BIC".or.ysolv.eq."CGS") then
     2 continue
 	  do ii=ideb,ifin-1
 	  if(icol_ind(ii).gt.icol_ind(ii+1)) then
@@ -5724,45 +5724,45 @@ c	  if (ysolv.eq."BIC".or.ysolv.eq."CGS") then
 	  goto 2
 	  endif
 	  enddo
-c	  endif
-C	  if (ysolv.eq."LIB") then
-C	  do ii=ideb,ifin-1
-C	  if(icol_ind(ii).gt.icol_ind(ii+1)) then
-C	  idum=icol_ind(ii+1)
-C	  dum=val(ii+1)
-C	  icol_ind(ii+1)=icol_ind(ii)
-C	  val(ii+1)=val(ii)
-C	  icol_ind(ii)=idum
-C	  val(ii)=dum
-C	  endif
-C	  enddo
-C	  do ii=ideb,ifin-1
-C	  if(icol_ind(ii).eq.ik) then
-C	  idum=icol_ind(ifin)
-C	  dum=val(ifin)
-C	  icol_ind(ifin)=icol_ind(ii)
-C	  val(ifin)=val(ii)
-C	  icol_ind(ii)=idum
-C	  val(ii)=dum
-C	  endif
-C	  enddo
-C	  endif
+!	  endif
+!	  if (ysolv.eq."LIB") then
+!	  do ii=ideb,ifin-1
+!	  if(icol_ind(ii).gt.icol_ind(ii+1)) then
+!	  idum=icol_ind(ii+1)
+!	  dum=val(ii+1)
+!	  icol_ind(ii+1)=icol_ind(ii)
+!	  val(ii+1)=val(ii)
+!	  icol_ind(ii)=idum
+!	  val(ii)=dum
+!	  endif
+!	  enddo
+!	  do ii=ideb,ifin-1
+!	  if(icol_ind(ii).eq.ik) then
+!	  idum=icol_ind(ifin)
+!	  dum=val(ifin)
+!	  icol_ind(ifin)=icol_ind(ii)
+!	  val(ifin)=val(ii)
+!	  icol_ind(ii)=idum
+!	  val(ii)=dum
+!	  endif
+!	  enddo
+!	  endif
 4	  continue
 	  enddo
 	  return
 	  end
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  		  TRANSPORT	  	  	  	  	  		   C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  		  TRANSPORT	  	  	  	  	  		   C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine matc(val,icol_ind,irow_ptr,x,b,am,ivois,conco,
      &dt,iclc,valclc,om,nm,n,allg,alt,
      &nmax,nmax1,bm,z,vxp,vxm,vzp,vzm,ysolv)
@@ -5777,18 +5777,18 @@ cccc....
 	  dimension iclc(nm,4),valclc(nm,4),conco(nm)
 	  dimension vxm(nm),vxp(nm),vzp(nm),vzm(nm)
 
-CCC....Definition de la matrice pr le transport
+!CC....Definition de la matrice pr le transport
 
 	  irow_ptr(1)=1
 	  il=0
 	  do i=1,nm
-CCC....VITESSE EN X A TRAVERS LES FACES thermique
-cccc....vxm(i) face gauche
-cccc....vxp(i) face droite
-cccc....vzm(i) face du dessous
-cccc....vzp(i) face du dessus
+!CC....VITESSE EN X A TRAVERS LES FACES thermique
+!ccc....vxm(i) face gauche
+!ccc....vxp(i) face droite
+!ccc....vzm(i) face du dessous
+!ccc....vzp(i) face du dessus
 
-CCC....TERME DISPERSIF
+!CC....TERME DISPERSIF
 	  dlip=allg*(vxp(i)**2+(vzm(i)+vzp(i))**2/4)**0.5
 	  dlim=allg*(vxm(i)**2+(vzm(i)+vzp(i))**2/4)**0.5
 	  dtjp=alt*(vzp(i)**2+(vxm(i)+vxp(i))**2/4)**0.5
@@ -5805,7 +5805,7 @@ CCC....TERME DISPERSIF
 	  val(il)=-1
 	  b(i)=0.D+00
 
-CCC....FACE DROITE
+!CC....FACE DROITE
 	  if(iclc(i,1).eq.1) then
 	  val(ili)=val(ili)-dlip/am(i)/(x(ivois(i,1))-x(i))*dt/om(i)
 	  il=il+1
@@ -5813,12 +5813,12 @@ CCC....FACE DROITE
 	  val(il)=dlip/am(i)/(x(ivois(i,1))-x(i))*dt/om(i)
 	  irow_ptr(i+1)=irow_ptr(i+1)+1
 	  endif
-cccc....concentration imposee
+!ccc....concentration imposee
 	  if(iclc(i,1).eq.-2) then
 	  val(ili)=val(ili)-dlip/am(i)**2*2*dt/om(i)
 	  b(i)=b(i)-valclc(i,1)*dlip/am(i)**2*2*dt/om(i)
 	  endif
-CCC....FACE GAUCHE
+!CC....FACE GAUCHE
 	  if(iclc(i,2).eq.1) then
 	  val(ili)=val(ili)-dlim/am(i)/(x(i)-x(ivois(i,2)))*dt/om(i)
 	  il=il+1
@@ -5826,12 +5826,12 @@ CCC....FACE GAUCHE
 	  val(il)=dlim/am(i)/(x(i)-x(ivois(i,2)))*dt/om(i)
 	  irow_ptr(i+1)=irow_ptr(i+1)+1
 	  endif
-cccc....concentration imposee
+!ccc....concentration imposee
 	  if(iclc(i,2).eq.-2) then
 	  val(ili)=val(ili)-dlim/am(i)**2*2*dt/om(i)
 	  b(i)=b(i)-valclc(i,2)*dlim/am(i)**2*2*dt/om(i)
 	  endif
-CCC....FACE HAUTE
+!CC....FACE HAUTE
 	  if(iclc(i,3).eq.1) then
 	  val(ili)=val(ili)-dtjp/bm(i)/(z(ivois(i,3))-z(i))*dt/om(i)
 	  il=il+1
@@ -5840,12 +5840,12 @@ CCC....FACE HAUTE
 	  val(il)=dtjp/bm(i)/(z(ivois(i,3))-z(i))*dt/om(i)
 	  irow_ptr(i+1)=irow_ptr(i+1)+1
 	  endif
-cccc....concentration imposee
+!ccc....concentration imposee
 	  if(iclc(i,3).eq.-2) then
 	  val(ili)=val(ili)-dtjp/bm(i)**2*2*dt/om(i)
 	  b(i)=b(i)-valclc(i,3)*dtjp/bm(i)**2*2*dt/om(i)
 	  endif
-CCC....FACE BASSE
+!CC....FACE BASSE
 	  if(iclc(i,4).eq.1) then
 	  val(ili)=val(ili)-dtjm/bm(i)/(z(i)-z(ivois(i,4)))*dt/om(i)
 	  il=il+1
@@ -5853,13 +5853,13 @@ CCC....FACE BASSE
 	  val(il)=dtjm/bm(i)/(z(i)-z(ivois(i,4)))*dt/om(i)
 	  irow_ptr(i+1)=irow_ptr(i+1)+1
 	  endif
-cccc....concentration imposee
+!ccc....concentration imposee
 	  if(iclc(i,4).eq.-2) then
 	  val(ili)=val(ili)-dtjm/bm(i)**2*2*dt/om(i)
 	  b(i)=b(i)-valclc(i,4)*dtjm/bm(i)**2*2*dt/om(i)
 	  endif
 
-CCC....ORDONNER LES TABLEAUX icol_IND ET VAL
+!CC....ORDONNER LES TABLEAUX icol_IND ET VAL
 	  ideb=irow_ptr(i)
 	  ifin=irow_ptr(i+1)-1
 	  if(ifin.eq.ideb) goto 11
@@ -5877,7 +5877,7 @@ CCC....ORDONNER LES TABLEAUX icol_IND ET VAL
 	  enddo
    11 continue
 
-CCC....REPERAGE DES VOISINS DS irow_ptr
+!CC....REPERAGE DES VOISINS DS irow_ptr
 	  ii=0
 	  id=0
 	  ig=0
@@ -5891,42 +5891,42 @@ CCC....REPERAGE DES VOISINS DS irow_ptr
 	  if(icol_ind(ij).eq.ivois(i,4)) ib=ij
 	  enddo
 
-CCC....TERMES ADVECTIFS
+!CC....TERMES ADVECTIFS
 
 
-cccc....FACE DROITE
+!ccc....FACE DROITE
 	  if(vxp(i).gt.0) then
 	  val(ii)=val(ii)-vxp(i)*dt/am(i)/om(i)
 	  endif
 	  if(iclc(i,1).eq.1.and.vxp(i).lt.0) then
 	  val(id)=val(id)-vxp(i)*dt/am(i)/om(i)
 	  endif
-cccc....si face droite imposee et vxp(i)<0!!!!
+!ccc....si face droite imposee et vxp(i)<0!!!!
 	  if(iclc(i,1).eq.-2.and.vxp(i).lt.0) then
 	  b(i)=b(i)+vxp(i)*dt/am(i)/om(i)*valclc(i,1)
 	  endif
-cccc....face droite flux impose (>0 U*C mol/s ou g/s)
+!ccc....face droite flux impose (>0 U*C mol/s ou g/s)
 	  if(iclc(i,1).eq.-1) then
 	  b(i)=b(i)-valclc(i,1)*dt/am(i)/om(i)
 	  endif
 
-CCC....FACE GAUCHE
+!CC....FACE GAUCHE
 	  if(vxm(i).gt.0.and.iclc(i,2).eq.1) then
 	  val(ig)=val(ig)+vxm(i)*dt/am(i)/om(i)
 	  endif
-cccc....si face gauche imposee et vxm(i)>0!!!!
+!ccc....si face gauche imposee et vxm(i)>0!!!!
 	  if(vxm(i).gt.0.and.iclc(i,2).eq.-2) then
 	  b(i)=b(i)-vxm(i)*dt/am(i)/om(i)*valclc(i,2)
 	  endif
 	  if(vxm(i).lt.0.) then
 	  val(ii)=val(ii)+vxm(i)*dt/am(i)/om(i)
 	  endif
-cccc....face gauche flux impose (U*C mol/s ou g/s)
+!ccc....face gauche flux impose (U*C mol/s ou g/s)
 	  if(iclc(i,2).eq.-1) then
 	  b(i)=b(i)-valclc(i,2)*dt/am(i)/om(i)
 	  endif
 
-CCC....FACE SUP
+!CC....FACE SUP
 	   if(vzp(i).gt.0) then
 	  val(ii)=val(ii)-vzp(i)*dt/bm(i)/om(i)
 	  endif
@@ -5936,19 +5936,19 @@ CCC....FACE SUP
 	  if(vzp(i).lt.0.and.iclc(i,3).eq.-2) then
 	  b(i)=b(i)+vzp(i)*dt/bm(i)/om(i)*valclc(i,3)
 	  endif
-cccc....face sup flux impose (U*C mol/s ou g/s)
+!ccc....face sup flux impose (U*C mol/s ou g/s)
 	  if(iclc(i,3).eq.-1) then
 	  b(i)=b(i)-valclc(i,3)*dt/bm(i)/om(i)
 	  endif
 
-CCC....FACE INF
+!CC....FACE INF
 	   if(vzm(i).gt.0.and.iclc(i,4).eq.1) then
 	  val(ib)=val(ib)+vzm(i)*dt/bm(i)/om(i)
 	  endif
        if(vzm(i).gt.0.and.iclc(i,4).eq.-2) then
 	  b(i)=b(i)-vzm(i)*dt/bm(i)/om(i)*valclc(i,4)
 	  endif
-cccc....face droite flux impose (U*C mol/s ou g/s)
+!ccc....face droite flux impose (U*C mol/s ou g/s)
 	  if(iclc(i,4).eq.-1) then
 	  b(i)=b(i)-valclc(i,4)*dt/bm(i)/om(i)
 	  endif
@@ -5956,7 +5956,7 @@ cccc....face droite flux impose (U*C mol/s ou g/s)
 	  val(ii)=val(ii)+vzm(i)*dt/bm(i)/om(i)
 	  endif
 
-CCC....Terme B
+!CC....Terme B
 	  b(i)=b(i)-conco(i)
 
 
@@ -5969,17 +5969,17 @@ CCC....Terme B
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C	  	   SOULEVEMENT	  	    C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!	  	   SOULEVEMENT	  	    C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine upheaval(n,nc,nm,igel,zs,zsoo,ivois,pr,pro,
      &alph,dl,def,defo,icol)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
@@ -6028,11 +6028,11 @@ cccc....
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C		   ZNS	  	  	      C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!		   ZNS	  	  	      C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  subroutine unsaturated(pr,sw,dswdp,swresz,asp,ans,akr,
      &nm,akrv,rho1,g,ansun,asun)
@@ -6041,12 +6041,12 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  dimension pr(nm),sw(nm)
 	  dimension akr(nm),dswdp(nm),akrv(nm)
 	  dimension ansun(nm),asun(nm),swresz(nm)
-CCCCC ZNS SSSSSSSSSSSSSSSS
+!CCCC ZNS SSSSSSSSSSSSSSSS
 	  do i=1,nm
-CCC....Recalcul des parametre dependant de P
+!CC....Recalcul des parametre dependant de P
 	  prc=0.D+00
 	  if(pr(i).le.0d+00) prc=-pr(i)
-C       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98.1 Pascals
+!       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98.1 Pascals
 	  as=(asun(i)/(rho1*g))
 	  ans=ansun(i)
       swres=swresz(i)
@@ -6063,17 +6063,17 @@ C       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98
 	  end
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C		   RIVIERE	  	  	  C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!		   RIVIERE	  	  	  C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine cdt_riviere(hriv,g,nm,z,hbot,
      &bm,ivois,am,rho,xberg,x,n,icl,valcl,iclt,valclt,
      &tempriv,aklit,aklitv,ak,akv,elit,
@@ -6084,8 +6084,8 @@ cccc....
 	  dimension am(nm),rho(nm),x(nm),icl(nm,4),valcl(nm,4)
 	  dimension iclt(nm,4),valclt(nm,4)
 	  if (it.eq.ita) goto 22
-c       TEST COND PARTICULIERES IMPOSEES SUR CELLULE VOISINE RIVIERE
-c       Bords en contact avec riviere!!!
+!       TEST COND PARTICULIERES IMPOSEES SUR CELLULE VOISINE RIVIERE
+!       Bords en contact avec riviere!!!
 	  do i=1,nm
 	  if (z(i).gt.hbot-bm(i).and.z(i).le.hbot
      &.and.ivois(i,3).eq.-99.and.tempo(i).gt.ts) then
@@ -6158,17 +6158,17 @@ c       Bords en contact avec riviere!!!
 	  end
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C		  DEBIT RIVIERE	  	     C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!		  DEBIT RIVIERE	  	     C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 
 	  subroutine debit_riviere(hriv,qriva,qriv,nm,z,hbot,
      &bm,ivois,qinf,am,xberg,x,al,n,
@@ -6177,20 +6177,20 @@ cccc....
 	  implicit CHARACTER*5(y)
 	  dimension z(nm),bm(nm),ivois(nm,4)
 	  dimension am(nm),x(nm),vzp(nm),vxp(nm)
-cc RIVIERE
-c Qriv=debit maille riviere
-c qrivent= debit entrant.
-c qinf= debit d infiltration riviere vers nappe
-c hypo pression berge=pression dans riviere
-C calcul intermediare
+!c RIVIERE
+! Qriv=debit maille riviere
+! qrivent= debit entrant.
+! qinf= debit d infiltration riviere vers nappe
+! hypo pression berge=pression dans riviere
+! calcul intermediare
 
 
-CCC....calcul debit de la riviere
+!CC....calcul debit de la riviere
 	  qinf=0D+00
 	  qriv=0D+00
 	  if (iqriv.eq.1)qriv=qriva+qruis
 
-CCC....cellule sous rivière
+!CC....cellule sous rivière
 	  do ik=1,nm
 	  if (z(ik).gt.(hbot-bm(ik))
      &.and.z(ik).lt.hbot.and.
@@ -6203,15 +6203,15 @@ CCC....cellule sous rivière
 	  if (ivois(ik,1).eq.-99
      &.and.x(ik).lt.xberg.and.
      &x(ik).gt.(xberg-am(ik))) then
-c       if (hriv+hbot.ge.z(ik)-bm(ik)/2.) then
+!       if (hriv+hbot.ge.z(ik)-bm(ik)/2.) then
 	  qriv=qriv+bm(ik)*1*vxp(ik)
 
 	  qinf=qinf-bm(ik)*1*vxp(ik)
-c       endif
+!       endif
 	  endif
 	  enddo
 
-CCC....DETERMINATION hauteur DANS RIVIERE hriv
+!CC....DETERMINATION hauteur DANS RIVIERE hriv
 	  if(iqriv.eq.1) then
 	  if (qriv.lt.qriva) qriv=qriva
       hriv=((qriv)**(3./5.))*(rug**(-3./5.))*((al-xberg)**(-3./5.))*
@@ -6225,17 +6225,17 @@ CCC....DETERMINATION hauteur DANS RIVIERE hriv
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	  	      Thermique	  	  	  	  	  	   C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	  	      Thermique	  	  	  	  	  	   C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	subroutine matt(val,icol_ind,irow_ptr,x,b,am,ivois,tempo,
      &rho,dt,iclt,valclt,om,nm,n,bll,blt,
      &cpe,cps,rhos,alanda,chlat,nmax,igel,nmax1,
@@ -6258,18 +6258,18 @@ cccc....
 	  dimension vxm(nm),vxp(nm),vzp(nm),vzm(nm)
 	  CHARACTER(3) :: ytest
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-CCC....Definition de la matrice pr le transport
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!CC....Definition de la matrice pr le transport
 	irow_ptr(1)=1
 	il=0
 
       do i=1,nm
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C 	  INITIALISATION VARIABLES GEL/DEGEL     C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+! 	  INITIALISATION VARIABLES GEL/DEGEL     C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	 if(icycle.ne.1) then
 	 dsidtemp(i)=0D0
 	 sice(i)=0D0
@@ -6280,13 +6280,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	 ap=-abs(dsidtemp(i))
 	 endif
 	 if(sw(i)+sice(i).gt.1.and.icycle.eq.1) print*,"probleme sat"
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C	   Termal conductivity average	    C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC... arythmetic geometric wooside
-CCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!	   Termal conductivity average	    C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC... arythmetic geometric wooside
+!CC
 	if(igelzns.eq.1) then
 	if (ymoycondtherm.eq."WOODS") then
 	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)
@@ -6306,17 +6306,17 @@ CCC
 	   if(temp(i).ge.ts) alanda(i)=1.839D+00
 	    endif
 	    if(ymoycondtherm.eq."LUNAR") then
-ccccc....solution avec conductivite constante sur 3 zones
-c	   if(temp(i).le.ts) alanda(i)=3.462696D+00
-c	   if(temp(i).ge.ts.and.temp(i).lt.tl) then
-c	   alanda(i)=293994600.D-08
+!cccc....solution avec conductivite constante sur 3 zones
+!	   if(temp(i).le.ts) alanda(i)=3.462696D+00
+!	   if(temp(i).ge.ts.and.temp(i).lt.tl) then
+!	   alanda(i)=293994600.D-08
 	   if(temp(i).le.ts) alanda(i)=3.4644D+00
 	   if(temp(i).ge.ts.and.temp(i).lt.tl) then
 	   alanda(i)=294110000.D-08
 	   endif
 	   if(temp(i).ge.tl) alanda(i)=2.4184D+00
-c	 if(i.ne.1.and.ap.ne.0) print*,dsidtemp(i),ap,temp(i),i
-c	 if(i.ne.1.and.ap.ne.0) print*,"pb",alanda(i)
+!	 if(i.ne.1.and.ap.ne.0) print*,dsidtemp(i),ap,temp(i),i
+!	 if(i.ne.1.and.ap.ne.0) print*,"pb",alanda(i)
         else
         if (sw(i).lt.1) then
 	if (ymoycondtherm.eq."WOODS") then
@@ -6336,11 +6336,11 @@ c	 if(i.ne.1.and.ap.ne.0) print*,"pb",alanda(i)
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C	  	  TERME DISPERSIF		   C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!	  	  TERME DISPERSIF		   C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	dlip=dble(bll*rho(i)*cpe*(vxp(i)**2
      &+(vzm(i)+vzp(i))**2/4)**0.5+alanda(i))
 	dlim=dble(bll*rho(i)*cpe*(vxm(i)**2
@@ -6361,13 +6361,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	icol_ind(il)=i
 	irow_ptr(i+1)=irow_ptr(i)+1
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	     INITIALISATION TERME B	       C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....chaleur latente
-cccc....modification de rho dpar rhoi chaleur latente 19-11-2014
-cccc.... la densite de la glace en degel et la densite de l eau en gel
-cccc.... TH1 utilisation rho eau degel
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	     INITIALISATION TERME B	       C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....chaleur latente
+!ccc....modification de rho dpar rhoi chaleur latente 19-11-2014
+!ccc.... la densite de la glace en degel et la densite de l eau en gel
+!ccc.... TH1 utilisation rho eau degel
 	if(ytest.ne."THL".and.igel.eq.0) then
 	val(il)=dble(-(om(i)*sw(i)*rho(i)*cpe+
      &om(i)*(1-sw(i))*rhog*cpg+
@@ -6386,14 +6386,14 @@ cccc.... TH1 utilisation rho eau degel
 	endif
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	     INITIALISATION TERME B	       C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	     INITIALISATION TERME B	       C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	b(i)=0.D00
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	   FACE DROITE	  	    C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	   FACE DROITE	  	    C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(iclt(i,1).eq.1) then
 	val(ili)=dble(val(ili)-dlip/am(i)/(x(ivois(i,1))-x(i)))
 	il=il+1
@@ -6401,14 +6401,14 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	val(il)=dble(dlip/am(i)/(x(ivois(i,1))-x(i)))
 	irow_ptr(i+1)=irow_ptr(i+1)+1
 	endif
-cccc  temperature imposee
+!ccc  temperature imposee
 	if(iclt(i,1).eq.-2) then
 	val(ili)=dble(val(ili)-dlip/am(i)**2.D0*2.D00)
 	b(i)=dble(b(i)-valclt(i,1)*dlip/am(i)**2.D0*2.D0)
 	endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	     FACE GAUCHE	  	  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	     FACE GAUCHE	  	  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(iclt(i,2).eq.1) then
 	val(ili)=dble(val(ili)-dlim/am(i)/(x(i)-x(ivois(i,2))))
 	il=il+1
@@ -6416,14 +6416,14 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	val(il)=dble(dlim/am(i)/(x(i)-x(ivois(i,2))))
 	irow_ptr(i+1)=irow_ptr(i+1)+1
 	endif
-CCC....temperature imposee
+!CC....temperature imposee
 	if(iclt(i,2).eq.-2) then
 	val(ili)=dble(val(ili)-dlim/am(i)**2.D00*2.D00)
 	b(i)=dble(b(i)-valclt(i,2)*dlim/am(i)**2.D00*2.D00)
 	endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	   FACE HAUTE	  	     C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	   FACE HAUTE	  	     C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(iclt(i,3).eq.1) then
 	val(ili)=dble(val(ili)-dtjp/bm(i)/(z(ivois(i,3))-z(i)))
 	il=il+1
@@ -6431,14 +6431,14 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	val(il)=dble(dtjp/bm(i)/(z(ivois(i,3))-z(i)))
 	irow_ptr(i+1)=irow_ptr(i+1)+1
 	endif
-CCC....temperature imposee
+!CC....temperature imposee
 	if(iclt(i,3).eq.-2) then
 	val(ili)=dble(val(ili)-dtjp/bm(i)**2.D00*2.D00)
 	b(i)=dble(b(i)-valclt(i,3)*dtjp/bm(i)**2.D00*2.D00)
 	endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  FACE BASSE	  	      C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  FACE BASSE	  	      C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(iclt(i,4).eq.1) then
 	val(ili)=dble(val(ili)-dtjm/bm(i)/(z(i)-z(ivois(i,4))))
 	il=il+1
@@ -6446,16 +6446,16 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	val(il)=dble(dtjm/bm(i)/(z(i)-z(ivois(i,4))))
 	irow_ptr(i+1)=irow_ptr(i+1)+1
 	endif
-CCC....temperature imposee
+!CC....temperature imposee
 	if(iclt(i,4).eq.-2) then
 	val(ili)=dble(val(ili)-dtjm/bm(i)**2.D00*2.D00)
 	b(i)=dble(b(i)-valclt(i,4)*dtjm/bm(i)**2.D00*2.D00)
 	endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C     ORDONNER LES TABLEAUX icol_IND ET VAL    C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!     ORDONNER LES TABLEAUX icol_IND ET VAL    C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	ideb=irow_ptr(i)
 	ifin=irow_ptr(i+1)-1
 
@@ -6475,30 +6475,30 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  	endif
 	  	enddo
 	  endif
-C	  if (ysolv.eq."LIB") then
-C	  do ii=ideb,ifin-1
-C	  if(icol_ind(ii).gt.icol_ind(ii+1)) then
-C	  idum=icol_ind(ii+1)
-C	  dum=val(ii+1)
-C	  icol_ind(ii+1)=icol_ind(ii)
-C	  val(ii+1)=val(ii)
-C	  icol_ind(ii)=idum
-C	  val(ii)=dum
-C	  endif
-C	  enddo
-C	  do ii=ideb,ifin-1
-C	  if(icol_ind(ii).eq.ik) then
-C	  idum=icol_ind(ifin)
-C	  dum=val(ifin)
-C	  icol_ind(ifin)=icol_ind(ii)
-C	  val(ifin)=val(ii)
-C	  icol_ind(ii)=idum
-C	  val(ii)=dum
-C	  endif
-C	  enddo
-C	  endif
+!	  if (ysolv.eq."LIB") then
+!	  do ii=ideb,ifin-1
+!	  if(icol_ind(ii).gt.icol_ind(ii+1)) then
+!	  idum=icol_ind(ii+1)
+!	  dum=val(ii+1)
+!	  icol_ind(ii+1)=icol_ind(ii)
+!	  val(ii+1)=val(ii)
+!	  icol_ind(ii)=idum
+!	  val(ii)=dum
+!	  endif
+!	  enddo
+!	  do ii=ideb,ifin-1
+!	  if(icol_ind(ii).eq.ik) then
+!	  idum=icol_ind(ifin)
+!	  dum=val(ifin)
+!	  icol_ind(ifin)=icol_ind(ii)
+!	  val(ifin)=val(ii)
+!	  icol_ind(ii)=idum
+!	  val(ii)=dum
+!	  endif
+!	  enddo
+!	  endif
    11 continue
-CCC....REPERAGE DES VOISINS DS irow_ptr
+!CC....REPERAGE DES VOISINS DS irow_ptr
 	ii=0
 	id=0
 	ig=0
@@ -6511,32 +6511,32 @@ CCC....REPERAGE DES VOISINS DS irow_ptr
 	if(icol_ind(ij).eq.ivois(i,3)) ih=ij
 	if(icol_ind(ij).eq.ivois(i,4)) ib=ij
 	enddo
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C	   TERMES ADVECTIFS	  	       C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....VITESSE EN X A TRAVERS LES FACES
-cccc....vxm(i) face gauche
-cccc....vxp(i) face droite
-cccc....vzm(i) face du dessous
-cccc....vzp(i) face du dessus
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!	   TERMES ADVECTIFS	  	       C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....VITESSE EN X A TRAVERS LES FACES
+!ccc....vxm(i) face gauche
+!ccc....vxp(i) face droite
+!ccc....vzm(i) face du dessous
+!ccc....vzp(i) face du dessus
 	if(ithec.eq.0) then
 	vxp(i)=00D+00
 	vxm(i)=00D+00
 	vzm(i)=00D+00
 	vzp(i)=00D+00
 	 endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	   FACE DROITE	  	    C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	   FACE DROITE	  	    C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(vxp(i).gt.0) then
 	val(ii)=dble(val(ii)-rho(i)*cpe*vxp(i)/am(i))
 	endif
 	if(iclt(i,1).eq.1.and.vxp(i).lt.0) then
 	val(id)=dble(val(id)-rho(ivois(i,1))*cpe*vxp(i)/am(i))
 	endif
-CCC....si face droite imposee et vxp(i)<0!!!!
+!CC....si face droite imposee et vxp(i)<0!!!!
 	if(iclt(i,1).eq.-2.and.vxp(i).lt.0) then
 	b(i)=dble(b(i)+rho(i)*cpe*vxp(i)/am(i)*valclt(i,1))
 	if(abs(vxp(i)-vxm(i)).gt.abs(vxm(i))/1D9) then
@@ -6546,18 +6546,18 @@ CCC....si face droite imposee et vxp(i)<0!!!!
 	stop
 	endif
 	endif
-ccccc....face droite flux impose (>0 U*C mol/s ou g/s)
+!cccc....face droite flux impose (>0 U*C mol/s ou g/s)
 	if(iclt(i,1).eq.-1) then
 	b(i)=dble(b(i)-valclt(i,1)/am(i))
 	endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	     FACE GAUCHE	  	  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	     FACE GAUCHE	  	  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(vxm(i).gt.0.and.iclt(i,2).eq.1) then
 	val(ig)=dble(val(ig)+rho(ivois(i,2))*cpe*vxm(i)/am(i))
 	endif
-CCC....si face gauche imposee et vxm(i)>0!!!!
+!CC....si face gauche imposee et vxm(i)>0!!!!
 	if(vxm(i).gt.0.and.iclt(i,2).eq.-2) then
 	b(i)=dble(b(i)-rho(i)*cpe*vxm(i)/am(i)*valclt(i,2))
 	if(abs(vxp(i)-vxm(i)).gt.abs(vxm(i))/1D9) then
@@ -6570,14 +6570,14 @@ CCC....si face gauche imposee et vxm(i)>0!!!!
 	if(vxm(i).lt.0) then
 	val(ii)=dble(val(ii)+rho(i)*cpe*vxm(i)/am(i))
 	endif
-CCC....face gauche flux impose (U*C mol/s ou g/s)
+!CC....face gauche flux impose (U*C mol/s ou g/s)
 	if(iclt(i,2).eq.-1) then
 	b(i)=dble(b(i)-valclt(i,2)/am(i))
 	endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	   FACE SUP	  	       C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	   FACE SUP	  	       C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(vzp(i).gt.0) then
 	val(ii)=dble(val(ii)-rho(i)*cpe*vzp(i)/bm(i))
 	endif
@@ -6592,15 +6592,15 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	endif
 	b(i)=dble(b(i)+rho(i)*cpe*vzp(i)/bm(i)*valclt(i,3))
 	endif
-CCC....face sup flux impose (U*C mol/s ou g/s)
+!CC....face sup flux impose (U*C mol/s ou g/s)
 	if(iclt(i,3).eq.-1) then
 	b(i)=dble(b(i)-valclt(i,3)/bm(i))
 
 	endif
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	   FACE INF	  	       C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	   FACE INF	  	       C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(vzm(i).gt.0.and.iclt(i,4).eq.1) then
 	val(ib)=dble(val(ib)+rho(ivois(i,4))*cpe*vzm(i)/bm(i))
 	endif
@@ -6612,26 +6612,26 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	stop
 	endif
 	endif
-CCC....face basse flux impose (U*C mol/s ou g/s)
+!CC....face basse flux impose (U*C mol/s ou g/s)
 	if(iclt(i,4).eq.-1) then
 	b(i)=dble(b(i)-valclt(i,4)/bm(i))
 	endif
 	if(vzm(i).lt.0.) then
 	val(ii)=dble(val(ii)+rho(i)*cpe*vzm(i)/bm(i))
 	endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  		  C
-C	   Terme B	  	  		  C
-C	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC....Chaleur latente+capacite calorifique
-CCC....Calcul differents en fonction des tests INTERFOST
-ccccc....THL Lunardi
-ccccc....TH1 Neuman
-ccccc....TH2/TH3
-CCC....chaleur latente
-cccc....modification de rho dpar rhoi chaleur latente 19-11-2014
-cccc.... la densite de la glace en degel et la densite de l eau en gel.
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  		  C
+!	   Terme B	  	  		  C
+!	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC....Chaleur latente+capacite calorifique
+!CC....Calcul differents en fonction des tests INTERFOST
+!cccc....THL Lunardi
+!cccc....TH1 Neuman
+!cccc....TH2/TH3
+!CC....chaleur latente
+!ccc....modification de rho dpar rhoi chaleur latente 19-11-2014
+!ccc.... la densite de la glace en degel et la densite de l eau en gel.
 	if(ytest.ne."THL".and.igel.eq.0) then
 	b(i)=dble(b(i)-tempo(i)*(om(i)*sw(i)*rho(i)*cpe+
      &om(i)*(1-sw(i))*rhog*cpg+
@@ -6664,81 +6664,81 @@ cccc.... la densite de la glace en degel et la densite de l eau en gel.
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	     INFILTRATION	  	  	  	  	  		   C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	     INFILTRATION	  	  	  	  	  		   C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 
-c       subroutine infiltration(pr,nm,n,icol,nc,om,ss,bm,rho,pore,
-c     &am,valcl,icl,qtpore,ruis,ivois,z,g,dt,xberg,x,qre,qruis)
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
-c       implicit double precision(a-h,o-x,z)
-c       implicit integer (i-n)
-c       dimension pr(n),icol(n),om(n),ss(n),bm(n),x(n)
-c       dimension rho(n),pore(n),qtpore(nc),am(n)
-c       dimension valcl(n,4),icl(n,4),ruis(nc),ivois(n,4),z(n)
-c       do j=1,nc
-c       qtpore(j)=0.
-c       do i=1,nm
-c       pore(i)=0.
-CC test colonne
-c       if(icol(i).eq.j) then
-Ctest charge < top maille
-c       if(pr(i)/(rho(i)*g)+z(i).lt.z(i)+bm(i)/2) then
-c       pore(i)=(bm(i)/2.D00-pr(i)/(rho(i)*g))*om(i)*am(i)
-c       qtpore(j)=qtpore(j)+pore(i)
-c       endif
-c       endif
-c       enddo
-c	   enddo
-c       do j=1,nc
-c       ruis(j)=0
-c       do i=1,nm
-c		   if(icol(i).eq.j) then
-c	   if (ivois(i,3).eq.-99.and.icl(i,3).eq.-1.and.
-c c    &valcl(i,3).gt.0.and.x(i).lt.xberg) then
-c	  if (qtpore(j).lt.a*am(i)*dt) then
-c       a=qre
-c       ruis(j)=qre*am(i)*dt-qtpore(j)
-c       valcl(i,3)=qtpore(j)/am(i)/dt
-c       qruis=qruis+ruis(j)/dt
-c       endif
-c       endif
-C       if (ivois(i,3).eq.-99.and.x(i).lt.xberg) then
-C       if(pr(i)/(rho(i)*g)+z(i).gt.z(i)+bm(i)/2) then
-C       ruis(j)=ruis(j)+pr(i)/(rho(i)*g)-bm(i)/2
-C       endif
-C       endif
-CC fin test colonne
-c       endif
-c       enddo
-c       enddo
-c       return
-c       end
+!       subroutine infiltration(pr,nm,n,icol,nc,om,ss,bm,rho,pore,
+!     &am,valcl,icl,qtpore,ruis,ivois,z,g,dt,xberg,x,qre,qruis)
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
+!       implicit double precision(a-h,o-x,z)
+!       implicit integer (i-n)
+!       dimension pr(n),icol(n),om(n),ss(n),bm(n),x(n)
+!       dimension rho(n),pore(n),qtpore(nc),am(n)
+!       dimension valcl(n,4),icl(n,4),ruis(nc),ivois(n,4),z(n)
+!       do j=1,nc
+!       qtpore(j)=0.
+!       do i=1,nm
+!       pore(i)=0.
+!C test colonne
+!       if(icol(i).eq.j) then
+!test charge < top maille
+!       if(pr(i)/(rho(i)*g)+z(i).lt.z(i)+bm(i)/2) then
+!       pore(i)=(bm(i)/2.D00-pr(i)/(rho(i)*g))*om(i)*am(i)
+!       qtpore(j)=qtpore(j)+pore(i)
+!       endif
+!       endif
+!       enddo
+!	   enddo
+!       do j=1,nc
+!       ruis(j)=0
+!       do i=1,nm
+!		   if(icol(i).eq.j) then
+!	   if (ivois(i,3).eq.-99.and.icl(i,3).eq.-1.and.
+! c    &valcl(i,3).gt.0.and.x(i).lt.xberg) then
+!	  if (qtpore(j).lt.a*am(i)*dt) then
+!       a=qre
+!       ruis(j)=qre*am(i)*dt-qtpore(j)
+!       valcl(i,3)=qtpore(j)/am(i)/dt
+!       qruis=qruis+ruis(j)/dt
+!       endif
+!       endif
+!       if (ivois(i,3).eq.-99.and.x(i).lt.xberg) then
+!       if(pr(i)/(rho(i)*g)+z(i).gt.z(i)+bm(i)/2) then
+!       ruis(j)=ruis(j)+pr(i)/(rho(i)*g)-bm(i)/2
+!       endif
+!       endif
+!C fin test colonne
+!       endif
+!       enddo
+!       enddo
+!       return
+!       end
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	  	      INTERPOLATION	  	  	  	  	       C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...Calcul de la position d'une isovaleur d'une variable d'état
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	  	      INTERPOLATION	  	  	  	  	       C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...Calcul de la position d'une isovaleur d'une variable d'état
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine interpol(nc,zo,nm,icol,temp,ivois,igel,
      &bm,z,ncmax,n,valclt,to,iclt,topo)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
@@ -6748,16 +6748,16 @@ cccc....
 	  dimension zo(ncmax,2)
 	  dimension bm(nm),temp(nm),topo(ncmax)
 	  dimension icol(nm),iclt(nm,4)
-CCCC position permafrost,ice
+!CCC position permafrost,ice
 	  do kkcol=1,nc
 	  zo(kkcol,1)=-99D+00
 	  zo(kkcol,2)=-99D+00
-CCC PASSAGE SUR TOUT LES MAILLES
+!CC PASSAGE SUR TOUT LES MAILLES
 	  do i=1,nm
-C TEST COLONNE
+! TEST COLONNE
 	  if (icol(i).eq.kkcol) then
-CDEGEL
-CCC PAS DE VOISIN EN HAUT CC CAS DEGEL SUP>0 I<0
+!DEGEL
+!CC PAS DE VOISIN EN HAUT CC CAS DEGEL SUP>0 I<0
 	  if (ivois(i,3).eq.-99.and.igel.eq.2.
      &and.temp(i).lt.to.and.valclt(i,3).gt.to.and.
      &iclt(i,3).eq.-2) then
@@ -6769,7 +6769,7 @@ CCC PAS DE VOISIN EN HAUT CC CAS DEGEL SUP>0 I<0
 	  endif
 	  endif
 
-CCC PAS DE VOISIN EN HAUT CC CAS GEL SUP>0 I<0
+!CC PAS DE VOISIN EN HAUT CC CAS GEL SUP>0 I<0
 	  if (ivois(i,3).eq.-99.and.igel.eq.1.and.
      &temp(i).gt.to.and.
      &valclt(i,3).lt.to.and.
@@ -6783,7 +6783,7 @@ CCC PAS DE VOISIN EN HAUT CC CAS GEL SUP>0 I<0
 	  endif
 
 
-CCPAS DE VOISIN EN BAS Degel
+!CPAS DE VOISIN EN BAS Degel
 	  if (ivois(i,4).eq.-99.and.zo(kkcol,2).eq.-99.and.
      &igel.eq.2.and.temp(i).gt.to.and.
      &iclt(i,4).eq.-2) then
@@ -6796,7 +6796,7 @@ CCPAS DE VOISIN EN BAS Degel
 	  endif
 
 	  endif
-CCCC cellule interpolation par le bas DEGEL
+!CCC cellule interpolation par le bas DEGEL
 	  if (igel.eq.2.and.zo(kkcol,2).eq.-99.and.
      &temp(i).le.to.and.temp(ivois(i,4)).gt.to.and.
      &ivois(i,4).ne.-99) then
@@ -6808,32 +6808,32 @@ CCCC cellule interpolation par le bas DEGEL
 	  zo(kkcol,2)=-99
 	  endif
 	  endif
-CCC ISOTHERME 1
-Cccc cellule milieu modele VOISIN DU HAUT EXISTE  MILIEU MODELE CCCCCCCC
-CCCCC TEMPERATURE VOISIN SUP >0 CAS DEGEL
+!CC ISOTHERME 1
+!ccc cellule milieu modele VOISIN DU HAUT EXISTE  MILIEU MODELE CCCCCCCC
+!CCCC TEMPERATURE VOISIN SUP >0 CAS DEGEL
 	  if (ivois(i,3).ne.-99.and.temp(i).le.to.and.
      &temp(ivois(i,3)).gt.to.and.igel.eq.2) then
 	  zo(kkcol,1)=z(ivois(i,3))+
      &((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))
      &*(to-temp(ivois(i,3))))
-CCC FIN DE TEST VOISIN SUP >0
+!CC FIN DE TEST VOISIN SUP >0
 	  	  endif
-CC ISOTHERME  1 Gel
-CCCCC TEMP VOISIN SUP<0 CAS DEGEL SOUS PERMAFROST / CAS GEL
+!C ISOTHERME  1 Gel
+!CCCC TEMP VOISIN SUP<0 CAS DEGEL SOUS PERMAFROST / CAS GEL
 	  if (igel.eq.1.and.ivois(i,3).ne.-99.and.temp(i).ge.to.and.
      &temp(ivois(i,3)).lt.to) then
 	  zo(kkcol,1)=z(ivois(i,3))+
      &((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))
      &*(to-temp(ivois(i,3))))
 	  	  endif
-CC ISOTHERME  2 degel
+!C ISOTHERME  2 degel
 	  if (igel.eq.2.and.ivois(i,3).ne.-99.and.temp(i).ge.to.and.
      &temp(ivois(i,3)).lt.to) then
 	  zo(kkcol,2)=z(ivois(i,3))+
      &((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))
      &*(to-temp(ivois(i,3))))
 	  	  endif
-CCCC FIN DE test colonne
+!CCC FIN DE test colonne
 	  endif
 	  enddo
 	  enddo
@@ -6841,20 +6841,20 @@ CCCC FIN DE test colonne
 	  return
 	  end
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	  	      icesatperm	  	  	  	  	  	  C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-CCC...saturation en glace en fonction de la temperature
-CCC...permeabilite  relative en fonction de la temperature
-CCC...les saturations sont caluclees en fonction de la saturation en eau initiale dans le cas d'un sol non sature
-CCC...actuellement une seule fonction pourra etre utilisee a l'ensemeble du domaines
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	  	      icesatperm	  	  	  	  	  	  C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!CC...saturation en glace en fonction de la temperature
+!CC...permeabilite  relative en fonction de la temperature
+!CC...les saturations sont caluclees en fonction de la saturation en eau initiale dans le cas d'un sol non sature
+!CC...actuellement une seule fonction pourra etre utilisee a l'ensemeble du domaines
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
       subroutine icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,
      &dsidtemp,igelzns,ytypakrice,
      &sice,om,sw,swressi,ytypsice,
@@ -6867,26 +6867,26 @@ cccc....
 	  dimension sice(nm),sw(nm),siceo(nm)
 	  CHARACTER(5) ::  ytypakrice,ytypsice
 	  do i=1,nm
-C	  ---------------------------------------------
-C       pas de gel
-C	  ---------------------------------------------
+!	  ---------------------------------------------
+!       pas de gel
+!	  ---------------------------------------------
 	  sice(i)=0D+00
 	  akr(i)=1D+00
 	  akrv(i)=1D+00
 	  dsidtemp(i)=0D+00
-C	  ---------------------------------------------
-C	  EXPONENTIAL MODEL OF LUNARDINI
-C........sice VS. TEMP
-C	  ---------------------------------------------
+!	  ---------------------------------------------
+!	  EXPONENTIAL MODEL OF LUNARDINI
+!........sice VS. TEMP
+!	  ---------------------------------------------
 	  if(ytypsice.eq."EXPON") then
-c       if(tempo(i).lt.tl.and.temp(i).gt.tl) then
-c	  dsidtemp(i)=((1.D0-swressi)*(2.D0*(temp(i)
-c     &/(cimp*cimp)))*siexp)
-c	  endif
-c	  if(tempo(i).gt.tl.and.temp(i).lt.tl) then
-c	  dsidtemp(i)=((1.D0-swressi)*(2.D0*(temp(i)
-c     &/(cimp*cimp)))*siexp)
-c	  endif
+!       if(tempo(i).lt.tl.and.temp(i).gt.tl) then
+!	  dsidtemp(i)=((1.D0-swressi)*(2.D0*(temp(i)
+!     &/(cimp*cimp)))*siexp)
+!	  endif
+!	  if(tempo(i).gt.tl.and.temp(i).lt.tl) then
+!	  dsidtemp(i)=((1.D0-swressi)*(2.D0*(temp(i)
+!     &/(cimp*cimp)))*siexp)
+!	  endif
 	  if(temp(i).gt.0) then
 	  sice(i)=0.D0
 	  else
@@ -6895,17 +6895,17 @@ c	  endif
 	       sice(i)=(1.D0-((1.D0-swressi)
      &*siexp+swressi))
 
-C..........derivee de la saturation en glace en fonction de la temperature
+!..........derivee de la saturation en glace en fonction de la temperature
 	  dsidtemp(i)=((1.D0-swressi)*(2.D0*(temp(i)
      &/(cimp*cimp)))*siexp)
 
 	     endif
 
 
-C	  ---------------------------------------------
-C	  POWER MODEL Anderson and Tice
-C........sice VS. TEMP
-C	  ---------------------------------------------
+!	  ---------------------------------------------
+!	  POWER MODEL Anderson and Tice
+!........sice VS. TEMP
+!	  ---------------------------------------------
 	  else if(ytypsice.eq."POWER") then
 	  if(temp(i).gt.tl) then
 	  sice(i)=0.D0
@@ -6919,24 +6919,24 @@ C	  ---------------------------------------------
 	       sice(i)=(1.D0-((1.D0-swressi)
      &*siexp+swressi))
 
-C..........derivee de la saturation en glace en fonction de la temperature
+!..........derivee de la saturation en glace en fonction de la temperature
 	  dsidtemp(i)=(siceo(i)-sice(i))/(tempo(i)-temp(i))
 
 	     endif
 
 
-C	  ---------------------------------------------
-C	  LINEAR FUNCTION
-C........sice VS. TEMP
-C	  ---------------------------------------------	  	     !
+!	  ---------------------------------------------
+!	  LINEAR FUNCTION
+!........sice VS. TEMP
+!	  ---------------------------------------------	  	     !
 	  else if(ytypsice.eq."LINEA") then
 
-c	  if(tempo(i).lt.tl.and.temp(i).gt.tl) then
-c	  dsidtemp(i)=(1.D0-swressi)/(ts-tl)
-c	  endif
-c	  if(tempo(i).gt.tl.and.temp(i).lt.tl) then
-c	  dsidtemp(i)=(1.D0-swressi)/(ts-tl)
-c	  endif
+!	  if(tempo(i).lt.tl.and.temp(i).gt.tl) then
+!	  dsidtemp(i)=(1.D0-swressi)/(ts-tl)
+!	  endif
+!	  if(tempo(i).gt.tl.and.temp(i).lt.tl) then
+!	  dsidtemp(i)=(1.D0-swressi)/(ts-tl)
+!	  endif
 	  if(temp(i).lt.ts) then
 	  sice(i)=1.D0-swressi
 	  dsidtemp(i)=0.D0
@@ -6949,17 +6949,17 @@ c	  endif
 	  endif
 
 
-C--------------------------
-C	  USER-DEFINED MODEL
-C	  -----------------
+!--------------------------
+!	  USER-DEFINED MODEL
+!	  -----------------
       else if(ytypsice.eq."UDEF") then
-c	  *  ASSIGN  VALUES TO sice(i) and  dsidtemp(i)
-c	  if(tempo(i).lt.ts.and.temp(i).gt.tl) then
-c	  dsidtemp(i)=(siceo(i)-sice(i))/dt
-c	  endif
-c	  if(tempo(i).gt.tl.and.temp(i).lt.ts) then
-c	  dsidtemp(i)=(siceo(i)-sice(i))/dt
-c	  endif
+!	  *  ASSIGN  VALUES TO sice(i) and  dsidtemp(i)
+!	  if(tempo(i).lt.ts.and.temp(i).gt.tl) then
+!	  dsidtemp(i)=(siceo(i)-sice(i))/dt
+!	  endif
+!	  if(tempo(i).gt.tl.and.temp(i).lt.ts) then
+!	  dsidtemp(i)=(siceo(i)-sice(i))/dt
+!	  endif
 
 	       if (temp(i).le.ts) then
 	       sice(i)=1D00
@@ -6979,31 +6979,31 @@ c	  endif
 	  	  endif
 
       endif
-cccc   COMPLEMENT SATURE
+!ccc   COMPLEMENT SATURE
 	      if(igelzns.ne.1) then
-cccc	     ---------------------------------------------
-cccc	      Fonction exponentielle brutale en fonction de la temperature (Lundin (19??)
-cccc	     ---------------------------------------------
+!ccc	     ---------------------------------------------
+!ccc	      Fonction exponentielle brutale en fonction de la temperature (Lundin (19??)
+!ccc	     ---------------------------------------------
 	      if(ytypakrice.eq."IMPED") then
-cccc...........permeabilite relative calcule en fonction de la teneur en glace
-CCC! dans le cas non sature on aura akr=(10**(-1*om*(SI/(SI+SW)))) car SI+SW<1
+!ccc...........permeabilite relative calcule en fonction de la teneur en glace
+!CC! dans le cas non sature on aura akr=(10**(-1*om*(SI/(SI+SW)))) car SI+SW<1
 		   akr(i)=1.D1**(-1*omega*om(i)*sice(i))
-cccc	     limitation de la permeabilite relative pour eviter les valeurs nulles
-cc	      if(akr(i).le.dk) akr(i)=dk
-cccc	  ---------------------------------------------
-cccc	     Fonction lineaire brutale en fonction de la temperature
-cccc	  ---------------------------------------------
+!ccc	     limitation de la permeabilite relative pour eviter les valeurs nulles
+!c	      if(akr(i).le.dk) akr(i)=dk
+!ccc	  ---------------------------------------------
+!ccc	     Fonction lineaire brutale en fonction de la temperature
+!ccc	  ---------------------------------------------
 	      elseif(ytypakrice.eq."LINET") then
-cccc..........permeabilite relative calcule en fonction de la temperature (akr VS. TEMP)
+!ccc..........permeabilite relative calcule en fonction de la temperature (akr VS. TEMP)
 	      if(temp(i).lt.ts)  akr(i)=dk
 	      if (temp(i).le.tl.and.temp(i).ge.ts) then
-c	       akr(i)=(((dk-1.D0)*(temp(i)-tl)/(tl-ts))+1.D0)
+!	       akr(i)=(((dk-1.D0)*(temp(i)-tl)/(tl-ts))+1.D0)
 	      akr(i)=10**((log(dk))/(tl-ts)*(tl-temp(i)))
 	      endif
 	      if (temp(i).gt.tl) akr(i)=1
-cccc	  ---------------------------------------------
-cccc	    fonction lineaire en fonction de la saturation
-cccc	  ---------------------------------------------
+!ccc	  ---------------------------------------------
+!ccc	    fonction lineaire en fonction de la saturation
+!ccc	  ---------------------------------------------
 	      elseif(ytypakrice.eq."LINES") then
 	       slopek=-(1.D0-dk)/(1.D0-swressi)
 	      if(sw(i).le.swressi) then
@@ -7011,11 +7011,11 @@ cccc	  ---------------------------------------------
 	      else
 		  akr(i)=dk+slopek*(sw(i)-swressi)
 	      endif
-cccc	  ---------------------------------------------
-cccc	    UTILISATEUR DEFINIES LA FONCTION
-cccc	  ---------------------------------------------
+!ccc	  ---------------------------------------------
+!ccc	    UTILISATEUR DEFINIES LA FONCTION
+!ccc	  ---------------------------------------------
 	      elseif(ytypakrice.eq."UDEF") then
-CC	  ecrire fonction akr(i) et akrv(i)
+!C	  ecrire fonction akr(i) et akrv(i)
 
 	  	  if (temp(i).le.ts) then
 	  	  akr(i)=dk
@@ -7033,20 +7033,20 @@ CC	  ecrire fonction akr(i) et akrv(i)
 
 	      endif
 	  	  endif
-cc	     if(akr(i).le.dk) akr(i)=dk
+!c	     if(akr(i).le.dk) akr(i)=dk
 	      endif
-CC permeabilite verticale = permeabilite horizontale
+!C permeabilite verticale = permeabilite horizontale
 	  	  akrv(i)=akr(i)
 	      enddo
-ccc
+!cc
 	      return
 	      end
 
-C
-C     SUBROUTINE       PERMEABILITE NON SATUREE GEL
-C --- PURPOSE :
-CCCC SUBROUTINE DATANT ET NON VERIFIEE A NE PAS UTILISEE
-C
+!
+!     SUBROUTINE       PERMEABILITE NON SATUREE GEL
+! --- PURPOSE :
+!CCC SUBROUTINE DATANT ET NON VERIFIEE A NE PAS UTILISEE
+!
       SUBROUTINE unsatpermice(n,nm,akr,akrv,dk,
      &ytypakrice,ans,
      &sice,om,sw,swressi,rlamb)
@@ -7057,27 +7057,27 @@ C
 	  dimension sice(nm),sw(nm)
 	    Do i=1,nm
 	    if(ytypakrice.eq."VGEN") then
-C	  --------------------------------
-C	  MODEL OF VANCENUCHTEN
-C	  --------------------------------
+!	  --------------------------------
+!	  MODEL OF VANCENUCHTEN
+!	  --------------------------------
 	    swt=(sw(i)-swressi)/(1.-swressi)
 	    akr(i)=((swt**0.5)*((1-(1-swt**(ans/(ans-1)))
      &**((ans-1)/ans))**2))
 	   endif
 	  if(ytypakrice.eq."BCOR") then
-C	  --------------------------------
-C	  MODEL OF BROOKS AND COREY (1964)
-C	  --------------------------------
+!	  --------------------------------
+!	  MODEL OF BROOKS AND COREY (1964)
+!	  --------------------------------
 	       swrel= (sw(i)-swressi)/(1D+00-swressi)
-C........RELATIVE PERMEABILITY AS A FUNCTION OF SATURATION (akr VS. SW)
-C	     (CALCULATED ONLY WHEN IUNSAT=2)
+!........RELATIVE PERMEABILITY AS A FUNCTION OF SATURATION (akr VS. SW)
+!	     (CALCULATED ONLY WHEN IUNSAT=2)
 	   akr(i)= (swrel**(3D0+2D0/RLAMB))
 	   endif
 	   if(ytypakrice.eq."PLIN") then
-C	  ----------------------
-C	   LINEAR MODEL
-C	  ----------------------
-C........akr VS. SW
+!	  ----------------------
+!	   LINEAR MODEL
+!	  ----------------------
+!........akr VS. SW
 	    if(sw(i).le.swressi) then
 	      akr(i)=dk
 	     else
@@ -7087,15 +7087,15 @@ C........akr VS. SW
 	    endif
 
 	    if(ytypakrice.eq."IMPE") then
-C	  ----------------------------------------------
-C	  AD-HOC EXPONENTIAL EXPRESSION OF LUNDIN (19??)
-C	  ----------------------------------------------
+!	  ----------------------------------------------
+!	  AD-HOC EXPONENTIAL EXPRESSION OF LUNDIN (19??)
+!	  ----------------------------------------------
 	       akr(i)=(10**(-1*om(i)*omega*(sice(i)/(sice(i)+sw(i)))))
 	    if(akr(i).le.dk) akr(i)=dk
 
 	    endif
 	    if(ytypakrice.eq."UDEF") then
-C	  ------------------
+!	  ------------------
 	  dkswr = dk/swressi
 	  SLKRSW = (1.D0 -dkswr)/(1.D0 -swressi)
 	  akr(i) =sw(i)*(dkswr+SLKRSW)*(sw(i)-swressi)
@@ -7107,23 +7107,23 @@ C	  ------------------
       RETURN
       END
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	     Subroutine Biggridice	  	  	  	  		  C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...Calcul la teneur en glace sice et permeabilite relative akr akrv en fonction de la position des isothermes dans les mailles
-cccc...fonction linear
-cccc...1) Calcul de la portion de glace (<ts), front de gel (ts<t<tl), eau liquide (>tl)
-cccc...2) Calcul de la temperature du milieu du front de gel tifrt et de la permeabilite relative akrifrt
-cccc...3) Moyenne de saturation en glace sur la maille
-cccc...4) Moyenne de la permeabilite en glace sur la maille
-cccc...ATTENTION NE FONCTIONNE PAS EN NON SATURE
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	     Subroutine Biggridice	  	  	  	  		  C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...Calcul la teneur en glace sice et permeabilite relative akr akrv en fonction de la position des isothermes dans les mailles
+!ccc...fonction linear
+!ccc...1) Calcul de la portion de glace (<ts), front de gel (ts<t<tl), eau liquide (>tl)
+!ccc...2) Calcul de la temperature du milieu du front de gel tifrt et de la permeabilite relative akrifrt
+!ccc...3) Moyenne de saturation en glace sur la maille
+!ccc...4) Moyenne de la permeabilite en glace sur la maille
+!ccc...ATTENTION NE FONCTIONNE PAS EN NON SATURE
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,
      &col,nc,z,zl,zs,bm,dsidtemp,valclt,ivois,
      &sice,swressi,siceo,tempo)
@@ -7139,7 +7139,7 @@ cccc....
 	  akr(i)=1D+00
 	  akrv(i)=1D+00
 	  dsidtemp(i)=0D+00
-CC POUR ETRE SURE QUI NE SE BALLADE PAS AVEC DES VALEURS NIMP
+!C POUR ETRE SURE QUI NE SE BALLADE PAS AVEC DES VALEURS NIMP
 	  if (temp(i).lt.tl.and.temp(i).gt.ts) then
 	  akr(i)=(((dk-1.D0)*temp(i)/ts)+1.D0)
 	  sice(i)=((1.D0-swressi)/(ts-tl)*(temp(i)-tl))
@@ -7159,8 +7159,8 @@ CC POUR ETRE SURE QUI NE SE BALLADE PAS AVEC DES VALEURS NIMP
 
 	  do j=1,nc
 	  if (icol(i).eq.j) then
-CCC Gel maille audessus liquidus
-CCCCCCCCCCCCCCCC GEL attention codé pour une seule aire interface frozen unfrozen
+!CC Gel maille audessus liquidus
+!CCCCCCCCCCCCCCC GEL attention codé pour une seule aire interface frozen unfrozen
 	  if(zs(j,1).eq.-99.and.zl(j,1).ne.-99.and.igel.eq.1)  then
 	  if(zl(j,1).lt.z(i)+bm(i)/2.
      &and.zl(j,1).gt.z(i)-bm(i)/2) then
@@ -7183,10 +7183,10 @@ CCCCCCCCCCCCCCCC GEL attention codé pour une seule aire interface frozen unfroz
 	  endif
 	  endif
 	  endif
-CCCCCCCCCCCCCCCfin pas d'isotherme solidus'
+!CCCCCCCCCCCCCCfin pas d'isotherme solidus'
 
 	  if(zs(j,1).ne.-99.and.zl(j,1).ne.-99.and.igel.eq.1)  then
-C maille avec un liquidus mais pas de solidus
+! maille avec un liquidus mais pas de solidus
 	  if(zs(j,1).gt.z(i)+bm(i)/2.and.zl(j,1).lt.z(i)+bm(i)/2
      &.and.zl(j,1).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
@@ -7208,8 +7208,8 @@ C maille avec un liquidus mais pas de solidus
 
 	  endif
 
-CCCCfin 1ier cas
-C maille avec solidus et liquidus
+!CCCfin 1ier cas
+! maille avec solidus et liquidus
 	  if(zs(j,1).lt.z(i)+bm(i)/2.and.zs(j,1).gt.z(i)-bm(i)/2
      &.and.zl(j,1).lt.z(i)+bm(i)/2.and.zl(j,1).gt.z(i)-bm(i)/2)
      & then
@@ -7231,9 +7231,9 @@ C maille avec solidus et liquidus
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
 	  endif
-ccccc fin 2 eme cas
+!cccc fin 2 eme cas
 
-CC maille avec solidus
+!C maille avec solidus
 	  if(zs(j,1).lt.z(i)+bm(i)/2.and.
      &zs(j,1).gt.z(i)-bm(i)/2.and.
      &zl(j,1).lt.z(i)-bm(i)/2) then
@@ -7253,13 +7253,13 @@ CC maille avec solidus
      &(z(i)+bm(i)/2.D00-zs(j,1))*1)/bm(i))
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
-ccc fin cas 3
+!cc fin cas 3
 	  endif
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC fin gel
-CCCCCCCCCCCCCCCC DEGEL attention codé pour deux aires interfaces frozen/unfrozen
-ccc interface SUBPERMAFROST
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC fin gel
+!CCCCCCCCCCCCCCC DEGEL attention codé pour deux aires interfaces frozen/unfrozen
+!cc interface SUBPERMAFROST
 	  if(zl(j,2).eq.-99.and.zs(j,2).ne.-99.and.igel.eq.2)  then
-C pas de liquidus
+! pas de liquidus
 	  if(zs(j,2).lt.z(i)+bm(i)/2.and.
      &zs(j,2).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
@@ -7280,9 +7280,9 @@ C pas de liquidus
 	  endif
 	  endif
 	  endif
-ccc fin pas d'isotherme liquidus'
+!cc fin pas d'isotherme liquidus'
 	  if(zs(j,2).ne.-99.and.zl(j,2).ne.-99.and.igel.eq.2)  then
-CC maille avec solidus sans liquidus
+!C maille avec solidus sans liquidus
 	  if(zs(j,2).lt.z(i)+bm(i)/2.and.zs(j,2).gt.z(i)-bm(i)/2
      &.and.zl(j,2).lt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
@@ -7303,8 +7303,8 @@ CC maille avec solidus sans liquidus
 	  endif
 	  endif
 
-CC fin cas 1
-C Maille avec liquidus et avec solidus
+!C fin cas 1
+! Maille avec liquidus et avec solidus
 	  if(zs(j,2).lt.z(i)+bm(i)/2.and.
      &zs(j,2).gt.z(i)-bm(i)/2.and.zl(j,2).lt.z(i)+bm(i)/2.and.
      &zl(j,2).gt.z(i)-bm(i)/2) then
@@ -7325,8 +7325,8 @@ C Maille avec liquidus et avec solidus
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
 	  endif
-ccc fin cas 2
-C Maille avec liquidus et sans solidus
+!cc fin cas 2
+! Maille avec liquidus et sans solidus
 	  if(zl(j,2).lt.z(i)+bm(i)/2.and.zl(j,2).gt.z(i)-bm(i)/2
      &.and.zs(j,2).gt.z(i)+bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
@@ -7346,11 +7346,11 @@ C Maille avec liquidus et sans solidus
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
 	  endif
-C fin cas 3
+! fin cas 3
 	  endif
-ccc interface sur permafrost SUPRAPERMAFROST SENS INVERSE
+!cc interface sur permafrost SUPRAPERMAFROST SENS INVERSE
 	  if(zl(j,1).eq.-99.and.zs(j,1).ne.-99.and.igel.eq.2)  then
-CCC pas de liquidus
+!CC pas de liquidus
 	  if(zs(j,1).lt.z(i)+bm(i)/2.and.
      &zs(j,1).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
@@ -7371,9 +7371,9 @@ CCC pas de liquidus
 	  endif
 	  endif
 	  endif
-CCC fin pas de liquidus
+!CC fin pas de liquidus
 
-c liquidus au dessus haut cellule
+! liquidus au dessus haut cellule
 	  if(zl(j,1).ne.-99.and.zs(j,1).ne.-99.and.igel.eq.2)  then
 	  if(zl(j,1).gt.z(i)+bm(i)/2.and.zs(j,1).lt.z(i)+bm(i)/2
      &.and.zs(j,1).gt.z(i)-bm(i)/2) then
@@ -7393,9 +7393,9 @@ c liquidus au dessus haut cellule
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
-c       print*,'degel4',akr(i),sice(i),temp(i),zl(j,1),zs(j,1)
+!       print*,'degel4',akr(i),sice(i),temp(i),zl(j,1),zs(j,1)
 	  endif
-c fin cas 1
+! fin cas 1
 	  if(zl(j,1).lt.z(i)+bm(i)/2.and.zl(j,1).gt.
      &z(i)-bm(i)/2.and.
      &zs(j,1).lt.z(i)+bm(i)/2.and.zs(j,1).gt.z(i)-bm(i)/2) then
@@ -7416,7 +7416,7 @@ c fin cas 1
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
 	  endif
-ccccc fin cas 2
+!cccc fin cas 2
 	  if(zl(j,1).lt.z(i)+bm(i)/2.and.
      &zl(j,1).gt.z(i)-bm(i)/2.and.
      &zs(j,1).lt.z(i)-bm(i)/2) then
@@ -7447,17 +7447,17 @@ ccccc fin cas 2
 	  return
 	  end
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	     Subroutine lecture parametres	  	  	  		  C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	     Subroutine lecture parametres	  	  	  		  C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine lecture_parametre(
      &ilog,ipermh,ipermv,
      &iec,irp,ith,dt,nitt,unitsim,al,
@@ -7559,17 +7559,17 @@ cccc....
 	  end
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	     lecture parametres thermique	  	  	  	  		   C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	     lecture parametres thermique	  	  	  	  		   C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine lecture_parametre_thermique(irpth,crconvt,
      &ithec,idecouplage,ysupdp,
      &bll,blt,alandae,cpe,ilanda,
@@ -7645,17 +7645,17 @@ cccc....
 	  return
 	  end
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	     lecture CDT INITIALE	  	  	  	  		   C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	     lecture CDT INITIALE	  	  	  	  		   C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 
 	  subroutine lecture_cdt_ini(chgi,conci,tempini,ichi,ichi2,iconci,
      &itempi)
@@ -7676,17 +7676,17 @@ cccc....
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	     lecture CDT LIMITES	  	  	  	  	  	  C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	     lecture CDT LIMITES	  	  	  	  	  	  C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine lecture_cdt_lt(icl_gauche,valcl_gauche,icl_droite,
      &valcl_droite,icl_haut,valcl_haut,icl_bas,valcl_bas,iclc_gauche,
      &valclc_gauche,iclc_droite,valclc_droite,iclc_haut,valclc_haut,
@@ -7736,17 +7736,17 @@ cccc....
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	  	      INTERPOLATION  surf piezo	  	  	  	   C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...Calcul de la position d'une isovaleur d'une variable d'état
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	  	      INTERPOLATION  surf piezo	  	  	  	   C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...Calcul de la position d'une isovaleur d'une variable d'état
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine interpolsurf(nc,zo,nm,icol,pr,ivois,
      &bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,
      &ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
@@ -7761,12 +7761,12 @@ cccc....
 
        kimp=int(paso/itlecture)+1
     	if(kimp.gt.ligne2)   kimp=ligne2
-CCCC position surf piezo
+!CCC position surf piezo
 	  do kkcol=1,nc
 	  zo(kkcol,1)=-99D+00
-CCC PASSAGE SUR TOUT LES MAILLES
+!CC PASSAGE SUR TOUT LES MAILLES
 	  do i=1,nm
-C TEST COLONNE
+! TEST COLONNE
 	  if (icol(i).eq.kkcol) then
 	  	ili=ivois(i,3)
 	  if (ili.lt.nm+1.and.ili.ne.-99.and.
@@ -7777,7 +7777,7 @@ C TEST COLONNE
 	  endif
 
 
-CCC PAS DE VOISIN EN HAUT
+!CC PAS DE VOISIN EN HAUT
 	  if (zo(kkcol,1).eq.-99.and.
      &ivois(i,3).eq.-99.and.
      &pr(i).gt.to.and.
@@ -7789,7 +7789,7 @@ CCC PAS DE VOISIN EN HAUT
 	  endif
 
 
-CCPAS DE VOISIN EN BAS
+!CPAS DE VOISIN EN BAS
 	  if (ivois(i,4).eq.-99.and.zo(kkcol,1).eq.-99.and.
      &pr(i).lt.to.and.icl(i,4).eq.-2.and.valcl(i,4).gt.to) then
        zo(kkcol,1)=z(i)-
@@ -7816,18 +7816,18 @@ CCPAS DE VOISIN EN BAS
 	  enddo
 
 
-CCCC FIN DE test colonne
+!CCC FIN DE test colonne
 	  endif
 	  enddo
 	  enddo
 
 
-CCCC position surf piezo
+!CCC position surf piezo
 	  do kkcol=1,nc
 
-CCC PASSAGE SUR TOUT LES MAILLES
+!CC PASSAGE SUR TOUT LES MAILLES
 	  do i=1,nm
-C TEST COLONNE
+! TEST COLONNE
 	  if (icol(i).eq.kkcol) then
 	  do j=1,ligne5
 	  if(i.eq.id_river(j)) then
@@ -7840,7 +7840,7 @@ C TEST COLONNE
 	  endif
 	  enddo
 
-CCCC FIN DE test colonne
+!CCC FIN DE test colonne
 	  endif
 	  enddo
 	  enddo
@@ -7855,17 +7855,17 @@ CCCC FIN DE test colonne
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	     CALCUL MSE	  	  	  	  	  	  	   C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	     CALCUL MSE	  	  	  	  	  	  	   C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 	  subroutine mse(n,nmaille1,nmaille2,nmaille3,nmaille4,nmaille5,
      &nmaille6,pr,qinf,qinfobs,paso,itlecture,chgobs1,chgobs2,
      &chgobs3,chgobs4,rho,g,chgobs5,chgobs6,eo1,eo2,eo3,eo4,eo5,
@@ -7910,11 +7910,11 @@ cccc....
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	   Funcions to open DTS files	  	  	  		  C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	   Funcions to open DTS files	  	  	  		  C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  subroutine DTS_open(icolone,imaille,itopo,ligne,ligne1,
      &ligne2,ligne3,ligne4,ligne6)
 	  implicit integer (i-n)
@@ -7999,31 +7999,31 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  end
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	   Funcions for output	  	  	  		  C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	   Funcions for output	  	  	  		  C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	  	  	  	  	  	  		  C
-C	  	  	   VARIATION CDT LIMITES VS. TEMPS	  	  	  		  C
-C	  	  	  	  	  	  	  	  	  	  		  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCC...PURPOSE :
-cccc...
-CCC...Modification
-cccc...
-CCC....TODOLIST
-cccc....
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!	  	  	  	  	  	  	  	  	  	  		  C
+!	  	  	   VARIATION CDT LIMITES VS. TEMPS	  	  	  		  C
+!	  	  	  	  	  	  	  	  	  	  		  C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...
+!CC...Modification
+!ccc...
+!CC....TODOLIST
+!ccc....
 
 	  subroutine variation_cdt_limites(nm,paso,itlecture,ytest,
      &ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,
@@ -8037,26 +8037,26 @@ cccc....
      &timeDTS,xDTS,
      &tempDTS,x,icol,nc,tempo,pro,slopeRH,
      &qsurf,qbottom)
-c     nc nb de colonnes
-c     nr nb de ligne
-c       qre debit pluie
-c       ivois(ik,1)= voisin droite
-c       ivois(ik,2)= voisin gauche
-c       ivois(ik,3)= voisin haut
-c       ivois(ik,4)= voisin ibas
-c       nm nombre de mailles reelles
-c ECOULEMENT icl condition valcl valeur
-c       ICL=-1 Flux impose sur une face
-c       ICL=-2 potentiel impose sur une face
-c       ICL=1 Mailles 'normale'
-c       ICL(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
-c THERMIQUE iclt condition valclt valeur
-c       ICLT=-1 Flux impose sur une face
-c       ICLT=-2 potentiel impose sur une face
-c       ICLT=1 Mailles 'normale'
-c       ICLT(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
-c       akr(i)=permeabilite relative
-c       ak(i)=permeabilite intrinseque
+!     nc nb de colonnes
+!     nr nb de ligne
+!       qre debit pluie
+!       ivois(ik,1)= voisin droite
+!       ivois(ik,2)= voisin gauche
+!       ivois(ik,3)= voisin haut
+!       ivois(ik,4)= voisin ibas
+!       nm nombre de mailles reelles
+! ECOULEMENT icl condition valcl valeur
+!       ICL=-1 Flux impose sur une face
+!       ICL=-2 potentiel impose sur une face
+!       ICL=1 Mailles 'normale'
+!       ICL(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
+! THERMIQUE iclt condition valclt valeur
+!       ICLT=-1 Flux impose sur une face
+!       ICLT=-2 potentiel impose sur une face
+!       ICLT=1 Mailles 'normale'
+!       ICLT(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
+!       akr(i)=permeabilite relative
+!       ak(i)=permeabilite intrinseque
 
 	  implicit double precision(a-h,o-z)
 	  implicit integer (i-n)
@@ -8333,18 +8333,18 @@ c       ak(i)=permeabilite intrinseque
 	  if (ytest.eq."MAQ") then
 	  if(kimp.gt.ligne4) kimp=ligne4
 	  do i=1,nm
-c	  if(paso.ge.86400*1) then
-c       if (ivois(i,4).eq.-99) then
-c	  icl(i,4)=-2
-c	  valcl(i,4)=(1-z(i))*rho(i)*g
-c	  endif
-c	  endif
-c	  if(paso.gt.86400*3) then
-c	  if (ivois(i,4).eq.-99) then
-c	  icl(i,4)=-1
-c	  valcl(i,4)=0
-c	  endif
-c	  endif
+!	  if(paso.ge.86400*1) then
+!       if (ivois(i,4).eq.-99) then
+!	  icl(i,4)=-2
+!	  valcl(i,4)=(1-z(i))*rho(i)*g
+!	  endif
+!	  endif
+!	  if(paso.gt.86400*3) then
+!	  if (ivois(i,4).eq.-99) then
+!	  icl(i,4)=-1
+!	  valcl(i,4)=0
+!	  endif
+!	  endif
 
 	  if (ivois(i,3).eq.-99) then
 	  iclt(i,3)=-2
@@ -8362,68 +8362,68 @@ c	  endif
 	  if (ytest.eq."AVA") then
 
 	  	if(kimp.gt.ligne2)   kimp=ligne2
-cccc.... 1 heure
+!ccc.... 1 heure
 	  kheure=int(paso/3600)+1
 	  if(kheure.gt.ligne)   kheure=ligne
-cccc.... 1 jour
+!ccc.... 1 jour
 	  kjour=int(paso/86400)+1
 	  if(kjour.gt.ligne1)   kjour=ligne1
 	  do i=1,nm
-cccc....CDT LIMITE SOL
+!ccc....CDT LIMITE SOL
 	  if (ivois(i,3).eq.-99) then
 	  iclt(i,3)=-2
 	  icl(i,3)=-1
 	  valcl(i,3)=qpluie(kjour)
-c	  valclt(i,3)=tempsol(kheure)
+!	  valclt(i,3)=tempsol(kheure)
 	  endif
-cccc....CDT LIMITE BOTTOM
+!ccc....CDT LIMITE BOTTOM
 	  if (ivois(i,4).eq.-99) then
 	  iclt(i,4)=-1
 	  icl(i,4)=-1
-c	  valclt(i,4)=0
-c	  valcl(i,4)=0
+!	  valclt(i,4)=0
+!	  valcl(i,4)=0
 	  endif
-cccc....CDT LIMITE RD
+!ccc....CDT LIMITE RD
 
 	  do j=1,ligne3
 	  if(i.eq.id_RD(j)) then
 	  if(kimp.ge.ligne2) kimp=ligne2
 	  icl(i,1)=-2
 	  valcl(i,1)=(chgRD(kimp)-z(i))*rho(i)*g
-c	  iclt(i,1)=-2
-c	  valclt(i,1)=tempRD(kimp)-
-c     &(tempRD(kimp)-tempsol(kheure))
-c     &/(76.83-79.81)*(76.83-z(i))
+!	  iclt(i,1)=-2
+!	  valclt(i,1)=tempRD(kimp)-
+!     &(tempRD(kimp)-tempsol(kheure))
+!     &/(76.83-79.81)*(76.83-z(i))
 	  endif
 	  enddo
 
-cccc....CDT LIMITE RG
+!ccc....CDT LIMITE RG
 	  do j=1,ligne4
 	  if(i.eq.id_RG(j)) then
 	  if(kimp.ge.ligne2) kimp=ligne2
 	  icl(i,2)=-2
 	  valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
-c	  print*,valcl(i,2),chgRG(kimp)
-c	  iclt(i,2)=-2
-c	  valclt(i,2)=tempRG(kimp)-
-c     &(tempRG(kimp)-tempsol(kheure))
-c     &/(76.83-79.81)*(76.83-z(i))
+!	  print*,valcl(i,2),chgRG(kimp)
+!	  iclt(i,2)=-2
+!	  valclt(i,2)=tempRG(kimp)-
+!     &(tempRG(kimp)-tempsol(kheure))
+!     &/(76.83-79.81)*(76.83-z(i))
 	  endif
 	  enddo
-cccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
+!ccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
 	  do j=1,ligne5
 	  if(i.eq.id_river(j)) then
 	  if(kimp.ge.ligne2) kimp=ligne2
 	  icl(i,3)=-2
 	  zhaut=z(i)+bm(i)/2
 	  valcl(i,3)=(chgriver(kimp)-zhaut)*rho(i)*g
-c	  iclt(i,3)=-2
-c	  valclt(i,3)=tempriver(kimp)
+!	  iclt(i,3)=-2
+!	  valclt(i,3)=tempriver(kimp)
 	  endif
 	  enddo
 
 
-cccc....CDT LIMITE RIVER a tester
+!ccc....CDT LIMITE RIVER a tester
 	  do j=1,ligne6
 	  if(i.eq.id_rivert(j)) then
 	  if(kimp.ge.ligne2) kimp=ligne2
@@ -8431,8 +8431,8 @@ cccc....CDT LIMITE RIVER a tester
 	  icl(i,3)=-2
 	  zhaut=z(i)+bm(i)/2
 	  valcl(i,3)=(chgriver(kimp)-zhaut)*rho(i)*g
-c	  iclt(i,3)=-2
-c	  valclt(i,3)=tempriver(kimp)
+!	  iclt(i,3)=-2
+!	  valclt(i,3)=tempriver(kimp)
 	  endif
 	  endif
 	  enddo
@@ -8441,7 +8441,7 @@ c	  valclt(i,3)=tempriver(kimp)
 	  endif
 
 	  if (ytest.eq."VAU") then
-CCC....ECOULEMENT VAUCLIN
+!CC....ECOULEMENT VAUCLIN
 	  do i=1,nm
 	  if(ivois(i,1).eq.-99) then
 	  icl(i,1)=-2
@@ -8475,15 +8475,15 @@ CCC....ECOULEMENT VAUCLIN
 	  if(kimp.ge.ligne2) kimp=ligne2
 	  if(kimp.ge.ligne1) kimp=ligne1
 	  if(kimp.lt.1) kimp=1
-c	  headG=cRivG(kimp)
-c	  headPG=chgRG(kimp)
-c	  temperatureG=tempRG(kimp)
+!	  headG=cRivG(kimp)
+!	  headPG=chgRG(kimp)
+!	  temperatureG=tempRG(kimp)
 
 
-ccc side boundary petit paris and bertin
+!cc side boundary petit paris and bertin
 	  do i=1,nm
 
-cccPetit Paris
+!ccPetit Paris
 	  if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
 	  if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
 	  iclt(i,1)=-2
@@ -8502,7 +8502,7 @@ cccPetit Paris
 
 
 
-cccBertin
+!ccBertin
 	  if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
 	  if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
 	  iclt(i,2)=-2
@@ -8520,23 +8520,23 @@ cccBertin
 
 
 
-cccc....CDT LIMITE BOTTOM for the water zero flux
+!ccc....CDT LIMITE BOTTOM for the water zero flux
 	  if (ivois(i,4).eq.-99) then
-ccc heat transport
+!cc heat transport
 	  iclt(i,4)=-2
 	  valclt(i,4)=tempRG(kimp)
-ccc water flow
+!cc water flow
 	  icl(i,4)=-1
 	  valcl(i,4)=0
 	  if (ivois(i,1).eq.-99) then
-ccc corner cell
+!cc corner cell
 	  iclt(i,1)=-2
 	  valclt(i,1)=tempRG(kimp)
 	  icl(i,1)=-2
       valcl(i,1)=pro(i)
 	  endif
 	  if (ivois(i,2).eq.-99) then
-ccc corner cell
+!cc corner cell
 	  iclt(i,2)=-2
 	  valclt(i,2)=tempRG(kimp)
 	  icl(i,2)=-2
@@ -8547,7 +8547,7 @@ ccc corner cell
 
 
 
-cccc....Boundary condition river/ZH for the heat transport
+!ccc....Boundary condition river/ZH for the heat transport
 	  if(kimp.ge.ligne) kimp=ligne
 	  do i=1,nm
 	  if(icol(i).gt.nc) icol(i)=nc
@@ -8566,17 +8566,17 @@ cccc....Boundary condition river/ZH for the heat transport
       endif
 	  enddo
 
-CCCC River/ZH hydraulic head
+!CCC River/ZH hydraulic head
 	  do i=1,nm
 	  headbk=0
-cccc loop on the element
+!ccc loop on the element
 	    if (ivois(i,3).eq.-99) then
-cccc no neigh top
+!ccc no neigh top
 	  icl(i,3)=-2
-cccc boundary diricler for the water flow
+!ccc boundary diricler for the water flow
 	  do j=1,ligne3
-ccc loop on the piece of the line of the water level of the river
-cccc slope for each element
+!cc loop on the piece of the line of the water level of the river
+!ccc slope for each element
 	  if(x(i).le.392) 	  slope=slopeRH(2,1)
 	  if(x(i).le.392) 	  kj=1
 	  if(x(i).ge.392.and.x(i).lt.397) 	  slope=slopeRH(2,2)
@@ -8585,7 +8585,7 @@ cccc slope for each element
 	  if(x(i).ge.397.and.x(i).lt.929) 	  kj=3
 	  if(x(i).ge.929.and.x(i).lt.931) 	  slope=slopeRH(2,4)
 	  if(x(i).ge.929.and.x(i).lt.931) 	  kj=4
-ccc id = number of upstream part
+!cc id = number of upstream part
 	  if(x(i).gt.931) then
 	    kj=5
 		slope=slopeRH(2,5)
@@ -8594,12 +8594,12 @@ ccc id = number of upstream part
 
 
 
-ccc slope from bertin water level for the downstream part
+!cc slope from bertin water level for the downstream part
 	  if (x(i).lt.392) slope=slopeRH(2,1)
 	  if (x(i).lt.392)  headbk=cRivG(kimp)
 
 
-ccc between the downstream and the first cascade
+!cc between the downstream and the first cascade
 	  if (kj.eq.2) then
 	  do k=1,kj
 	  if (k.eq.1)  headbk=cRivG(kimp)
@@ -8607,26 +8607,26 @@ ccc between the downstream and the first cascade
      &(slopeRH(1,k)-slopeRH(1,k-1))+headbk
 	  enddo
 	  endif
-cccc water level of the river = altitude of the first cascade
+!ccc water level of the river = altitude of the first cascade
 	  if (kj.eq.3) headbk=116.29999694824218D+00
-cccc water level of the river = altitude of the second cascade
+!ccc water level of the river = altitude of the second cascade
 	  if (kj.eq.4) headbk=120.5D+00
-cccc water level of the upstream part
+!ccc water level of the upstream part
 	  if(kj.eq.ligne3) headbk=cRivD(kimp)-2.16
 
-c	  if(kj.eq.ligne3.or.kj.eq.3) then
+!	  if(kj.eq.ligne3.or.kj.eq.3) then
 	  if(kj.eq.ligne3) then
 	  slopeRH(2,kj)=(cRivD(kimp)-2.16-120.5D+00)/
      &(1000-slopeRH(1,ligne3))
 	  slope=slopeRH(2,kj)
 	  endif
 
-ccc slope inside the first cascade
+!cc slope inside the first cascade
 	  if(kj.eq.2) slope=(headbk-116.29999694824218D+00)/
      &(slopeRH(1,2)-slopeRH(1,3))
 
-ccc Inside the second cascade
-ccc calculatation the slope
+!cc Inside the second cascade
+!cc calculatation the slope
 	  if (kj.eq.4) then
 	  headbk=slopeRH(2,3)*
      &(slopeRH(1,kj)-slopeRH(1,kj-1))+116.29999694824218D+00
@@ -8660,7 +8660,7 @@ ccc calculatation the slope
 
 
 
-cccc....Boundary UPSTREAM
+!ccc....Boundary UPSTREAM
         if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
         icl(i,1)=-2
         iclt(i,1)=-2
@@ -8668,7 +8668,7 @@ cccc....Boundary UPSTREAM
         valclt(i,1)=tempRD(kimp)
         endif
 
-cccc....Boundary DOWNSTREAM
+!ccc....Boundary DOWNSTREAM
         if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
         icl(i,2)=-2
         iclt(i,2)=-2
@@ -8687,25 +8687,25 @@ cccc....Boundary DOWNSTREAM
 	  if (ytest.eq."TEX") then
 
 	  	if(kimp.gt.ligne2)   kimp=ligne2
-cccc.... 1 heure
+!ccc.... 1 heure
 	  kheure=int(paso/3600)+1
 	  if(kheure.gt.ligne)   kheure=ligne
-cccc.... 1 jour
+!ccc.... 1 jour
 	  kjour=int(paso/86400)+1
 	  if(kjour.gt.ligne1)   kjour=ligne1
 	  do i=1,nm
-cccc....CDT LIMITE SOL
+!ccc....CDT LIMITE SOL
 	  if (ivois(i,3).eq.-99) then
 	  iclt(i,3)=-2
 	  icl(i,3)=-1
 	  valcl(i,3)=qpluie(kjour)
 	  endif
-cccc....CDT LIMITE BOTTOM
+!ccc....CDT LIMITE BOTTOM
 	  if (ivois(i,4).eq.-99) then
 	  iclt(i,4)=-1
 	  icl(i,4)=-1
 	  endif
-cccc....CDT LIMITE RD
+!ccc....CDT LIMITE RD
 
 	  do j=1,ligne3
 	  if(i.eq.id_RD(j)) then
@@ -8715,7 +8715,7 @@ cccc....CDT LIMITE RD
 	  endif
 	  enddo
 
-cccc....CDT LIMITE RG
+!ccc....CDT LIMITE RG
 	  do j=1,ligne4
 	  if(i.eq.id_RG(j)) then
 	  if(kimp.ge.ligne2) kimp=ligne2
@@ -8723,7 +8723,7 @@ cccc....CDT LIMITE RG
 	  valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
 	  endif
 	  enddo
-cccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
+!ccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
 	  do j=1,ligne5
 	  if(i.eq.id_river(j)) then
 	  if(kimp.ge.ligne2) kimp=ligne2
@@ -8734,7 +8734,7 @@ cccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
 	  enddo
 
 
-cccc....CDT LIMITE RIVER variable dans le temps
+!ccc....CDT LIMITE RIVER variable dans le temps
 	  do j=1,ligne6
 	  if(i.eq.id_rivert(j)) then
 	  if(kimp.ge.ligne2) kimp=ligne2
