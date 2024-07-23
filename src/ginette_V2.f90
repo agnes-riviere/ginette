@@ -239,34 +239,34 @@
 !	  	  	  	  	       					  C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      call lecture_parametre(
-     &ilog,ipermh,ipermv,
-     &iec,irp,ith,dt,nitt,unitsim,al,
-     &az,igravit,imaille,itopo,reptop,repbot,
-     &icolone,nmi,nci,nri,dx,dz,nclog,rho1,irho,g,amu,
-     &akrx,akx,akrz,akz,iom,omp,iss,sss,ia2,yunconfined,ivg,
-     &ans,asp,swres,itr,allg,alt,iriv,iqriv,qre,hbot,xberg,
-     &rug,pent,qriva,hriv,aklit,aklitv,tempriv,elit,akdrain,
-     &edrain,crconvp,crconvc,
-     &iteration,itsortie,unitsortie,icalvit,mcol,nmaille1,nmaille2,
-     &nmaille3,nmaille4,nmaille5,
-     &nmaille6,nmaille7,nmaille8,nmaille9,nmaille10,iparo,ibuilt,
-     &ysolv)
+      call lecture_parametre(&
+     ilog,ipermh,ipermv,&
+     iec,irp,ith,dt,nitt,unitsim,al,&
+     az,igravit,imaille,itopo,reptop,repbot,&
+     icolone,nmi,nci,nri,dx,dz,nclog,rho1,irho,g,amu,&
+     akrx,akx,akrz,akz,iom,omp,iss,sss,ia2,yunconfined,ivg,&
+     ans,asp,swres,itr,allg,alt,iriv,iqriv,qre,hbot,xberg,&
+     rug,pent,qriva,hriv,aklit,aklitv,tempriv,elit,akdrain,&
+     edrain,crconvp,crconvc,&
+     iteration,itsortie,unitsortie,icalvit,mcol,nmaille1,nmaille2,&
+     nmaille3,nmaille4,nmaille5,&
+     nmaille6,nmaille7,nmaille8,nmaille9,nmaille10,iparo,ibuilt,&
+     ysolv)
 
 	  ixy=igravit
 
 
-	  call lecture_parametre_thermique(irpth,crconvt,
-     &ithec,idecouplage,ysupdp,
-     &bll,blt,alandae,cpe,ilanda,
-     &alandami,irhomi,rhosi,icpm,cpm,ymoycondtherm,
-     &icycle,igel,igelzns,iomdegel,
-     &ytypakrice,ytypsice,
-     &alandai,rhoii,cpice,
-     &chlat,rhog,alandag,cpg,dk,tsg,tlg,tsd,tld,cimp,swressi,
-     &iaquitard,aktardx,aktardz,omptard,alandatard,sstard,
-     &nrowtard,nmailleaqui,iexutoire,xexutoire,tempexutoire,
-     &iinfil,itopomch,ibigridice,ytest,omega,cimpt)
+	  call lecture_parametre_thermique(irpth,crconvt,&
+     ithec,idecouplage,ysupdp,&
+     bll,blt,alandae,cpe,ilanda,&
+     alandami,irhomi,rhosi,icpm,cpm,ymoycondtherm,&
+     icycle,igel,igelzns,iomdegel,&
+     ytypakrice,ytypsice,&
+     alandai,rhoii,cpice,&
+     chlat,rhog,alandag,cpg,dk,tsg,tlg,tsd,tld,cimp,swressi,&
+     iaquitard,aktardx,aktardz,omptard,alandatard,sstard,&
+     nrowtard,nmailleaqui,iexutoire,xexutoire,tempexutoire,&
+     iinfil,itopomch,ibigridice,ytest,omega,cimpt)
 
 
 
@@ -277,8 +277,8 @@
 !	     LECTURE CDT INITALES				  C
 !	  	  	  	  	       					  C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  call lecture_cdt_ini(chgi,conci,tempini,ichi,ichi2,iconci,
-     &itempi)
+	  call lecture_cdt_ini(chgi,conci,tempini,ichi,ichi2,iconci,&
+     itempi)
 
 
       if (iconci.eq.1) open(unit=22,file='E_conc_initiale.dat')
@@ -296,13 +296,13 @@
 !	     LECTURE CDT LIMITES				  C
 !	  	  	  	  	       					  C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  call lecture_cdt_lt(icl_gauche,valcl_gauche,icl_droite,
-     &valcl_droite,icl_haut,valcl_haut,icl_bas,valcl_bas,iclc_gauche,
-     &valclc_gauche,iclc_droite,valclc_droite,iclc_haut,valclc_haut,
-     &iclc_bas,valclc_bas,i
-     &clt_gauche,valclt_gauche,iclt_droite,valclt_droite,iclt_haut,
-     &valclt_haut,iclt_bas,valclt_bas,iclect,icltherm,iclectchgt
-     &,iclchgt,icldrain,iclriviere,itlecture)
+	  call lecture_cdt_lt(icl_gauche,valcl_gauche,icl_droite,&
+     valcl_droite,icl_haut,valcl_haut,icl_bas,valcl_bas,iclc_gauche,&
+     valclc_gauche,iclc_droite,valclc_droite,iclc_haut,valclc_haut,&
+     iclc_bas,valclc_bas,&
+     iclt_gauche,valclt_gauche,iclt_droite,valclt_droite,iclt_haut,&
+     valclt_haut,iclt_bas,valclt_bas,iclect,icltherm,iclectchgt&
+     ,iclchgt,icldrain,iclriviere,itlecture)
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !	  	  	  	  	       					  C
@@ -311,27 +311,27 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
-	  if (ipermh.eq.1)
-     &open(unit=14,file='E_permeabilite_horizontale.dat')
-	  if (ipermv.eq.1)
-     &open(unit=140,file='E_permeabilite_verticale.dat')
-	  if (iom.eq.1)
-     &open(unit=15,file='E_porosite.dat')
-	  if (irho.eq.1)
-     & open(unit=25,file='E_densite_fluide.dat')
-	  if (iss.eq.1)
-     &open(unit=16,file='E_coefficient_emmagasinement.dat')
-	  if(irhomi.eq.1)
-     &open(unit=26,file='E_densite_milieu.dat')
-	  if (ilanda.eq.1)
-     &open(unit=17,file='E_conductivite_thermique.dat')
-	  if(icpm.eq.1)
-     &open(unit=27,file='E_capacit_calorifique.dat')
+	  if (ipermh.eq.1)&
+     open(unit=14,file='E_permeabilite_horizontale.dat')
+	  if (ipermv.eq.1)&
+     open(unit=140,file='E_permeabilite_verticale.dat')
+	  if (iom.eq.1)&
+     open(unit=15,file='E_porosite.dat')
+	  if (irho.eq.1)&
+      open(unit=25,file='E_densite_fluide.dat')
+	  if (iss.eq.1)&
+     open(unit=16,file='E_coefficient_emmagasinement.dat')
+	  if(irhomi.eq.1)&
+     open(unit=26,file='E_densite_milieu.dat')
+	  if (ilanda.eq.1)&
+     open(unit=17,file='E_conductivite_thermique.dat')
+	  if(icpm.eq.1)&
+     open(unit=27,file='E_capacit_calorifique.dat')
 !CC....Fichiers variations conditions aux limites
-	  if(iclect.eq.1)
-     &	open(unit=37,file='E_cl_ecoulement.dat')
-	  if(icltherm.eq.1)
-     &	open(unit=38,file='E_cl_thermique.dat')
+	  if(iclect.eq.1)&
+     	open(unit=37,file='E_cl_ecoulement.dat')
+	  if(icltherm.eq.1)&
+     	open(unit=38,file='E_cl_thermique.dat')
 
 
 
@@ -349,8 +349,8 @@
 
 	  select case (itopo)
    	  case (1)
-	  open(unit=10,file='E_geom.dat',form='formatted',
-     &status='old',iostat=igeom)
+	  open(unit=10,file='E_geom.dat',form='formatted',&
+     status='old',iostat=igeom)
 	call count_file(10,igeom,nc)
 	  do i=1,nc
 	  read(10,*) topo(i),bot(i)
@@ -437,8 +437,8 @@
 
 
 
-	  call DTS_open(icolone,imaille,itopo,ligne,ligne1,
-     &ligne2,ligne3,ligne4,ligne6)
+	  call DTS_open(icolone,imaille,itopo,ligne,ligne1,&
+     ligne2,ligne3,ligne4,ligne6)
 
 
 	  endif
@@ -1044,8 +1044,8 @@
 	  z(k)=dble(az-bm(k)/2)
 !cccc....Modif 19-09-2014- point repere haut de colonne pour modele 1D
 	  if (itopo.eq.0) then
-	  if (abs(reptop-repbot)+1D-08.gt.az.and.
-     &abs(reptop-repbot)-1D-08.lt.az) then
+	  if (abs(reptop-repbot)+1D-08.gt.az.and.&
+     abs(reptop-repbot)-1D-08.lt.az) then
 	   z(k)=dble(az-bm(k)/2.+reptop-az)
 	  else
 	  print*, probleme dans votre constuction de modele
@@ -1136,42 +1136,42 @@
 
        do i=1,nm
        if (ivois(i,1).ne.-99) then
-       if (abs((x(ivois(i,1))-x(i))/((am(ivois(i,1))+am(i))/2))
-     &.gt.1.1.or.
-     &abs((x(ivois(i,1))-x(i))/((am(ivois(i,1))+am(i))/2)).lt.0.99) then
+       if (abs((x(ivois(i,1))-x(i))/((am(ivois(i,1))+am(i))/2))&
+     .gt.1.1.or.&
+     abs((x(ivois(i,1))-x(i))/((am(ivois(i,1))+am(i))/2)).lt.0.99) then
 
        print*,'pb coordonnee def maille x'
        print*,"maille=",i
-	   print*,"difference largeur voisine droite=",
-     &(am(ivois(i,1))+am(i))/2
-	   print*,"difference coordonnee voisine droite=",
-     &(x(ivois(i,1))-x(i))
+	   print*,"difference largeur voisine droite=",&
+     (am(ivois(i,1))+am(i))/2
+	   print*,"difference coordonnee voisine droite=",&
+     (x(ivois(i,1))-x(i))
 	   print*,"x coordonnee maille=",x(i)
 	   print*,"x coordonnee maille voisine=",x(ivois(i,1))
 	   print*,"dx width maille=",bm(i)
 	   print*,"dx width voisine=",bm(ivois(i,3))
-	   print*,"Ratio voisine droite=",
-     &(x(ivois(i,1))-x(i))/((am(ivois(i,1))+am(i))/2)
+	   print*,"Ratio voisine droite=",&
+     (x(ivois(i,1))-x(i))/((am(ivois(i,1))+am(i))/2)
 	  stop
        endif
 	  endif
        if (ivois(i,3).ne.-99) then
 
-       if (abs((z(ivois(i,3))-z(i))/((bm(ivois(i,3))+bm(i))/2))
-     &.gt.1.1.or.abs((z(ivois(i,3))-z(i))/
-     &((bm(ivois(i,3))+bm(i))/2)).lt.0.99) then
+       if (abs((z(ivois(i,3))-z(i))/((bm(ivois(i,3))+bm(i))/2))&
+     .gt.1.1.or.abs((z(ivois(i,3))-z(i))/&
+     ((bm(ivois(i,3))+bm(i))/2)).lt.0.99) then
        print*,'pb coordonnee def maille z'
        print*,"maille:",i,"voisin haut:",ivois(i,3)
-	   print*,"difference largeur voisine haute=",
-     &(bm(ivois(i,3))+bm(i))/2
-	   print*,"difference coordonnee voisine  haute=",
-     &(z(ivois(i,3))-z(i))
+	   print*,"difference largeur voisine haute=",&
+     (bm(ivois(i,3))+bm(i))/2
+	   print*,"difference coordonnee voisine  haute=",&
+     (z(ivois(i,3))-z(i))
 	   print*,"z coordonnee maille=",z(i)
 	   print*,"z coordonnee maille voisine=",z(ivois(i,3))
 	   print*,"dz thick maille=",bm(i)
 	   print*,"dz thick voisine=",bm(ivois(i,3))
-	   print*,"Ratio voisine  haute=",
-     &(z(ivois(i,3))-z(i))/((bm(ivois(i,3))+bm(i))/2)
+	   print*,"Ratio voisine  haute=",&
+     (z(ivois(i,3))-z(i))/((bm(ivois(i,3))+bm(i))/2)
 	  stop
        endif
        endif
@@ -1181,8 +1181,8 @@
 		if(ibuilt.eq.1) then
 	  kr=0
 	  do ii=1,nm
-	  if(z(ii)-topo(icol(ii)).lt.0.0001.and.
-     &z(ii)-bot(icol(ii)).gt.0.0001) then
+	  if(z(ii)-topo(icol(ii)).lt.0.0001.and.&
+     z(ii)-bot(icol(ii)).gt.0.0001) then
 	  kr=kr+1
 	  inum(kr)=ii
 	  inum2(ii)=kr
@@ -1544,12 +1544,12 @@
         allocate(qadvin_h(ligne4))
 
 
-		call DTS_read(nc,xpool,ligne,ligne1,
-     &ligne2,ligne3,ligne4,
-     &ligne6,timeDTS,xDTS,tempDTS,
-     &chgRG,cRivG,timeG,tempRG,
-     &chgRD,cRivD,timeD,tempRD,
-     &xriffle,slopeRH)
+		call DTS_read(nc,xpool,ligne,ligne1,&
+     ligne2,ligne3,ligne4,&
+     ligne6,timeDTS,xDTS,tempDTS,&
+     chgRG,cRivG,timeG,tempRG,&
+     chgRD,cRivD,timeD,tempRD,&
+     xriffle,slopeRH)
 
 	  endif
 
@@ -1560,8 +1560,8 @@
 !	  	  	  	  	       					  C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-	  if(ytest.eq."AVA".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
+	  if(ytest.eq."AVA".or.ytest.eq."ZHZ"&
+     .or.ytest.eq."DTS".or.ytest.eq."TEX") then
 	  nzone=0
 	  do i=1,nm
 	  read(32,*)izone(i)
@@ -1642,8 +1642,8 @@
 	  SELECT CASE (ytest)
         CASE ('ZNS')
 	  do j=1,nzone
-	  read(321,*)jzone(j),akzone(j),omzone(j),aspzone(j),anszone(j),
-     &swreszone(j)
+	  read(321,*)jzone(j),akzone(j),omzone(j),aspzone(j),anszone(j),&
+     swreszone(j)
 
 	  enddo
 
@@ -1666,8 +1666,8 @@
         CASE ('ZND')
 
 	  do j=1,nzone
-	  read(321,*)jzone(j),akzone(j),omzone(j),aspzone(j),anszone(j),
-     &swreszone(j)
+	  read(321,*)jzone(j),akzone(j),omzone(j),aspzone(j),anszone(j),&
+     swreszone(j)
 
 	  enddo
 
@@ -1691,8 +1691,8 @@
 
 	 CASE ('1DS')
 	  do j=1,nzone
-	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
-     &swreszone(j),alandazone(j),cpmzone(j),rhomzone(j)
+	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),&
+     swreszone(j),alandazone(j),cpmzone(j),rhomzone(j)
 	  enddo
 
 
@@ -1722,8 +1722,8 @@
 
 	 CASE ('1DJ')
 	  do j=1,nzone
-	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
-     &swreszone(j)
+	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),&
+     swreszone(j)
 
 	  enddo
 
@@ -1754,8 +1754,8 @@
 	      allocate(anszone(nzone))
 	      allocate(swreszone(nzone))
 	  do j=1,nzone
-	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
-     &swreszone(j),alandazone(j),cpmzone(j),rhomzone(j)
+	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),&
+     swreszone(j),alandazone(j),cpmzone(j),rhomzone(j)
 	  enddo
 	  do i=1,nm
 	  do j=1,nzone
@@ -1778,8 +1778,8 @@
 !cc loop element
 	  	  CASE ('DTS')
 	  do j=1,nzone
-	  read(321,*)jzone(j),akzone(j),omzone(j),
-     &alandazone(j),rhomzone(j)
+	  read(321,*)jzone(j),akzone(j),omzone(j),&
+     alandazone(j),rhomzone(j)
 
 	  enddo
 
@@ -1809,8 +1809,8 @@
 	  	  CASE ('ZHZ')
 
 	  do j=1,nzone
-	  read(321,*)jzone(j),akzone(j),omzone(j),
-     &alandazone(j),rhomzone(j)
+	  read(321,*)jzone(j),akzone(j),omzone(j),&
+     alandazone(j),rhomzone(j)
 	  enddo
 
 	  do i=1,nm
@@ -1896,8 +1896,8 @@
 	  SELECT CASE (ymoycondtherm)
 	  	  CASE ("WOODS")
 	  do ik=1,nm
-	  alanda(ik)=((sqrt(alandae)*om(ik)+
-     &sqrt(alandas(ik))*(1D+00-om(ik)))**2)
+	  alanda(ik)=((sqrt(alandae)*om(ik)+&
+     sqrt(alandas(ik))*(1D+00-om(ik)))**2)
 	  enddo
 	    CASE ("GEOME")
 	  do ik=1,nm
@@ -2121,8 +2121,8 @@
 
 !ccc....VARIATION SPATIALE : une condition par maille
 	  if(iclect.eq.1) then
-	  read(37,*)icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
-     &valcl(i,2),valcl(i,3),valcl(i,4)
+	  read(37,*)icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),&
+     valcl(i,2),valcl(i,3),valcl(i,4)
 !       else
 !       if(iclect.ne.1) then
 !       write(37,*) icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),
@@ -2135,8 +2135,8 @@
 !ccc....message erreur
 	  do j=1,4
 	  if (ivois(i,j).eq.-99.and.icl(i,j).eq.1) then
-	  print*,i,
-     &"erreur pas de voisin et pas de conditions aux limites"
+	  print*,i,&
+     "erreur pas de voisin et pas de conditions aux limites"
 	  endif
 	  enddo
 	  enddo
@@ -2262,16 +2262,16 @@
 
 !ccc....VARIATION SPATIALE : une condition par maille
 	  if(icltherm.eq.1) then
-	  read(38,*) iclt(ik,1),iclt(ik,2),iclt(ik,3)
-     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
+	  read(38,*) iclt(ik,1),iclt(ik,2),iclt(ik,3)&
+     ,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
 !	  else
 !	  write(38,*) iclt(ik,1),iclt(ik,2),iclt(ik,3)
 !     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
 	  endif
 	  do j=1,4
 	  if (ivois(ik,j).eq.-99.and.iclt(ik,j).eq.1) then
-	  print*,ik,
-     &"erreur pas de voisin et pas de conditions aux limites"
+	  print*,ik,&
+     "erreur pas de voisin et pas de conditions aux limites"
 	  endif
 	  enddo
 	  enddo
@@ -2487,21 +2487,21 @@
 !CC....DEF PARAMETRES VS CDT INITIALES
 !CC....ZNS
 	  if (ivg.eq.1.or.yunconfined.eq."UNS") then
-	  Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,
-     &nm,akrv,rho1,g,ansun,asun)
+	  Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,&
+     nm,akrv,rho1,g,ansun,asun)
 
 !CC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL AVEC ZONE NON SATUREE
 	if(igelzns.eq.0.and.ith.eq.1) then
 	if (ymoycondtherm.eq."WOODS") then
-	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+
-     &sqrt(alandas(i))*(1D+00-om(i))+
-     &sqrt(alandag)*om(i)*(1D+00-sw(i)))**2
+	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+&
+     sqrt(alandas(i))*(1D+00-om(i))+&
+     sqrt(alandag)*om(i)*(1D+00-sw(i)))**2
 	else if(ymoycondtherm.eq."GEOME") then
-	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*
-     &alandag**(om(i)*(1D+00-sw(i))))
+	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
+     alandag**(om(i)*(1D+00-sw(i))))
 	else if(ymoycondtherm.eq."ARITH") then
-	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))
-     &+alandag*(om(i)*(1D+00-sw(i))))
+	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
+     +alandag*(om(i)*(1D+00-sw(i))))
 	endif
 
 	endif
@@ -2581,24 +2581,24 @@
 	  if(temp(i).gt.tl) dswpdp(i)=1
 	  do kcol=1,nc
 !CC...GEL....dswpd subpermafrost
-	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.zs(kcol,1)) then
+	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.zs(kcol,1)) then
 	  dswpdp(i)=ss(i)/g/rho(i)/om(i)
 	  endif
 !CC...GEL....dswpd subpermafrost
-	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.topo(kcol))
-     & then
+	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.topo(kcol))&
+      then
 	  dswpdp(i)=ss(i)/g/rho(i)/om(i)
 	  endif
 !CC....DEGEL....dswpd suprapermafrost
-      if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).gt.zs(kcol,1).and.temp(i).gt.tl)then
+      if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).gt.zs(kcol,1).and.temp(i).gt.tl)then
       dswpdp(i)=1
       endif
 !CC....DEGEL....dswpd subpermafrost
-      if (igel.eq.2.and.zs(kcol,2).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).lt.zs(kcol,2).and.temp(i).gt.tl)then
+      if (igel.eq.2.and.zs(kcol,2).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).lt.zs(kcol,2).and.temp(i).gt.tl)then
       dswpdp(i)=ss(i)/(rho1*g*om(i))
       endif
 	  enddo
@@ -2611,10 +2611,10 @@
 !ccc....sw (liquide) = (1D0 - sice)
 !CC....Implicite
       if(icycle.ne.0.and.ibigridice.ne.1.and.iparo.eq.1) then
-	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,tempo,
-     &dsipdtemp,igelzns,ytypakrice,
-     &sicep,om,sw,swressi,ytypsice,
-     &cimp,tempoo,omega,siceo)
+	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,tempo,&
+     dsipdtemp,igelzns,ytypakrice,&
+     sicep,om,sw,swressi,ytypsice,&
+     cimp,tempoo,omega,siceo)
       else
       do i=1,nm
 	   sicep(i) = 0.D0
@@ -2623,10 +2623,10 @@
       endif
 !CC....Explicite
       if(icycle.ne.0.and.ibigridice.ne.1.and.iparo.eq.0) then
-	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,
-     &dsipdtemp,igelzns,ytypakrice,
-     &sicep,om,sw,swressi,ytypsice,
-     &cimp,tempo,omega,siceo)
+	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,&
+     dsipdtemp,igelzns,ytypakrice,&
+     sicep,om,sw,swressi,ytypsice,&
+     cimp,tempo,omega,siceo)
       else
       do i=1,nm
 	   sicep(i) = 0.D0
@@ -2635,9 +2635,9 @@
       endif
 !CC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
 	  if(icycle.ne.0.and.ibigridice.EQ.1) then
-	  CALL biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,
-     &col,nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,
-     &sicep,swressi,siceo,tempo)
+	  CALL biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,&
+     col,nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,&
+     sicep,swressi,siceo,tempo)
 	  endif
 
 !ccc.....SWTOT est la quantite total d'eau (liquide+glace)
@@ -2837,18 +2837,18 @@
 	  end select
 
 
-       call variation_cdt_limites(nm,paso,itlecture,ytest,
-     &ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,
-     &icl,valcl,iclt,valclt,ivois,
-     &z,g,ntsortie,bm,irptha,
-     &rho,tempsol,tempriver,qpluie,chgriver,
-     &chgRD,chgRG,tempRD,tempRG,
-     &id_RD,id_RG,id_river,id_rivert,tempsurf,
-     &tempbot,chgsurf,chgbot,
-     &cRivG,timeG,cRivD,timeD,
-     &timeDTS,xDTS,
-     &tempDTS,x,icol,nc,tempo,pro,slopeRH,
-     &qsurf,qbot)
+       call variation_cdt_limites(nm,paso,itlecture,ytest,&
+     ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,&
+     icl,valcl,iclt,valclt,ivois,&
+     z,g,ntsortie,bm,irptha,&
+     rho,tempsol,tempriver,qpluie,chgriver,&
+     chgRD,chgRG,tempRD,tempRG,&
+     id_RD,id_RG,id_river,id_rivert,tempsurf,&
+     tempbot,chgsurf,chgbot,&
+     cRivG,timeG,cRivD,timeD,&
+     timeDTS,xDTS,&
+     tempDTS,x,icol,nc,tempo,pro,slopeRH,&
+     qsurf,qbot)
        endif
 
 
@@ -2862,10 +2862,10 @@
 !	    BOUCLE DE PICARD	  	       C
 !	  	  	  	  		   C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  do while (amaxp.gt.crconvp.or.pr(1)+1.eq.pr(1)
-     &.or.amaxt.gt.crconvt.or.temp(1)+1.eq.temp(1)
-     &.or.temp(1)-temp(1).ne.0
-     &.or.pr(1)-pr(1).ne.0.or.nk.eq.iteration-1)
+	  do while (amaxp.gt.crconvp.or.pr(1)+1.eq.pr(1)&
+     .or.amaxt.gt.crconvt.or.temp(1)+1.eq.temp(1)&
+     .or.temp(1)-temp(1).ne.0&
+     .or.pr(1)-pr(1).ne.0.or.nk.eq.iteration-1)
 	  nk=nk+1
 
 !CC...Sauvegarde de literation picard precedante
@@ -2891,8 +2891,8 @@
 !	      pas de temps adaptatif	       C
 !	  	  	  	  		   C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	if(nk.eq.iteration-1.or.pr(1)+1.eq.pr(1)
-     &.or.dt.le.1D-5) then
+	if(nk.eq.iteration-1.or.pr(1)+1.eq.pr(1)&
+     .or.dt.le.1D-5) then
 	  if(dtreco.ge.0) then
       dtrecord=dble(dtreco)-dble(dt)
       irecord=0
@@ -2974,18 +2974,18 @@
         if(ligne6.eq.0) ligne6=1
 
 !ccc....recalcul car chgt pas temps
-       call variation_cdt_limites(nm,paso,itlecture,ytest,
-     &ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,
-     &icl,valcl,iclt,valclt,ivois,
-     &z,g,ntsortie,bm,irptha,
-     &rho,tempsol,tempriver,qpluie,chgriver,
-     &chgRD,chgRG,tempRD,tempRG,
-     &id_RD,id_RG,id_river,id_rivert,tempsurf,
-     &tempbot,chgsurf,chgbot,
-     &cRivG,timeG,cRivD,timeD,
-     &timeDTS,xDTS,
-     &tempDTS,x,icol,nc,tempo,pro,slopeRH,
-     &qsurf,qbot)
+       call variation_cdt_limites(nm,paso,itlecture,ytest,&
+     ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,&
+     icl,valcl,iclt,valclt,ivois,&
+     z,g,ntsortie,bm,irptha,&
+     rho,tempsol,tempriver,qpluie,chgriver,&
+     chgRD,chgRG,tempRD,tempRG,&
+     id_RD,id_RG,id_river,id_rivert,tempsurf,&
+     tempbot,chgsurf,chgbot,&
+     cRivG,timeG,cRivD,timeD,&
+     timeDTS,xDTS,&
+     tempDTS,x,icol,nc,tempo,pro,slopeRH,&
+     qsurf,qbot)
        endif
 
 
@@ -3011,8 +3011,8 @@
 
 	  if(dt.lt.1D-5.and.nk.eq.iteration) then
 	  if (iec.eq.1) then
-	  if (amaxp.gt.crconvp.or.pr(1)+1.eq.pr(1).or.
-     &pr(1).ne.pr(1).or.abs(pr(1)).gt.1D+20) then
+	  if (amaxp.gt.crconvp.or.pr(1)+1.eq.pr(1).or.&
+     pr(1).ne.pr(1).or.abs(pr(1)).gt.1D+20) then
 	  print*,'non convergence Picard apres', iteration, 'iterations'
 	  print*,'pas de temps =',dt
 	  print*,'ecoulement non convergence'
@@ -3031,9 +3031,9 @@
 	  endif
 
 	  if(ith.eq.1) then
-	  if (amaxt.gt.crconvt.or.temp(1)+1.eq.temp(1).or.
-     &temp(1).ne.temp(1).or.abs(temp(1)).gt.1D+16.or.amazcfl.gt.1
-     &.or.amaxcfl.gt.1) then
+	  if (amaxt.gt.crconvt.or.temp(1)+1.eq.temp(1).or.&
+     temp(1).ne.temp(1).or.abs(temp(1)).gt.1D+16.or.amazcfl.gt.1&
+     .or.amaxcfl.gt.1) then
 	  print*,'non convergence Picard apres', iteration, 'iterations'
 	  print*,'pas de temps =',dt
 	  print*, 'thermique non convergence'
@@ -3117,19 +3117,19 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  if (ivg.eq.1.or.yunconfined.eq."UNS") then
-	  Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,
-     &nm,akrv,rho1,g,ansun,asun)
+	  Call unsaturated(pr,swp,dswpdp,swresz,asp,ans,akr,&
+     nm,akrv,rho1,g,ansun,asun)
 	if(igelzns.eq.0.and.ith.eq.1) then
 	if (ymoycondtherm.eq."WOODS") then
-	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+
-     &sqrt(alandas(i))*(1D+00-om(i))+
-     &sqrt(alandag)*om(i)*(1D+00-sw(i)))**2
+	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+&
+     sqrt(alandas(i))*(1D+00-om(i))+&
+     sqrt(alandag)*om(i)*(1D+00-sw(i)))**2
 	else if(ymoycondtherm.eq."GEOME") then
-	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*
-     &alandag**(om(i)*(1D+00-sw(i))))
+	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
+     alandag**(om(i)*(1D+00-sw(i))))
 	else if(ymoycondtherm.eq."ARITH") then
-	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))
-     &+alandag*(om(i)*(1D+00-sw(i))))
+	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
+     +alandag*(om(i)*(1D+00-sw(i))))
 	endif
 
 	endif
@@ -3181,8 +3181,8 @@
 
 
 	  if(icycle.eq.1) then
-	  if(ytest.ne."TH2".or.ytest.ne."TH3".and.
-     &ytest.ne."MAQ".and.ytest.ne."TH1") then
+	  if(ytest.ne."TH2".or.ytest.ne."TH3".and.&
+     ytest.ne."MAQ".and.ytest.ne."TH1") then
 	  if (temp(1).lt.0.and.tempo(1)-temp(1).gt.0) igel=1
 	  if (temp(1).lt.0.and.tempo(1)-temp(1).lt.0) igel=2
 	  endif
@@ -3215,31 +3215,31 @@
 	  if(temp(i).gt.tl) dswpdp(i)=1
 	  do kcol=1,nc
 !CC...GEL....dswpd subpermafrost
-	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.zs(kcol,1)) then
+	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.zs(kcol,1)) then
 	  dswpdp(i)=ss(i)/g/rho(i)/om(i)
 	  endif
 !CC...GEL....dswpd subpermafrost
-	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.topo(kcol)) then
+	  if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.topo(kcol)) then
 	  dswdp(i)=ss(i)/g/rho(i)/om(i)
 	  endif
 !CC....DEGEL....dswpd suprapermafrost
-      if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).gt.zs(kcol,1).and.temp(i).gt.tl)then
+      if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).gt.zs(kcol,1).and.temp(i).gt.tl)then
       dswpdp(i)=1
       endif
 !CC....DEGEL....dswpd subpermafrost
-      if (igel.eq.2.and.zs(kcol,2).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).lt.zs(kcol,2))then
+      if (igel.eq.2.and.zs(kcol,2).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).lt.zs(kcol,2))then
       dswpdp(i)=ss(i)/(rho1*g*om(i))
       endif
-	  if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).lt.topo(kcol)) then
+	  if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).lt.topo(kcol)) then
 	  dswdp(i)=1
 	  endif
-	  if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.
-     &z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).lt.zs(kcol,1)) then
+	  if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
+     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).lt.zs(kcol,1)) then
 	  dswpdp(i)=1
 	  endif
 	  if (igel.eq.2.and.zs(kcol,1).eq.-99.and.icol(i).eq.kcol) then
@@ -3257,10 +3257,10 @@
 !CC....sw (liquide) = (1D0 - sice)
 !CC....Implicite
       if(ibigridice.ne.1.and.iparo.eq.1) then
-	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,tempo,
-     &dsipdtemp,igelzns,ytypakrice,
-     &sicep,om,sw,swressi,ytypsice,
-     &cimp,tempoo,omega,siceo)
+	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,tempo,&
+     dsipdtemp,igelzns,ytypakrice,&
+     sicep,om,sw,swressi,ytypsice,&
+     cimp,tempoo,omega,siceo)
       else
       do i=1,nm
 	   sicep(i) = 0.D0
@@ -3270,10 +3270,10 @@
 
 !CC....Explicite
       if(ibigridice.ne.1.and.iparo.eq.0) then
-	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,
-     &dsipdtemp,igelzns,ytypakrice,
-     &sicep,om,sw,swressi,ytypsice,
-     &cimp,tempo,omega,siceo)
+	   CALL icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,&
+     dsipdtemp,igelzns,ytypakrice,&
+     sicep,om,sw,swressi,ytypsice,&
+     cimp,tempo,omega,siceo)
       else
       do i=1,nm
 	   sicep(i) = 0.D0
@@ -3282,9 +3282,9 @@
       endif
 !CC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
 	  if(ibigridice.EQ.1) then
-	  CALL biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,
-     &col,nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,
-     &sicep,swressi,siceo,tempo)
+	  CALL biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,&
+     col,nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,&
+     sicep,swressi,siceo,tempo)
 	  endif
 
 !CC.....SWTOT est la quantite total d'eau (liquide+glace)
@@ -3355,10 +3355,10 @@
 
 
 
-	  call matp(val,icol_ind,irow_ptr,x,z,b,am,ivois,
-     &rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,
-     &sw,nz,irp,nmax1,nmax,bm,akv,akrv,
-     &igel,ysupdp,rhoi,ixy,dsidtemp,temp,tempo,ysolv)
+	  call matp(val,icol_ind,irow_ptr,x,z,b,am,ivois,&
+     rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,&
+     sw,nz,irp,nmax1,nmax,bm,akv,akrv,&
+     igel,ysupdp,rhoi,ixy,dsidtemp,temp,tempo,ysolv)
 !CC....Resolution
 	  n1=nm
 	  nmaxz=nmax
@@ -3416,19 +3416,19 @@
 	  if (icl(i,1).eq.1) then
 	  rhom=dble((rho(i)+rho(ivois(i,1)))/2D+00)
 	  iv=ivois(i,1)
-	  vxp(i)=dble((am(i)+am(iv))/((am(i)/akr(i)/ak(i))+
-     &(am(iv)/akr(iv)/ak(iv))))
-	  vxp(i)=dble(-vxp(i)/amu*((pr(i)-pr(iv))/(x(i)-x(iv))
-     &+ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i))))
+	  vxp(i)=dble((am(i)+am(iv))/((am(i)/akr(i)/ak(i))+&
+     (am(iv)/akr(iv)/ak(iv))))
+	  vxp(i)=dble(-vxp(i)/amu*((pr(i)-pr(iv))/(x(i)-x(iv))&
+     +ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i))))
 	  endif
 !ccc....cacul vitesse face GAUCHE
 	  if (icl(i,2).eq.1) then
 	  rhom=dble((rho(i)+rho(ivois(i,2)))/2D+00)
 	  iv=ivois(i,2)
-	  vxm(i)=dble((am(i)+am(iv))/((am(i)/akr(i)/ak(i))+
-     &(am(iv)/akr(iv)/ak(iv))))
-	  vxm(i)=dble(-vxm(i)/amu*((pr(iv)-pr(i))/(x(iv)-x(i))
-     &+ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i))))
+	  vxm(i)=dble((am(i)+am(iv))/((am(i)/akr(i)/ak(i))+&
+     (am(iv)/akr(iv)/ak(iv))))
+	  vxm(i)=dble(-vxm(i)/amu*((pr(iv)-pr(i))/(x(iv)-x(i))&
+     +ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i))))
 	  endif
 !ccc....vertical INITIALISATION
        vzm(i)=0.D+00
@@ -3437,19 +3437,19 @@
 	  if (icl(i,4).eq.1) then
 	  rhom=dble((rho(i)+rho(ivois(i,4)))/2D+00)
 	  iv=ivois(i,4)
-	  vzm(i)=dble((bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+
-     &(bm(iv)/akrv(iv)/akv(iv))))
-	  vzm(i)=dble((-vzm(i)/amu*((pr(i)-pr(iv))/(z(i)-z(iv))
-     &+ixy*g*rhom)))
+	  vzm(i)=dble((bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+&
+     (bm(iv)/akrv(iv)/akv(iv))))
+	  vzm(i)=dble((-vzm(i)/amu*((pr(i)-pr(iv))/(z(i)-z(iv))&
+     +ixy*g*rhom)))
 	  endif
 !ccc....cacul vitesse face HAUT
 	  if (icl(i,3).eq.1) then
 	  rhom=dble((rho(i)+rho(ivois(i,3)))/2D+00)
 	  iv=ivois(i,3)
-	  vzp(i)=dble(((bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+
-     &(bm(iv)/akrv(iv)/akv(iv)))))
-	  vzp(i)=dble((-vzp(i)/amu*((pr(iv)-pr(i))/(z(iv)-z(i))
-     &+ixy*g*rhom)))
+	  vzp(i)=dble(((bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+&
+     (bm(iv)/akrv(iv)/akv(iv)))))
+	  vzp(i)=dble((-vzp(i)/amu*((pr(iv)-pr(i))/(z(iv)-z(i))&
+     +ixy*g*rhom)))
 	  endif
 !ccc....cacul vitesse avec CHARGE IMPOSEE
 	  if (icl(i,1).eq.-2) then
@@ -3494,10 +3494,10 @@
 	  if (icl(i,1).eq.1) then
 	  rhom=(rho(i)+rho(ivois(i,1)))/2
 	  iv=ivois(i,1)
-	  vxp(i)=(am(i)+am(iv))/((am(i)/akr(i)/ak(i))+
-     &(am(iv)/akr(iv)/ak(iv)))
-	  vxp(i)=-vxp(i)/amu*((pro(i)-pro(iv))/(x(i)-x(iv))
-     &+ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i)))
+	  vxp(i)=(am(i)+am(iv))/((am(i)/akr(i)/ak(i))+&
+     (am(iv)/akr(iv)/ak(iv)))
+	  vxp(i)=-vxp(i)/amu*((pro(i)-pro(iv))/(x(i)-x(iv))&
+     +ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i)))
 	  endif
 	  if (icl(i,1).eq.-2) then
 	  vxp(i)=-ak(i)*akr(i)/amu*(valcl(i,1)-pro(i))/am(i)*2
@@ -3507,10 +3507,10 @@
 	  if (icl(i,2).eq.1) then
 	  rhom=(rho(i)+rho(ivois(i,2)))/2
 	  iv=ivois(i,2)
-	  vxm(i)=(am(i)+am(iv))/((am(i)/akr(i)/ak(i))+
-     &(am(iv)/akr(iv)/ak(iv)))
-	  vxm(i)=-vxm(i)/amu*((pro(iv)-pro(i))/(x(iv)-x(i))
-     &+ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i)))
+	  vxm(i)=(am(i)+am(iv))/((am(i)/akr(i)/ak(i))+&
+     (am(iv)/akr(iv)/ak(iv)))
+	  vxm(i)=-vxm(i)/amu*((pro(iv)-pro(i))/(x(iv)-x(i))&
+     +ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i)))
 	  endif
 	  if (icl(i,2).eq.-2) then
 	  vxm(i)=-ak(i)*akr(i)/amu*(pro(i)-valcl(i,2))/am(i)*2
@@ -3522,28 +3522,28 @@
 	  if (icl(i,4).eq.1) then
 	  rhom=(rho(i)+rho(ivois(i,4)))/2
 	  iv=ivois(i,4)
-	  vzm(i)=(bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+
-     &(bm(iv)/akrv(iv)/akv(iv)))
-	  vzm(i)=-vzm(i)/amu*((pro(i)-pro(iv))/(z(i)-z(iv))
-     &+ixy*g*rhom)
+	  vzm(i)=(bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+&
+     (bm(iv)/akrv(iv)/akv(iv)))
+	  vzm(i)=-vzm(i)/amu*((pro(i)-pro(iv))/(z(i)-z(iv))&
+     +ixy*g*rhom)
 	  endif
 	  if (icl(i,4).eq.-2) then
-	  vzm(i)=-akv(i)*akrv(i)/amu*((pro(i)-valcl(i,4))/bm(i)*2
-     &+ixy*g*rho(i))
+	  vzm(i)=-akv(i)*akrv(i)/amu*((pro(i)-valcl(i,4))/bm(i)*2&
+     +ixy*g*rho(i))
 	  endif
 	  if (icl(i,4).eq.-1) vzm(i)=valcl(i,4)
 !ccc....cacul vitesse face HAUT
 	  if (icl(i,3).eq.1) then
 	  rhom=(rho(i)+rho(ivois(i,3)))/2
 	  iv=ivois(i,3)
-	  vzp(i)=(bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+
-     &(bm(iv)/akrv(iv)/akv(iv)))
-	  vzp(i)=-vzp(i)/amu*((pro(iv)-pro(i))/(z(iv)-z(i))
-     &+ixy*g*rhom)
+	  vzp(i)=(bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+&
+     (bm(iv)/akrv(iv)/akv(iv)))
+	  vzp(i)=-vzp(i)/amu*((pro(iv)-pro(i))/(z(iv)-z(i))&
+     +ixy*g*rhom)
 	  endif
 	  if (icl(i,3).eq.-2) then
-	  vzp(i)=-akv(i)*akrv(i)/amu*((valcl(i,3)-pro(i))/bm(i)*2
-     &+ixy*g*rho(i))
+	  vzp(i)=-akv(i)*akrv(i)/amu*((valcl(i,3)-pro(i))/bm(i)*2&
+     +ixy*g*rho(i))
 	  endif
 	  if (icl(i,3).eq.-1) vzp(i)=-valcl(i,3)
 !ccc....cacul vitesse avec CHARGE IMPOSEE
@@ -3617,9 +3617,9 @@
 	  if(itr.eq.1) then
 	  nz=nm
 	  dtc=dt
-	  call matc(val,icol_ind,irow_ptr,x,b,am,ivois,conco,
-     &dtc,iclc,valclc,om,nm,nz,allg,alt,
-     &nmax,nmax1,bm,z,vxp,vxm,vzp,vzm,ysolv)
+	  call matc(val,icol_ind,irow_ptr,x,b,am,ivois,conco,&
+     dtc,iclc,valclc,om,nm,nz,allg,alt,&
+     nmax,nmax1,bm,z,vxp,vxm,vzp,vzm,ysolv)
 	  n1=nm
 	  nmaxz=nmax
 	  nmaxzz=nmax1
@@ -3653,14 +3653,14 @@
 
 
 
-      call matt(val,icol_ind,irow_ptr,x,b,am,ivois,tempo,
-     &rho,dt,iclt,valclt,om,nm,nth,bll,blt,
-     &cpe,cps,rhos,alanda,chlat,nmaxth,igel,nmaxthh,
-     &z,bm,temp,ithec,irpth,ts,tl,
-     &alandae,alandas,alandai,rhoi,cpice,sice,sw,
-     &icycle,rhog,alandag,cpg,igelzns,
-     &vxp,vxm,vzp,vzm,
-     &ymoycondtherm,dsidtemp,ytest,ysolv)
+      call matt(val,icol_ind,irow_ptr,x,b,am,ivois,tempo,&
+     rho,dt,iclt,valclt,om,nm,nth,bll,blt,&
+     cpe,cps,rhos,alanda,chlat,nmaxth,igel,nmaxthh,&
+     z,bm,temp,ithec,irpth,ts,tl,&
+     alandae,alandas,alandai,rhoi,cpice,sice,sw,&
+     icycle,rhog,alandag,cpg,igelzns,&
+     vxp,vxm,vzp,vzm,&
+     ymoycondtherm,dsidtemp,ytest,ysolv)
 !CC....resolution
 	  n1=nm
 	  nmaxz=nmax
@@ -3688,8 +3688,8 @@
 
 
 !CC....Test du Picard thermique
-	  if(iriv.eq.1.or.iqriv.eq.0.or.
-     &icycle.eq.0.or.igelzns.eq.0.or.iomdegel.eq.0) then
+	  if(iriv.eq.1.or.iqriv.eq.0.or.&
+     icycle.eq.0.or.igelzns.eq.0.or.iomdegel.eq.0) then
 	  amaxt=0D+00
 	  do ii=1,nm
 	  if (abs(tempk(ii)-temp(ii)).ge.amaxt) then
@@ -3712,17 +3712,17 @@
 	  nz=n
 	  nmz=nm
 	  ncz=nc
-	  call upheaval(nz,ncz,nmz,igel,zs,zsoo,ivois,pr,pro,
-     &alph,dl,def,defo,icol)
+	  call upheaval(nz,ncz,nmz,igel,zs,zsoo,ivois,pr,pro,&
+     alph,dl,def,defo,icol)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !	  	  	  	  	       					  C
 !	  ISOTHERMES	  	  	     C
 !	  	  	  	  	       					  C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  call interpol(nc,zs,nm,icol,temp,ivois,igel,
-     &bm,z,ncmax,n,valclt,ts,iclt,topo)
-	  call interpol(nc,zl,nm,icol,temp,ivois,igel,
-     &bm,z,ncmax,n,valclt,tl,iclt,topo)
+	  call interpol(nc,zs,nm,icol,temp,ivois,igel,&
+     bm,z,ncmax,n,valclt,ts,iclt,topo)
+	  call interpol(nc,zl,nm,icol,temp,ivois,igel,&
+     bm,z,ncmax,n,valclt,tl,iclt,topo)
 	endif
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !	      fin thermique calcule	      C
@@ -3779,8 +3779,8 @@
 !CC....ivois(ik,4)= voisin ibas
 	  sumflux=0D+00
 	  do i=1,nm
-	  sumflux=sumflux-vxp(i)*bm(i)+vxm(i)*bm(i)+vzm(i)*am(i)
-     &-vzp(i)*am(i)
+	  sumflux=sumflux-vxp(i)*bm(i)+vxm(i)*bm(i)+vzm(i)*am(i)&
+     -vzp(i)*am(i)
 	  enddo
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !  CDT DE DRAIN	  	  		   C
@@ -3829,8 +3829,8 @@
 !	  	  	  	  	       					  C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-       if (ytest.eq."ZHR".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."1DS") then
+       if (ytest.eq."ZHR".or.ytest.eq."ZHZ"&
+     .or.ytest.eq."1DS") then
 	  do i=1,nm
 	  qad(i)=0D+00
 	  qcondu(i)=0D+00
@@ -3839,16 +3839,16 @@
 !CC....flux THERMIQUE
 	  do i=1,nm
        	if (ymoycondtherm.eq."WOODS") then
-	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)
-     &+sqrt(alandai)*(om(i)*sice(i))+
-     &sqrt(alandas(i))*(1D+00-om(i))+
-     &sqrt(alandag)*om(i)*(1D+00-sw(i)-sice(i)))**2
+	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)&
+     +sqrt(alandai)*(om(i)*sice(i))+&
+     sqrt(alandas(i))*(1D+00-om(i))+&
+     sqrt(alandag)*om(i)*(1D+00-sw(i)-sice(i)))**2
 	else if(ymoycondtherm.eq."GEOME") then
-	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*
-     &alandai**(om(i)*sice(i))*alandag**(om(i)*(1D+00-sw(i)-sice(i))))
+	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
+     alandai**(om(i)*sice(i))*alandag**(om(i)*(1D+00-sw(i)-sice(i))))
 	else if(ymoycondtherm.eq."ARITH") then
-	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))
-     &+alandai*(om(i)*sice(i))+alandag*(om(i)*(1D+00-sw(i)-sice(i))))
+	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
+     +alandai*(om(i)*sice(i))+alandag*(om(i)*(1D+00-sw(i)-sice(i))))
 	endif
 
 !CC....FACE INF
@@ -3863,15 +3863,15 @@
 	qad(i)=dble(rho(i)*cpe*vzm(i)*temp(i))
 	endif
 !CC...conduction dispersion
-	dtjm=dble(blt*rho(i)*cpe*((vxm(i)+vxp(i))**2./4.
-     &+(vzm(i)+vzp(i))**2./4.)**0.5+alanda(i))
+	dtjm=dble(blt*rho(i)*cpe*((vxm(i)+vxp(i))**2./4.&
+     +(vzm(i)+vzp(i))**2./4.)**0.5+alanda(i))
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !	  	  FACE BASSE	  	      C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	if(iclt(i,4).eq.1) then
-	qcondu(i)=-dble(dtjm/(z(i)-z(ivois(i,4)))*
-     &(temp(i)-temp(ivois(i,4))))
+	qcondu(i)=-dble(dtjm/(z(i)-z(ivois(i,4)))*&
+     (temp(i)-temp(ivois(i,4))))
 
 	endif
 !CC....temperature imposee W·m−1·K−1 K /m  > W/m2
@@ -3896,14 +3896,14 @@
 !CC....BILAN THERMIQUE
 	  do i=1,nm
 	  	  if(ivois(i,2).eq.-99) then
-	  	  qtin=qtin+(rho(i)*cpe*(temp(i)-5)*vxp(i)-dble(alanda(i)*
-     &(temp(ivois(i,1))-temp(i))/(x(ivois(i,1))-x(i))))*bm(i)
+	  	  qtin=qtin+(rho(i)*cpe*(temp(i)-5)*vxp(i)-dble(alanda(i)*&
+     (temp(ivois(i,1))-temp(i))/(x(ivois(i,1))-x(i))))*bm(i)
 	  	  endif
 
 	  	  if(ivois(i,1).eq.-99) then
-	  	  qtout=qtout+(rho(i)*cpe*(temp(i)-5)*vxm(i)-
-     &dble(alanda(i)*(temp(i)-temp(ivois(i,2)))
-     &/(x(i)-x(ivois(i,2)))))*bm(i)
+	  	  qtout=qtout+(rho(i)*cpe*(temp(i)-5)*vxm(i)-&
+     dble(alanda(i)*(temp(i)-temp(ivois(i,2)))&
+     /(x(i)-x(ivois(i,2)))))*bm(i)
 	  	  endif
 
 	  swtotal=dble(sw(i)*om(i)*am(i)*bm(i)+swtotal)
@@ -3924,9 +3924,9 @@
 
 !ccc....BILAN THERMIQUE
 	  do i=1,nm
-	  qtherm(i)=(temp(i)+273.15)*(om(i)*sw(i)*rho(i)*cpe+
-     &om(i)*sice(i)*rhoi(i)*cpice+
-     &(1.-om(i))*rhos(i)*cps(i))*bm(i)*am(i)
+	  qtherm(i)=(temp(i)+273.15)*(om(i)*sw(i)*rho(i)*cpe+&
+     om(i)*sice(i)*rhoi(i)*cpice+&
+     (1.-om(i))*rhos(i)*cps(i))*bm(i)*am(i)
 	  qthermtot=qthermtot+qtherm(i)
 !ccc....Terme advectif
 !ccc....VITESSE EN X A TRAVERS LES FACES
@@ -3935,8 +3935,8 @@
 !ccc....vzm(i) face du dessous
 !ccc....vzp(i) face du dessus
 	  if(ivois(i,4).eq.-99) then
-	  qtcol=qtcol+alanda(i)*(temp(i)-valclt_bas)
-     &/z(i)*am(i)
+	  qtcol=qtcol+alanda(i)*(temp(i)-valclt_bas)&
+     /z(i)*am(i)
 	  endif
 	  if(ivois(i,1).eq.-99) then
 	  qeout=qeout+vxp(i)*bm(i)
@@ -3948,8 +3948,8 @@
 	  akeq=(qeout/grad)*2
 	  qtcol=qtcol/al*2
 	  pt1=(temp(nmaille1)+temp(nmaille2))/2.
-	  pt2=(temp(nmaille5)+temp(nmaille6)+
-     &temp(nmaille7)+temp(nmaille8))/4.
+	  pt2=(temp(nmaille5)+temp(nmaille6)+&
+     temp(nmaille7)+temp(nmaille8))/4.
        endif
 !CC....TEST NEUMAN
        if (ytest.eq."TH1") then
@@ -4145,9 +4145,9 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 	  ts=0
-	call interpolsurf(nc,zs,nm,icol,pr,ivois,
-     &bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,
-     &ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
+	call interpolsurf(nc,zs,nm,icol,pr,ivois,&
+     bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,&
+     ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
 	   if (ith.eq.1) then
     	OPEN(181819,FILE='S_temp_zns1.dat')
     	OPEN(181820,FILE='S_temp_zns2.dat')
@@ -4206,13 +4206,13 @@
 	  if(irp.eq.1) then
 	  if(irecord.eq.1) then
 	  ts=0
-	call interpolsurf(nc,zs,nm,icol,pr,ivois,
-     &bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,
-     &ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
+	call interpolsurf(nc,zs,nm,icol,pr,ivois,&
+     bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,&
+     ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
 	  do i=1,nm
-	  write(7782,*)paso/unitsortie,paso/86400,x(i),
-     &z(i),pr(i)/rho1/g+z(i),sw(i),vxp(i),
-     &vxm(i),vzp(i),vzm(i)
+	  write(7782,*)paso/unitsortie,paso/86400,x(i),&
+     z(i),pr(i)/rho1/g+z(i),sw(i),vxp(i),&
+     vxm(i),vzp(i),vzm(i)
 	  enddo
        endif
        endif
@@ -4222,8 +4222,8 @@
 
 !CC....SORTIE ZNS 1D
        if(ytest.eq."ZNS") then
-	  print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),
-     &valcl(1,3),sw(1),sw(50),sw(2),akr(1)
+	  print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),&
+     valcl(1,3),sw(1),sw(50),sw(2),akr(1)
 		if(modulo(int(paso),itsortie).eq.0) then
 			irecord=1
 		endif
@@ -4239,8 +4239,8 @@
 
 
        if(ytest.eq."ZND") then
-	  print*,"time",paso,"dt",dt,pr(1)/rho1/g+z(1),
-     &valcl(1,3)/rho1/g+z(1),sw(100),ak(100)
+	  print*,"time",paso,"dt",dt,pr(1)/rho1/g+z(1),&
+     valcl(1,3)/rho1/g+z(1),sw(100),ak(100)
 		if(modulo(int(paso),itsortie).eq.0) then
 			irecord=1
 		endif
@@ -4327,29 +4327,29 @@
 !     &(temp(23960)+temp(23961))/2,(temp(84873)+temp(84874))/2,
 !     &(temp(91895)+temp(91896))/2
 !ccc....molonari42
-    	write(181823,*)paso/unitsortie,
-     &(temp(98524)+temp(98525))/2,(temp(98505)+temp(98506))/2,
-     &(temp(98483)+temp(98484))/2,(temp(98445)+temp(98446))/2
+    	write(181823,*)paso/unitsortie,&
+     (temp(98524)+temp(98525))/2,(temp(98505)+temp(98506))/2,&
+     (temp(98483)+temp(98484))/2,(temp(98445)+temp(98446))/2
 !ccc....molonari41
        write(181840,*)paso/unitsortie,
-!     &(valclt(91896,3)+valclt(92463,3))/2,
-     &(temp(91297)+temp(91298))/2,(temp(90670)+temp(90671))/2,
-     &(temp(90031)+temp(90032))/2,(temp(89379)+temp(89380))/2
+!     &(valclt(91896,3)+valclt(92463,3))/2,&
+     (temp(91297)+temp(91298))/2,(temp(90670)+temp(90671))/2,&
+     (temp(90031)+temp(90032))/2,(temp(89379)+temp(89380))/2
 !ccc....molonari43
        write(181841,*)paso/unitsortie,
-!     &(valclt(70796,3)+valclt(69588,3))/2,
-     &(temp(69588)+temp(68589))/2,(temp(68372)+temp(67128))/2,
-     &(temp(67128)+temp(67129))/2,(temp(65866)+temp(65867))/2
+!     &(valclt(70796,3)+valclt(69588,3))/2,&
+     (temp(69588)+temp(68589))/2,(temp(68372)+temp(67128))/2,&
+     (temp(67128)+temp(67129))/2,(temp(65866)+temp(65867))/2
 !ccc....molonari44
        write(181842,*)paso/unitsortie,
-!     &(valclt(65723,3)+valclt(65722,3))/2,
-     &(temp(64445)+temp(64446))/2,(temp(63145)+temp(63146))/2,
-     &(temp(61830)+temp(61831))/2,(temp(60469)+temp(60470))/2
+!     &(valclt(65723,3)+valclt(65722,3))/2,&
+     (temp(64445)+temp(64446))/2,(temp(63145)+temp(63146))/2,&
+     (temp(61830)+temp(61831))/2,(temp(60469)+temp(60470))/2
 !ccc....molonari45
        write(181843,*)paso/unitsortie,
-!     &(valclt(33221,3)+valclt(33220,3))/2,
-     &(temp(23960)+temp(23961))/2,(temp(22055)+temp(22056))/2,
-     &(temp(20118)+temp(20119))/2,(temp(18148)+temp(18149))/2
+!     &(valclt(33221,3)+valclt(33220,3))/2,&
+     (temp(23960)+temp(23961))/2,(temp(22055)+temp(22056))/2,&
+     (temp(20118)+temp(20119))/2,(temp(18148)+temp(18149))/2
 	  endif
 	  endif
 
@@ -4380,15 +4380,15 @@
 
 	  if(ytest.eq."VAU") then
 	  ts=0
-	  call interpolsurf(nc,zs,nm,icol,pr,ivois,
-     &bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,
-     &ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
+	  call interpolsurf(nc,zs,nm,icol,pr,ivois,&
+     bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,&
+     ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
     	print*,"out",paso,zs(1,1),zs(nc,1)
 	  if(irecord.eq.1) then
 
      	do i=1,nm
-	    write(91,*)paso/us,i,x(i),z(i),pr(i),pr(i)/rho(i)/g+z(i),
-     &sw(i)
+	    write(91,*)paso/us,i,x(i),z(i),pr(i),pr(i)/rho(i)/g+z(i),&
+     sw(i)
     	enddo
     	OPEN(181819,FILE='S_2H.dat')
     	OPEN(181821,FILE='S_3H.dat')
@@ -4397,8 +4397,8 @@
 	  print*,zs(1,1)
        write(18,*)paso/unitsortie,zs(1,1),zs(1,2)
 	  do kkcol=1,nc
-	  write(622,*)paso/unitsortie,kkcol,x(ibas(kkcol)),
-     &zs(kkcol,1),zs(kkcol,2)
+	  write(622,*)paso/unitsortie,kkcol,x(ibas(kkcol)),&
+     zs(kkcol,1),zs(kkcol,2)
 	  enddo
 
        if(paso.lt.2*3600+10.and.paso.gt.2*3600-10) then
@@ -4446,61 +4446,61 @@
 !     &zs(65,1),zs(217,1)
 	   if (ith.eq.1) then
 !ccc....S_temp_zns1.dat') au milieu RD
-	  write(181819,*)paso/unitsortie,temp(257),temp(578),
-     &temp(866),temp(1335)
+	  write(181819,*)paso/unitsortie,temp(257),temp(578),&
+     temp(866),temp(1335)
 !ccc....S_temp_zns2.dat') proche riviere RD
-	  write(181820,*)paso/unitsortie,temp(1301),temp(2146),
-     &temp(3036),temp(3958)
+	  write(181820,*)paso/unitsortie,temp(1301),temp(2146),&
+     temp(3036),temp(3958)
 !ccc....S_temp_zns3.dat') loin riv RD
-	  write(181818,*)paso/unitsortie,temp(137),temp(511),
-     &temp(1035),temp(1856)
+	  write(181818,*)paso/unitsortie,temp(137),temp(511),&
+     temp(1035),temp(1856)
 !ccc....S_temp_TRes1.dat') proche riv
-	  write(181821,*)paso/unitsortie,temp(187),temp(495),temp(763),
-     &temp(1175),temp(1840),temp(2358)
+	  write(181821,*)paso/unitsortie,temp(187),temp(495),temp(763),&
+     temp(1175),temp(1840),temp(2358)
 !ccc....S_temp_TRes2.dat') loin riv
-	  write(181822,*)paso/unitsortie,temp(125),temp(420),temp(674),
-     &temp(1023),temp(1675),temp(2188)
+	  write(181822,*)paso/unitsortie,temp(125),temp(420),temp(674),&
+     temp(1023),temp(1675),temp(2188)
 !ccc....S_temp_HoboRD.dat')
-	  write(181823,*)paso/unitsortie,temp(6683),temp(7863),temp(8748),
-     &temp(9633)
+	  write(181823,*)paso/unitsortie,temp(6683),temp(7863),temp(8748),&
+     temp(9633)
 !ccc....S_temp_HoboRG.dat')
-	  write(181824,*)paso/unitsortie,temp(6927),temp(8107),temp(8992),
-     &temp(9877)
+	  write(181824,*)paso/unitsortie,temp(6927),temp(8107),temp(8992),&
+     temp(9877)
 	  endif
 
 !ccc....S_piezoB_RG.dat') zone 4
-	  write(181826,*)paso/unitsortie,pr(2706)/rho(2706)/g+z(2706),
-     &zs(65,1)
+	  write(181826,*)paso/unitsortie,pr(2706)/rho(2706)/g+z(2706),&
+     zs(65,1)
 !ccc....piezoB_RD.dat' zone 7
-	  write(181825,*)paso/unitsortie,pr(2858)/rho(2858)/g+z(2858),
-     &zs(217,1)
+	  write(181825,*)paso/unitsortie,pr(2858)/rho(2858)/g+z(2858),&
+     zs(217,1)
 
 	  if(paso.lt.57*86400+1000.and.paso.gt.57*86400-1000) then
 	  do kkcol=1,nc
-	  write(181827,*)x(ibas(kkcol)),
-     &zs(kkcol,1)
+	  write(181827,*)x(ibas(kkcol)),&
+     zs(kkcol,1)
 	  enddo
 	  endif
 
 
 	  if(paso.lt.133*86400+1000.and.paso.gt.133*86400-1000) then
 	  do kkcol=1,nc
-	  write(181831,*)x(ibas(kkcol)),
-     &zs(kkcol,1)
+	  write(181831,*)x(ibas(kkcol)),&
+     zs(kkcol,1)
 	  enddo
 	  endif
 
 	  if(paso.lt.134*86400+1000.and.paso.gt.134*86400-1000) then
 	  do kkcol=1,nc
-	  write(181828,*)x(ibas(kkcol)),
-     &zs(kkcol,1)
+	  write(181828,*)x(ibas(kkcol)),&
+     zs(kkcol,1)
 	  enddo
 	  endif
 
 	  if(paso.lt.195*86400+1000.and.paso.gt.195*86400-1000) then
 	  do kkcol=1,nc
-	  write(181829,*)x(ibas(kkcol)),
-     &zs(kkcol,1)
+	  write(181829,*)x(ibas(kkcol)),&
+     zs(kkcol,1)
 	  enddo
 	  endif
 
@@ -4515,15 +4515,15 @@
 
 
 !CC....SORTIE ZH Karina
-      if(ytest.eq."ZHR".or.ytest.eq."ZHZ"
-     &) then
+      if(ytest.eq."ZHR".or.ytest.eq."ZHZ"&
+     ) then
        if(irecord.eq.1.and.irpth.eq.1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
        write(60,*) paso/unitsortie,temp(nmaille2)
        write(61,*) paso/unitsortie,temp(nmaille3)
 	  write(7782,*) paso/unitsortie,vzp(nmaille2),vzm(nmaille2)
-	  write(1818,*) paso/unitsortie,qcondu(1),qad(1),qtherm(1),vzm(1),
-     &temp(1),temp(2)
+	  write(1818,*) paso/unitsortie,qcondu(1),qad(1),qtherm(1),vzm(1),&
+     temp(1),temp(2)
 	   do i=1,nm
 	  write(18181,*)paso/unitsortie,z(i),vzm(i)
 	  write(18182,*)paso/unitsortie,z(i),qcondu(i),qad(i),qtherm(i)
@@ -4553,8 +4553,8 @@
       write(69,*) paso/unitsortie,temp(nmaille9)
       write(591,*) paso/unitsortie,temp(nmaille10)
 	  write(7782,*) paso/unitsortie,vzp(nmaille2),vzm(nmaille2)
-	  write(1818,*) paso/unitsortie,qcondu(1),qad(1),qtherm(1),vzm(1),
-     &temp(1),temp(2)
+	  write(1818,*) paso/unitsortie,qcondu(1),qad(1),qtherm(1),vzm(1),&
+     temp(1),temp(2)
 	   do i=1,nm
 	  write(18181,*)paso/unitsortie,z(i),vzm(i)
 	  write(18182,*)paso/unitsortie,z(i),qcondu(i),qad(i),qtherm(i)
@@ -4562,9 +4562,9 @@
 	  write(94,*)paso/unitsortie,z(i),akv(i)*akrv(i)*rho(i)*g/amu
 	  write(941,*)paso/unitsortie,z(i),sw(i)
 	  write(942,*)paso/unitsortie,z(i),alanda(i)
-	  write(943,*)paso/unitsortie,z(i),om(i)*sw(i)*rho(i)*cpe+
-     &om(i)*sice(i)*rhoi(i)*cpice+
-     &(1.-om(i))*rhos(i)*cps(i)
+	  write(943,*)paso/unitsortie,z(i),om(i)*sw(i)*rho(i)*cpe+&
+     om(i)*sice(i)*rhoi(i)*cpice+&
+     (1.-om(i))*rhos(i)*cps(i)
 	  write(181822,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
 	  enddo
 	  endif
@@ -4596,8 +4596,8 @@
 	  if(ytest.eq."THL") then
     	print*,"OUT",dt,paso
        if(irecord.eq.1) then
-    	print*,"OUT",paso/unitsortie,pr(nm)/rho(1)/g+z(nm),
-     &temp(nmaille1),valclt(nm,4),temp(1),pr(1),akr(1)
+    	print*,"OUT",paso/unitsortie,pr(nm)/rho(1)/g+z(nm),&
+     temp(nmaille1),valclt(nm,4),temp(1),pr(1),akr(1)
        if(paso.lt.86400+1000.and.paso.gt.86400-1000) then
 	  do i=1,nm
 	  write(741,*) i,x(i),z(i),pr(i),pr(i)/rho1/g+z(i),temp(i),sw(i)
@@ -4628,19 +4628,19 @@
 	   enddo
 	  endif
     	print*,"OUT",paso/86400
-       write(53,*) paso/unitsortie,
-     &pr(nmaille1)/rho(nmaille1)/g+z(nmaille1),
-     &pr(nmaille2)/rho(nmaille2)/g+z(nmaille2),
-     &pr(nmaille3)/rho(nmaille3)/g+z(nmaille3),
-     &pr(nmaille4)/rho(nmaille4)/g+z(nmaille4),
-     &pr(nmaille5)/rho(nmaille5)/g+z(nmaille5),
-     &pr(nmaille6)/rho(nmaille6)/g+z(nmaille6),
-     &pr(nmaille7)/rho(nmaille7)/g+z(nmaille7),
-     &pr(nmaille8)/rho(nmaille8)/g+z(nmaille8),
-     &pr(nmaille9)/rho(nmaille9)/g+z(nmaille9)
-      write(54,*) paso/unitsortie,temp(nmaille1),
-     &temp(nmaille2),temp(nmaille3),temp(nmaille4),temp(nmaille5),
-     &temp(nmaille6),temp(nmaille7),temp(nmaille8),temp(nmaille9)
+       write(53,*) paso/unitsortie,&
+     pr(nmaille1)/rho(nmaille1)/g+z(nmaille1),&
+     pr(nmaille2)/rho(nmaille2)/g+z(nmaille2),&
+     pr(nmaille3)/rho(nmaille3)/g+z(nmaille3),&
+     pr(nmaille4)/rho(nmaille4)/g+z(nmaille4),&
+     pr(nmaille5)/rho(nmaille5)/g+z(nmaille5),&
+     pr(nmaille6)/rho(nmaille6)/g+z(nmaille6),&
+     pr(nmaille7)/rho(nmaille7)/g+z(nmaille7),&
+     pr(nmaille8)/rho(nmaille8)/g+z(nmaille8),&
+     pr(nmaille9)/rho(nmaille9)/g+z(nmaille9)
+      write(54,*) paso/unitsortie,temp(nmaille1),&
+     temp(nmaille2),temp(nmaille3),temp(nmaille4),temp(nmaille5),&
+     temp(nmaille6),temp(nmaille7),temp(nmaille8),temp(nmaille9)
 !CC...POSITION PT100 MILIEU MAQUETTE ID X Z
 !ccc....81       1.0062500000000001      1.0062499999999999
 !ccc....1361       1.0062500000000001       0.90625000000000022
@@ -4653,9 +4653,9 @@
 !ccc....10321       1.0062500000000001       0.20625000000000138
 !ccc....11601       1.0062500000000001       0.10625000000000132
 !ccc....12881       1.0062500000000001      6.2500000000013309E-003
-      write(56,*) paso/unitsortie,temp(81),temp(1361),temp(2641),
-     &temp(3921),temp(5201),temp(6481),temp(7761),
-     &temp(9041),temp(10321),temp(11601),temp(12881)
+      write(56,*) paso/unitsortie,temp(81),temp(1361),temp(2641),&
+     temp(3921),temp(5201),temp(6481),temp(7761),&
+     temp(9041),temp(10321),temp(11601),temp(12881)
 !CC....Position isotherm 0 et liquidus
       write(18,*) paso/unitsortie,zs(20,1),zs(20,2),zl(20,1),zl(20,2)
 !CC....Soulevement
@@ -4681,8 +4681,8 @@
 	   write(1818,*) paso/unitsortie,qtherm(1)
        write(181818) real(paso/unitsortie),real(gxl),real(gxs)
        call flush(181818)
-       open(74,file='S_pts',position='rewind',
-     &		   form='unformatted')
+       open(74,file='S_pts',position='rewind',&
+     		   form='unformatted')
        write(74) real(paso/unitsortie)
        do i=1,nm
        write(74) real(pr(i)),real(temp(i)),real(sw(i))
@@ -4694,11 +4694,11 @@
 !CC....TEST TH2
        if(ytest.eq."TH2") then
        if(irecord.eq.1) then
-       write(181818) real(paso/unitsortie),real(tempmin),
-     &real(swtotal),real(PF2)
+       write(181818) real(paso/unitsortie),real(tempmin),&
+     real(swtotal),real(PF2)
        call flush(181818)
-      open(74,file='S_pts',position='rewind',
-     &form='unformatted')
+      open(74,file='S_pts',position='rewind',&
+     form='unformatted')
        do i=1,nm
        write(74) real(pr(i)),real(temp(i)),real(sw(i))
        enddo
@@ -4707,15 +4707,15 @@
        endif
 !CC....TEST TH3
        if(ytest.eq."TH3") then
-	  print*,real(paso/unitsortie),real(akeq),real(qtcol),
-     &real(qthermtot),real(pt1),real(pt2)
+	  print*,real(paso/unitsortie),real(akeq),real(qtcol),&
+     real(qthermtot),real(pt1),real(pt2)
        if(irecord.eq.1) then
-       write(181818) real(paso/unitsortie),real(akeq),
-     &real(qtcol),real(qthermtot),real(pt1),real(pt2)
+       write(181818) real(paso/unitsortie),real(akeq),&
+     real(qtcol),real(qthermtot),real(pt1),real(pt2)
 !	  	       t,PM1,PM2,PM3,PM4_Pt1,PM4_Pt2
        call flush(181818)
-       open(74,file='S_pts',position='rewind',
-     &		   form='unformatted')
+       open(74,file='S_pts',position='rewind',&
+     		   form='unformatted')
        write(74) real(paso/unitsortie)
        do i=1,nm
        write(74) real(pr(i)),real(temp(i)),real(sw(i))
@@ -4748,9 +4748,9 @@
 !...FICHIERS FIN DE SIMULATION
 !ccc....Dernier pas de temps ou regime permanant
        do i=1,nm
-	  write(74,FMT='(i6,BN,F14.2,F14.2,F14.3,F14.3,F14.2)')
-     &i,x(i),z(i),pr(i),
-     &pr(i)/(rho1*g)+z(i),temp(i)
+	  write(74,FMT='(i6,BN,F14.2,F14.2,F14.3,F14.3,F14.2)')&
+     i,x(i),z(i),pr(i),&
+     pr(i)/(rho1*g)+z(i),temp(i)
 	  enddo
 
 	  if(ytest.eq."AVA") then
@@ -4766,8 +4766,8 @@
        if(ytest.eq."VIT") then
 		if(it.eq.1) then
         print*,'thermal conductivity=',alanda(1)
-		print*,'apparent heat capacity=',om(1)*sw(1)*rho(1)*cpe+
-     &om(1)*(1-sw(1))*rhog*cpg+(1.-om(1))*rhos(1)*cps(1)
+		print*,'apparent heat capacity=',om(1)*sw(1)*rho(1)*cpe+&
+     om(1)*(1-sw(1))*rhog*cpg+(1.-om(1))*rhos(1)*cps(1)
 		print*,'hydraulic conductivity=',akr(1)*ak(1)*rho(1)/(amu)
 		do i=1,nm
         if(icl(i,4).eq.-2) then
@@ -4784,15 +4784,15 @@
 		print*,'Z_Obs1',z(nmaille1)
 		print*,'Z_Obs2',z(nmaille2)
 		print*,'Z_Obs3',z(nmaille3)
-		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut
-     &-(prbas/(rho1*g)+zbas))/(zhaut-zbas)
+		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut&
+     -(prbas/(rho1*g)+zbas))/(zhaut-zbas)
 !CC vitessse face haute si sortant négatif, entrant positif
 		print*,'velocity=',-vzp(1)
 		endif
 
        if(irecord.eq.1) then
-		print*,'t(s)',paso,'T_obs [°C]',temp(nmaille1),temp(nmaille2),
-     &temp(nmaille3),'velocity=',-vzp(1)
+		print*,'t(s)',paso,'T_obs [°C]',temp(nmaille1),temp(nmaille2),&
+     temp(nmaille3),'velocity=',-vzp(1)
 		do i=1,nm
         if(icl(i,4).eq.-2) then
 		print*,'h(nm) [m]',pr(i)/(rho(i)*g)+z(i),'pr(nm) [Pa]',pr(i)
@@ -4805,8 +4805,8 @@
 		zhaut=z(i)
 		endif
 		enddo
-		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut
-     &-(prbas/(rho1*g)+zbas))/(zhaut-zbas)
+		print*,'imposed hydraulic gradient [m]',(prhaut/(rho1*g)+zhaut&
+     -(prbas/(rho1*g)+zbas))/(zhaut-zbas)
 !CC vitessse face haute si sortant négatif, entrant positif
 		print*,'velocity=',-vzp(1)
         write(59,*)paso/us,temp(nmaille1)
@@ -5059,8 +5059,8 @@
 
 	  endif
 
-	  if(ytest.eq."AVA".or.ytest.eq."ZHZ"
-     &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
+	  if(ytest.eq."AVA".or.ytest.eq."ZHZ"&
+     .or.ytest.eq."DTS".or.ytest.eq."TEX") then
 	  if	(allocated(alandazone))	DEALLOCATE(alandazone)
 	  if	(allocated(cpmzone))	DEALLOCATE(cpmzone)
 	  if	(allocated(rhomzone))	DEALLOCATE(rhomzone)
@@ -5482,10 +5482,10 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine matp(val,icol_ind,irow_ptr,x,z,b,am,ivois,
-     &rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,sw,nm,
-     &irp,nmax,nmax1,bm,akv,akrv,igel,
-     &ysupdp,rhoi,ixy,dsidtemp,temp,tempo,ysolv)
+	  subroutine matp(val,icol_ind,irow_ptr,x,z,b,am,ivois,&
+     rho,ak,akr,amu,dt,ia2,g,icl,valcl,rhold,om,pro,dswdp,sw,nm,&
+     irp,nmax,nmax1,bm,akv,akrv,igel,&
+     ysupdp,rhoi,ixy,dsidtemp,temp,tempo,ysolv)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  CHARACTER(3) :: ysolv
@@ -5524,9 +5524,9 @@
 	  val(il)=dble(-rho(ik)*om(ik)*dswdp(ik)/dt*irp)
 	  irow_ptr(ik+1)=irow_ptr(ik)+1
 !CC....terme b
-	  b(ik)=dble(b(ik)-sw(ik)*ia2
-     &*om(ik)*(rho(ik)-rhold(ik))/dt*irp
-     &-rho(ik)*om(ik)*dswdp(ik)*pro(ik)/dt*irp)
+	  b(ik)=dble(b(ik)-sw(ik)*ia2&
+     *om(ik)*(rho(ik)-rhold(ik))/dt*irp&
+     -rho(ik)*om(ik)*dswdp(ik)*pro(ik)/dt*irp)
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !	  	  	  	  		  C
@@ -5539,14 +5539,14 @@
 	  jp=ivois(ik,3)
 	  icol_ind(il)=jp
 	  dzh=dble(bm(ik)*abs(z(jp)-z(ik)))
-      val(il)=dble(1./dzh*(bm(jp)+bm(ik))
-     &/(bm(jp)/(akrv(jp)*akv(jp)*rho(jp)/amu)+
-     &bm(ik)/(akrv(ik)*akv(ik)*rho(ik)/amu)))
+      val(il)=dble(1./dzh*(bm(jp)+bm(ik))&
+     /(bm(jp)/(akrv(jp)*akv(jp)*rho(jp)/amu)+&
+     bm(ik)/(akrv(ik)*akv(ik)*rho(ik)/amu)))
 	  val(ilik)=dble(val(ilik)-val(il))
-	  b(ik)=dble(b(ik)-ixy*(bm(jp)+bm(ik))
-     &/(bm(jp)/(akrv(jp)*akv(jp)*rho(jp)/amu)+
-     &bm(ik)/(akrv(ik)*akv(ik)*rho(ik)/amu))
-     &*1*g/bm(ik)*(rho(jp)+rho(ik))/2)
+	  b(ik)=dble(b(ik)-ixy*(bm(jp)+bm(ik))&
+     /(bm(jp)/(akrv(jp)*akv(jp)*rho(jp)/amu)+&
+     bm(ik)/(akrv(ik)*akv(ik)*rho(ik)/amu))&
+     *1*g/bm(ik)*(rho(jp)+rho(ik))/2)
 	  irow_ptr(ik+1)=irow_ptr(ik+1)+1
 	  endif
 
@@ -5559,8 +5559,8 @@
 !ccc....Face haute a potentiel impose....
 	  dzhi=dble((bm(ik)*bm(ik)/2))
 	  val(ilik)=dble(val(ilik)-1/dzhi*rho(ik)*akv(ik)*akrv(ik)/amu)
-	  b(ik)=dble(b(ik)-ixy*1/dzhi*rho(ik)*akv(ik)*akrv(ik)/amu
-     &*valcl(ik,3))-1/bm(ik)*rho(ik)*akv(ik)*akrv(ik)/amu*rho(ik)*g
+	  b(ik)=dble(b(ik)-ixy*1/dzhi*rho(ik)*akv(ik)*akrv(ik)/amu&
+     *valcl(ik,3))-1/bm(ik)*rho(ik)*akv(ik)*akrv(ik)/amu*rho(ik)*g
 	  endif
 
 
@@ -5579,14 +5579,14 @@
 	  jm=ivois(ik,4)
 	  icol_ind(il)=jm
 	  dzb=dble(bm(ik)*abs(z(ik)-z(jm)))
-	  val(il)=dble(1/dzb*(bm(jm)+bm(ik))
-     &/(bm(jm)/(akrv(jm)*akv(jm)*rho(jm)/amu)+
-     &bm(ik)/(akrv(ik)*akv(ik)*rho(ik)/amu)))
+	  val(il)=dble(1/dzb*(bm(jm)+bm(ik))&
+     /(bm(jm)/(akrv(jm)*akv(jm)*rho(jm)/amu)+&
+     bm(ik)/(akrv(ik)*akv(ik)*rho(ik)/amu)))
 	  val(ilik)=dble(val(ilik)-val(il))
-	  b(ik)=dble(b(ik)+ixy*(bm(jm)+bm(ik))
-     &/(bm(jm)/(akrv(jm)*akv(jm)*rho(jm)/amu)+
-     &bm(ik)/(akrv(ik)*akv(ik)*rho(ik)/amu))
-     &*1*g/bm(ik)*(rho(jm)+rho(ik))/2)
+	  b(ik)=dble(b(ik)+ixy*(bm(jm)+bm(ik))&
+     /(bm(jm)/(akrv(jm)*akv(jm)*rho(jm)/amu)+&
+     bm(ik)/(akrv(ik)*akv(ik)*rho(ik)/amu))&
+     *1*g/bm(ik)*(rho(jm)+rho(ik))/2)
 	  irow_ptr(ik+1)=irow_ptr(ik+1)+1
 	  endif
 	  if(icl(ik,4).eq.-1) then
@@ -5597,8 +5597,8 @@
 !ccc....Face basse a potentiel impose....
 	  dzbi=dble((bm(ik)*bm(ik)/2))
 	  val(ilik)=dble(val(ilik)-1/dzbi*rho(ik)*akv(ik)*akrv(ik)/amu)
-	  b(ik)=dble(b(ik)-1/dzbi*rho(ik)*akv(ik)*akrv(ik)/amu
-     &*valcl(ik,4))+ixy*1/bm(ik)*rho(ik)*akv(ik)*akrv(ik)/amu*rho(ik)*g
+	  b(ik)=dble(b(ik)-1/dzbi*rho(ik)*akv(ik)*akrv(ik)/amu&
+     *valcl(ik,4))+ixy*1/bm(ik)*rho(ik)*akv(ik)*akrv(ik)/amu*rho(ik)*g
 	  endif
 
 	  if(icl(ik,4).eq.-3) then
@@ -5621,14 +5621,14 @@
 	  icol_ind(il)=im
 
 	  dxg=dble(am(ik)*abs(x(ik)-x(im)))
-	  val(il)=dble(1/dxg*(am(im)+am(ik))
-     &/(am(im)/(akr(im)*ak(im)*rho(im)/amu)+
-     &am(ik)/(akr(ik)*ak(ik)*rho(ik)/amu)))
+	  val(il)=dble(1/dxg*(am(im)+am(ik))&
+     /(am(im)/(akr(im)*ak(im)*rho(im)/amu)+&
+     am(ik)/(akr(ik)*ak(ik)*rho(ik)/amu)))
 
-	  b(ik)=dble(b(ik)+(am(im)+am(ik))/(am(im)/
-     &(akr(im)*ak(im)*rho(im)/amu)+
-     &am(ik)/(akr(ik)*ak(ik)*rho(ik)/amu))
-     &*(rho(im)+rho(ik))/2*g*ixy*(z(im)-z(ik))/(x(im)-x(ik))/am(ik))
+	  b(ik)=dble(b(ik)+(am(im)+am(ik))/(am(im)/&
+     (akr(im)*ak(im)*rho(im)/amu)+&
+     am(ik)/(akr(ik)*ak(ik)*rho(ik)/amu))&
+     *(rho(im)+rho(ik))/2*g*ixy*(z(im)-z(ik))/(x(im)-x(ik))/am(ik))
 
 	  val(ilik)=dble(val(ilik)-val(il))
 	  irow_ptr(ik+1)=irow_ptr(ik+1)+1
@@ -5640,8 +5640,8 @@
 	  endif
 	  if(icl(ik,2).eq.-2) then
 !cccccc Face gauchee a potentiel impose....
-	  b(ik)=dble(b(ik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu*
-     &valcl(ik,2))
+	  b(ik)=dble(b(ik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu*&
+     valcl(ik,2))
 	  val(ilik)=dble(val(ilik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu)
 	  endif
 
@@ -5656,12 +5656,12 @@
 	  ip=ivois(ik,1)
 	  icol_ind(il)=ip
 	  dxd=dble(am(ik)*abs(x(ip)-x(ik)))
-	  val(il)=dble(1/dxd*(am(ip)+am(ik))/(am(ip)/(akr(ip)*ak(ip)
-     &*rho(ip)/amu)+am(ik)/(akr(ik)*ak(ik)*rho(ik)/amu)))
-	  b(ik)=dble(b(ik)-(am(ip)+am(ik))/(am(ip)
-     &/(akr(ip)*ak(ip)*rho(ip)/amu)+am(ik)/
-     &(akr(ik)*ak(ik)*rho(ik)/amu))*(rho(ip)+rho(ik))/2*g*ixy*
-     &(z(ip)-z(ik))/(x(ip)-x(ik))/am(ik))
+	  val(il)=dble(1/dxd*(am(ip)+am(ik))/(am(ip)/(akr(ip)*ak(ip)&
+     *rho(ip)/amu)+am(ik)/(akr(ik)*ak(ik)*rho(ik)/amu)))
+	  b(ik)=dble(b(ik)-(am(ip)+am(ik))/(am(ip)&
+     /(akr(ip)*ak(ip)*rho(ip)/amu)+am(ik)/&
+     (akr(ik)*ak(ik)*rho(ik)/amu))*(rho(ip)+rho(ik))/2*g*ixy*&
+     (z(ip)-z(ik))/(x(ip)-x(ik))/am(ik))
 	  val(ilik)=dble(val(ilik)-val(il))
 	  irow_ptr(ik+1)=irow_ptr(ik+1)+1
 	  endif
@@ -5674,8 +5674,8 @@
 
 	  if(icl(ik,1).eq.-2) then
 !ccc....Face droite a potentiel impose....
-	  b(ik)=dble(b(ik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu*
-     &valcl(ik,1))
+	  b(ik)=dble(b(ik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu*&
+     valcl(ik,1))
 	  val(ilik)=dble(val(ilik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu)
 	  endif
 
@@ -5689,17 +5689,17 @@
 	  if (ysupdp.eq."SPMCK") then
 !ccc....GEL TERME SURPRESSION
 	  if (igel.eq.1) then
-	  b(ik)=b(ik)-
-     &abs((rho(ik)-rhoi(ik))*om(ik)*(dsidtemp(ik))
-     &*(tempo(ik)-temp(ik))/dt)
+	  b(ik)=b(ik)-&
+     abs((rho(ik)-rhoi(ik))*om(ik)*(dsidtemp(ik))&
+     *(tempo(ik)-temp(ik))/dt)
 	  endif
 !ccc....fin gel
 
 !ccc....DEGEL  TERME SURPRESSION
        if (igel.eq.2) then
-	  b(ik)=b(ik)+
-     &abs((rho(ik)-rhoi(ik))*om(ik)*(dsidtemp(ik))
-     &*(tempo(ik)-temp(ik))/dt)
+	  b(ik)=b(ik)+&
+     abs((rho(ik)-rhoi(ik))*om(ik)*(dsidtemp(ik))&
+     *(tempo(ik)-temp(ik))/dt)
 	  endif
 	  endif
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -5763,9 +5763,9 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine matc(val,icol_ind,irow_ptr,x,b,am,ivois,conco,
-     &dt,iclc,valclc,om,nm,n,allg,alt,
-     &nmax,nmax1,bm,z,vxp,vxm,vzp,vzm,ysolv)
+	  subroutine matc(val,icol_ind,irow_ptr,x,b,am,ivois,conco,&
+     dt,iclc,valclc,om,nm,n,allg,alt,&
+     nmax,nmax1,bm,z,vxp,vxm,vzp,vzm,ysolv)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  CHARACTER(3) :: ysolv
@@ -5980,8 +5980,8 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine upheaval(n,nc,nm,igel,zs,zsoo,ivois,pr,pro,
-     &alph,dl,def,defo,icol)
+	  subroutine upheaval(n,nc,nm,igel,zs,zsoo,ivois,pr,pro,&
+     alph,dl,def,defo,icol)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension zs(nc,2),zsoo(nc,2),ivois(nm,4),icol(nc)
@@ -5991,12 +5991,12 @@
 	  do kkcol=1,nc
 	  do i=1,nm
 	  if(zs(kkcol,1).ne.-99.and.zsoo(kkcol,1).ne.-99) then
-	  if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99.
-     &and.pr(i).gt.pro(i)) then
+	  if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99&
+     .and.pr(i).gt.pro(i)) then
 	  dl(kkcol)=(pr(i)-pro(i))*alph(i)*zs(kkcol,1)
 	  endif
-	  if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99.
-     &and.pr(i).lt.pro(i)) then
+	  if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99&
+     .and.pr(i).lt.pro(i)) then
 	  dl(kkcol)=00D+00
 	  endif
 	  def(kkcol)=dl(kkcol)+defo(kkcol)
@@ -6008,12 +6008,12 @@
 	  do kkcol=1,nc
 	  do i=1,nm
 	  if(zs(kkcol,1).ne.-99.and.zsoo(kkcol,1).ne.-99) then
-	  if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99.
-     &and.pr(i).gt.pro(i)) then
+	  if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99&
+     .and.pr(i).gt.pro(i)) then
 	  dl(kkcol)=(pr(i)-pro(i))*alph(i)*zs(kkcol,1)
 	  endif
-	  if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99.
-     &and.pr(i).lt.pro(i)) then
+	  if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99&
+     .and.pr(i).lt.pro(i)) then
 	  dl(kkcol)=-(pr(i)-pro(i))*alph(i)*zs(kkcol,1)
 	  endif
 	  def(kkcol)=dl(kkcol)+defo(kkcol)
@@ -6034,8 +6034,8 @@
 !	  	  	  	  		  C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-	  subroutine unsaturated(pr,sw,dswdp,swresz,asp,ans,akr,
-     &nm,akrv,rho1,g,ansun,asun)
+	  subroutine unsaturated(pr,sw,dswdp,swresz,asp,ans,akr,&
+     nm,akrv,rho1,g,ansun,asun)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension pr(nm),sw(nm)
@@ -6052,8 +6052,8 @@
       swres=swresz(i)
 	sw(i)=swres+(1-swres)*(1./(1+(as*prc)**ans))**((ans-1)/ans)
 	if(sw(i)-swres.le.1d-05) sw(i)=swres+1d-05
-	dswdp(i)=as*(ans-1)*(1-swres)*(as*prc)**(ans-1)/(1+(as*prc)**ans)
-     &**((2*ans-1)/ans)
+	dswdp(i)=as*(ans-1)*(1-swres)*(as*prc)**(ans-1)/(1+(as*prc)**ans)&
+     **((2*ans-1)/ans)
 	swt=(sw(i)-swres)/(1.-swres)
 	akr(i)=(swt**0.5)*((1-(1-swt**(ans/(ans-1)))**((ans-1)/ans))**2)
 	akrv(i)=(swt**0.5)*((1-(1-swt**(ans/(ans-1)))**((ans-1)/ans))**2)
@@ -6074,10 +6074,10 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine cdt_riviere(hriv,g,nm,z,hbot,
-     &bm,ivois,am,rho,xberg,x,n,icl,valcl,iclt,valclt,
-     &tempriv,aklit,aklitv,ak,akv,elit,
-     &akc,akcv,it,ita,tempo,ts)
+	  subroutine cdt_riviere(hriv,g,nm,z,hbot,&
+     bm,ivois,am,rho,xberg,x,n,icl,valcl,iclt,valclt,&
+     tempriv,aklit,aklitv,ak,akv,elit,&
+     akc,akcv,it,ita,tempo,ts)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension z(nm),bm(nm),ivois(nm,4),akv(nm),ak(nm),tempo(nm)
@@ -6087,62 +6087,62 @@
 !       TEST COND PARTICULIERES IMPOSEES SUR CELLULE VOISINE RIVIERE
 !       Bords en contact avec riviere!!!
 	  do i=1,nm
-	  if (z(i).gt.hbot-bm(i).and.z(i).le.hbot
-     &.and.ivois(i,3).eq.-99.and.tempo(i).gt.ts) then
+	  if (z(i).gt.hbot-bm(i).and.z(i).le.hbot&
+     .and.ivois(i,3).eq.-99.and.tempo(i).gt.ts) then
 	  icl(i,3)=-2
 	  valcl(i,3)=hriv*rho(i)*g
 	  iclt(i,3)=-2
 	  valclt(i,3)=tempriv
-	  akv(i)=bm(i)/((elit)/aklitv+
-     &(bm(i)-elit)/akcv)
-	  ak(i)=((elit)*aklit+
-     &(am(i)-elit)*akc)/am(i)
+	  akv(i)=bm(i)/((elit)/aklitv+&
+     (bm(i)-elit)/akcv)
+	  ak(i)=((elit)*aklit+&
+     (am(i)-elit)*akc)/am(i)
 	  if(ivois(i,1).eq.-99) then
 	  icl(i,1)=-1
 	  valcl(i,1)=0.D+00
 	  endif
 	  endif
 
-	  if (ivois(i,1).eq.-99
-     &.and.x(i).le.xberg.and.
-     &x(i).gt.(xberg-am(i)).and.tempo(i).gt.ts) then
+	  if (ivois(i,1).eq.-99&
+     .and.x(i).le.xberg.and.&
+     x(i).gt.(xberg-am(i)).and.tempo(i).gt.ts) then
 	  icl(i,1)=-2
 	  valcl(i,1)=rho(i)*g*(hbot+hriv-z(i))
 	  iclt(i,1)=-2
 	  valclt(i,1)=tempriv
-	  ak(i)=am(i)/((elit)/aklitv+
-     &(am(i)-elit)/akcv)
-	  akv(i)=((elit)*aklit+
-     &(bm(i)-elit)*akc)/bm(i)
+	  ak(i)=am(i)/((elit)/aklitv+&
+     (am(i)-elit)/akcv)
+	  akv(i)=((elit)*aklit+&
+     (bm(i)-elit)*akc)/bm(i)
 	  endif
 
-       if (z(i).gt.hbot-bm(i).and.z(i).le.hbot
-     &.and.ivois(i,3).eq.-99.and.tempo(i).le.ts) then
+       if (z(i).gt.hbot-bm(i).and.z(i).le.hbot&
+     .and.ivois(i,3).eq.-99.and.tempo(i).le.ts) then
 	  icl(i,3)=-1
 	  valcl(i,3)=0D+00
 	  iclt(i,3)=-2
 	  valclt(i,3)=tempriv
-	  akv(i)=bm(i)/((elit)/aklitv+
-     &(bm(i)-elit)/akcv)
-	  ak(i)=((elit)*aklit+
-     &(am(i)-elit)*akc)/am(i)
+	  akv(i)=bm(i)/((elit)/aklitv+&
+     (bm(i)-elit)/akcv)
+	  ak(i)=((elit)*aklit+&
+     (am(i)-elit)*akc)/am(i)
 	  if(ivois(i,1).eq.-99) then
 	  icl(i,1)=-1
 	  valcl(i,1)=0.D+00
 	  endif
 	  endif
 
-	  if (ivois(i,1).eq.-99
-     &.and.x(i).le.xberg.and.
-     &x(i).gt.(xberg-am(i)).and.tempo(i).le.ts) then
+	  if (ivois(i,1).eq.-99&
+     .and.x(i).le.xberg.and.&
+     x(i).gt.(xberg-am(i)).and.tempo(i).le.ts) then
 	  icl(i,1)=-1
 	  valcl(i,1)=0D+00
 	  iclt(i,1)=-2
 	  valclt(i,1)=tempriv
-	  ak(i)=am(i)/((elit)/aklitv+
-     &(am(i)-elit)/akcv)
-	  akv(i)=((elit)*aklit+
-     &(bm(i)-elit)*akc)/bm(i)
+	  ak(i)=am(i)/((elit)/aklitv+&
+     (am(i)-elit)/akcv)
+	  akv(i)=((elit)*aklit+&
+     (bm(i)-elit)*akc)/bm(i)
 	  endif
 
 
@@ -6170,9 +6170,9 @@
 !CC....TODOLIST
 !ccc....
 
-	  subroutine debit_riviere(hriv,qriva,qriv,nm,z,hbot,
-     &bm,ivois,qinf,am,xberg,x,al,n,
-     &rug,pent,iqriv,vxp,vzp,qruis)
+	  subroutine debit_riviere(hriv,qriva,qriv,nm,z,hbot,&
+     bm,ivois,qinf,am,xberg,x,al,n,&
+     rug,pent,iqriv,vxp,vzp,qruis)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension z(nm),bm(nm),ivois(nm,4)
@@ -6192,17 +6192,17 @@
 
 !CC....cellule sous rivière
 	  do ik=1,nm
-	  if (z(ik).gt.(hbot-bm(ik))
-     &.and.z(ik).lt.hbot.and.
-     &ivois(ik,3).eq.-99) then
+	  if (z(ik).gt.(hbot-bm(ik))&
+     .and.z(ik).lt.hbot.and.&
+     ivois(ik,3).eq.-99) then
 	  qriv=qriv+am(ik)*1*vzp(ik)
 
 	  qinf=qinf-am(ik)*1*vzp(ik)
 	  endif
 
-	  if (ivois(ik,1).eq.-99
-     &.and.x(ik).lt.xberg.and.
-     &x(ik).gt.(xberg-am(ik))) then
+	  if (ivois(ik,1).eq.-99&
+     .and.x(ik).lt.xberg.and.&
+     x(ik).gt.(xberg-am(ik))) then
 !       if (hriv+hbot.ge.z(ik)-bm(ik)/2.) then
 	  qriv=qriv+bm(ik)*1*vxp(ik)
 
@@ -6214,8 +6214,8 @@
 !CC....DETERMINATION hauteur DANS RIVIERE hriv
 	  if(iqriv.eq.1) then
 	  if (qriv.lt.qriva) qriv=qriva
-      hriv=((qriv)**(3./5.))*(rug**(-3./5.))*((al-xberg)**(-3./5.))*
-     &(pent**(-3./10.))
+      hriv=((qriv)**(3./5.))*(rug**(-3./5.))*((al-xberg)**(-3./5.))*&
+     (pent**(-3./10.))
 	  endif
 
 
@@ -6236,14 +6236,14 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	subroutine matt(val,icol_ind,irow_ptr,x,b,am,ivois,tempo,
-     &rho,dt,iclt,valclt,om,nm,n,bll,blt,
-     &cpe,cps,rhos,alanda,chlat,nmax,igel,nmax1,
-     &z,bm,temp,ithec,irpth,ts,tl,
-     &alandae,alandas,alandai,rhoi,cpice,sice,sw,
-     &icycle,rhog,alandag,cpg,igelzns,
-     &vxp,vxm,vzp,vzm,
-     &ymoycondtherm,dsidtemp,ytest,ysolv)
+	subroutine matt(val,icol_ind,irow_ptr,x,b,am,ivois,tempo,&
+     rho,dt,iclt,valclt,om,nm,n,bll,blt,&
+     cpe,cps,rhos,alanda,chlat,nmax,igel,nmax1,&
+     z,bm,temp,ithec,irpth,ts,tl,&
+     alandae,alandas,alandai,rhoi,cpice,sice,sw,&
+     icycle,rhog,alandag,cpg,igelzns,&
+     vxp,vxm,vzp,vzm,&
+     ymoycondtherm,dsidtemp,ytest,ysolv)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  CHARACTER(3) :: ysolv
@@ -6289,16 +6289,16 @@
 !CC
 	if(igelzns.eq.1) then
 	if (ymoycondtherm.eq."WOODS") then
-	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)
-     &+sqrt(alandai)*(om(i)*sice(i))+
-     &sqrt(alandas(i))*(1D+00-om(i))+
-     &sqrt(alandag)*om(i)*(1D+00-sw(i)-sice(i)))**2
+	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)&
+     +sqrt(alandai)*(om(i)*sice(i))+&
+     sqrt(alandas(i))*(1D+00-om(i))+&
+     sqrt(alandag)*om(i)*(1D+00-sw(i)-sice(i)))**2
 	else if(ymoycondtherm.eq."GEOME") then
-	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*
-     &alandai**(om(i)*sice(i))*alandag**(om(i)*(1D+00-sw(i)-sice(i))))
+	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
+     alandai**(om(i)*sice(i))*alandag**(om(i)*(1D+00-sw(i)-sice(i))))
 	else if(ymoycondtherm.eq."ARITH") then
-	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))
-     &+alandai*(om(i)*sice(i))+alandag*(om(i)*(1D+00-sw(i)-sice(i))))
+	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
+     +alandai*(om(i)*sice(i))+alandag*(om(i)*(1D+00-sw(i)-sice(i))))
 	endif
 	endif
 	    if(ymoycondtherm.eq."NEUMA") then
@@ -6320,15 +6320,15 @@
         else
         if (sw(i).lt.1) then
 	if (ymoycondtherm.eq."WOODS") then
-	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+
-     &sqrt(alandas(i))*(1D+00-om(i))+
-     &sqrt(alandag)*om(i)*(1D+00-sw(i)))**2
+	alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+&
+     sqrt(alandas(i))*(1D+00-om(i))+&
+     sqrt(alandag)*om(i)*(1D+00-sw(i)))**2
 	else if(ymoycondtherm.eq."GEOME") then
-	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*
-     &alandag**(om(i)*(1D+00-sw(i))))
+	alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
+     alandag**(om(i)*(1D+00-sw(i))))
 	else if(ymoycondtherm.eq."ARITH") then
-	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))
-     &+alandag*(om(i)*(1D+00-sw(i)-sice(i))))
+	  alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
+     +alandag*(om(i)*(1D+00-sw(i)-sice(i))))
 	endif
 
         endif
@@ -6341,19 +6341,19 @@
 !	  	  TERME DISPERSIF		   C
 !	  	  	  	  		  C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	dlip=dble(bll*rho(i)*cpe*(vxp(i)**2
-     &+(vzm(i)+vzp(i))**2/4)**0.5+alanda(i))
-	dlim=dble(bll*rho(i)*cpe*(vxm(i)**2
-     &+(vzm(i)+vzp(i))**2/4)**0.5+alanda(i))
-	dtjp=dble(blt*rho(i)*cpe*(vzp(i)**2
-     &+(vxm(i)+vxp(i))**2/4)**0.5+alanda(i))
-	dtjm=dble(blt*rho(i)*cpe*(vzm(i)**2
-     &+(vxm(i)+vxp(i))**2/4)**0.5+alanda(i))
-	dlip=dble(bll*rho(i)*cpe*((vxm(i)+vxp(i))**2/4
-     &+(vzm(i)+vzp(i))**2/4.)**0.5+alanda(i))
+	dlip=dble(bll*rho(i)*cpe*(vxp(i)**2&
+     +(vzm(i)+vzp(i))**2/4)**0.5+alanda(i))
+	dlim=dble(bll*rho(i)*cpe*(vxm(i)**2&
+     +(vzm(i)+vzp(i))**2/4)**0.5+alanda(i))
+	dtjp=dble(blt*rho(i)*cpe*(vzp(i)**2&
+     +(vxm(i)+vxp(i))**2/4)**0.5+alanda(i))
+	dtjm=dble(blt*rho(i)*cpe*(vzm(i)**2&
+     +(vxm(i)+vxp(i))**2/4)**0.5+alanda(i))
+	dlip=dble(bll*rho(i)*cpe*((vxm(i)+vxp(i))**2/4&
+     +(vzm(i)+vzp(i))**2/4.)**0.5+alanda(i))
 	dlim=dlip
-	dtjp=dble(blt*rho(i)*cpe*((vxm(i)+vxp(i))**2/4
-     &+(vzm(i)+vzp(i))**2/4)**0.5+alanda(i))
+	dtjp=dble(blt*rho(i)*cpe*((vxm(i)+vxp(i))**2/4&
+     +(vzm(i)+vzp(i))**2/4)**0.5+alanda(i))
 	dtjm=dtjp
 
 	il=il+1
@@ -6369,17 +6369,17 @@
 !ccc.... la densite de la glace en degel et la densite de l eau en gel
 !ccc.... TH1 utilisation rho eau degel
 	if(ytest.ne."THL".and.igel.eq.0) then
-	val(il)=dble(-(om(i)*sw(i)*rho(i)*cpe+
-     &om(i)*(1-sw(i))*rhog*cpg+
-     &(1.-om(i))*rhos(i)*cps(i))/dt*irpth)
+	val(il)=dble(-(om(i)*sw(i)*rho(i)*cpe+&
+     om(i)*(1-sw(i))*rhog*cpg+&
+     (1.-om(i))*rhos(i)*cps(i))/dt*irpth)
       else if(ytest.ne."THL".and.igel.eq.1) then
-	val(il)=dble(-((om(i)*sw(i)*rho(i)*cpe+
-     &om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+
-     &(1.-om(i))*rhos(i)*cps(i))-rho(i)*om(i)*chlat*ap)/dt*irpth)
+	val(il)=dble(-((om(i)*sw(i)*rho(i)*cpe+&
+     om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+&
+     (1.-om(i))*rhos(i)*cps(i))-rho(i)*om(i)*chlat*ap)/dt*irpth)
       else if(ytest.ne."THL".and.igel.eq.2) then
-	val(il)=dble(-((om(i)*sw(i)*rho(i)*cpe+
-     &om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+
-     &(1.-om(i))*rhos(i)*cps(i))-rhoi(i)*om(i)*chlat*ap)/dt*irpth)
+	val(il)=dble(-((om(i)*sw(i)*rho(i)*cpe+&
+     om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+&
+     (1.-om(i))*rhos(i)*cps(i))-rhoi(i)*om(i)*chlat*ap)/dt*irpth)
 	endif
 	if(ytest.eq."THL") then
 	val(il)=dble(-(690360D+00-rhoi(i)*om(i)*chlat*ap)/dt)
@@ -6633,17 +6633,17 @@
 !ccc....modification de rho dpar rhoi chaleur latente 19-11-2014
 !ccc.... la densite de la glace en degel et la densite de l eau en gel.
 	if(ytest.ne."THL".and.igel.eq.0) then
-	b(i)=dble(b(i)-tempo(i)*(om(i)*sw(i)*rho(i)*cpe+
-     &om(i)*(1-sw(i))*rhog*cpg+
-     &(1.-om(i))*rhos(i)*cps(i))/dt*irpth)
+	b(i)=dble(b(i)-tempo(i)*(om(i)*sw(i)*rho(i)*cpe+&
+     om(i)*(1-sw(i))*rhog*cpg+&
+     (1.-om(i))*rhos(i)*cps(i))/dt*irpth)
 	else if(ytest.ne."THL".and.igel.eq.2) then
-	b(i)=dble(b(i)-tempo(i)*((om(i)*sw(i)*rho(i)*cpe+
-     &om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+
-     &(1.-om(i))*rhos(i)*cps(i))-rhoi(i)*om(i)*chlat*ap)/dt*irpth)
+	b(i)=dble(b(i)-tempo(i)*((om(i)*sw(i)*rho(i)*cpe+&
+     om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+&
+     (1.-om(i))*rhos(i)*cps(i))-rhoi(i)*om(i)*chlat*ap)/dt*irpth)
 	  else if(ytest.ne."THL".and.igel.eq.1) then
-	b(i)=dble(b(i)-tempo(i)*((om(i)*sw(i)*rho(i)*cpe+
-     &om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+
-     &(1.-om(i))*rhos(i)*cps(i))-rho(i)*om(i)*chlat*ap)/dt*irpth)
+	b(i)=dble(b(i)-tempo(i)*((om(i)*sw(i)*rho(i)*cpe+&
+     om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+&
+     (1.-om(i))*rhos(i)*cps(i))-rho(i)*om(i)*chlat*ap)/dt*irpth)
 	  endif
 	  if(ytest.eq."THL") then
 	b(i)=dble(b(i)-tempo(i)*(690360D+00-rhoi(i)*om(i)*chlat*ap)/dt)
@@ -6739,8 +6739,8 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine interpol(nc,zo,nm,icol,temp,ivois,igel,
-     &bm,z,ncmax,n,valclt,to,iclt,topo)
+	  subroutine interpol(nc,zo,nm,icol,temp,ivois,igel,&
+     bm,z,ncmax,n,valclt,to,iclt,topo)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension z(nm)
@@ -6758,25 +6758,25 @@
 	  if (icol(i).eq.kkcol) then
 !DEGEL
 !CC PAS DE VOISIN EN HAUT CC CAS DEGEL SUP>0 I<0
-	  if (ivois(i,3).eq.-99.and.igel.eq.2.
-     &and.temp(i).lt.to.and.valclt(i,3).gt.to.and.
-     &iclt(i,3).eq.-2) then
-	  zo(kkcol,1)=z(i)+
-     &(bm(i)/2)/(valclt(i,3)-temp(i))
-     &*(to-temp(i))
+	  if (ivois(i,3).eq.-99.and.igel.eq.2&
+     .and.temp(i).lt.to.and.valclt(i,3).gt.to.and.&
+     iclt(i,3).eq.-2) then
+	  zo(kkcol,1)=z(i)+&
+     (bm(i)/2)/(valclt(i,3)-temp(i))&
+     *(to-temp(i))
 	  if(zo(kkcol,1).gt.topo(kkcol)) then
 	  zo(kkcol,1)=-99
 	  endif
 	  endif
 
 !CC PAS DE VOISIN EN HAUT CC CAS GEL SUP>0 I<0
-	  if (ivois(i,3).eq.-99.and.igel.eq.1.and.
-     &temp(i).gt.to.and.
-     &valclt(i,3).lt.to.and.
-     &iclt(i,3).eq.-2) then
-	  zo(kkcol,1)=z(i)+
-     &(bm(i)/2)/(valclt(i,3)-temp(i))
-     &*(to-temp(i))
+	  if (ivois(i,3).eq.-99.and.igel.eq.1.and.&
+     temp(i).gt.to.and.&
+     valclt(i,3).lt.to.and.&
+     iclt(i,3).eq.-2) then
+	  zo(kkcol,1)=z(i)+&
+     (bm(i)/2)/(valclt(i,3)-temp(i))&
+     *(to-temp(i))
 	  if(zo(kkcol,1).gt.topo(kkcol)) then
 	  zo(kkcol,1)=-99
 	  endif
@@ -6784,54 +6784,54 @@
 
 
 !CPAS DE VOISIN EN BAS Degel
-	  if (ivois(i,4).eq.-99.and.zo(kkcol,2).eq.-99.and.
-     &igel.eq.2.and.temp(i).gt.to.and.
-     &iclt(i,4).eq.-2) then
-		  zo(kkcol,2)=z(i)+
-     &(bm(i)/2)/(valclt(i,4)-temp(i))
-     &*(to-temp(i))
-	  if(zo(kkcol,2).gt.z(i)+bm(i)/2.or.
-     &zo(kkcol,2).lt.z(i)-bm(i)/2) then
+	  if (ivois(i,4).eq.-99.and.zo(kkcol,2).eq.-99.and.&
+     igel.eq.2.and.temp(i).gt.to.and.&
+     iclt(i,4).eq.-2) then
+		  zo(kkcol,2)=z(i)+&
+     (bm(i)/2)/(valclt(i,4)-temp(i))&
+     *(to-temp(i))
+	  if(zo(kkcol,2).gt.z(i)+bm(i)/2.or.&
+     zo(kkcol,2).lt.z(i)-bm(i)/2) then
 	  zo(kkcol,2)=-99
 	  endif
 
 	  endif
 !CCC cellule interpolation par le bas DEGEL
-	  if (igel.eq.2.and.zo(kkcol,2).eq.-99.and.
-     &temp(i).le.to.and.temp(ivois(i,4)).gt.to.and.
-     &ivois(i,4).ne.-99) then
-	  zo(kkcol,2)=z(i)+
-     &((z(i)-z(ivois(i,4)))/(temp(i)-temp(ivois(i,4)))
-     &*(to-temp(i)))
-      if(zo(kkcol,2).gt.z(i)+bm(i)/2.or.
-     &zo(kkcol,2).lt.z(i)-bm(i)/2) then
+	  if (igel.eq.2.and.zo(kkcol,2).eq.-99.and.&
+     temp(i).le.to.and.temp(ivois(i,4)).gt.to.and.&
+     ivois(i,4).ne.-99) then
+	  zo(kkcol,2)=z(i)+&
+     ((z(i)-z(ivois(i,4)))/(temp(i)-temp(ivois(i,4)))&
+     *(to-temp(i)))
+      if(zo(kkcol,2).gt.z(i)+bm(i)/2.or.&
+     zo(kkcol,2).lt.z(i)-bm(i)/2) then
 	  zo(kkcol,2)=-99
 	  endif
 	  endif
 !CC ISOTHERME 1
 !ccc cellule milieu modele VOISIN DU HAUT EXISTE  MILIEU MODELE CCCCCCCC
 !CCCC TEMPERATURE VOISIN SUP >0 CAS DEGEL
-	  if (ivois(i,3).ne.-99.and.temp(i).le.to.and.
-     &temp(ivois(i,3)).gt.to.and.igel.eq.2) then
-	  zo(kkcol,1)=z(ivois(i,3))+
-     &((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))
-     &*(to-temp(ivois(i,3))))
+	  if (ivois(i,3).ne.-99.and.temp(i).le.to.and.&
+     temp(ivois(i,3)).gt.to.and.igel.eq.2) then
+	  zo(kkcol,1)=z(ivois(i,3))+&
+     ((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))&
+     *(to-temp(ivois(i,3))))
 !CC FIN DE TEST VOISIN SUP >0
 	  	  endif
 !C ISOTHERME  1 Gel
 !CCCC TEMP VOISIN SUP<0 CAS DEGEL SOUS PERMAFROST / CAS GEL
-	  if (igel.eq.1.and.ivois(i,3).ne.-99.and.temp(i).ge.to.and.
-     &temp(ivois(i,3)).lt.to) then
-	  zo(kkcol,1)=z(ivois(i,3))+
-     &((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))
-     &*(to-temp(ivois(i,3))))
+	  if (igel.eq.1.and.ivois(i,3).ne.-99.and.temp(i).ge.to.and.&
+     temp(ivois(i,3)).lt.to) then
+	  zo(kkcol,1)=z(ivois(i,3))+&
+     ((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))&
+     *(to-temp(ivois(i,3))))
 	  	  endif
 !C ISOTHERME  2 degel
-	  if (igel.eq.2.and.ivois(i,3).ne.-99.and.temp(i).ge.to.and.
-     &temp(ivois(i,3)).lt.to) then
-	  zo(kkcol,2)=z(ivois(i,3))+
-     &((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))
-     &*(to-temp(ivois(i,3))))
+	  if (igel.eq.2.and.ivois(i,3).ne.-99.and.temp(i).ge.to.and.&
+     temp(ivois(i,3)).lt.to) then
+	  zo(kkcol,2)=z(ivois(i,3))+&
+     ((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))&
+     *(to-temp(ivois(i,3))))
 	  	  endif
 !CCC FIN DE test colonne
 	  endif
@@ -6855,10 +6855,10 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-      subroutine icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,
-     &dsidtemp,igelzns,ytypakrice,
-     &sice,om,sw,swressi,ytypsice,
-     &cimp,tempo,omega,siceo)
+      subroutine icesatperm(n,nm,tl,ts,akr,akrv,dk,temp,&
+     dsidtemp,igelzns,ytypakrice,&
+     sice,om,sw,swressi,ytypsice,&
+     cimp,tempo,omega,siceo)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension akr(nm),akrv(nm),temp(nm),tempo(nm)
@@ -6892,12 +6892,12 @@
 	  else
 	  	tld=-0.00
 	   siexp=DEXP(-((temp(i)-tld)/cimp)**2)
-	       sice(i)=(1.D0-((1.D0-swressi)
-     &*siexp+swressi))
+	       sice(i)=(1.D0-((1.D0-swressi)&
+     *siexp+swressi))
 
 !..........derivee de la saturation en glace en fonction de la temperature
-	  dsidtemp(i)=((1.D0-swressi)*(2.D0*(temp(i)
-     &/(cimp*cimp)))*siexp)
+	  dsidtemp(i)=((1.D0-swressi)*(2.D0*(temp(i)&
+     /(cimp*cimp)))*siexp)
 
 	     endif
 
@@ -6916,8 +6916,8 @@
 	  	xi=0.3
 	  	beta=3
 	   siexp=DEXP(xi*((tl-temp(i))/(temp(i)-ts))**beta)
-	       sice(i)=(1.D0-((1.D0-swressi)
-     &*siexp+swressi))
+	       sice(i)=(1.D0-((1.D0-swressi)&
+     *siexp+swressi))
 
 !..........derivee de la saturation en glace en fonction de la temperature
 	  dsidtemp(i)=(siceo(i)-sice(i))/(tempo(i)-temp(i))
@@ -7025,8 +7025,8 @@
 	  	  endif
 
 	  if(temp(i).ge.-0.2.and.temp(i).le.-0.1) then
-	       akr(i)=(1D-5-dk)/(-0.1-ts)*temp(i)+(-0.1*dk-ts*1D-5)/
-     &(-0.1-ts)
+	       akr(i)=(1D-5-dk)/(-0.1-ts)*temp(i)+(-0.1*dk-ts*1D-5)/&
+     (-0.1-ts)
 	  	  endif
 	  if(temp(i).ge.-0.1.and.temp(i).le.0) then
 	       akr(i)=(1-1D-5)/(0.1)*temp(i)+1D0
@@ -7047,9 +7047,9 @@
 ! --- PURPOSE :
 !CCC SUBROUTINE DATANT ET NON VERIFIEE A NE PAS UTILISEE
 !
-      SUBROUTINE unsatpermice(n,nm,akr,akrv,dk,
-     &ytypakrice,ans,
-     &sice,om,sw,swressi,rlamb)
+      SUBROUTINE unsatpermice(n,nm,akr,akrv,dk,&
+     ytypakrice,ans,&
+     sice,om,sw,swressi,rlamb)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension akr(nm),akrv(nm)
@@ -7061,8 +7061,8 @@
 !	  MODEL OF VANCENUCHTEN
 !	  --------------------------------
 	    swt=(sw(i)-swressi)/(1.-swressi)
-	    akr(i)=((swt**0.5)*((1-(1-swt**(ans/(ans-1)))
-     &**((ans-1)/ans))**2))
+	    akr(i)=((swt**0.5)*((1-(1-swt**(ans/(ans-1)))&
+     **((ans-1)/ans))**2))
 	   endif
 	  if(ytypakrice.eq."BCOR") then
 !	  --------------------------------
@@ -7124,9 +7124,9 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,
-     &col,nc,z,zl,zs,bm,dsidtemp,valclt,ivois,
-     &sice,swressi,siceo,tempo)
+	  subroutine biggridice(n,nm,tl,ts,akr,akrv,dk,temp,igel,&
+     col,nc,z,zl,zs,bm,dsidtemp,valclt,ivois,&
+     sice,swressi,siceo,tempo)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension akr(nm),akrv(nm),temp(nm)
@@ -7162,21 +7162,21 @@
 !CC Gel maille audessus liquidus
 !CCCCCCCCCCCCCCC GEL attention codé pour une seule aire interface frozen unfrozen
 	  if(zs(j,1).eq.-99.and.zl(j,1).ne.-99.and.igel.eq.1)  then
-	  if(zl(j,1).lt.z(i)+bm(i)/2.
-     &and.zl(j,1).gt.z(i)-bm(i)/2) then
+	  if(zl(j,1).lt.z(i)+bm(i)/2&
+     .and.zl(j,1).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))
-     &/(-bm(i)/2D00)
-     &*(bm(i)/2D00+zl(j,1)-z(i))/2.D00+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))&
+     /(-bm(i)/2D00)&
+     *(bm(i)/2D00+zl(j,1)-z(i))/2.D00+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/
-     &(z(i)-z(ivois(i,3)))
-     &*(bm(i)/2.D00+zl(j,1)-z(i))/2.D00+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/&
+     (z(i)-z(ivois(i,3)))&
+     *(bm(i)/2.D00+zl(j,1)-z(i))/2.D00+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,1))*akrifrt+
-     &(zl(j,1)-z(i)+bm(i)/2.D00)*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,1))*akrifrt+&
+     (zl(j,1)-z(i)+bm(i)/2.D00)*1)/bm(i))
 	  sice(i)=((sifrt*(z(i)+bm(i)/2.D00-zl(j,1)))/bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
@@ -7187,20 +7187,20 @@
 
 	  if(zs(j,1).ne.-99.and.zl(j,1).ne.-99.and.igel.eq.1)  then
 ! maille avec un liquidus mais pas de solidus
-	  if(zs(j,1).gt.z(i)+bm(i)/2.and.zl(j,1).lt.z(i)+bm(i)/2
-     &.and.zl(j,1).gt.z(i)-bm(i)/2) then
+	  if(zs(j,1).gt.z(i)+bm(i)/2.and.zl(j,1).lt.z(i)+bm(i)/2&
+     .and.zl(j,1).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))/
-     &(-bm(i)/2D00)
-     &*(bm(i)/2.D00+zl(j,1)-z(i))/2.D00+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))/&
+     (-bm(i)/2D00)&
+     *(bm(i)/2.D00+zl(j,1)-z(i))/2.D00+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*(bm(i)/2.D00+zl(j,1)-z(i))/2.D00+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *(bm(i)/2.D00+zl(j,1)-z(i))/2.D00+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,1))*akrifrt+(zl(j,1)-
-     &z(i)+bm(i)/2)*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,1))*akrifrt+(zl(j,1)-&
+     z(i)+bm(i)/2)*1)/bm(i))
 	  sice(i)=((sifrt*(z(i)+bm(i)/2.D00-zl(j,1)))/bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
@@ -7210,23 +7210,23 @@
 
 !CCCfin 1ier cas
 ! maille avec solidus et liquidus
-	  if(zs(j,1).lt.z(i)+bm(i)/2.and.zs(j,1).gt.z(i)-bm(i)/2
-     &.and.zl(j,1).lt.z(i)+bm(i)/2.and.zl(j,1).gt.z(i)-bm(i)/2)
-     & then
+	  if(zs(j,1).lt.z(i)+bm(i)/2.and.zs(j,1).gt.z(i)-bm(i)/2&
+     .and.zl(j,1).lt.z(i)+bm(i)/2.and.zl(j,1).gt.z(i)-bm(i)/2)&
+      then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))
-     &/(-bm(i)/2.D00)
-     &*((zs(j,1)+zl(j,1))/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))&
+     /(-bm(i)/2.D00)&
+     *((zs(j,1)+zl(j,1))/2.D00-z(i))+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*((zs(j,1)+zl(j,1))/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *((zs(j,1)+zl(j,1))/2.D00-z(i))+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,1))*dk+(zs(j,1)-zl(j,1))
-     &*akrifrt+(zl(j,1)-z(i)+bm(i)/2)*1)/bm(i))
-	  sice(i)=((sifrt*(zs(j,1)-zl(j,1))+
-     &(z(i)+bm(i)/2.D00-zs(j,1))*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,1))*dk+(zs(j,1)-zl(j,1))&
+     *akrifrt+(zl(j,1)-z(i)+bm(i)/2)*1)/bm(i))
+	  sice(i)=((sifrt*(zs(j,1)-zl(j,1))+&
+     (z(i)+bm(i)/2.D00-zs(j,1))*1)/bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
@@ -7234,23 +7234,23 @@
 !cccc fin 2 eme cas
 
 !C maille avec solidus
-	  if(zs(j,1).lt.z(i)+bm(i)/2.and.
-     &zs(j,1).gt.z(i)-bm(i)/2.and.
-     &zl(j,1).lt.z(i)-bm(i)/2) then
+	  if(zs(j,1).lt.z(i)+bm(i)/2.and.&
+     zs(j,1).gt.z(i)-bm(i)/2.and.&
+     zl(j,1).lt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))
-     &/(-bm(i)/2.D00)
-     &*((zs(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))&
+     /(-bm(i)/2.D00)&
+     *((zs(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*((zs(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *((zs(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,1))*dk+(zs(j,1)-
-     &z(i)+bm(i)/2)*akrifrt)/bm(i))
-	  sice(i)=((sifrt*(zs(j,1)-z(i)+bm(i)/2)+
-     &(z(i)+bm(i)/2.D00-zs(j,1))*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,1))*dk+(zs(j,1)-&
+     z(i)+bm(i)/2)*akrifrt)/bm(i))
+	  sice(i)=((sifrt*(zs(j,1)-z(i)+bm(i)/2)+&
+     (z(i)+bm(i)/2.D00-zs(j,1))*1)/bm(i))
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
 !cc fin cas 3
@@ -7260,21 +7260,21 @@
 !cc interface SUBPERMAFROST
 	  if(zl(j,2).eq.-99.and.zs(j,2).ne.-99.and.igel.eq.2)  then
 ! pas de liquidus
-	  if(zs(j,2).lt.z(i)+bm(i)/2.and.
-     &zs(j,2).gt.z(i)-bm(i)/2) then
+	  if(zs(j,2).lt.z(i)+bm(i)/2.and.&
+     zs(j,2).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)
-     &*((zs(j,2)-z(i)-bm(i)/2)/2)+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
+     *((zs(j,2)-z(i)-bm(i)/2)/2)+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*((zs(j,2)-z(i)-bm(i)/2)/2)+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *((zs(j,2)-z(i)-bm(i)/2)/2)+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,2))*dk+(zs(j,2)-z(i)+
-     &bm(i)/2)*akrifrt)/bm(i))
-	  sice(i)=((sifrt*(zs(j,2)-(z(i)-bm(i)/2))+
-     &(z(i)+bm(i)/2.D00-zs(j,2))*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,2))*dk+(zs(j,2)-z(i)+&
+     bm(i)/2)*akrifrt)/bm(i))
+	  sice(i)=((sifrt*(zs(j,2)-(z(i)-bm(i)/2))+&
+     (z(i)+bm(i)/2.D00-zs(j,2))*1)/bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
@@ -7283,21 +7283,21 @@
 !cc fin pas d'isotherme liquidus'
 	  if(zs(j,2).ne.-99.and.zl(j,2).ne.-99.and.igel.eq.2)  then
 !C maille avec solidus sans liquidus
-	  if(zs(j,2).lt.z(i)+bm(i)/2.and.zs(j,2).gt.z(i)-bm(i)/2
-     &.and.zl(j,2).lt.z(i)-bm(i)/2) then
+	  if(zs(j,2).lt.z(i)+bm(i)/2.and.zs(j,2).gt.z(i)-bm(i)/2&
+     .and.zl(j,2).lt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)
-     &*((zs(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
+     *((zs(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*((zs(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *((zs(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,2))*dk+(zs(j,2)-z(i)+
-     &bm(i)/2)*akrifrt)/bm(i))
-	  sice(i)=((sifrt*(zs(j,2)-(z(i)-bm(i)/2))+
-     &(z(i)+bm(i)/2.D00-zs(j,2))*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,2))*dk+(zs(j,2)-z(i)+&
+     bm(i)/2)*akrifrt)/bm(i))
+	  sice(i)=((sifrt*(zs(j,2)-(z(i)-bm(i)/2))+&
+     (z(i)+bm(i)/2.D00-zs(j,2))*1)/bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
@@ -7305,43 +7305,43 @@
 
 !C fin cas 1
 ! Maille avec liquidus et avec solidus
-	  if(zs(j,2).lt.z(i)+bm(i)/2.and.
-     &zs(j,2).gt.z(i)-bm(i)/2.and.zl(j,2).lt.z(i)+bm(i)/2.and.
-     &zl(j,2).gt.z(i)-bm(i)/2) then
+	  if(zs(j,2).lt.z(i)+bm(i)/2.and.&
+     zs(j,2).gt.z(i)-bm(i)/2.and.zl(j,2).lt.z(i)+bm(i)/2.and.&
+     zl(j,2).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)
-     &*((zs(j,2)+zl(j,2))/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
+     *((zs(j,2)+zl(j,2))/2.D00-z(i))+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*((zs(j,2)+zl(j,2))/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *((zs(j,2)+zl(j,2))/2.D00-z(i))+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,2))*dk+
-     &(zs(j,2)-zl(j,2))*akrifrt+(zl(j,2)-z(i)+bm(i)/2)*1)/bm(i))
-	  sice(i)=((sifrt*(zs(j,2)-zl(j,2))+
-     &(z(i)+bm(i)/2.D00-zs(j,2))*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,2))*dk+&
+     (zs(j,2)-zl(j,2))*akrifrt+(zl(j,2)-z(i)+bm(i)/2)*1)/bm(i))
+	  sice(i)=((sifrt*(zs(j,2)-zl(j,2))+&
+     (z(i)+bm(i)/2.D00-zs(j,2))*1)/bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
 	  endif
 !cc fin cas 2
 ! Maille avec liquidus et sans solidus
-	  if(zl(j,2).lt.z(i)+bm(i)/2.and.zl(j,2).gt.z(i)-bm(i)/2
-     &.and.zs(j,2).gt.z(i)+bm(i)/2) then
+	  if(zl(j,2).lt.z(i)+bm(i)/2.and.zl(j,2).gt.z(i)-bm(i)/2&
+     .and.zs(j,2).gt.z(i)+bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)
-     &*((zl(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
+     *((zl(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*((zl(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *((zl(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	   sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,2))*akrifrt+
-     &(zl(j,2)-z(i)+bm(i)/2)*1)/bm(i))
-	  sice(i)=((sifrt*(z(i)+bm(i)/2.D00-zl(j,2)))
-     &/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,2))*akrifrt+&
+     (zl(j,2)-z(i)+bm(i)/2)*1)/bm(i))
+	  sice(i)=((sifrt*(z(i)+bm(i)/2.D00-zl(j,2)))&
+     /bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
@@ -7351,21 +7351,21 @@
 !cc interface sur permafrost SUPRAPERMAFROST SENS INVERSE
 	  if(zl(j,1).eq.-99.and.zs(j,1).ne.-99.and.igel.eq.2)  then
 !CC pas de liquidus
-	  if(zs(j,1).lt.z(i)+bm(i)/2.and.
-     &zs(j,1).gt.z(i)-bm(i)/2) then
+	  if(zs(j,1).lt.z(i)+bm(i)/2.and.&
+     zs(j,1).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)
-     &*(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
+     *(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,1))*akrifrt+
-     &(zs(j,1)-z(i)+bm(i)/2)*dk)/bm(i))
-	  sice(i)=((sifrt*(z(i)+bm(i)/2.D00-zs(j,1))+
-     &(-z(i)+bm(i)/2.D00+zs(j,1))*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,1))*akrifrt+&
+     (zs(j,1)-z(i)+bm(i)/2)*dk)/bm(i))
+	  sice(i)=((sifrt*(z(i)+bm(i)/2.D00-zs(j,1))+&
+     (-z(i)+bm(i)/2.D00+zs(j,1))*1)/bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
@@ -7375,64 +7375,64 @@
 
 ! liquidus au dessus haut cellule
 	  if(zl(j,1).ne.-99.and.zs(j,1).ne.-99.and.igel.eq.2)  then
-	  if(zl(j,1).gt.z(i)+bm(i)/2.and.zs(j,1).lt.z(i)+bm(i)/2
-     &.and.zs(j,1).gt.z(i)-bm(i)/2) then
+	  if(zl(j,1).gt.z(i)+bm(i)/2.and.zs(j,1).lt.z(i)+bm(i)/2&
+     .and.zs(j,1).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)
-     &*(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
+     *(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,1))*akrifrt+
-     &(zs(j,1)-z(i)+bm(i)/2)*dk)/bm(i))
-	  sice(i)=((sifrt*(z(i)+bm(i)/2.D00-zs(j,1))+
-     &(-z(i)+bm(i)/2.D00+zs(j,1))*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zs(j,1))*akrifrt+&
+     (zs(j,1)-z(i)+bm(i)/2)*dk)/bm(i))
+	  sice(i)=((sifrt*(z(i)+bm(i)/2.D00-zs(j,1))+&
+     (-z(i)+bm(i)/2.D00+zs(j,1))*1)/bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
 !       print*,'degel4',akr(i),sice(i),temp(i),zl(j,1),zs(j,1)
 	  endif
 ! fin cas 1
-	  if(zl(j,1).lt.z(i)+bm(i)/2.and.zl(j,1).gt.
-     &z(i)-bm(i)/2.and.
-     &zs(j,1).lt.z(i)+bm(i)/2.and.zs(j,1).gt.z(i)-bm(i)/2) then
+	  if(zl(j,1).lt.z(i)+bm(i)/2.and.zl(j,1).gt.&
+     z(i)-bm(i)/2.and.&
+     zs(j,1).lt.z(i)+bm(i)/2.and.zs(j,1).gt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)
-     &*((zl(j,1)+zs(j,1))/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
+     *((zl(j,1)+zs(j,1))/2.D00-z(i))+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*((zl(j,1)+zs(j,1))/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *((zl(j,1)+zs(j,1))/2.D00-z(i))+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,1))*1.D00+
-     &(zl(j,1)-zs(j,1))*akrifrt+(zs(j,1)-z(i)+bm(i)/2)*dk)/bm(i))
-	  sice(i)=((sifrt*(zl(j,1)-zs(j,1))+
-     &(-z(i)+bm(i)/2.D00+zs(j,1))*1)/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,1))*1.D00+&
+     (zl(j,1)-zs(j,1))*akrifrt+(zs(j,1)-z(i)+bm(i)/2)*dk)/bm(i))
+	  sice(i)=((sifrt*(zl(j,1)-zs(j,1))+&
+     (-z(i)+bm(i)/2.D00+zs(j,1))*1)/bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
 	  endif
 !cccc fin cas 2
-	  if(zl(j,1).lt.z(i)+bm(i)/2.and.
-     &zl(j,1).gt.z(i)-bm(i)/2.and.
-     &zs(j,1).lt.z(i)-bm(i)/2) then
+	  if(zl(j,1).lt.z(i)+bm(i)/2.and.&
+     zl(j,1).gt.z(i)-bm(i)/2.and.&
+     zs(j,1).lt.z(i)-bm(i)/2) then
 	  if (ivois(i,3).eq.-99) then
-	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)
-     &*((zl(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
+     *((zl(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
 	  else
-	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))
-     &*((zl(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
+	  tifrt=((temp(i)-temp(ivois(i,3)))/(z(i)-z(ivois(i,3)))&
+     *((zl(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
 	  endif
 	  akrifrt=((1.D00-dk)/(tl-ts)*tifrt+(tl*dk-ts*1)/(tl-ts))
 	  sifrt=((1-swressi)/(ts-tl)*(tifrt-tl))
-	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,1))*1+
-     &(zl(j,1)-z(i)+bm(i)/2)*akrifrt)/bm(i))
-	  sice(i)=((sifrt*(-z(i)+bm(i)/2.D00+zl(j,1)))
-     &/bm(i))
+	  akr(i)=(((z(i)+bm(i)/2.D00-zl(j,1))*1+&
+     (zl(j,1)-z(i)+bm(i)/2)*akrifrt)/bm(i))
+	  sice(i)=((sifrt*(-z(i)+bm(i)/2.D00+zl(j,1)))&
+     /bm(i))
 	  if(tempo(i)-temp(i).ne.0) then
 	  dsidtemp(i)=(abs((siceo(i)-sice(i))/(tempo(i)-temp(i))))
 	  endif
@@ -7458,19 +7458,19 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine lecture_parametre(
-     &ilog,ipermh,ipermv,
-     &iec,irp,ith,dt,nitt,unitsim,al,
-     &az,ixy,imaille,itopo,reptop,repbot,icolone,nmi,nci,
-     &nri,dx,dz,nclog,rho1,irho,g,amu,
-     &akrx,akx,akrz,akz,iom,omp,iss,sss,ia2,yunconfined,ivg,
-     &ans,asp,swres,itr,allg,alt,iriv,iqriv,qre,hbot,xberg,
-     &rug,pent,qriva,hriv,aklit,aklitv,tempriv,elit,akdrain,
-     &edrain,crconvp,crconvc,
-     &iteration,itsortie,unitsortie,icalvit,mcol,nmaille1,nmaille2,
-     &nmaille3,nmaille4,nmaille5,
-     &nmaille6,nmaille7,nmaille8,nmaille9,nmaille10,iparo,ibuilt,
-     &ysolv)
+	  subroutine lecture_parametre(&
+     ilog,ipermh,ipermv,&
+     iec,irp,ith,dt,nitt,unitsim,al,&
+     az,ixy,imaille,itopo,reptop,repbot,icolone,nmi,nci,&
+     nri,dx,dz,nclog,rho1,irho,g,amu,&
+     akrx,akx,akrz,akz,iom,omp,iss,sss,ia2,yunconfined,ivg,&
+     ans,asp,swres,itr,allg,alt,iriv,iqriv,qre,hbot,xberg,&
+     rug,pent,qriva,hriv,aklit,aklitv,tempriv,elit,akdrain,&
+     edrain,crconvp,crconvc,&
+     iteration,itsortie,unitsortie,icalvit,mcol,nmaille1,nmaille2,&
+     nmaille3,nmaille4,nmaille5,&
+     nmaille6,nmaille7,nmaille8,nmaille9,nmaille10,iparo,ibuilt,&
+     ysolv)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  CHARACTER(3) :: ysolv,yunconfined
@@ -7570,23 +7570,23 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine lecture_parametre_thermique(irpth,crconvt,
-     &ithec,idecouplage,ysupdp,
-     &bll,blt,alandae,cpe,ilanda,
-     &alandami,irhomi,rhosi,icpm,cpm,ymoycondtherm,
-     &icycle,igel,igelzns,iomdegel,
-     &ytypakrice,ytypsice,
-     &alandai,rhoii,cpice,
-     &chlat,rhog,alandag,cpg,dk,tsg,tlg,tsd,tld,cimp,swressi,
-     &iaquitard,aktardx,aktardz,omptard,alandatard,sstard,
-     &nrowtard,nmailleaqui,iexutoire,xexutoire,tempexutoire,
-     &iinfil,itopomch,ibigridice,ytest,omega,cimpt)
+	  subroutine lecture_parametre_thermique(irpth,crconvt,&
+     ithec,idecouplage,ysupdp,&
+     bll,blt,alandae,cpe,ilanda,&
+     alandami,irhomi,rhosi,icpm,cpm,ymoycondtherm,&
+     icycle,igel,igelzns,iomdegel,&
+     ytypakrice,ytypsice,&
+     alandai,rhoii,cpice,&
+     chlat,rhog,alandag,cpg,dk,tsg,tlg,tsd,tld,cimp,swressi,&
+     iaquitard,aktardx,aktardz,omptard,alandatard,sstard,&
+     nrowtard,nmailleaqui,iexutoire,xexutoire,tempexutoire,&
+     iinfil,itopomch,ibigridice,ytest,omega,cimpt)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  CHARACTER(5) :: ytypakrice,ytypsice
 	  CHARACTER(3) :: ytest
-	  open(unit=7,file='E_p_therm.dat',
-     &form='formatted',status='old')
+	  open(unit=7,file='E_p_therm.dat',&
+     form='formatted',status='old')
  	READ(7,'(5x,i1)')irpth	!!	l1
 	READ(7,'(8x,d8.0)')crconvt	!!	l2
 	READ(7,'(6x,i1)')ithec	!!	l3
@@ -7657,12 +7657,12 @@
 !CC....TODOLIST
 !ccc....
 
-	  subroutine lecture_cdt_ini(chgi,conci,tempini,ichi,ichi2,iconci,
-     &itempi)
+	  subroutine lecture_cdt_ini(chgi,conci,tempini,ichi,ichi2,iconci,&
+     itempi)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
-	  open(unit=5,file='E_cdt_initiale.dat',form='formatted',
-     &status='old')
+	  open(unit=5,file='E_cdt_initiale.dat',form='formatted',&
+     status='old')
 	  READ(5,'(5x,d9.0)')chgi
 	  READ(5,'(6x,d8.0)')conci
 	  READ(5,'(6x,d8.0)')tempini
@@ -7687,17 +7687,17 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine lecture_cdt_lt(icl_gauche,valcl_gauche,icl_droite,
-     &valcl_droite,icl_haut,valcl_haut,icl_bas,valcl_bas,iclc_gauche,
-     &valclc_gauche,iclc_droite,valclc_droite,iclc_haut,valclc_haut,
-     &iclc_bas,valclc_bas,i
-     &clt_gauche,valclt_gauche,iclt_droite,valclt_droite,iclt_haut,
-     &valclt_haut,iclt_bas,valclt_bas,iclect,icltherm,iclectchgt
-     &,iclchgt,icldrain,iclriviere,itlecture)
+	  subroutine lecture_cdt_lt(icl_gauche,valcl_gauche,icl_droite,&
+     valcl_droite,icl_haut,valcl_haut,icl_bas,valcl_bas,iclc_gauche,&
+     valclc_gauche,iclc_droite,valclc_droite,iclc_haut,valclc_haut,&
+     iclc_bas,valclc_bas,&
+     iclt_gauche,valclt_gauche,iclt_droite,valclt_droite,iclt_haut,&
+     valclt_haut,iclt_bas,valclt_bas,iclect,icltherm,iclectchgt&
+     ,iclchgt,icldrain,iclriviere,itlecture)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
-	  open(unit=4,file='E_cdt_aux_limites.dat',form='formatted',
-     &status='old')
+	  open(unit=4,file='E_cdt_aux_limites.dat',form='formatted',&
+     status='old')
 	  READ(4,'(11x,i2)')icl_gauche
 	  READ(4,'(13x,d12.0)')valcl_gauche
 	  READ(4,'(11x,i2)')icl_droite
@@ -7747,9 +7747,9 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine interpolsurf(nc,zo,nm,icol,pr,ivois,
-     &bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,
-     &ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
+	  subroutine interpolsurf(nc,zo,nm,icol,pr,ivois,&
+     bm,z,ncmax,n,valcl,ts,icl,id_river,id_rivert,chgriver,&
+     ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension z(nm)
@@ -7769,32 +7769,32 @@
 ! TEST COLONNE
 	  if (icol(i).eq.kkcol) then
 	  	ili=ivois(i,3)
-	  if (ili.lt.nm+1.and.ili.ne.-99.and.
-     &pr(i).ge.to.and.pr(ili).lt.to) then
-	  zo(kkcol,1)=z(ivois(i,3))+
-     &((z(ili)-z(i))/(pr(ili)-pr(i))
-     &*(to-pr(ili)))
+	  if (ili.lt.nm+1.and.ili.ne.-99.and.&
+     pr(i).ge.to.and.pr(ili).lt.to) then
+	  zo(kkcol,1)=z(ivois(i,3))+&
+     ((z(ili)-z(i))/(pr(ili)-pr(i))&
+     *(to-pr(ili)))
 	  endif
 
 
 !CC PAS DE VOISIN EN HAUT
-	  if (zo(kkcol,1).eq.-99.and.
-     &ivois(i,3).eq.-99.and.
-     &pr(i).gt.to.and.
-     &valcl(i,3).lt.to.and.
-     &icl(i,3).eq.-2) then
-	  zo(kkcol,1)=z(i)+
-     &(bm(i)/2)/(valcl(i,3)-pr(i))
-     &*(to-valcl(i,3))
+	  if (zo(kkcol,1).eq.-99.and.&
+     ivois(i,3).eq.-99.and.&
+     pr(i).gt.to.and.&
+     valcl(i,3).lt.to.and.&
+     icl(i,3).eq.-2) then
+	  zo(kkcol,1)=z(i)+&
+     (bm(i)/2)/(valcl(i,3)-pr(i))&
+     *(to-valcl(i,3))
 	  endif
 
 
 !CPAS DE VOISIN EN BAS
-	  if (ivois(i,4).eq.-99.and.zo(kkcol,1).eq.-99.and.
-     &pr(i).lt.to.and.icl(i,4).eq.-2.and.valcl(i,4).gt.to) then
-       zo(kkcol,1)=z(i)-
-     &(bm(i)/2)/(pr(i)-valcl(i,4))
-     &*(to-pr(i))
+	  if (ivois(i,4).eq.-99.and.zo(kkcol,1).eq.-99.and.&
+     pr(i).lt.to.and.icl(i,4).eq.-2.and.valcl(i,4).gt.to) then
+       zo(kkcol,1)=z(i)-&
+     (bm(i)/2)/(pr(i)-valcl(i,4))&
+     *(to-pr(i))
 	  endif
 
 
@@ -7866,11 +7866,11 @@
 !ccc...
 !CC....TODOLIST
 !ccc....
-	  subroutine mse(n,nmaille1,nmaille2,nmaille3,nmaille4,nmaille5,
-     &nmaille6,pr,qinf,qinfobs,paso,itlecture,chgobs1,chgobs2,
-     &chgobs3,chgobs4,rho,g,chgobs5,chgobs6,eo1,eo2,eo3,eo4,eo5,
-     &eo6,eoinf,z,seo1,seo2,seo3,seo4,seo5,
-     &seo6,seoinf)
+	  subroutine mse(n,nmaille1,nmaille2,nmaille3,nmaille4,nmaille5,&
+     nmaille6,pr,qinf,qinfobs,paso,itlecture,chgobs1,chgobs2,&
+     chgobs3,chgobs4,rho,g,chgobs5,chgobs6,eo1,eo2,eo3,eo4,eo5,&
+     eo6,eoinf,z,seo1,seo2,seo3,seo4,seo5,&
+     seo6,seoinf)
 	  implicit double precision(a-h,o-x,z),integer(I-N)
 	  implicit CHARACTER*5(y)
 	  dimension pr(n),rho(n),z(n)
@@ -7915,8 +7915,8 @@
 !	  	  	   Funcions to open DTS files	  	  	  		  C
 !	  	  	  	  	  	  	  	  	  	  		  C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  subroutine DTS_open(icolone,imaille,itopo,ligne,ligne1,
-     &ligne2,ligne3,ligne4,ligne6)
+	  subroutine DTS_open(icolone,imaille,itopo,ligne,ligne1,&
+     ligne2,ligne3,ligne4,ligne6)
 	  implicit integer (i-n)
 	  LOGICAL :: An_Error
 	  icolone=1
@@ -7952,12 +7952,12 @@
 
 
 
-	  subroutine DTS_read(nc,xpool,ligne,ligne1,
-     &ligne2,ligne3,ligne4,
-     &ligne6,timeDTS,xDTS,tempDTS,
-     &chgRG,cRivG,timeG,tempRG,
-     &chgRD,cRivD,timeD,tempRD,
-     &xriffle,slopeRH)
+	  subroutine DTS_read(nc,xpool,ligne,ligne1,&
+     ligne2,ligne3,ligne4,&
+     ligne6,timeDTS,xDTS,tempDTS,&
+     chgRG,cRivG,timeG,tempRG,&
+     chgRD,cRivD,timeD,tempRD,&
+     xriffle,slopeRH)
 
 	  implicit double precision(a-h,o-z)
 	  implicit integer (i-n)
@@ -7970,8 +7970,8 @@
 
 		rewind(226)
       do j=1,ligne
-      read(226,*,iostat=ios4)timeDTS(j)
-     &,(tempDTS(j,i),i=1,nc)
+      read(226,*,iostat=ios4)timeDTS(j)&
+     ,(tempDTS(j,i),i=1,nc)
       enddo
 
 
@@ -8025,18 +8025,18 @@
 !CC....TODOLIST
 !ccc....
 
-	  subroutine variation_cdt_limites(nm,paso,itlecture,ytest,
-     &ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,
-     &icl,valcl,iclt,valclt,ivois,
-     &z,g,ntsortie,bm,irptha,
-     &rho,tempsol,tempriver,qpluie,chgriver,
-     &chgRD,chgRG,tempRD,tempRG,
-     &id_RD,id_RG,id_river,id_rivert,tempsurf,
-     &tempbottom,chgsurf,chgbottom,
-     &cRivG,timeG,cRivD,timeD,
-     &timeDTS,xDTS,
-     &tempDTS,x,icol,nc,tempo,pro,slopeRH,
-     &qsurf,qbottom)
+	  subroutine variation_cdt_limites(nm,paso,itlecture,ytest,&
+     ligne,ligne1,ligne2,ligne3,ligne4,ligne5,ligne6,&
+     icl,valcl,iclt,valclt,ivois,&
+     z,g,ntsortie,bm,irptha,&
+     rho,tempsol,tempriver,qpluie,chgriver,&
+     chgRD,chgRG,tempRD,tempRG,&
+     id_RD,id_RG,id_river,id_rivert,tempsurf,&
+     tempbottom,chgsurf,chgbottom,&
+     cRivG,timeG,cRivD,timeD,&
+     timeDTS,xDTS,&
+     tempDTS,x,icol,nc,tempo,pro,slopeRH,&
+     qsurf,qbottom)
 !     nc nb de colonnes
 !     nr nb de ligne
 !       qre debit pluie
@@ -8603,8 +8603,8 @@
 	  if (kj.eq.2) then
 	  do k=1,kj
 	  if (k.eq.1)  headbk=cRivG(kimp)
-	  if (k.gt.1) headbk=slopeRH(2,k-1)*
-     &(slopeRH(1,k)-slopeRH(1,k-1))+headbk
+	  if (k.gt.1) headbk=slopeRH(2,k-1)*&
+     (slopeRH(1,k)-slopeRH(1,k-1))+headbk
 	  enddo
 	  endif
 !ccc water level of the river = altitude of the first cascade
@@ -8616,20 +8616,20 @@
 
 !	  if(kj.eq.ligne3.or.kj.eq.3) then
 	  if(kj.eq.ligne3) then
-	  slopeRH(2,kj)=(cRivD(kimp)-2.16-120.5D+00)/
-     &(1000-slopeRH(1,ligne3))
+	  slopeRH(2,kj)=(cRivD(kimp)-2.16-120.5D+00)/&
+     (1000-slopeRH(1,ligne3))
 	  slope=slopeRH(2,kj)
 	  endif
 
 !cc slope inside the first cascade
-	  if(kj.eq.2) slope=(headbk-116.29999694824218D+00)/
-     &(slopeRH(1,2)-slopeRH(1,3))
+	  if(kj.eq.2) slope=(headbk-116.29999694824218D+00)/&
+     (slopeRH(1,2)-slopeRH(1,3))
 
 !cc Inside the second cascade
 !cc calculatation the slope
 	  if (kj.eq.4) then
-	  headbk=slopeRH(2,3)*
-     &(slopeRH(1,kj)-slopeRH(1,kj-1))+116.29999694824218D+00
+	  headbk=slopeRH(2,3)*&
+     (slopeRH(1,kj)-slopeRH(1,kj-1))+116.29999694824218D+00
 	  slope=(headbk-120.5D+00)/(slopeRH(1,kj)-slopeRH(1,ligne3))
 	  slopeRH(2,kj)=slope
 	  endif
