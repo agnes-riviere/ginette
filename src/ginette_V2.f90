@@ -4331,22 +4331,22 @@
      (temp(98524)+temp(98525))/2,(temp(98505)+temp(98506))/2,&
      (temp(98483)+temp(98484))/2,(temp(98445)+temp(98446))/2
 !ccc....molonari41
-       write(181840,*)paso/unitsortie,
+       write(181840,*)paso/unitsortie,&
 !     &(valclt(91896,3)+valclt(92463,3))/2,&
      (temp(91297)+temp(91298))/2,(temp(90670)+temp(90671))/2,&
      (temp(90031)+temp(90032))/2,(temp(89379)+temp(89380))/2
 !ccc....molonari43
-       write(181841,*)paso/unitsortie,
+       write(181841,*)paso/unitsortie,&
 !     &(valclt(70796,3)+valclt(69588,3))/2,&
      (temp(69588)+temp(68589))/2,(temp(68372)+temp(67128))/2,&
      (temp(67128)+temp(67129))/2,(temp(65866)+temp(65867))/2
 !ccc....molonari44
-       write(181842,*)paso/unitsortie,
+       write(181842,*)paso/unitsortie,&
 !     &(valclt(65723,3)+valclt(65722,3))/2,&
      (temp(64445)+temp(64446))/2,(temp(63145)+temp(63146))/2,&
      (temp(61830)+temp(61831))/2,(temp(60469)+temp(60470))/2
 !ccc....molonari45
-       write(181843,*)paso/unitsortie,
+       write(181843,*)paso/unitsortie,&
 !     &(valclt(33221,3)+valclt(33220,3))/2,&
      (temp(23960)+temp(23961))/2,(temp(22055)+temp(22056))/2,&
      (temp(20118)+temp(20119))/2,(temp(18148)+temp(18149))/2
