@@ -1048,7 +1048,7 @@
      abs(reptop-repbot)-1D-08.lt.az) then
 	   z(k)=dble(az-bm(k)/2.+reptop-az)
 	  else
-	  print*, probleme dans votre constuction de modele
+	  print*, 'probleme dans votre constuction de modele'
 	  print*,'reptop-repbot=',reptop-repbot+1D-08,'et az=',az
 	  print*,reptop,repbot,reptop-repbot
 	  stop
