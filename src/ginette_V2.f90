@@ -280,12 +280,12 @@
      itempi)
 
 
-      if (iconci.eq.1) open(unit=22,file='E_conc_initiale.dat')
-      if (itempi.eq.1) open(unit=23,file='E_temperature_initiale.dat')
+      if (iconci == 1) open(unit=22,file='E_conc_initiale.dat')
+      if (itempi == 1) open(unit=23,file='E_temperature_initiale.dat')
 !CC...charge imposee
-      if (ichi.eq.1) open(unit=24,file='E_charge_initiale.dat')
+      if (ichi == 1) open(unit=24,file='E_charge_initiale.dat')
 !CC...VARIATION DE LA CHARGE INITIALE sur tout le model
-       if (ichi2.eq.1)  open(unit=242,file='E_pression_initiale.dat')
+       if (ichi2 == 1)  open(unit=242,file='E_pression_initiale.dat')
 
 
 
@@ -310,26 +310,26 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
-      if (ipermh.eq.1)&
+      if (ipermh == 1)&
      open(unit=14,file='E_permeabilite_horizontale.dat')
-      if (ipermv.eq.1)&
+      if (ipermv == 1)&
      open(unit=140,file='E_permeabilite_verticale.dat')
-      if (iom.eq.1)&
+      if (iom == 1)&
      open(unit=15,file='E_porosite.dat')
-      if (irho.eq.1)&
+      if (irho == 1)&
       open(unit=25,file='E_densite_fluide.dat')
-      if (iss.eq.1)&
+      if (iss == 1)&
      open(unit=16,file='E_coefficient_emmagasinement.dat')
-      if(irhomi.eq.1)&
+      if(irhomi == 1)&
      open(unit=26,file='E_densite_milieu.dat')
-      if (ilanda.eq.1)&
+      if (ilanda == 1)&
      open(unit=17,file='E_conductivite_thermique.dat')
-      if(icpm.eq.1)&
+      if(icpm == 1)&
      open(unit=27,file='E_capacit_calorifique.dat')
 !CC....Fichiers variations conditions aux limites
-      if(iclect.eq.1)&
+      if(iclect == 1)&
         open(unit=37,file='E_cl_ecoulement.dat')
-      if(icltherm.eq.1)&
+      if(icltherm == 1)&
         open(unit=38,file='E_cl_thermique.dat')
 
 
@@ -371,7 +371,7 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
-      if(ytest.eq."VIT") then
+      if(ytest == "VIT") then
 !     open(unit=453,file='E_vitesse.dat')
 !   open(unit=452,file='E_pres_t.dat',iostat=iop2)
       open(unit=45,file='E_charge_t.dat',iostat=iop)
@@ -381,7 +381,7 @@
 
 
 
-      if(ytest.eq."TEX") then
+      if(ytest == "TEX") then
       icolone=1
       imaille=0
       itopo=1
@@ -400,7 +400,7 @@
 
 
 
-      if(ytest.eq."AVA") then
+      if(ytest == "AVA") then
       icolone=1
       imaille=0
       itopo=1
@@ -428,7 +428,7 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      if(ytest.eq."DTS") then
+      if(ytest == "DTS") then
       icolone=1
       imaille=0
       ibuilt=0
@@ -448,7 +448,7 @@
 !    FICHIERS Construction manuelle maillage  C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      if(imaille.eq.0.or.ibuilt.eq.1) then
+      if(imaille == 0.or.ibuilt == 1) then
       open(unit=11,file='E_coordonnee.dat')
       open(unit=12,file='E_def_maille.dat')
       open(unit=13,file='E_voisins.dat')
@@ -469,14 +469,14 @@
 !      LECTURE FICHIER ZHR                    C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+      if(ytest == "ZHR".or.ytest == "ZHZ") then
       open(unit=45,file='E_charge_t.dat',iostat=iop)
       open(unit=68,file='E_temp_t.dat',iostat=ios)
       if (ios /= 0) then
       stop 'File E_temp_t.dat does not exist'
       end if
       endif
-      if(ytest.eq."ZHZ") then
+      if(ytest == "ZHZ") then
       call open_file('E_zone.dat', An_Error,32)
       open(unit=321,file='E_zone_parameter.dat')
       if (ios /= 0) then
@@ -485,7 +485,7 @@
       endif
 
 
-      if(ytest.eq."1DS") then
+      if(ytest == "1DS") then
       open(unit=45,file='E_ec_bc_t.dat',iostat=iop)
       open(unit=68,file='E_temp_t.dat',iostat=ios)
       if (ios /= 0) then
@@ -498,11 +498,11 @@
       end if
       endif
 
-      if(ytest.eq."1DJ".or.ytest.eq."ZND") then
+      if(ytest == "1DJ".or.ytest == "ZND") then
       open(unit=45,file='E_ec_bc_t.dat',iostat=iop)
       endif
 
-      if(ytest.eq."ZNS".or.ytest.eq."1DJ".or.ytest.eq."ZND") then
+      if(ytest == "ZNS".or.ytest == "1DJ".or.ytest == "ZND") then
       open(unit=32,file='E_zone.dat')
       open(unit=321,file='E_zone_parameter.dat')
       if (ios /= 0) then
@@ -517,8 +517,8 @@
 !      LECTURE FICHIER ZNS 1D ou warrick          C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      if(ytest.eq."ZNS".or.ytest.eq."WAR") then
-        if(iclchgt.eq.1) then
+      if(ytest == "ZNS".or.ytest == "WAR") then
+        if(iclchgt == 1) then
          select case (icl_bas)
              case (-1)
       open(unit=45,file='E_debit_bas_t.dat',iostat=iop)
@@ -567,12 +567,12 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....INITIALISATION COMPTEUR LIGNES
 
-      if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+      if (ytest == "ZHR".or.ytest == "ZHZ") then
       ligne4=0
 !CC....lecture des données
-      do while (ios.eq.0)
+      do while (ios == 0)
       read(68,*,iostat=ios)
-      if (ios.eq.0) then
+      if (ios == 0) then
       ligne4=ligne4+1
     endif
     enddo
@@ -592,12 +592,12 @@
       endif
 
 
-      if (ytest.eq."1DS") then
+      if (ytest == "1DS") then
       ligne4=0
 !CC....lecture des données temperature time
-      do while (ios.eq.0)
+      do while (ios == 0)
       read(68,*,iostat=ios)
-      if (ios.eq.0) then
+      if (ios == 0) then
       ligne4=ligne4+1
     endif
     enddo
@@ -619,12 +619,12 @@
     enddo
       endif
 
-      if (ytest.eq."1DJ".or.ytest.eq."ZND") then
+      if (ytest == "1DJ".or.ytest == "ZND") then
       ligne4=0
 !CC....lecture des données temperature time
-      do while (ios.eq.0)
+      do while (ios == 0)
       read(45,*,iostat=ios)
-      if (ios.eq.0) then
+      if (ios == 0) then
       ligne4=ligne4+1
     endif
     enddo
@@ -641,13 +641,13 @@
 
 
 !CC....ZNS 1D ou Warrick
-      if(ytest.eq."ZNS".or.ytest.eq."WAR") then
-        if(iclchgt.eq.1) then
+      if(ytest == "ZNS".or.ytest == "WAR") then
+        if(iclchgt == 1) then
       ligne4=0
 !CC....lecture des données
-      do while (ios.eq.0)
+      do while (ios == 0)
       read(68,*,iostat=ios)
-      if (ios.eq.0) then
+      if (ios == 0) then
       ligne4=ligne4+1
       endif
       enddo
@@ -694,7 +694,7 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....INITIALISATION COMPTEUR LIGNES
-      if (ytest.eq."AVA".or.ytest.eq."TEX") then
+      if (ytest == "AVA".or.ytest == "TEX") then
 
        ligne=0
        ligne1=0
@@ -702,9 +702,9 @@
 
 !CC....lecture des données
 !ccc...tempsol
-      do while (iTsol.eq.0)
+      do while (iTsol == 0)
       read(225,*,iostat=iTsol)
-      if (iTsol.eq.0) then
+      if (iTsol == 0) then
       ligne=ligne+1
       endif
       enddo
@@ -715,9 +715,9 @@
       enddo
 
 !ccc...qpluie
-      do while (ipluie.eq.0)
+      do while (ipluie == 0)
       read(226,*,iostat=i226)
-      if (ipluie.eq.0) then
+      if (ipluie == 0) then
       ligne1=ligne1+1
       endif
       enddo
@@ -730,9 +730,9 @@
 
 
 !ccc...boundaries wall
-      do while (iCRD.eq.0)
+      do while (iCRD == 0)
       read(227,*,iostat=iCRD)
-      if (iCRD.eq.0) then
+      if (iCRD == 0) then
       ligne2=ligne2+1
       endif
       enddo
@@ -773,9 +773,9 @@
 !CC....lecture des données
 !ccc...bord droit
 
-      do while (iidRD.eq.0)
+      do while (iidRD == 0)
       read(222,*,iostat=iidRD)
-      if (iidRD.eq.0) then
+      if (iidRD == 0) then
       ligne3=ligne3+1
       endif
       enddo
@@ -791,9 +791,9 @@
 !ccc...bord gauche
 
 
-      do while (iidRG.eq.0)
+      do while (iidRG == 0)
       read(223,*,iostat=iidRG)
-      if (iidRG.eq.0) then
+      if (iidRG == 0) then
       ligne4=ligne4+1
       endif
       enddo
@@ -807,9 +807,9 @@
 
 
 !ccc...riviere
-      do while (iidrv.eq.0)
+      do while (iidrv == 0)
       read(224,*,iostat=iidrv)
-      if (iidrv.eq.0) then
+      if (iidrv == 0) then
       ligne5=ligne5+1
       endif
       enddo
@@ -823,9 +823,9 @@
 
 
 !ccc...riviere a tester
-      do while (iidrvtest.eq.0)
+      do while (iidrvtest == 0)
       read(2244,*,iostat=iidrvtest)
-      if (iidrvtest.eq.0) then
+      if (iidrvtest == 0) then
       ligne6=ligne6+1
       endif
       enddo
@@ -843,9 +843,9 @@
 !CC if ZH pour flux
 
 
-      do while (iidZH.eq.0)
+      do while (iidZH == 0)
       read(2242,*,iostat=iidZH)
-      if (iidZH.eq.0) then
+      if (iidZH == 0) then
       ligne7=ligne7+1
       endif
       enddo
@@ -868,7 +868,7 @@
 
 !       ligne5=0
 !CC....TEST POUR MAQUETTE DECONNECTION
-!       if (icldrain.eq.1.or.iclriviere.eq.1) then
+!       if (icldrain == 1.or.iclriviere == 1) then
 !       ligne=0
 !       ligne1=0
 !       ligne2=0
@@ -901,11 +901,11 @@
        irecord=0
 
 ! Regime Permanent
-!       if(irp.eq.0) then
+!       if(irp == 0) then
 !       nitt=1.
 !       endif
 ! Regime Permanent
-!       if(irpth.eq.0) then
+!       if(irpth == 0) then
 !       nitt=1.
 !       endif
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -915,16 +915,16 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....ECOULEMENT
       amaxp=0.D+00
-      if(iec.eq.1)amaxp=1D+05
-      if(iec.eq.0) amaxp=crconvp
+      if(iec == 1)amaxp=1D+05
+      if(iec == 0) amaxp=crconvp
 !CC....TRANSPORT
       amaxc=0.D+00
-      if(itr.eq.1) amaxc=1D+05
-      if(itr.eq.0) amaxc=crconvc
+      if(itr == 1) amaxc=1D+05
+      if(itr == 0) amaxc=crconvc
 !CC....THERMIQUE
       amaxt=0.D+00
-      if(ith.eq.1) amaxt=1D+05
-      if(ith.eq.0) amaxt=crconvt
+      if(ith == 1) amaxt=1D+05
+      if(ith == 0) amaxt=crconvt
 
 
 
@@ -981,7 +981,7 @@
 !cccc....Progression logarithmique --> plus de precision au contact
 !cccc....reseau de surface
 !CC....INTERFROST TEST TH2
-      if(ytest.eq."TH2") then
+      if(ytest == "TH2") then
         dx=dble(0.1D+00/12D+00)
         dz=dble(0.1D+00/12D+00)
       endif
@@ -1029,7 +1029,7 @@
 !cccc....log en z
       select case (ilog)
       CASE (1)
-      if(j.eq.1) then
+      if(j == 1) then
       x(k)=(am(k)/2)
       else
       x(k)=(x(k-1)+(am(k-1)+am(k))/2)
@@ -1039,12 +1039,12 @@
         END SELECT
 
 
-      if(i.eq.1) then
+      if(i == 1) then
       z(k)=dble(az-bm(k)/2)
 !cccc....Modif 19-09-2014- point repere haut de colonne pour modele 1D
-      if (itopo.eq.0) then
-      if (abs(reptop-repbot)+1D-08.gt.az.and.&
-     abs(reptop-repbot)-1D-08.lt.az) then
+      if (itopo == 0) then
+      if (abs(reptop-repbot)+1D-08 > az.and.&
+     abs(reptop-repbot)-1D-08 < az) then
        z(k)=dble(az-bm(k)/2.+reptop-az)
       else
       print*, 'probleme dans votre constuction de modele'
@@ -1078,13 +1078,13 @@
       do i=1,nr
       do j=1,nc
       ii=(i-1)*nc+j
-      if(z(ii).le.topo(j).and.z(ii).ge.bot(j)) then
+      if(z(ii) <= topo(j).and.z(ii) >= bot(j)) then
       kr=kr+1
 !CC....NOUVEAU NUMERO de MAILLE
       inum(kr)=ii
       inum2(ii)=kr
-      if(i.gt.1.and.z(ivois(ii,3)).gt.topo(j)) ivois(ii,3)=-99
-      if(i.lt.nr.and.z(ivois(ii,4)).lt.bot(j)) ivois(ii,4)=-99
+      if(i > 1.and.z(ivois(ii,3)) > topo(j)) ivois(ii,3)=-99
+      if(i < nr.and.z(ivois(ii,4)) < bot(j)) ivois(ii,4)=-99
       endif
       enddo
       enddo
@@ -1103,7 +1103,7 @@
       if(ivois(inum(i),j).ne.-99) then
       ivois(i,j)=inum2(ivois(inum(i),j))
 !ccc....si inum2(ivois(inum(i),j))=0 c est que le voisin ds lancien maillage n est pas actif!!!
-      if(ivois(i,j).eq.0) ivois(i,j)=-99.
+      if(ivois(i,j) == 0) ivois(i,j)=-99.
       else
       ivois(i,j)=-99
       endif
@@ -1125,7 +1125,7 @@
       read(11,*)x(i),z(i)
       read(12,*)am(i),bm(i)
       read(13,*) ivois(i,1),ivois(i,2),ivois(i,3),ivois(i,4)
-      if (icolone.eq.1.or.ibuilt.eq.1)      read(40,*) icol(i)
+      if (icolone == 1.or.ibuilt == 1)      read(40,*) icol(i)
       enddo
 
       close(11)
@@ -1136,8 +1136,8 @@
        do i=1,nm
        if (ivois(i,1).ne.-99) then
        if (abs((x(ivois(i,1))-x(i))/((am(ivois(i,1))+am(i))/2))&
-     .gt.1.1.or.&
-     abs((x(ivois(i,1))-x(i))/((am(ivois(i,1))+am(i))/2)).lt.0.99) then
+      > 1.1.or.&
+     abs((x(ivois(i,1))-x(i))/((am(ivois(i,1))+am(i))/2)) < 0.99) then
 
        print*,'pb coordonnee def maille x'
        print*,"maille=",i
@@ -1157,8 +1157,8 @@
        if (ivois(i,3).ne.-99) then
 
        if (abs((z(ivois(i,3))-z(i))/((bm(ivois(i,3))+bm(i))/2))&
-     .gt.1.1.or.abs((z(ivois(i,3))-z(i))/&
-     ((bm(ivois(i,3))+bm(i))/2)).lt.0.99) then
+      > 1.1.or.abs((z(ivois(i,3))-z(i))/&
+     ((bm(ivois(i,3))+bm(i))/2)) < 0.99) then
        print*,'pb coordonnee def maille z'
        print*,"maille:",i,"voisin haut:",ivois(i,3)
        print*,"difference largeur voisine haute=",&
@@ -1177,20 +1177,20 @@
        enddo
 
 
-        if(ibuilt.eq.1) then
+        if(ibuilt == 1) then
       kr=0
       do ii=1,nm
-      if(z(ii)-topo(icol(ii)).lt.0.0001.and.&
-     z(ii)-bot(icol(ii)).gt.0.0001) then
+      if(z(ii)-topo(icol(ii)) < 0.0001.and.&
+     z(ii)-bot(icol(ii)) > 0.0001) then
       kr=kr+1
       inum(kr)=ii
       inum2(ii)=kr
       if(ivois(ii,3).ne.-99) then
-      if(i.gt.1.and.z(ivois(ii,3)).gt.topo(icol(ii))) ivois(ii,3)=-99
+      if(i > 1.and.z(ivois(ii,3)) > topo(icol(ii))) ivois(ii,3)=-99
       endif
 !c endif ivoi haut
       if(ivois(ii,4).ne.-99) then
-      if(i.lt.nr.and.z(ivois(ii,4)).lt.bot(icol(ii))) ivois(ii,4)=-99
+      if(i < nr.and.z(ivois(ii,4)) < bot(icol(ii))) ivois(ii,4)=-99
       endif
 !c endif ivoi bas
       endif
@@ -1210,7 +1210,7 @@
       if(ivois(inum(i),j).ne.-99) then
       ivois(i,j)=inum2(ivois(inum(i),j))
 !ccc....si inum2(ivois(inum(i),j))=0 c est que le voisin ds lancien maillage n est pas actif!!!
-      if(ivois(i,j).eq.0) ivois(i,j)=-99
+      if(ivois(i,j) == 0) ivois(i,j)=-99
       else
       ivois(i,j)=-99
       endif
@@ -1241,7 +1241,7 @@
 
       kcol=0
       do i=1,nm
-      if (ivois(i,4).eq.-99) then
+      if (ivois(i,4) == -99) then
       kcol=kcol+1
       ibas(kcol)=i
       endif
@@ -1251,7 +1251,7 @@
       do i=1,nm
 
       do kkcol=1,nc
-      if(x(i).eq.x(ibas(kkcol))) then
+      if(x(i) == x(ibas(kkcol))) then
       icol(i)=kkcol
       endif
       enddo
@@ -1312,7 +1312,7 @@
           allocate(iclt(nm,4))
           allocate(valclt(nm,4))
           allocate(cps(nm))
-              if(iaquitard.eq.1) allocate(irow(nm))
+              if(iaquitard == 1) allocate(irow(nm))
 
           allocate(prk(nm))
           allocate(zs(nc,2))
@@ -1326,11 +1326,11 @@
           allocate(tempoo(nm))
             allocate(valcl(nm,4))
           allocate(icl(nm,4))
-        if(itr.eq.1) then
+        if(itr == 1) then
           allocate(iclc(nm,4))
           allocate(valclc(nm,4))
         endif
-        if(ith.eq.1) then
+        if(ith == 1) then
           allocate(valclto(nm,4))
           allocate(zl(nc,2))
           allocate(zlo(nc,2))
@@ -1346,12 +1346,12 @@
 
 
 
-        if(itr.eq.1) then
+        if(itr == 1) then
           allocate(conck(nm))
           allocate(conc(nm))
         endif
 
-        if(ichi.eq.1) then
+        if(ichi == 1) then
          select case (ytest)
             case ("1DS")
              allocate(chg(nm))
@@ -1376,7 +1376,7 @@
 
 
 
-        if(icycle.eq.1) then
+        if(icycle == 1) then
           allocate(alph(nm))
           allocate(dsidtempoo(nm))
           allocate(dsidtempo(nm))
@@ -1416,11 +1416,11 @@
       dswdp(ik)=0d+00
       swp(ik)=1d+00
       dswpdp(ik)=0d+00
-      if (iss.eq.1) read(16,*) ss(ik)
-      if (iom.eq.1) read(15,*) om(ik)
-      if (irho.eq.1) read(25,*) rho(ik)
-      if (ipermh.eq.1) read(14,*) ak(ik)
-      if (ipermv.eq.1) read(140,*) akv(ik)
+      if (iss == 1) read(16,*) ss(ik)
+      if (iom == 1) read(15,*) om(ik)
+      if (irho == 1) read(25,*) rho(ik)
+      if (ipermh == 1) read(14,*) ak(ik)
+      if (ipermv == 1) read(140,*) akv(ik)
       sice(ik)=0d+00
       dsidtemp(ik)=0d+00
       rhoi(ik)=rhoii
@@ -1428,14 +1428,14 @@
       enddo
 
 
-      if (ith.eq.1) then
+      if (ith == 1) then
       do ik=1,nm
       rhos(ik)=rhosi
-      if(irhomi.eq.1) read(26,*) rhos(ik)
+      if(irhomi == 1) read(26,*) rhos(ik)
       alandas(ik)=(alandami)
-      if (ilanda.eq.1) read(17,*) alandas(ik)
+      if (ilanda == 1) read(17,*) alandas(ik)
       cps(ik)=(cpm)
-      if(icpm.eq.1) read(27,*) cps(ik)
+      if(icpm == 1) read(27,*) cps(ik)
       enddo
       endif
 
@@ -1443,7 +1443,7 @@
 
 
 
-      if(icycle.eq.1) then
+      if(icycle == 1) then
       do ik=1,nm
 
 
@@ -1475,7 +1475,7 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      if(ytest.eq."DTS") then
+      if(ytest == "DTS") then
 
 
         if (allocated(timeDTS)) deallocate(timeDTS)
@@ -1559,8 +1559,8 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      if(ytest.eq."AVA".or.ytest.eq."ZHZ"&
-     &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
+      if(ytest == "AVA".or.ytest == "ZHZ"&
+     &.or.ytest == "DTS".or.ytest == "TEX") then
       nzone=0
       do i=1,nm
       read(32,*)izone(i)
@@ -1577,7 +1577,7 @@
           allocate(jzone(nzone))
       endif
 
-      if(ytest.eq."ZNS".or.ytest.eq."ZND") then
+      if(ytest == "ZNS".or.ytest == "ZND") then
 
       nzone=0
       do i=1,nm
@@ -1600,7 +1600,7 @@
       endif
 
 
-      if(ytest.eq."1DS") then
+      if(ytest == "1DS") then
       nzone=0
       do i=1,nm
       read(32,*)izone(i)
@@ -1620,7 +1620,7 @@
           allocate(swreszone(nzone))
       endif
 
-      if(ytest.eq."1DJ") then
+      if(ytest == "1DJ") then
       nzone=0
       do i=1,nm
       read(32,*)izone(i)
@@ -1649,7 +1649,7 @@
 
       do i=1,nm
       do j=1,nzone
-      if (izone(i).eq.jzone(j)) then
+      if (izone(i) == jzone(j)) then
       ak(i)=akzone(j)
       akv(i)=akzone(j)
       om(i)=omzone(j)
@@ -1673,7 +1673,7 @@
 
       do i=1,nm
       do j=1,nzone
-      if (izone(i).eq.jzone(j)) then
+      if (izone(i) == jzone(j)) then
       ak(i)=akzone(j)
       akv(i)=akzone(j)
       om(i)=omzone(j)
@@ -1697,7 +1697,7 @@
 
       do i=1,nm
       do j=1,nzone
-      if (izone(i).eq.jzone(j)) then
+      if (izone(i) == jzone(j)) then
       alandas(i)=alandazone(j)
       cps(i)=cpmzone(j)
       rhos(i)=rhomzone(j)
@@ -1731,7 +1731,7 @@
       do i=1,nm
 
       do j=1,nzone
-      if (izone(i).eq.jzone(j)) then
+      if (izone(i) == jzone(j)) then
       ak(i)=akzone(j)
       akv(i)=akzone(j)
       om(i)=omzone(j)
@@ -1758,7 +1758,7 @@
       enddo
       do i=1,nm
       do j=1,nzone
-      if (izone(i).eq.jzone(j)) then
+      if (izone(i) == jzone(j)) then
       ak(i)=akzone(j)
       akv(i)=akzone(j)
       om(i)=omzone(j)
@@ -1784,7 +1784,7 @@
 
       do i=1,nm
       do j=1,nzone
-      if (izone(i).eq.jzone(j)) then
+      if (izone(i) == jzone(j)) then
       ak(i)=akzone(j)
       akv(i)=akzone(j)
       om(i)=omzone(j)
@@ -1799,9 +1799,9 @@
 
 !cc loop zone
 
-!     if(i.eq.10001) print*,ak(i)
-!     if(i.eq.12101) print*,ak(i)
-!     if(i.eq.47405) print*,ak(i)
+!     if(i == 10001) print*,ak(i)
+!     if(i == 12101) print*,ak(i)
+!     if(i == 47405) print*,ak(i)
       enddo
 !cc loop element
 
@@ -1814,7 +1814,7 @@
 
       do i=1,nm
       do j=1,nzone
-      if (izone(i).eq.jzone(j)) then
+      if (izone(i) == jzone(j)) then
       ak(i)=akzone(j)
       akv(i)=akzone(j)
       om(i)=omzone(j)
@@ -1861,10 +1861,10 @@
 
 
 !CC....INITIALISATION CONCENTRATION
-      if(itr.eq.1) then
+      if(itr == 1) then
       do ik=1,nm
       conc(ik)=(conci)
-      if (iconci.eq.1) read(22,*) conc(ik)
+      if (iconci == 1) read(22,*) conc(ik)
       enddo
       endif
 
@@ -1877,8 +1877,8 @@
 
 
 
-      if(ith.eq.1) then
-      if (itempi.eq.1) then
+      if(ith == 1) then
+      if (itempi == 1) then
       do ik=1,nm
       read(23,*) temp(ik)
       tempo(ik)=temp(ik)
@@ -1927,7 +1927,7 @@
       enddo
 
 
-      if (icycke.eq.1) then
+      if (icycke == 1) then
       do kkcol=1,nc
       dl(kkcol)=0.D00
       def(kkcol)=0.D00
@@ -1948,37 +1948,37 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC...HYDROSTATIQUE
-      if (ichi.eq.1) then
+      if (ichi == 1) then
       SELECT CASE (ytest)
           CASE ("ZNS")
       do i=1,nm
             read(24,*) chg(i)
-      if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+      if (abs(chg(j)) < 10D-9) chg(j)=0D+00
       pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
       enddo
       CASE ("ZND")
       do i=1,nm
             read(24,*) chg(i)
-      if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+      if (abs(chg(j)) < 10D-9) chg(j)=0D+00
       pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
       enddo
           CASE ("WAR")
       do i=1,nm
             read(24,*) chg(i)
-      if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+      if (abs(chg(j)) < 10D-9) chg(j)=0D+00
       pr(i)=dble((rho(i)*g*(chg(i))))
       enddo
           CASE ("1DS")
       do i=1,nm
             read(24,*) chg(i)
-      if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+      if (abs(chg(j)) < 10D-9) chg(j)=0D+00
       pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
       enddo
 
               CASE ("1DJ")
       do i=1,nm
             read(24,*) chg(i)
-      if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+      if (abs(chg(j)) < 10D-9) chg(j)=0D+00
       pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
       enddo
 
@@ -1990,10 +1990,10 @@
       enddo
       do j=1,nc
       do ii=1,nm
-      if (icol(ii).eq.j) then
-      if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
+      if (icol(ii) == j) then
+      if (abs(chg(j)) < 10D-9) chg(j)=0D+00
       pr(ii)=((rho(ii)*g*(chg(j)-z(ii))))
-      if (abs(pr(ii)).lt.10D-9) pr(ii)=0D+00
+      if (abs(pr(ii)) < 10D-9) pr(ii)=0D+00
       endif
       enddo
       enddo
@@ -2002,7 +2002,7 @@
 
 
 !CC...VARIATION DE LA CHARGE INITIALE sur tout le model
-      if (ichi2.eq.1) then
+      if (ichi2 == 1) then
       do i=1,nm
       read(242,*) pr(i)
        enddo
@@ -2018,21 +2018,21 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC...AQUITARD TEST PETIT BASSIN 1 COUCHE AQUITARD
-!       if(iaquitard.eq.1) then
+!       if(iaquitard == 1) then
 !       do i=1,nm
 !       read(21,*) irow(i)
-!       if(irow(i).eq.nrowtard) then
+!       if(irow(i) == nrowtard) then
 !       ak(i)=(aktardx)
 !       akv(i)=(aktardz)
 !       om(i)=(omptard)
 !       alandas(i)=(alandatard)
 !       ss(i)=(sstard)
 !       do j=1,nc
-!       if(icol(i).eq.j) zaqui(j)=z(i)
+!       if(icol(i) == j) zaqui(j)=z(i)
 !       enddo
 !       endif
 !       do jk=nrowtard-nmailleaqui+1,nrowtard-1
-!          if(irow(i).eq.jk) then
+!          if(irow(i) == jk) then
 !          ak(i)=(aktardx)
 !          akv(i)=(aktardz)
 !          om(i)=(omptard)
@@ -2043,21 +2043,21 @@
 !       enddo
 !       endif
 !CC...Terme de surpression
-!     if (ysupdp.eq."SPWAL") then
-!         if(iaquitard.eq.0) then
+!     if (ysupdp == "SPWAL") then
+!         if(iaquitard == 0) then
 !         do i=1,nm
 ! c            do j=1,nc
-!         if(icol(i).eq.j) zbot(i)=bot(j)
+!         if(icol(i) == j) zbot(i)=bot(j)
 !         enddo
 !         enddo
 !         endif
-!       if(iaquitard.eq.1) then
+!       if(iaquitard == 1) then
 !          do j=1,nc
 !          do i=1,nm
-!          if(icol(i).eq.j) then
-!          if (zaqui(j).ne.-99.and.z(i).ge.zaqui(j)) zbot(i)=zaqui(j)
-!          if (zaqui(j).eq.-99) zbot(i)=bot(j)
-!          if (z(i).lt.zaqui(j)) zbot(i)=bot(j)
+!          if(icol(i) == j) then
+!          if (zaqui(j).ne.-99.and.z(i) >= zaqui(j)) zbot(i)=zaqui(j)
+!          if (zaqui(j) == -99) zbot(i)=bot(j)
+!          if (z(i) < zaqui(j)) zbot(i)=bot(j)
 !              endif
 !          enddo
 !          enddo
@@ -2090,27 +2090,27 @@
       do j=1,4
       icl(i,j)=1
 !CC....FLUX NUL PAR DEFAUT
-      if(ivois(i,j).eq.-99) icl(i,j)=-1
+      if(ivois(i,j) == -99) icl(i,j)=-1
        valcl(i,j)=0.D+00
       enddo
       enddo
 
 !CC....ECOULEMENT
       do i=1,nm
-      if(ivois(i,1).eq.-99) then
+      if(ivois(i,1) == -99) then
       icl(i,1)=icl_droite
       valcl(i,1)=dble(valcl_droite)
       endif
 
-      if(ivois(i,2).eq.-99) then
+      if(ivois(i,2) == -99) then
       icl(i,2)=icl_gauche
       valcl(i,2)=dble(valcl_gauche)
       endif
-      if(ivois(i,3).eq.-99) then
+      if(ivois(i,3) == -99) then
       icl(i,3)=icl_haut
       valcl(i,3)=dble(valcl_haut)
       endif
-      if(ivois(i,4).eq.-99) then
+      if(ivois(i,4) == -99) then
       icl(i,4)=icl_bas
       valcl(i,4)=dble(valcl_bas)
       endif
@@ -2119,7 +2119,7 @@
 
 
 !ccc....VARIATION SPATIALE : une condition par maille
-      if(iclect.eq.1) then
+      if(iclect == 1) then
       read(37,*)icl(i,1),icl(i,2),icl(i,3),icl(i,4),valcl(i,1),&
      valcl(i,2),valcl(i,3),valcl(i,4)
 !       else
@@ -2133,7 +2133,7 @@
 
 !ccc....message erreur
       do j=1,4
-      if (ivois(i,j).eq.-99.and.icl(i,j).eq.1) then
+      if (ivois(i,j) == -99.and.icl(i,j) == 1) then
       print*,i,&
      "erreur pas de voisin et pas de conditions aux limites"
       endif
@@ -2141,57 +2141,57 @@
       enddo
       do i=1,nm
 !ccc....CHARGE IMPOSEE aux faces (attention pas au centre des mailles !!!)
-      if(icl(i,1).eq.-2) then
+      if(icl(i,1) == -2) then
        valcl(i,1)=(rho(i)*g*(valcl(i,1)-z(i)))
 !ccc....TEST INTERFROST TH2 TH3
-       if(ytest.eq."TH2".or.ytest.eq."TH3") then
+       if(ytest == "TH2".or.ytest == "TH3") then
        valcl(i,1)=(rho(i)*g*valcl_droite)
        endif
 !ccc....VALEURS NULLES
-      if (abs(valcl(i,1)).lt.10D-10) valcl(i,1)=0D+00
+      if (abs(valcl(i,1)) < 10D-10) valcl(i,1)=0D+00
       endif
 
-      if(icl(i,2).eq.-2) then
+      if(icl(i,2) == -2) then
       valcl(i,2)=(rho(i)*g*(valcl(i,2)-z(i)))
 !ccc....TEST INTERFROST TH2 TH
-       if(ytest.eq."TH2".or.ytest.eq."TH3") then
+       if(ytest == "TH2".or.ytest == "TH3") then
        valcl(i,2)=(rho(i)*g*valcl_gauche)
        endif
 !ccc....VALEURS NULLES
-      if (abs(valcl(i,2)).lt.10D-10) valcl(i,2)=0
+      if (abs(valcl(i,2)) < 10D-10) valcl(i,2)=0
       endif
 
-      if(icl(i,3).eq.-2) then
+      if(icl(i,3) == -2) then
        valcl(i,3)=dble(rho(i)*g*(valcl(i,3)-z(i)-bm(i)/2))
 !ccc....VALEURS NULLES
-      if(ytest.eq."WAR") valcl(i,3)=valcl_haut*rho1*g
-       if (abs(valcl(i,3)).lt.10D-10) valcl(i,3)=0D+00
+      if(ytest == "WAR") valcl(i,3)=valcl_haut*rho1*g
+       if (abs(valcl(i,3)) < 10D-10) valcl(i,3)=0D+00
       endif
 
 
-      if(icl(i,4).eq.-2) then
+      if(icl(i,4) == -2) then
        valcl(i,4)=(rho(i)*g*(valcl(i,4)-z(i)+bm(i)/2))
 
-      if(ytest.eq."WAR") valcl(i,4)=valcl_bas*rho1*g
+      if(ytest == "WAR") valcl(i,4)=valcl_bas*rho1*g
 
 !ccc....VALEURS NULLES
-      if (abs(valcl(i,4)).lt.10D-10) valcl(i,4)=0
+      if (abs(valcl(i,4)) < 10D-10) valcl(i,4)=0
       endif
 
 
 
-       if(ytest.eq."ZNS".or.ytest.eq."ZND") then
-      if(icl(i,4).eq.-2) then
+       if(ytest == "ZNS".or.ytest == "ZND") then
+      if(icl(i,4) == -2) then
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
+      if(abs(zbas) < 1e-6) zbas=0D+00
       valcl(nm,4)=(rho(nm)*g*(valcl_bas- zbas))
       endif
 
 
 
-      if(icl(i,3).eq.-2) then
+      if(icl(i,3) == -2) then
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
       valcl(1,3)=rho(1)*g*(valcl_haut-zhaut)
       endif
       endif
@@ -2204,9 +2204,9 @@
 
 
 !ccc....CDT MAILLES RIVIERE
-      if (iclriviere.eq.1) then
+      if (iclriviere == 1) then
       do i=1,nm
-      if(ivois(i,3).eq.-99) then
+      if(ivois(i,3) == -99) then
       icl(i,3)=-1
       valcl(i,3)=qre
       endif
@@ -2218,12 +2218,12 @@
 !ccc....TABLEAU ICLC 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
 !ccc....TABLEAU VALCLC VALEURS CORRESPONDANTES
 !ccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
-       if(itr.eq.1) then
+       if(itr == 1) then
       do ik=1,nm
       do j=1,4
       iclc(ik,j)=1
 !ccc....FLUX NUL PAR DEFAUT
-      if(ivois(ik,j).eq.-99) iclc(ik,j)=-1
+      if(ivois(ik,j) == -99) iclc(ik,j)=-1
        valclc(ik,j)=0.D+00
       enddo
       enddo
@@ -2236,31 +2236,31 @@
 !ccc....TABLEAU ICLT 1 NORMAL, -1 FLUX NUL, -2 CONCENTRATION IMPOSEE SUR LES FACES CORRESPONDANTES
 !ccc....TABLEAU VALCLT VALEURS CORRESPONDANTES
 !ccc....N.B.: LES FLUX IMPOSES (ICLC(i,j)=-1) SONT TRAITES VIA LE TERME ADVECTIF
-       if(ith.eq.1) then
+       if(ith == 1) then
       do ik=1,nm
       do j=1,4
       iclt(ik,j)=1
       enddo
-      if(ivois(ik,2).eq.-99) then
+      if(ivois(ik,2) == -99) then
       iclt(ik,2)=iclt_gauche
       valclt(ik,2)=dble(valclt_gauche)
       endif
-      if(ivois(ik,1).eq.-99) then
+      if(ivois(ik,1) == -99) then
       iclt(ik,1)=iclt_droite
       valclt(ik,1)=dble(valclt_droite)
       endif
-      if(ivois(ik,3).eq.-99) then
+      if(ivois(ik,3) == -99) then
       iclt(ik,3)=iclt_haut
       valclt(ik,3)=dble(valclt_haut)
       endif
-      if(ivois(ik,4).eq.-99) then
+      if(ivois(ik,4) == -99) then
       iclt(ik,4)=iclt_bas
       valclt(ik,4)=dble(valclt_bas)
       endif
 
 
 !ccc....VARIATION SPATIALE : une condition par maille
-      if(icltherm.eq.1) then
+      if(icltherm == 1) then
       read(38,*) iclt(ik,1),iclt(ik,2),iclt(ik,3)&
      ,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
 !     else
@@ -2268,7 +2268,7 @@
 !     &,iclt(ik,4),valclt(ik,1),valclt(ik,2),valclt(ik,3),valclt(ik,4)
       endif
       do j=1,4
-      if (ivois(ik,j).eq.-99.and.iclt(ik,j).eq.1) then
+      if (ivois(ik,j) == -99.and.iclt(ik,j) == 1) then
       print*,ik,&
      "erreur pas de voisin et pas de conditions aux limites"
       endif
@@ -2282,20 +2282,20 @@
 
 
 !CC....EXUTOIRE
-!       if(iexutoire.eq.1) then
+!       if(iexutoire == 1) then
 !       do i=1,nm
-!       if(x(i).lt.xexutoire.and.ivois(i,3).eq.-99) then
+!       if(x(i) < xexutoire.and.ivois(i,3) == -99) then
 !       valclt(i,3)=tempexutoite
 !       iclt(i,3)=-2
 !       endif
 !       enddo
 !       endif
 !       qruis=0.D+00
-!      if (iinfil.eq.1) then
+!      if (iinfil == 1) then
 !       call infiltration(pr,nm,n,icol,nc,om,ss,bm,rho,pore,
 !     &am,valcl,icl,qtpore,ruis,ivois,z,g,dt,xberg,x,qre,qruis)
 !       endif
-!       if (iriv.eq.1) then
+!       if (iriv == 1) then
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !         RIVIERE               C
@@ -2305,7 +2305,7 @@
 !ccc....CONDITION LIMITES BORDS BERGE RIVIERE TEST CELLULES VOISINES DE LA RIVIERE
 !ccc....CONDITION TEMPERATURE IMPOSE SUR BERGE ET LIT DE RIVIERE
 !ccc....MAILLE VOISINE RIVIERE PERMEABILITE DU LIT DE LA RIVIERE
-!       if(iqriv.eq.1) then
+!       if(iqriv == 1) then
 !       hriv=((qre*xberg*1+qriva+qruis)**(3./5.))*(rug**(-3./5.))*
 !     &((al-xberg)**(-3./5.))*(pent**(-3./10.))
 !       endif
@@ -2316,10 +2316,10 @@
 !     &akc,akcv,it,ita,tempo,ts)
 !       endif
 !ccc....Variation conditions limites lecture fichier
-!       if(iclriviere.eq.1) then
-!       do while (iot.eq.0)
+!       if(iclriviere == 1) then
+!       do while (iot == 0)
 !       read(42,*,iostat=iot)
-!       if (iot.eq.0) then
+!       if (iot == 0) then
 !       ligne1=ligne1+1
 !       endif
 !       enddo
@@ -2327,9 +2327,9 @@
 !       do j=1,ligne1-1
 !       read(42,*,iostat=iot),qrivent1(j),qpluie1(j)
 !       enddo
-!       do while (io2.eq.0)
+!       do while (io2 == 0)
 !       read(43,*,iostat=io2)
-!       if (io2.eq.0) then
+!       if (io2 == 0) then
 !       ligne2=ligne2+1
 !       endif
 !       enddo
@@ -2337,9 +2337,9 @@
 !       do j=1,ligne2
 !       read(43,*,iostat=io2),qrivent2(j),qpluie2(j)
 !       enddo
-!       do while (io3.eq.0)
+!       do while (io3 == 0)
 !       read(44,*,iostat=io3)
-!       if (io3.eq.0) then
+!       if (io3 == 0) then
 !       ligne3=ligne3+1
 !       ENDIF
 !       enddo
@@ -2353,10 +2353,10 @@
 !      Topo en marche d escalier          C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!       if (itopomch.eq.1) then
+!       if (itopomch == 1) then
 !     do i=1,nm
-!     if(x(i).lt.xberg-am(i).and.ivois(i,1).eq.-99
-!     &.and.ivois(i,3).eq.-99) then
+!     if(x(i) < xberg-am(i).and.ivois(i,1) == -99
+!     &.and.ivois(i,3) == -99) then
 !       valcl(i,1)=qre/2
 !       valcl(i,3)=qre/2
 !     icl(i,1)=-1
@@ -2380,10 +2380,10 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 !CC....CDT TEST TH2
-      if(ytest.eq."TH2") then
+      if(ytest == "TH2") then
       do i=1,nm
-      if(x(i).ge.1-0.333/2.and.x(i).le.1+0.333/2.) then
-      if(z(i).ge.0.5-0.333/2.and.z(i).le.0.5+0.333/2.) then
+      if(x(i) >= 1-0.333/2.and.x(i) <= 1+0.333/2.) then
+      if(z(i) >= 0.5-0.333/2.and.z(i) <= 0.5+0.333/2.) then
       temp(i)=-5D+00
       sice(i)=0.95D+00
       tempo(i)=-5D+00
@@ -2398,10 +2398,10 @@
       enddo
       endif
 !CC....CDT TEST TH3 demi cercle
-      if(ytest.eq."TH3") then
+      if(ytest == "TH3") then
       do i=1,nm
       ab=(x(i)-0.5D+00)**2+(z(i)+0.1D+00)**2
-      if(ab.le.(0.5099)**2) then
+      if(ab <= (0.5099)**2) then
       temp(i)=-5D+00
       sice(i)=0.95D+00
       siceo(i)=0.95D+00
@@ -2426,49 +2426,49 @@
 !     MESSAGE UTILISATEUR              C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!      if (iec.eq.0) then
+!      if (iec == 0) then
 !       print*,'attention vous avez annule l ecoulement'
 !       print*,'vous devez indiquer des flux imposes en ecoulement'
 !       print*,'dans le cas contraire calcul de conduction'
 !      endif
-!      if  (irp.eq.1) then
+!      if  (irp == 1) then
 !      Print*,'nb de lignes dans les fichiers temporaires ='
 !      print*,nitt*unitsim/(itsortie*us)
 !      Print*,'attention cela doit etre un entier'
 !      endif
-!     if (iec.eq.1) then
+!     if (iec == 1) then
 !      do i=1,nm
-!       if (icl(i,1).eq.-2) then
-!       if (ivois(i,2).eq.-99) then
+!       if (icl(i,1) == -2) then
+!       if (ivois(i,2) == -99) then
 !       print*,'pb de configuration 2 cellule par ligne'
 !       print*,'avec une charge imposee'
 !       endif
 !       endif
-!       if (icl(i,2).eq.-2) then
-!       if (ivois(i,1).eq.-99) then
+!       if (icl(i,2) == -2) then
+!       if (ivois(i,1) == -99) then
 !       print*,'pb de configuration 2 cellule par ligne'
 !       print*,'avec une charge imposee'
 !       endif
 !       endif
-!       if (icl(i,3).eq.-2) then
-!       if (ivois(i,4).eq.-99) then
+!       if (icl(i,3) == -2) then
+!       if (ivois(i,4) == -99) then
 !       print*,'pb de configuration 2 cellule par ligne'
 !       print*,'avec une charge imposee'
 !       endif
 !       endif
-!       if (icl(i,4).eq.-2) then
-!       if (ivois(i,3).eq.-99) then
+!       if (icl(i,4) == -2) then
+!       if (ivois(i,3) == -99) then
 !       print*,'pb de configuration 2 cellule par ligne'
 !       print*,'avec une charge imposee'
 !       endif
 !       endif
 !       enddo
 !       endif
-!       if(ithec.eq.1) then
+!       if(ithec == 1) then
 !       do j=1,4
 !       do i=1,nm
-!       if (icl(i,j).eq.-1.and.iclt(i,j).eq.-1) then
-!       if(abs(valcl(i,j)).gt.0) then
+!       if (icl(i,j) == -1.and.iclt(i,j) == -1) then
+!       if(abs(valcl(i,j)) > 0) then
 !c      print*,'Attention si vous imposez un flux nul en temperature'
 !       print*,'vous allez convecter une temperature nulle'
 !c      endif
@@ -2485,20 +2485,20 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....DEF PARAMETRES VS CDT INITIALES
 !CC....ZNS
-      if (ivg.eq.1.or.yunconfined.eq."UNS") then
+      if (ivg == 1.or.yunconfined == "UNS") then
       Call unsaturated(pr,swp,dswpdp,swresz,ans,akr,&
      nm,akrv,rho1,g,ansun,asun)
 
 !CC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL AVEC ZONE NON SATUREE
-    if(igelzns.eq.0.and.ith.eq.1) then
-    if (ymoycondtherm.eq."WOODS") then
+    if(igelzns == 0.and.ith == 1) then
+    if (ymoycondtherm == "WOODS") then
     alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+&
      sqrt(alandas(i))*(1D+00-om(i))+&
      sqrt(alandag)*om(i)*(1D+00-sw(i)))**2
-    else if(ymoycondtherm.eq."GEOME") then
+    else if(ymoycondtherm == "GEOME") then
     alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
      alandag**(om(i)*(1D+00-sw(i))))
-    else if(ymoycondtherm.eq."ARITH") then
+    else if(ymoycondtherm == "ARITH") then
       alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
      +alandag*(om(i)*(1D+00-sw(i))))
     endif
@@ -2506,32 +2506,32 @@
     endif
 
 
-      else if (yunconfined.eq."CAP") then
+      else if (yunconfined == "CAP") then
       do i=1,nm
 !CC....nappe captive
 !ccc....COEFFICIENT D EMMAGASINEMENT
        swp(i)=1.D00
        dswpdp(i)=ss(i)/(rho1*g*om(i))
 !ccc....Test Interfrost
-      if (ytest.eq."TH2".or.ytest.eq."TH3") then
+      if (ytest == "TH2".or.ytest == "TH3") then
       dswpdp(i)=sw(i)*ss(i)
           endif
       enddo
 !CC....nappe libre
 !ccc....simplification solution analytique
-      else  if (yunconfined.eq."UNC") then
+      else  if (yunconfined == "UNC") then
       do i=1,nm
       akr(i)=1D+00
       akrv(i)=1D+00
       swp(i)=1D+00
-      if (irp.eq.1) dswpdp(i)=1D+00/(rho1*g*bm(i))
-!       if (irp.eq.1) dswpdp(i)=1D+00/(rho1*g)
-      if(pr(i).lt.0d+00) then
+      if (irp == 1) dswpdp(i)=1D+00/(rho1*g*bm(i))
+!       if (irp == 1) dswpdp(i)=1D+00/(rho1*g)
+      if(pr(i) < 0d+00) then
 !     akr(i)=0D+00
       akrv(i)=1D+00
       swp(i)=0D+00
       endif
-      if(pr(i).ge.0d+00) then
+      if(pr(i) >= 0d+00) then
       akr(i)=1D+00
       akrv(i)=1D+00
       swp(i)=1D+00
@@ -2552,52 +2552,52 @@
 !ccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maille 1 à améliorer
 
       if(icycle.ne.0) then
-      if (temp(1).lt.0.and.tempo(1)-temp(1).gt.0) igel=1
-      if (temp(1).lt.0.and.tempo(1)-temp(1).lt.0) igel=2
-      if(ytest.eq."TH1".or.ytest.eq."TH2".or.ytest.eq."TH3") igel=2
-        if(ytest.eq."MAQ") then
-      if (paso.le.49.1*86400) igel=1
-      if (paso.gt.49.1*86400) igel=2
+      if (temp(1) < 0.and.tempo(1)-temp(1) > 0) igel=1
+      if (temp(1) < 0.and.tempo(1)-temp(1) < 0) igel=2
+      if(ytest == "TH1".or.ytest == "TH2".or.ytest == "TH3") igel=2
+        if(ytest == "MAQ") then
+      if (paso <= 49.1*86400) igel=1
+      if (paso > 49.1*86400) igel=2
       endif
-!       if(ytest.eq."MAQ") then
-!     if (paso.le.1180*3600) igel=1
-!     if (paso.gt.1180*3600) then
+!       if(ytest == "MAQ") then
+!     if (paso <= 1180*3600) igel=1
+!     if (paso > 1180*3600) then
 !     igel=2
 !     endif
       else
        igel=0
       endif
 
-      if(icycle.eq.1) then
-      if (ytest.eq."TH2".or.ytest.eq."TH3") then
+      if(icycle == 1) then
+      if (ytest == "TH2".or.ytest == "TH3") then
       do i=1,nm
       dswpdp(i)=ss(i)*sw(i)
         enddo
-        if(ytest.eq."MAQ") then
+        if(ytest == "MAQ") then
       do i=1,nm
 !CC....Changement coef emmagasinement
-      if(temp(i).lt.tl) dswpdp(i)=ss(i)/g/rho(i)/om(i)
-      if(temp(i).gt.tl) dswpdp(i)=1
+      if(temp(i) < tl) dswpdp(i)=ss(i)/g/rho(i)/om(i)
+      if(temp(i) > tl) dswpdp(i)=1
       do kcol=1,nc
 !CC...GEL....dswpd subpermafrost
-      if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.zs(kcol,1)) then
+      if (igel == 1.and.zs(kcol,1).ne.-99.and.icol(i) == kcol.and.&
+     z(i) < zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i) > zs(kcol,1)) then
       dswpdp(i)=ss(i)/g/rho(i)/om(i)
       endif
 !CC...GEL....dswpd subpermafrost
-      if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.topo(kcol))&
+      if (igel == 1.and.zs(kcol,1).ne.-99.and.icol(i) == kcol.and.&
+     z(i) < zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i) > topo(kcol))&
       then
       dswpdp(i)=ss(i)/g/rho(i)/om(i)
       endif
 !CC....DEGEL....dswpd suprapermafrost
-      if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).gt.zs(kcol,1).and.temp(i).gt.tl)then
+      if (igel == 2.and.zs(kcol,1).ne.-99.and.icol(i) == kcol.and.&
+     z(i) > zs(kcol,1).and.temp(i) > tl)then
       dswpdp(i)=1
       endif
 !CC....DEGEL....dswpd subpermafrost
-      if (igel.eq.2.and.zs(kcol,2).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).lt.zs(kcol,2).and.temp(i).gt.tl)then
+      if (igel == 2.and.zs(kcol,2).ne.-99.and.icol(i) == kcol.and.&
+     z(i) < zs(kcol,2).and.temp(i) > tl)then
       dswpdp(i)=ss(i)/(rho1*g*om(i))
       endif
       enddo
@@ -2609,7 +2609,7 @@
 !ccc....derivation de la saturation en glace en fonction de la temperature dsice
 !ccc....sw (liquide) = (1D0 - sice)
 !CC....Implicite
-      if(icycle.ne.0.and.ibigridice.ne.1.and.iparo.eq.1) then
+      if(icycle.ne.0.and.ibigridice.ne.1.and.iparo == 1) then
        CALL icesatperm(nm,tl,ts,akr,akrv,dk,tempo,&
      dsipdtemp,igelzns,ytypakrice,&
      sicep,om,sw,swressi,ytypsice,&
@@ -2621,7 +2621,7 @@
       enddo
       endif
 !CC....Explicite
-      if(icycle.ne.0.and.ibigridice.ne.1.and.iparo.eq.0) then
+      if(icycle.ne.0.and.ibigridice.ne.1.and.iparo == 0) then
        CALL icesatperm(nm,tl,ts,akr,akrv,dk,temp,&
      dsipdtemp,igelzns,ytypakrice,&
      sicep,om,sw,swressi,ytypsice,&
@@ -2633,7 +2633,7 @@
       enddo
       endif
 !CC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
-      if(icycle.ne.0.and.ibigridice.EQ.1) then
+      if(icycle.ne.0.and.ibigridice == 1) then
       CALL biggridice(nm,tl,ts,akr,akrv,dk,temp,igel,&
      nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,&
      sicep,swressi,siceo,tempo)
@@ -2644,7 +2644,7 @@
        swtot=swp(i)
        sice(i)=MAX(0.D0,swtot-(1.D0-sicep(i)))
        sw(i)=swtot-sice(i)
-          if (dsipdtemp(i).eq.0) then
+          if (dsipdtemp(i) == 0) then
           dswdp(i)=dswpdp(i)
           dswdt(i)=0.D0
           dsidp(i)=0.D0
@@ -2657,7 +2657,7 @@
           dsidtemp(i)=dsipdtemp(i)
 
        endif
-      if (irp.eq.0) dswdp(i)=0D+00
+      if (irp == 0) dswdp(i)=0D+00
 
        enddo
         else
@@ -2680,7 +2680,7 @@
 !CC....indice regime permanant thermique
       irptha=irpth
 !CC....Boucle temps jusqu a fin de simulation
-      do while (nitt*unitsim-paso.gt.0)
+      do while (nitt*unitsim-paso > 0)
       it=it+1
 !CC....Compteur iteration calcul PICARD
       nk=0
@@ -2692,15 +2692,15 @@
 !ccc....dt record = temps ecoulé depuis le dernier enregistrement
 !ccc....irecord = booléen si vrai ecriture sinon rien
 
-         if(dtreco+dt.lt.itsortie*unitsortie) then
+         if(dtreco+dt < itsortie*unitsortie) then
           dtrecord=dble(dtreco)+dble(dt)
           irecord=0
 
-         elseif (dtreco+dt.eq.itsortie*unitsortie) then
+         elseif (dtreco+dt == itsortie*unitsortie) then
          irecord=1
          dtrecord=0
          dtreco=0
-         elseif (dtreco+dt.gt.itsortie*unitsortie) then
+         elseif (dtreco+dt > itsortie*unitsortie) then
          dt=dble(itsortie)*dble(unitsortie)-dble(dtreco)
          irecord=1
          dtrecord=0
@@ -2715,24 +2715,24 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....ECOULEMENT
       amaxp=0.D+00
-      if(iec.eq.1)amaxp=1D+05
-      if(iec.eq.0) amaxp=crconvp
+      if(iec == 1)amaxp=1D+05
+      if(iec == 0) amaxp=crconvp
 !CC....TRANSPORT
       amaxc=0.D+00
-      if(itr.eq.1) amaxc=1D+05
-      if(itr.eq.0) amaxc=crconvc
+      if(itr == 1) amaxc=1D+05
+      if(itr == 0) amaxc=crconvc
 !CC....THERMIQUE
       amaxt=0.D+00
-      if(ith.eq.1) amaxt=1D+05
-      if(ith.eq.0) amaxt=crconvt
+      if(ith == 1) amaxt=1D+05
+      if(ith == 0) amaxt=crconvt
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !      Compteur temps simulation          C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      if (irp.eq.0.and.irptha.eq.0.and.it.gt.3) paso=nitt*unitsim
-       if (irptha.eq.1.or.irp.eq.1)   paso=dble(dt)+dble(paso)
+      if (irp == 0.and.irptha == 0.and.it > 3) paso=nitt*unitsim
+       if (irptha == 1.or.irp == 1)   paso=dble(dt)+dble(paso)
 
 
 
@@ -2750,7 +2750,7 @@
     enddo
 
 
-      if (itr.eq.1) then
+      if (itr == 1) then
     do i=1,nm
     conco(i)=conc(i)
     enddo
@@ -2759,7 +2759,7 @@
 
 
 
-      if (ith.eq.1) then
+      if (ith == 1) then
     do i=1,nm
 
     if(temp(i)+1.ne.temp(i)) tempoo(i)=tempo(i)
@@ -2771,7 +2771,7 @@
     valclto1=valclt(1,3)
     endif
 
-    if(icycle.eq.1) then
+    if(icycle == 1) then
     do i=1,nm
     if(temp(i)+1.ne.temp(i)) siceo(i)=sice(i)
     enddo
@@ -2801,7 +2801,7 @@
 
 
 
-       if(iclchgt.eq.1) then
+       if(iclchgt == 1) then
       select case (ytest)
        case ("WAR")
         ntsortie=ligne4
@@ -2813,22 +2813,22 @@
         ntsortie=ligne4
       case ("1DS")
         ntsortie=ligne4
-        if(ligne.eq.0) ligne=1
-        if(ligne1.eq.0) ligne1=1
-        if(ligne2.eq.0) ligne2=1
-        if(ligne3.eq.0) ligne3=1
-        if(ligne4.eq.0) ligne4=1
-        if(ligne5.eq.0) ligne5=1
-        if(ligne6.eq.0) ligne6=1
+        if(ligne == 0) ligne=1
+        if(ligne1 == 0) ligne1=1
+        if(ligne2 == 0) ligne2=1
+        if(ligne3 == 0) ligne3=1
+        if(ligne4 == 0) ligne4=1
+        if(ligne5 == 0) ligne5=1
+        if(ligne6 == 0) ligne6=1
        case ("1DJ")
         ntsortie=ligne4
-        if(ligne.eq.0) ligne=1
-        if(ligne1.eq.0) ligne1=1
-        if(ligne2.eq.0) ligne2=1
-        if(ligne3.eq.0) ligne3=1
-        if(ligne4.eq.0) ligne4=1
-        if(ligne5.eq.0) ligne5=1
-        if(ligne6.eq.0) ligne6=1
+        if(ligne == 0) ligne=1
+        if(ligne1 == 0) ligne1=1
+        if(ligne2 == 0) ligne2=1
+        if(ligne3 == 0) ligne3=1
+        if(ligne4 == 0) ligne4=1
+        if(ligne5 == 0) ligne5=1
+        if(ligne6 == 0) ligne6=1
       case ("ZHZ")
         ntsortie=ligne4
           case default
@@ -2860,22 +2860,22 @@
 !       BOUCLE DE PICARD               C
 !                          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      do while (amaxp.gt.crconvp.or.pr(1)+1.eq.pr(1)&
-     .or.amaxt.gt.crconvt.or.temp(1)+1.eq.temp(1)&
+      do while (amaxp > crconvp.or.pr(1)+1 == pr(1)&
+     .or.amaxt > crconvt.or.temp(1)+1 == temp(1)&
      .or.temp(1)-temp(1).ne.0&
-     .or.pr(1)-pr(1).ne.0.or.nk.eq.iteration-1)
+     .or.pr(1)-pr(1).ne.0.or.nk == iteration-1)
       nk=nk+1
 
 !CC...Sauvegarde de literation picard precedante
       do i=1,nm
       prk(i)=pr(i)
       enddo
-      if(itr.eq.1) then
+      if(itr == 1) then
       do i=1,nm
       conck(i)=conc(i)
       enddo
       endif
-      if(ith.eq.1) then
+      if(ith == 1) then
       do i=1,nm
       tempk(i)=temp(i)
       enddo
@@ -2889,14 +2889,14 @@
 !         pas de temps adaptatif           C
 !                          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(nk.eq.iteration-1.or.pr(1)+1.eq.pr(1)&
-     .or.dt.le.1D-5) then
-      if(dtreco.ge.0) then
+    if(nk == iteration-1.or.pr(1)+1 == pr(1)&
+     .or.dt <= 1D-5) then
+      if(dtreco >= 0) then
       dtrecord=dble(dtreco)-dble(dt)
       irecord=0
       endif
 
-      if(dtreco.le.0) then
+      if(dtreco <= 0) then
       dtrecord=0
       irecord=0
       endif
@@ -2904,21 +2904,21 @@
       dto=dble(dt)
       dt=dble(dto)/10
 
-      if(dt.gt.dta) dt=dta
+      if(dt > dta) dt=dta
       if(modulo(dta,dt).ne.0) dt=dble(dta)/10
       it=int(it-1)
 !CC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
 !ccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
 !ccc....dt record = temps ecoulé depuis le dernier enregistrement
 !ccc....irecord = booléen si vrai ecriture sinon rien
-         if(dtreco+dt.lt.itsortie*unitsortie) then
+         if(dtreco+dt < itsortie*unitsortie) then
           dtrecord=dble(dtreco)+dble(dt)
           irecord=0
-         elseif (dtreco+dt.eq.itsortie*unitsortie) then
+         elseif (dtreco+dt == itsortie*unitsortie) then
          irecord=1
          dtrecord=0
          dtreco=0
-         elseif (dtreco+dt.gt.itsortie*unitsortie) then
+         elseif (dtreco+dt > itsortie*unitsortie) then
          dt=dble(itsortie)*dble(unitsortie)-dble(dtreco)
          irecord=1
          dtrecord=0
@@ -2933,9 +2933,9 @@
           paso=dble(dt)+dble(paso)-dble(dto)
 
 
-      if (irp.eq.0.and.irptha.eq.0.and.it.gt.3) paso=nitt*unitsim
+      if (irp == 0.and.irptha == 0.and.it > 3) paso=nitt*unitsim
 
-       if(iclchgt.eq.1) then
+       if(iclchgt == 1) then
       select case (ytest)
        case ("WAR")
         ntsortie=ligne4
@@ -2963,13 +2963,13 @@
 !                          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !c aaaaaaaaaaaaaaaaaaaaaaaaaaa
-        if(ligne.eq.0) ligne=1
-        if(ligne1.eq.0) ligne1=1
-        if(ligne2.eq.0) ligne2=1
-        if(ligne3.eq.0) ligne3=1
-        if(ligne4.eq.0) ligne4=1
-        if(ligne5.eq.0) ligne5=1
-        if(ligne6.eq.0) ligne6=1
+        if(ligne == 0) ligne=1
+        if(ligne1 == 0) ligne1=1
+        if(ligne2 == 0) ligne2=1
+        if(ligne3 == 0) ligne3=1
+        if(ligne4 == 0) ligne4=1
+        if(ligne5 == 0) ligne5=1
+        if(ligne6 == 0) ligne6=1
 
 !ccc....recalcul car chgt pas temps
        call variation_cdt_limites(nm,paso,itlecture,ytest,&
@@ -2989,10 +2989,10 @@
 
          do i=1,nm
         pr(i)=pro(i)
-        if(ith.eq.1) tempo(i)=tempoo(i)
-        if(icycle.eq.1) siceo(i)=siceoo(i)
-        if(ith.eq.1) temp(i)=tempo(i)
-        if(icycle.eq.1) sice(i)=siceo(i)
+        if(ith == 1) tempo(i)=tempoo(i)
+        if(icycle == 1) siceo(i)=siceoo(i)
+        if(ith == 1) temp(i)=tempo(i)
+        if(icycle == 1) sice(i)=siceo(i)
         enddo
         endif
 
@@ -3006,10 +3006,10 @@
 !CC....arret du calcul
 !CC....impression du dernier pas de temps
 
-      if(dt.lt.1D-5.and.nk.eq.iteration) then
-      if (iec.eq.1) then
-      if (amaxp.gt.crconvp.or.pr(1)+1.eq.pr(1).or.&
-     pr(1).ne.pr(1).or.abs(pr(1)).gt.1D+20) then
+      if(dt < 1D-5.and.nk == iteration) then
+      if (iec == 1) then
+      if (amaxp > crconvp.or.pr(1)+1 == pr(1).or.&
+     pr(1).ne.pr(1).or.abs(pr(1)) > 1D+20) then
       print*,'non convergence Picard apres', iteration, 'iterations'
       print*,'pas de temps =',dt
       print*,'ecoulement non convergence'
@@ -3027,16 +3027,16 @@
       endif
       endif
 
-      if(ith.eq.1) then
-      if (amaxt.gt.crconvt.or.temp(1)+1.eq.temp(1).or.&
-     temp(1).ne.temp(1).or.abs(temp(1)).gt.1D+16.or.amazcfl.gt.1&
-     .or.amaxcfl.gt.1) then
+      if(ith == 1) then
+      if (amaxt > crconvt.or.temp(1)+1 == temp(1).or.&
+     temp(1).ne.temp(1).or.abs(temp(1)) > 1D+16.or.amazcfl > 1&
+     .or.amaxcfl > 1) then
       print*,'non convergence Picard apres', iteration, 'iterations'
       print*,'pas de temps =',dt
       print*, 'thermique non convergence'
       Print*,'amaxt =',amaxt,'crit=',crconvt
-      if(amaxcfl.gt.1) print*,'nombre courant horizontal',amaxcfl
-      if(amazcfl.gt.1) print*,'nombre courant vertical',amazcfl
+      if(amaxcfl > 1) print*,'nombre courant horizontal',amaxcfl
+      if(amazcfl > 1) print*,'nombre courant vertical',amazcfl
       print*,'temp(1)+1 =',temp(ipb)+1
       print*,'temp(1) = ',temp(ipb)
       print*,'amaxcfl = ',amaxcfl
@@ -3049,7 +3049,7 @@
       endif
       endif
 
-!      if(rtrho.eq.1) then
+!      if(rtrho == 1) then
 !       print*,'non convergence Picard apres', iteration, 'iterations'
 !       print*,'pas de temps =',dt
 !       print*, 'rtrho',rtrho
@@ -3068,10 +3068,10 @@
 !   subroutine a netoyer          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC Topo en marche d escalier
-!     if (itopomch.eq.1) then
+!     if (itopomch == 1) then
 !     do i=1,nm
-!     if(x(i).lt.xberg-am(i).and.ivois(i,1).eq.-99
-!     &.and.ivois(i,3).eq.-99) then
+!     if(x(i) < xberg-am(i).and.ivois(i,1) == -99
+!     &.and.ivois(i,3) == -99) then
 !     valcl(i,1)=qre/2
 !       valcl(i,3)=qre/2
 !     icl(i,1)=-1
@@ -3084,11 +3084,11 @@
 !     enddo
 !     endif
 !        qruis=0.
-!      if (iinfil.eq.1) then
+!      if (iinfil == 1) then
 !       call infiltration(pr,nm,n,icol,nc,om,ss,bm,rho,pore,
 !     &am,valcl,icl,qtpore,ruis,ivois,z,g,dt,xberg,x,qre,qruis)
 !       endif
-!       if(iriv.eq.1) then
+!       if(iriv == 1) then
 !CCriviere
 !       n2=n
 !       qinf=0
@@ -3097,7 +3097,7 @@
 !     &bm,ivois,qinf,am,xberg,x,al,n,
 !     &rug,pent,iqriv,vxp,vzp,qruis)
 !       endif
-!       if(iriv.eq.0) goto 79
+!       if(iriv == 0) goto 79
 ! RIVIERE
 !       call cdt_riviere(hriv,g,nm,z,hbot,
 !     &bm,ivois,am,rho,xberg,x,al,n,icl,valcl,iclt,valclt,
@@ -3113,24 +3113,24 @@
 !         ZNS                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      if (ivg.eq.1.or.yunconfined.eq."UNS") then
+      if (ivg == 1.or.yunconfined == "UNS") then
       Call unsaturated(pr,swp,dswpdp,swresz,ans,akr,&
      nm,akrv,rho1,g,ansun,asun)
-    if(igelzns.eq.0.and.ith.eq.1) then
-    if (ymoycondtherm.eq."WOODS") then
+    if(igelzns == 0.and.ith == 1) then
+    if (ymoycondtherm == "WOODS") then
     alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+&
      sqrt(alandas(i))*(1D+00-om(i))+&
      sqrt(alandag)*om(i)*(1D+00-sw(i)))**2
-    else if(ymoycondtherm.eq."GEOME") then
+    else if(ymoycondtherm == "GEOME") then
     alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
      alandag**(om(i)*(1D+00-sw(i))))
-    else if(ymoycondtherm.eq."ARITH") then
+    else if(ymoycondtherm == "ARITH") then
       alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
      +alandag*(om(i)*(1D+00-sw(i))))
     endif
 
     endif
-      else if (yunconfined.eq."CAP".and.ivg.ne.1) then
+      else if (yunconfined == "CAP".and.ivg.ne.1) then
       do i=1,nm
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !          nappe captive             C
@@ -3138,7 +3138,7 @@
 !ccc....COEFFICIENT D EMMAGASINEMENT
        swp(i)=1.D00
        dswpdp(i)=ss(i)/(rho1*g*om(i))
-      if (ytest.eq."TH2".or.ytest.eq."TH3") then
+      if (ytest == "TH2".or.ytest == "TH3") then
       dswpdp(i)=sw(i)*ss(i)
           endif
       enddo
@@ -3146,19 +3146,19 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !         nappe libre           C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      else  if (yunconfined.eq."UNC".and.ivg.ne.1) then
+      else  if (yunconfined == "UNC".and.ivg.ne.1) then
       do i=1,nm
       akr(i)=1D+00
       akrv(i)=1D+00
       swp(i)=1D+00
        dswpdp(i)=1D+00/(rho1*g*bm(i))
 !     dswpdp(i)=1D+00/(rho1*g)
-      if(pr(i).lt.0d+00) then
+      if(pr(i) < 0d+00) then
 !     akr(i)=0D+00
       akrv(i)=1D+00
       swp(i)=0D+00
       endif
-      if(pr(i).ge.0d+00) then
+      if(pr(i) >= 0d+00) then
       akr(i)=1D+00
       akrv(i)=1D+00
       swp(i)=1D+00
@@ -3174,72 +3174,72 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....Indice gel/degel
 !ccc....test cycle gel valeur de igel!!!!! Attention test seulement sur la maille 1 à améliorer
-      if(icycle.eq.0) igel=0
+      if(icycle == 0) igel=0
 
 
-      if(icycle.eq.1) then
+      if(icycle == 1) then
       if(ytest.ne."TH2".or.ytest.ne."TH3".and.&
      ytest.ne."MAQ".and.ytest.ne."TH1") then
-      if (temp(1).lt.0.and.tempo(1)-temp(1).gt.0) igel=1
-      if (temp(1).lt.0.and.tempo(1)-temp(1).lt.0) igel=2
+      if (temp(1) < 0.and.tempo(1)-temp(1) > 0) igel=1
+      if (temp(1) < 0.and.tempo(1)-temp(1) < 0) igel=2
       endif
-      if(ytest.eq."TH1".or.ytest.eq."TH2".or.ytest.eq."TH3") igel=2
+      if(ytest == "TH1".or.ytest == "TH2".or.ytest == "TH3") igel=2
 !CC... SPECIAL CASES
 
 !CC.... TESTS Interfrost
-      if (ytest.eq."TH2".or.ytest.eq."TH3") then
+      if (ytest == "TH2".or.ytest == "TH3") then
       do i=1,nm
        dswpdp(i)=ss(i)*sw(i)
        enddo
          endif
 
-!       if(ytest.eq."MAQ") then
-!     if (paso.le.1180*3600) igel=1
-!     if (paso.gt.1180*3600) then
+!       if(ytest == "MAQ") then
+!     if (paso <= 1180*3600) igel=1
+!     if (paso > 1180*3600) then
 !       igel=2
 !     cimp=0006d-01
 !     endif
-        if(ytest.eq."MAQ") then
-      if (paso.le.49.1*86400) igel=1
-      if (paso.gt.49.1*86400) then
+        if(ytest == "MAQ") then
+      if (paso <= 49.1*86400) igel=1
+      if (paso > 49.1*86400) then
       cimp=3D-2
       igel=2
       endif
 
 !CC....Changement coef emmagasinement
       do i=1,nm
-      if(temp(i).lt.tl) dswpdp(i)=ss(i)/g/rho(i)/om(i)
-      if(temp(i).gt.tl) dswpdp(i)=1
+      if(temp(i) < tl) dswpdp(i)=ss(i)/g/rho(i)/om(i)
+      if(temp(i) > tl) dswpdp(i)=1
       do kcol=1,nc
 !CC...GEL....dswpd subpermafrost
-      if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.zs(kcol,1)) then
+      if (igel == 1.and.zs(kcol,1).ne.-99.and.icol(i) == kcol.and.&
+     z(i) < zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i) > zs(kcol,1)) then
       dswpdp(i)=ss(i)/g/rho(i)/om(i)
       endif
 !CC...GEL....dswpd subpermafrost
-      if (igel.eq.1.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).gt.topo(kcol)) then
+      if (igel == 1.and.zs(kcol,1).ne.-99.and.icol(i) == kcol.and.&
+     z(i) < zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i) > topo(kcol)) then
       dswdp(i)=ss(i)/g/rho(i)/om(i)
       endif
 !CC....DEGEL....dswpd suprapermafrost
-      if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).gt.zs(kcol,1).and.temp(i).gt.tl)then
+      if (igel == 2.and.zs(kcol,1).ne.-99.and.icol(i) == kcol.and.&
+     z(i) > zs(kcol,1).and.temp(i) > tl)then
       dswpdp(i)=1
       endif
 !CC....DEGEL....dswpd subpermafrost
-      if (igel.eq.2.and.zs(kcol,2).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).lt.zs(kcol,2))then
+      if (igel == 2.and.zs(kcol,2).ne.-99.and.icol(i) == kcol.and.&
+     z(i) < zs(kcol,2))then
       dswpdp(i)=ss(i)/(rho1*g*om(i))
       endif
-      if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).lt.topo(kcol)) then
+      if (igel == 2.and.zs(kcol,1).ne.-99.and.icol(i) == kcol.and.&
+     z(i) < zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i) < topo(kcol)) then
       dswdp(i)=1
       endif
-      if (igel.eq.2.and.zs(kcol,1).ne.-99.and.icol(i).eq.kcol.and.&
-     z(i).lt.zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i).lt.zs(kcol,1)) then
+      if (igel == 2.and.zs(kcol,1).ne.-99.and.icol(i) == kcol.and.&
+     z(i) < zs(kcol,1).and.pro(i)/(rho(i)*g)+z(i) < zs(kcol,1)) then
       dswpdp(i)=1
       endif
-      if (igel.eq.2.and.zs(kcol,1).eq.-99.and.icol(i).eq.kcol) then
+      if (igel == 2.and.zs(kcol,1) == -99.and.icol(i) == kcol) then
       dswpdp(i)=1
       endif
       enddo
@@ -3253,7 +3253,7 @@
 !CC....Derivation de la saturation en glace en fonction de la temperature dsice
 !CC....sw (liquide) = (1D0 - sice)
 !CC....Implicite
-      if(ibigridice.ne.1.and.iparo.eq.1) then
+      if(ibigridice.ne.1.and.iparo == 1) then
        CALL icesatperm(nm,tl,ts,akr,akrv,dk,tempo,&
      dsipdtemp,igelzns,ytypakrice,&
      sicep,om,sw,swressi,ytypsice,&
@@ -3266,7 +3266,7 @@
       endif
 
 !CC....Explicite
-      if(ibigridice.ne.1.and.iparo.eq.0) then
+      if(ibigridice.ne.1.and.iparo == 0) then
        CALL icesatperm(nm,tl,ts,akr,akrv,dk,temp,&
      dsipdtemp,igelzns,ytypakrice,&
      sicep,om,sw,swressi,ytypsice,&
@@ -3278,7 +3278,7 @@
       enddo
       endif
 !CC....grosse maille saturation en glace et permeabilite relative calculees par rapport a la position des isothermes dans les mailles.
-      if(ibigridice.EQ.1) then
+      if(ibigridice == 1) then
       CALL biggridice(nm,tl,ts,akr,akrv,dk,temp,igel,&
      nc,z,zl,zs,bm,dsipdtemp,valclt,ivois,&
      sicep,swressi,siceo,tempo)
@@ -3290,7 +3290,7 @@
        swtot=swp(i)
        sice(i)=MAX(0.D0,swtot-(1.D0-sicep(i)))
        sw(i)=swtot-sice(i)
-          if (dsipdtemp(i).eq.0) then
+          if (dsipdtemp(i) == 0) then
           dswdp(i)=dswpdp(i)
           dswdt(i)=0.D0
           dsidp(i)=0.D0
@@ -3303,7 +3303,7 @@
           dsidtemp(i)=dsipdtemp(i)
        endif
 !CC....Regime permanant
-      if (irp.eq.0) dswdp(i)=0D+00
+      if (irp == 0) dswdp(i)=0D+00
        enddo
       else
 !cc fin icycle=1
@@ -3324,7 +3324,7 @@
 !      dsidtemp(i)=0.D0
 
 !CC....Regime permanant
-      if (irp.eq.0) dswdp(i)=0D+00
+      if (irp == 0) dswdp(i)=0D+00
 
        enddo
 
@@ -3338,7 +3338,7 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....CONSTRUCTION DE LA MATRICE PRESSION
-      if(iec.eq.1) then
+      if(iec == 1) then
       nz=nm
       nmaxz=nmax
       nmaxzz=nmax1
@@ -3360,15 +3360,15 @@
       n1=nm
       nmaxz=nmax
       nmaxzz=nmax1
-      if (ysolv.eq."BIC") then
+      if (ysolv == "BIC") then
       call bicg(pr,b,n1,k,val,icol_ind,irow_ptr,nmaxz,nmaxzz)
       endif
-      if (ysolv.eq."CGS") then
+      if (ysolv == "CGS") then
       call cgs(pr,b,n1,k,val,icol_ind,irow_ptr,nmaxz,nmaxzz)
       endif
 
 
-!     if (ysolv.eq."LIB") then
+!     if (ysolv == "LIB") then
 !       do i=1,nm+1
 !       irow_ptr(i)=irow_ptr(i)-1
 !       enddo
@@ -3379,16 +3379,16 @@
 
 !CC....calcul de critere amaxp
 !CC....Test du Picard
-!     if(ivg.eq.1.or.iriv.eq.1.or.iqriv.eq.0.or.
-!     &icycle.eq.0.or.igelzns.eq.0.or.iomdegel.eq.0.or.irp.eq.0) then
+!     if(ivg == 1.or.iriv == 1.or.iqriv == 0.or.
+!     &icycle == 0.or.igelzns == 0.or.iomdegel == 0.or.irp == 0) then
       amaxp=0D+00
         do ii=1,nm
-        if (abs(prk(ii)-pr(ii)).ge.amaxp) amaxp=abs(prk(ii)-pr(ii))
-        if (abs(prk(ii)-pr(ii)).ge.amaxp) ipb=ii
+        if (abs(prk(ii)-pr(ii)) >= amaxp) amaxp=abs(prk(ii)-pr(ii))
+        if (abs(prk(ii)-pr(ii)) >= amaxp) ipb=ii
 !       print*,"coucou",amaxp,pr(ii),prk(ii)
         enddo
-        if (k.gt.999) amaxp=1000
-        if (k.gt.999) ipb=-9999
+        if (k > 999) amaxp=1000
+        if (k > 999) ipb=-9999
 
 !     else
 !     amaxp=0D00
@@ -3405,12 +3405,12 @@
 !ccc....vxp(i) face droite
 !ccc....vzm(i) face du dessous
 !ccc....vzp(i) face du dessus
-      if(iec.eq.1.and.idecouplage.eq.0) then
+      if(iec == 1.and.idecouplage == 0) then
 !ccc....Horizontal INITIALISATION
       vxm(i)=0.D+00
       vxp(i)=0.D+00
 !ccc....cacul vitesse face DROITE
-      if (icl(i,1).eq.1) then
+      if (icl(i,1) == 1) then
       rhom=dble((rho(i)+rho(ivois(i,1)))/2D+00)
       iv=ivois(i,1)
       vxp(i)=dble((am(i)+am(iv))/((am(i)/akr(i)/ak(i))+&
@@ -3419,7 +3419,7 @@
      +ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i))))
       endif
 !ccc....cacul vitesse face GAUCHE
-      if (icl(i,2).eq.1) then
+      if (icl(i,2) == 1) then
       rhom=dble((rho(i)+rho(ivois(i,2)))/2D+00)
       iv=ivois(i,2)
       vxm(i)=dble((am(i)+am(iv))/((am(i)/akr(i)/ak(i))+&
@@ -3431,7 +3431,7 @@
        vzm(i)=0.D+00
        vzp(i)=0.D+00
 !ccc....cacul vitesse face BAS
-      if (icl(i,4).eq.1) then
+      if (icl(i,4) == 1) then
       rhom=dble((rho(i)+rho(ivois(i,4)))/2D+00)
       iv=ivois(i,4)
       vzm(i)=dble((bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+&
@@ -3440,7 +3440,7 @@
      +ixy*g*rhom)))
       endif
 !ccc....cacul vitesse face HAUT
-      if (icl(i,3).eq.1) then
+      if (icl(i,3) == 1) then
       rhom=dble((rho(i)+rho(ivois(i,3)))/2D+00)
       iv=ivois(i,3)
       vzp(i)=dble(((bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+&
@@ -3449,30 +3449,30 @@
      +ixy*g*rhom)))
       endif
 !ccc....cacul vitesse avec CHARGE IMPOSEE
-      if (icl(i,1).eq.-2) then
+      if (icl(i,1) == -2) then
       vxp(i)=dble(vxm(i))
       endif
-      if (icl(i,2).eq.-2) then
+      if (icl(i,2) == -2) then
       vxm(i)=dble(vxp(i))
       endif
-      if (icl(i,3).eq.-2) then
+      if (icl(i,3) == -2) then
       vzp(i)=dble(vzm(i))
       endif
-      if (icl(i,4).eq.-2) then
+      if (icl(i,4) == -2) then
       vzm(i)=dble(vzp(i))
       endif
 !ccc....cacul vitesse avec FLUX IMPOSE
-      if (icl(i,1).eq.-1) then
+      if (icl(i,1) == -1) then
         vxp(i)=dble(-valcl(i,1))
         endif
-      if (icl(i,2).eq.-1) then
+      if (icl(i,2) == -1) then
         vxm(i)=dble(valcl(i,2))
     endif
-      if (icl(i,3).eq.-1) then
+      if (icl(i,3) == -1) then
         vzp(i)=dble(-valcl(i,3))
         vzm(i)=vzp(i)
       endif
-      if (icl(i,4).eq.-1) then
+      if (icl(i,4) == -1) then
      vzm(i)=dble(valcl(i,4))
      vzp(i)=vzm(i)
         endif
@@ -3483,12 +3483,12 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....cacul vitesse face  decouplage code  =1
 !CC....utilisation des pression n-1 pour le terme adveectif
-      if(iec.eq.1.and.idecouplage.eq.1) then
+      if(iec == 1.and.idecouplage == 1) then
 !CC....INITIALISATION
       vxm(i)=0.D+00
       vxp(i)=0.D+00
 !ccc....cacul vitesse face DROITE
-      if (icl(i,1).eq.1) then
+      if (icl(i,1) == 1) then
       rhom=(rho(i)+rho(ivois(i,1)))/2
       iv=ivois(i,1)
       vxp(i)=(am(i)+am(iv))/((am(i)/akr(i)/ak(i))+&
@@ -3496,12 +3496,12 @@
       vxp(i)=-vxp(i)/amu*((pro(i)-pro(iv))/(x(i)-x(iv))&
      +ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i)))
       endif
-      if (icl(i,1).eq.-2) then
+      if (icl(i,1) == -2) then
       vxp(i)=-ak(i)*akr(i)/amu*(valcl(i,1)-pro(i))/am(i)*2
       endif
-      if (icl(i,1).eq.-1)     vxp(i)=-valcl(i,1)
+      if (icl(i,1) == -1)     vxp(i)=-valcl(i,1)
 !ccc....cacul vitesse face GAUCHE
-      if (icl(i,2).eq.1) then
+      if (icl(i,2) == 1) then
       rhom=(rho(i)+rho(ivois(i,2)))/2
       iv=ivois(i,2)
       vxm(i)=(am(i)+am(iv))/((am(i)/akr(i)/ak(i))+&
@@ -3509,14 +3509,14 @@
       vxm(i)=-vxm(i)/amu*((pro(iv)-pro(i))/(x(iv)-x(i))&
      +ixy*g*rhom*(z(iv)-z(i))/(x(iv)-x(i)))
       endif
-      if (icl(i,2).eq.-2) then
+      if (icl(i,2) == -2) then
       vxm(i)=-ak(i)*akr(i)/amu*(pro(i)-valcl(i,2))/am(i)*2
       endif
-      if (icl(i,2).eq.-1)  vxm(i)=valcl(i,2)
+      if (icl(i,2) == -1)  vxm(i)=valcl(i,2)
       vzm(i)=0.D+00
       vzp(i)=0.D+00
 !ccc....cacul vitesse face BAS
-      if (icl(i,4).eq.1) then
+      if (icl(i,4) == 1) then
       rhom=(rho(i)+rho(ivois(i,4)))/2
       iv=ivois(i,4)
       vzm(i)=(bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+&
@@ -3524,13 +3524,13 @@
       vzm(i)=-vzm(i)/amu*((pro(i)-pro(iv))/(z(i)-z(iv))&
      +ixy*g*rhom)
       endif
-      if (icl(i,4).eq.-2) then
+      if (icl(i,4) == -2) then
       vzm(i)=-akv(i)*akrv(i)/amu*((pro(i)-valcl(i,4))/bm(i)*2&
      +ixy*g*rho(i))
       endif
-      if (icl(i,4).eq.-1) vzm(i)=valcl(i,4)
+      if (icl(i,4) == -1) vzm(i)=valcl(i,4)
 !ccc....cacul vitesse face HAUT
-      if (icl(i,3).eq.1) then
+      if (icl(i,3) == 1) then
       rhom=(rho(i)+rho(ivois(i,3)))/2
       iv=ivois(i,3)
       vzp(i)=(bm(i)+bm(iv))/((bm(i)/akrv(i)/akv(i))+&
@@ -3538,30 +3538,30 @@
       vzp(i)=-vzp(i)/amu*((pro(iv)-pro(i))/(z(iv)-z(i))&
      +ixy*g*rhom)
       endif
-      if (icl(i,3).eq.-2) then
+      if (icl(i,3) == -2) then
       vzp(i)=-akv(i)*akrv(i)/amu*((valcl(i,3)-pro(i))/bm(i)*2&
      +ixy*g*rho(i))
       endif
-      if (icl(i,3).eq.-1) vzp(i)=-valcl(i,3)
+      if (icl(i,3) == -1) vzp(i)=-valcl(i,3)
 !ccc....cacul vitesse avec CHARGE IMPOSEE
-      if (icl(i,1).eq.-2) then
+      if (icl(i,1) == -2) then
       vxp(i)=vxm(i)
       endif
-      if (icl(i,2).eq.-2) then
+      if (icl(i,2) == -2) then
       vxm(i)=vxp(i)
       endif
-      if (icl(i,3).eq.-2) then
+      if (icl(i,3) == -2) then
       vzp(i)=vzm(i)
       endif
-      if (icl(i,4).eq.-2) then
+      if (icl(i,4) == -2) then
       vzm(i)=vzp(i)
       endif
       endif
 !CC....VITESSE NULLE
-       if (abs(vxp(i)).lt.1D-17)      vxp(i)=0D+00
-       if (abs(vxm(i)).lt.1D-17)      vxm(i)=0D+00
-       if (abs(vzm(i)).lt.1D-17)      vzm(i)=0D+00
-       if (abs(vzp(i)).lt.1D-17)      vzp(i)=0D+00
+       if (abs(vxp(i)) < 1D-17)      vxp(i)=0D+00
+       if (abs(vxm(i)) < 1D-17)      vxm(i)=0D+00
+       if (abs(vzm(i)) < 1D-17)      vzm(i)=0D+00
+       if (abs(vzp(i)) < 1D-17)      vzp(i)=0D+00
       enddo
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !          Fin alcul de vitesse           C
@@ -3579,9 +3579,9 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....avec des vitesses donnees par l'utilisateur
 !CC.... ou annulation de l'advection C
-      if(iec.eq.0) then
+      if(iec == 0) then
       do i=1,nm
-      if (ithec.eq.1) then
+      if (ithec == 1) then
 !ccc....Vitesse face DROITE
       vxp(i)=dble(-valcl_droite)
 !ccc....Vitesse face GAUCHE
@@ -3591,10 +3591,10 @@
 !ccc....Vitesse face HAUT
       vzp(i)=dble(-valcl_haut)
 !CC....VITESSE NULLE
-       if (abs(vxp(i)).lt.1D-17)      vxp(i)=0D+00
-       if (abs(vxm(i)).lt.1D-17)      vxm(i)=0D+00
-       if (abs(vzm(i)).lt.1D-17)      vzm(i)=0D+00
-       if (abs(vzp(i)).lt.1D-17)      vzp(i)=0D+00
+       if (abs(vxp(i)) < 1D-17)      vxp(i)=0D+00
+       if (abs(vxm(i)) < 1D-17)      vxm(i)=0D+00
+       if (abs(vzm(i)) < 1D-17)      vzm(i)=0D+00
+       if (abs(vzp(i)) < 1D-17)      vzp(i)=0D+00
       else
 !CC....PAS D'ADVECTION
       vxp(i)=0.D+00
@@ -3611,7 +3611,7 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....SI ITR=0, ON ZAPPE LE TRANSPORT!!!!
 
-      if(itr.eq.1) then
+      if(itr == 1) then
       nz=nm
       dtc=dt
       call matc(val,icol_ind,irow_ptr,x,b,am,ivois,conco,&
@@ -3626,7 +3626,7 @@
       amaxc=0.D+00
       do ii=1,nm
       rho(ii)=rho1+1/38.D+00*25.D+00*conc(ii)
-      if (abs(conck(ii)-conc(ii)).ge.amaxc) then
+      if (abs(conck(ii)-conc(ii)) >= amaxc) then
       amaxc=abs(conck(ii)-conc(ii))
       endif
       enddo
@@ -3642,7 +3642,7 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....SI ITh=0, ON ZAPPE LE Thermique!!!!
-      if(ith.eq.1) then
+      if(ith == 1) then
       nth=nm
       nmaxth=nmax
       nmaxthh=nmax1
@@ -3662,14 +3662,14 @@
       n1=nm
       nmaxz=nmax
       nmaxzz=nmax1
-      if (ysolv.eq."BIC") then
+      if (ysolv == "BIC") then
       call bicg(temp,b,n1,k,val,icol_ind,irow_ptr,nmaxz,nmaxzz)
       endif
-      if (ysolv.eq."CGS") then
+      if (ysolv == "CGS") then
       call cgs(temp,b,n1,k,val,icol_ind,irow_ptr,nmaxz,nmaxzz)
       endif
 
-!     if (ysolv.eq."LIB") then
+!     if (ysolv == "LIB") then
 !       do i=1,nm+1
 !       irow_ptr(i)=irow_ptr(i)-1
 !       enddo
@@ -3685,17 +3685,17 @@
 
 
 !CC....Test du Picard thermique
-      if(iriv.eq.1.or.iqriv.eq.0.or.&
-     icycle.eq.0.or.igelzns.eq.0.or.iomdegel.eq.0) then
+      if(iriv == 1.or.iqriv == 0.or.&
+     icycle == 0.or.igelzns == 0.or.iomdegel == 0) then
       amaxt=0D+00
       do ii=1,nm
-      if (abs(tempk(ii)-temp(ii)).ge.amaxt) then
+      if (abs(tempk(ii)-temp(ii)) >= amaxt) then
       amaxt=abs(tempk(ii)-temp(ii))
       ipb=ii
       endif
       enddo
-        if (k.gt.999) amaxt=1000
-        if (k.gt.999) ipb=-9999
+        if (k > 999) amaxt=1000
+        if (k > 999) ipb=-9999
       else
       amaxt=0D00
       endif
@@ -3705,7 +3705,7 @@
 !     calcul du soulevement           C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      if(icycle.eq.1) then
+      if(icycle == 1) then
       nz=n
       nmz=nm
       ncz=nc
@@ -3734,13 +3734,13 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
           amaxcfl=-1
           amazcfl=-1
-        if(ithec.eq.1) then
+        if(ithec == 1) then
         do i=1,nm
 !C      CCCCCC
-      if ((abs(vxm(i)+vxp(i))/2*dt/am(i)).gt.amaxcfl) then
+      if ((abs(vxm(i)+vxp(i))/2*dt/am(i)) > amaxcfl) then
       amaxcfl=(abs(vxm(i)+vxp(i))/2*dt/am(i))
       endif
-      if ((abs(vzm(i)+vzp(i))/2*dt/bm(i)).gt.amazcfl) then
+      if ((abs(vzm(i)+vzp(i))/2*dt/bm(i)) > amazcfl) then
       amazcfl=(abs(vzm(i)+vzp(i))/2*dt/bm(i))
 
       endif
@@ -3782,27 +3782,27 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !  CDT DE DRAIN                    C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!       if (icldrain.eq.1.or.iriviere.eq.1) then
+!       if (icldrain == 1.or.iriviere == 1) then
 !       call mse(n,nmaille1,nmaille2,nmaille3,nmaille4,nmaille5,
 !     &nmaille6,pr,qinf,qinfobs,paso,itlecture,chgobs1,chgobs2,
 !     &chgobs3,chgobs4,rho,g,chgobs5,chgobs6,eo1,eo2,eo3,eo4,eo5,
 !     &eo6,eoinf,z,seo1,seo2,seo3,seo4,seo5,
 !     &seo6,seoinf)
-!       if(modulo(paso,itsortie*unitsortie).eq.0.and.paso.ge.itsortie*unitsortie) then
+!       if(modulo(paso,itsortie*unitsortie) == 0.and.paso >= itsortie*unitsortie) then
 !       write(46,*) paso/unitsortie,ans,asp,seo6,qinf,seoinf
 !       endif
 !       endif
 !CC....TEST COND PARTICULIERES IMPOSEES SUR CELLULE VOISINE DRAIN
-!       if (icldrain.eq.1) then
+!       if (icldrain == 1) then
 !          drain=0
 !          do i=1,nm
-!       if (z(i).gt.0.05.and.z(i).le.0.05+bm(i)
-!     &.and.ivois(i,4).eq.-99) then
+!       if (z(i) > 0.05.and.z(i) <= 0.05+bm(i)
+!     &.and.ivois(i,4) == -99) then
 !       drain=drain+vzm(i)*am(i)*1
 !       endif
-!       if (ivois(i,2).eq.-99
-!     &.and.x(i).le.0.05+am(i).and.
-!     &x(i).gt.0.05) then
+!       if (ivois(i,2) == -99
+!     &.and.x(i) <= 0.05+am(i).and.
+!     &x(i) > 0.05) then
 !       drain=drain+vxm(i)*bm(i)*1
 !       endif
 !       enddo
@@ -3813,8 +3813,8 @@
 !     &-vzp(i)*am(i)
 !       enddo
 !       endif
-!       if (pr(1)+1.eq.pr(1).or.pr(1).ne.pr(1).or.
-!     &temp(1).eq.temp(1)+1.or.temp(1).ne.temp(1)) then
+!       if (pr(1)+1 == pr(1).or.pr(1).ne.pr(1).or.
+!     &temp(1) == temp(1)+1.or.temp(1).ne.temp(1)) then
 !       print*,'ca ne marche pas pr ou temp=nan ou infiny '
 !       stop
 !       endif
@@ -3826,8 +3826,8 @@
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-       if (ytest.eq."ZHR".or.ytest.eq."ZHZ"&
-     &.or.ytest.eq."1DS") then
+       if (ytest == "ZHR".or.ytest == "ZHZ"&
+     &.or.ytest == "1DS") then
       do i=1,nm
       qad(i)=0D+00
       qcondu(i)=0D+00
@@ -3835,28 +3835,28 @@
       enddo
 !CC....flux THERMIQUE
       do i=1,nm
-            if (ymoycondtherm.eq."WOODS") then
+            if (ymoycondtherm == "WOODS") then
     alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)&
      +sqrt(alandai)*(om(i)*sice(i))+&
      sqrt(alandas(i))*(1D+00-om(i))+&
      sqrt(alandag)*om(i)*(1D+00-sw(i)-sice(i)))**2
-    else if(ymoycondtherm.eq."GEOME") then
+    else if(ymoycondtherm == "GEOME") then
     alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
      alandai**(om(i)*sice(i))*alandag**(om(i)*(1D+00-sw(i)-sice(i))))
-    else if(ymoycondtherm.eq."ARITH") then
+    else if(ymoycondtherm == "ARITH") then
       alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
      +alandai*(om(i)*sice(i))+alandag*(om(i)*(1D+00-sw(i)-sice(i))))
     endif
 
 !CC....FACE INF
 !ccc....vzp(i) face du dessous entrante kg/m3 J⋅kg−1⋅K−1 m/s K  > J /s  > W/m2
-    if(vzm(i).gt.0.and.iclt(i,4).eq.1) then
+    if(vzm(i) > 0.and.iclt(i,4) == 1) then
     qad(i)=dble(rho(ivois(i,4))*cpe*vzm(i))*temp(ivois(i,4))
     endif
-!   if(vzm(i).gt.0.and.iclt(i,4).eq.-2) then
+!   if(vzm(i) > 0.and.iclt(i,4) == -2) then
 !   qad(i)=dble(rho(i)*cpe*vzm(i)*valclt(i,4))
 !   endif
-    if(vzm(i).lt.0) then
+    if(vzm(i) < 0) then
     qad(i)=dble(rho(i)*cpe*vzm(i)*temp(i))
     endif
 !CC...conduction dispersion
@@ -3866,13 +3866,13 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !         FACE BASSE              C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(iclt(i,4).eq.1) then
+    if(iclt(i,4) == 1) then
     qcondu(i)=-dble(dtjm/(z(i)-z(ivois(i,4)))*&
      (temp(i)-temp(ivois(i,4))))
 
     endif
 !CC....temperature imposee W·m−1·K−1 K /m  > W/m2
-    if(iclt(i,4).eq.-2) then
+    if(iclt(i,4) == -2) then
     qcondu(i)=-dble(dtjm*(temp(i)-valclt(i,4))/bm(i)*2.D00)
     endif
     qtherm(i)=qcondu(i)+qad(i)
@@ -3882,7 +3882,7 @@
 
 
 
-       if (ytest.eq."TH2") then
+       if (ytest == "TH2") then
       PF2=0
       qtin=0D+00
       qtout=0D+00
@@ -3892,12 +3892,12 @@
       tempmin=temp(1924)
 !CC....BILAN THERMIQUE
       do i=1,nm
-          if(ivois(i,2).eq.-99) then
+          if(ivois(i,2) == -99) then
           qtin=qtin+(rho(i)*cpe*(temp(i)-5)*vxp(i)-dble(alanda(i)*&
      (temp(ivois(i,1))-temp(i))/(x(ivois(i,1))-x(i))))*bm(i)
           endif
 
-          if(ivois(i,1).eq.-99) then
+          if(ivois(i,1) == -99) then
           qtout=qtout+(rho(i)*cpe*(temp(i)-5)*vxm(i)-&
      dble(alanda(i)*(temp(i)-temp(ivois(i,2)))&
      /(x(i)-x(ivois(i,2)))))*bm(i)
@@ -3911,7 +3911,7 @@
 
           endif
 !CC....Critere performance Interfrost
-       if (ytest.eq."TH3") then
+       if (ytest == "TH3") then
       qtcol=0D+00
       qeout=0D+00
       akeq=0D+00
@@ -3931,11 +3931,11 @@
 !ccc....vxp(i) face droite
 !ccc....vzm(i) face du dessous
 !ccc....vzp(i) face du dessus
-      if(ivois(i,4).eq.-99) then
+      if(ivois(i,4) == -99) then
       qtcol=qtcol+alanda(i)*(temp(i)-valclt_bas)&
      /z(i)*am(i)
       endif
-      if(ivois(i,1).eq.-99) then
+      if(ivois(i,1) == -99) then
       qeout=qeout+vxp(i)*bm(i)
       endif
        enddo
@@ -3949,7 +3949,7 @@
      temp(nmaille7)+temp(nmaille8))/4.
        endif
 !CC....TEST NEUMAN
-       if (ytest.eq."TH1") then
+       if (ytest == "TH1") then
        gxl=2D0-zl(1,1)
        gxs=2D0-zs(1,1)
        endif
@@ -3997,28 +3997,28 @@
 !       open(96,FILE='S_surpression_t.dat')
 
 !CC....FICHIERS these texier
-       if(ytest.eq."TEX") then
-       if (irpth.eq.1) then
+       if(ytest == "TEX") then
+       if (irpth == 1) then
        open(7782,file='S_fichier_tot.dat')
        endif
        endif
 
 !CC....FICHIERS ZNS 1D
-       if(ytest.eq."ZNS") then
+       if(ytest == "ZNS") then
       open(1818,file='S_hydraulic_conductivities_profil_t.dat')
       open(18181,file='S_saturation_profil_t.dat')
       open(18182,file='S_pressure_profil_t.dat')
        endif
 
-       if(ytest.eq."ZND") then
+       if(ytest == "ZND") then
       open(1818,file='S_hydraulic_conductivities_profil_t.dat')
       open(18181,file='S_saturation_profil_t.dat')
       open(18182,file='S_pressure_profil_t.dat')
        endif
 
 !CC....FICHIERS ZNS 1D
-       if(ytest.eq."WAR") then
-       if (irp.eq.1) then
+       if(ytest == "WAR") then
+       if (irp == 1) then
       open(1818,file='S_hydraulic_conductivities_profil_t.dat')
       open(18181,file='S_saturation_profil_t.dat')
       open(18182,file='S_pressure_profil_t.dat')
@@ -4029,9 +4029,9 @@
 
 
 !CC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
-       if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+       if(ytest == "ZHR".or.ytest == "ZHZ") then
 
-       if (irpth.eq.1.and.irp.ne.0) then
+       if (irpth == 1.and.irp.ne.0) then
        open(7782,file='S_vitesse_nmaille2_hb.dat')
        open(unit=59,file='Sim_temperature_maille1_t.dat')
        open(unit=60,file='Sim_temperature_maille2_t.dat')
@@ -4047,9 +4047,9 @@
        endif
 
 !CC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
-       if(ytest.eq."1DS") then
+       if(ytest == "1DS") then
 
-       if (irpth.eq.1.and.irp.ne.0) then
+       if (irpth == 1.and.irp.ne.0) then
        open(7782,file='S_vitesse_nmaille2_hb.dat')
        open(unit=59,file='Sim_temperature_maille1_t.dat')
        open(unit=60,file='Sim_temperature_maille2_t.dat')
@@ -4076,9 +4076,9 @@
        endif
 
 !CC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
-       if(ytest.eq."1DJ") then
+       if(ytest == "1DJ") then
 
-       if (irpth.eq.1.and.irp.ne.0) then
+       if (irpth == 1.and.irp.ne.0) then
        open(7782,file='S_vitesse_nmaille2_hb.dat')
       open(181822,file='Sim_pressure_profil_t.dat')
       open(18181,file='Sim_velocity_profil_t.dat')
@@ -4091,7 +4091,7 @@
 
 
 !CC....SORTIE MAQ GEL/DEGEL
-      if(ytest.eq."MAQ") then
+      if(ytest == "MAQ") then
        open(19,file='S_soulevement_1_t.dat')
        open(53,file='S_Charges_cap_t.dat')
        open(54,file='S_temp_cap_t.dat')
@@ -4099,26 +4099,26 @@
       open(18,file='S_bound_permaf_1_t.dat')
       endif
 !CC...INTERFROST LUNARDINI
-      if(ytest.eq."THL") then
+      if(ytest == "THL") then
     open(743,file='S_pression_charge_temperature_day_3.dat')
     open(742,file='S_pression_charge_temperature_day_2.dat')
     open(741,file='S_pression_charge_temperature_day_1.dat')
       endif
 !CC...INTERFROST TEST NEUMAN
-       if(ytest.eq."TH1") then
+       if(ytest == "TH1") then
       open(18,file='S_bound_permaf_1_t.dat')
       open(53,file='S_Temp_id400_t.dat')
       open(1818,file='S_bilan_therm_t.dat')
        endif
 !CC....INTERFROST TEST TH3
-      if(ytest.eq."TH3") then
+      if(ytest == "TH3") then
         OPEN(181818,FILE='S_TH3.dat',form='unformatted')
         OPEN(181819,FILE='S_TH31.dat')
         OPEN(181820,FILE='S_TH3nm.dat')
       endif
 
 !CC....INTERFROST TEST TH2
-      if(ytest.eq."TH2") then
+      if(ytest == "TH2") then
         OPEN(181819,FILE='S_TH21.dat')
         OPEN(181820,FILE='S_sortie_TH2nm.dat')
         OPEN(181818,FILE='S_TH2.dat',form='unformatted')
@@ -4126,7 +4126,7 @@
 
 
 
-        if(ytest.eq."VIT") then
+        if(ytest == "VIT") then
        open(unit=59,file='Sim_temperature_maille1_t.dat')
        open(unit=60,file='Sim_temperature_maille2_t.dat')
        open(unit=61,file='Sim_temperature_maille3_t.dat')
@@ -4134,7 +4134,7 @@
 
 
 !CC...AVAV Marine Dangead
-      if(ytest.eq."AVA") then
+      if(ytest == "AVA") then
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !     SURFACE PIEZO               C
@@ -4145,7 +4145,7 @@
     call interpolsurf(nc,zs,nm,icol,pr,ivois,&
      bm,z,valcl,icl,id_river,id_rivert,chgriver,&
      ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
-       if (ith.eq.1) then
+       if (ith == 1) then
         OPEN(181819,FILE='S_temp_zns1.dat')
         OPEN(181820,FILE='S_temp_zns2.dat')
         OPEN(181818,FILE='S_temp_zns3.dat')
@@ -4167,7 +4167,7 @@
 
 
 !CC...DTS
-      if(ytest.eq."DTS") then
+      if(ytest == "DTS") then
 !       OPEN(181819,FILE='S_velocity.dat')
 !       OPEN(181820,FILE='S_temperature.dat')
 !       OPEN(181821,FILE='S_pressure.dat')
@@ -4194,14 +4194,14 @@
 !                                                 C
 
 !CC....SORTIE these texier
-       if(ytest.eq."TEX") then
+       if(ytest == "TEX") then
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !     SURFACE PIEZO  INTERPOLATION LINEAR  C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      if(irp.eq.1) then
-      if(irecord.eq.1) then
+      if(irp == 1) then
+      if(irecord == 1) then
       ts=0
     call interpolsurf(nc,zs,nm,icol,pr,ivois,&
      bm,z,valcl,icl,id_river,id_rivert,chgriver,&
@@ -4218,14 +4218,14 @@
 
 
 !CC....SORTIE ZNS 1D
-       if(ytest.eq."ZNS") then
+       if(ytest == "ZNS") then
       print*,"time",paso,"dt",dt,pr(100)/rho1/g+z(100),&
      valcl(1,3),sw(1),sw(50),sw(2),akr(1)
-        if(modulo(int(paso),itsortie).eq.0) then
+        if(modulo(int(paso),itsortie) == 0) then
             irecord=1
         endif
 
-       if (irp.eq.1.and.irecord.eq.1) then
+       if (irp == 1.and.irecord == 1) then
        do i=1,nm
       write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
       write(18181,*)paso/unitsortie,z(i),sw(i)
@@ -4235,14 +4235,14 @@
        endif
 
 
-       if(ytest.eq."ZND") then
+       if(ytest == "ZND") then
       print*,"time",paso,"dt",dt,pr(1)/rho1/g+z(1),&
      valcl(1,3)/rho1/g+z(1),sw(100),ak(100)
-        if(modulo(int(paso),itsortie).eq.0) then
+        if(modulo(int(paso),itsortie) == 0) then
             irecord=1
         endif
 
-       if (irp.eq.1.and.irecord.eq.1) then
+       if (irp == 1.and.irecord == 1) then
        do i=1,nm
       write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
       write(18181,*)paso/unitsortie,z(i),sw(i)
@@ -4252,14 +4252,14 @@
        endif
 
 !CC....SORTIE ZNS 1D
-       if(ytest.eq."WAR") then
+       if(ytest == "WAR") then
       print*,"time",paso,"dt",dt,vzm(1),pr(1),"K",ak(1)*akr(1)
 
-        if(modulo(int(paso),itsortie).eq.0) then
+        if(modulo(int(paso),itsortie) == 0) then
             irecord=1
         endif
 
-       if (irp.eq.1.and.irecord.eq.1) then
+       if (irp == 1.and.irecord == 1) then
        do i=1,nm
       write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
       write(18181,*)paso/unitsortie,z(i),sw(i)
@@ -4271,18 +4271,18 @@
 
 
 !CC...SORTIES DTS
-      if(ytest.eq."DTS") then
-      if(irecord.eq.1) then
+      if(ytest == "DTS") then
+      if(irecord == 1) then
 
 
 
-      if(paso.lt.86400+10.and.paso.gt.86400-10) then
+      if(paso < 86400+10.and.paso > 86400-10) then
       do i=1,nm
       write(751,*) pr(i)
        enddo
       endif
 
-!     if(paso.eq.1559500) then
+!     if(paso == 1559500) then
 !     do i=1,nm
 !        write(329,*)paso/unitsortie,paso/86400,x(i),
 !     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
@@ -4290,7 +4290,7 @@
 !      enddo
 !     endif
 
-!     if(paso.eq.4238000) then
+!     if(paso == 4238000) then
 !     do i=1,nm
 !        write(330,*)paso/unitsortie,paso/86400,x(i),
 !     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
@@ -4298,7 +4298,7 @@
 !      enddo
 !     endif
 
-!     if(paso.eq.6830000) then
+!     if(paso == 6830000) then
 !     do i=1,nm
 !        write(331,*)paso/unitsortie,paso/86400,x(i),
 !     &z(i),pr(i)/rho1/g+z(i),temp(i),vxp(i),
@@ -4307,7 +4307,7 @@
 !     endif
 
 !CCC MOLONARI PRINT start time record
-!ccc.... to add an end time paso.lt.XXXX)
+!ccc.... to add an end time paso < XXXX)
 
 !ccc....molonari40
 !   print*, izone(), x(55), z(55)
@@ -4317,7 +4317,7 @@
 !CCC            print*,z(60469),izone(60469)
 !CCC            stop
 
-      if(paso.gt.86400*2) then
+      if(paso > 86400*2) then
 !cc...Temperature for the surface and each depth of the molonari
 !ccc....molonari40
 !       write(181822,*)paso/unitsortie,(temp(60445)+temp(60446))/2,
@@ -4353,16 +4353,16 @@
 
 !ccccccc Find Location of Molonari
 !         do i=1,nm
-!         if(x(i).ge.773.5.and.x(i).le.774.5) then
+!         if(x(i) >= 773.5.and.x(i) <= 774.5) then
 !          print*,i,x(i),z(i),ivois(i,3)
 !         endif
-!         if(x(i).ge.436.5.and.x(i).le.437.5) then
+!         if(x(i) >= 436.5.and.x(i) <= 437.5) then
 !c        print*,i,x(i),z(i),ivois(i,3)
 !         endif
-!         if(x(i).ge.364.5.and.x(i).le.365.5) then
+!         if(x(i) >= 364.5.and.x(i) <= 365.5) then
 !         print*,i,x(i),z(i),ivois(i,3)
 !         endif
-!         if(x(i).ge.74.5.and.x(i).le.75.5) then
+!         if(x(i) >= 74.5.and.x(i) <= 75.5) then
 !         print*,i,x(i),z(i),ivois(i,3)
 !         endif
 !         enddo
@@ -4375,13 +4375,13 @@
 !CC...SORTIES VAUCLIN parametre clement
 !       print*,paso/86400,dtCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      if(ytest.eq."VAU") then
+      if(ytest == "VAU") then
       ts=0
       call interpolsurf(nc,zs,nm,icol,pr,ivois,&
      bm,z,valcl,icl,id_river,id_rivert,chgriver,&
      ligne5,ligne6,ligne2,paso,itlecture,rho1,g)
         print*,"out",paso,zs(1,1),zs(nc,1)
-      if(irecord.eq.1) then
+      if(irecord == 1) then
 
         do i=1,nm
         write(91,*)paso/us,i,x(i),z(i),pr(i),pr(i)/rho(i)/g+z(i),&
@@ -4398,25 +4398,25 @@
      zs(kkcol,1),zs(kkcol,2)
       enddo
 
-       if(paso.lt.2*3600+10.and.paso.gt.2*3600-10) then
+       if(paso < 2*3600+10.and.paso > 2*3600-10) then
       do kkcol=1,nc
       write(181819,*)x(ibas(kkcol)),zs(kkcol,1)
        enddo
       endif
 
-       if(paso.lt.3*3600+10.and.paso.gt.3*3600-10) then
+       if(paso < 3*3600+10.and.paso > 3*3600-10) then
       do kkcol=1,nc
       write(181821,*)x(ibas(kkcol)),zs(kkcol,1)
        enddo
       endif
 
-       if(paso.lt.4*3600+10.and.paso.gt.4*3600-10) then
+       if(paso < 4*3600+10.and.paso > 4*3600-10) then
       do kkcol=1,nc
       write(181820,*)x(ibas(kkcol)),zs(kkcol,1)
        enddo
       endif
 
-       if(paso.lt.8*3600+10.and.paso.gt.8*3600-10) then
+       if(paso < 8*3600+10.and.paso > 8*3600-10) then
       do kkcol=1,nc
       write(181818,*)x(ibas(kkcol)),zs(kkcol,1)
        enddo
@@ -4430,8 +4430,8 @@
 !CC...SORTIES AVAV
 !CCC     id_ZH(j)
 
-      if(ytest.eq."AVA") then
-      if(irecord.eq.1) then
+      if(ytest == "AVA") then
+      if(irecord == 1) then
       qflux=0D+00
       do j=1,ligne7
           qflux=vzm(id_ZH(j))*am(id_ZH(j))+qflux
@@ -4441,7 +4441,7 @@
         print*,"out",paso/86400,am(id_ZH(1)),qflux
 !     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
 !     &zs(65,1),zs(217,1)
-       if (ith.eq.1) then
+       if (ith == 1) then
 !ccc....S_temp_zns1.dat') au milieu RD
       write(181819,*)paso/unitsortie,temp(257),temp(578),&
      temp(866),temp(1335)
@@ -4472,7 +4472,7 @@
       write(181825,*)paso/unitsortie,pr(2858)/rho(2858)/g+z(2858),&
      zs(217,1)
 
-      if(paso.lt.57*86400+1000.and.paso.gt.57*86400-1000) then
+      if(paso < 57*86400+1000.and.paso > 57*86400-1000) then
       do kkcol=1,nc
       write(181827,*)x(ibas(kkcol)),&
      zs(kkcol,1)
@@ -4480,21 +4480,21 @@
       endif
 
 
-      if(paso.lt.133*86400+1000.and.paso.gt.133*86400-1000) then
+      if(paso < 133*86400+1000.and.paso > 133*86400-1000) then
       do kkcol=1,nc
       write(181831,*)x(ibas(kkcol)),&
      zs(kkcol,1)
       enddo
       endif
 
-      if(paso.lt.134*86400+1000.and.paso.gt.134*86400-1000) then
+      if(paso < 134*86400+1000.and.paso > 134*86400-1000) then
       do kkcol=1,nc
       write(181828,*)x(ibas(kkcol)),&
      zs(kkcol,1)
       enddo
       endif
 
-      if(paso.lt.195*86400+1000.and.paso.gt.195*86400-1000) then
+      if(paso < 195*86400+1000.and.paso > 195*86400-1000) then
       do kkcol=1,nc
       write(181829,*)x(ibas(kkcol)),&
      zs(kkcol,1)
@@ -4502,7 +4502,7 @@
       endif
 
 
-      if(paso.lt.10*86400+1000.and.paso.gt.10*86400-1000) then
+      if(paso < 10*86400+1000.and.paso > 10*86400-1000) then
       do i=1,nm
       write(751,*) pr(i)
        enddo
@@ -4512,8 +4512,8 @@
 
 
 !CC....SORTIE ZH Karina
-      if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
-       if(irecord.eq.1.and.irpth.eq.1) then
+      if(ytest == "ZHR".or.ytest == "ZHZ") then
+       if(irecord == 1.and.irpth == 1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
        write(60,*) paso/unitsortie,temp(nmaille2)
        write(61,*) paso/unitsortie,temp(nmaille3)
@@ -4530,14 +4530,14 @@
 
 
 !CC....SORTIE sol Emmanuel leger
-      if(ytest.eq."1DS") then
+      if(ytest == "1DS") then
 
         print*,paso/unitsortie,dt,pr(1)/9800+z(1),pr(nm)/9800+z(nm)
         print*,'bas=',valcl(nm,4)/9800+z(nm)
         print*,'pluie=',valcl(1,3)*1000*86400,'mm/j'
         print*,'sat=',sw(1)
 
-       if(irecord.eq.1.and.irpth.eq.1) then
+       if(irecord == 1.and.irpth == 1) then
        write(59,*) paso/unitsortie,temp(nmaille1)
        write(60,*) paso/unitsortie,temp(nmaille2)
        write(61,*) paso/unitsortie,temp(nmaille3)
@@ -4568,14 +4568,14 @@
 
 
 !CC....SORTIE sol Jose
-      if(ytest.eq."1DJ") then
+      if(ytest == "1DJ") then
 
         print*,paso/unitsortie,dt,pr(1)/9800+z(1),pr(nm)/9800+z(nm)
         print*,'bas=',valcl(nm,4)/9800+z(nm)
         print*,'pluie=',valcl(1,3)*1000*86400,'mm/j'
         print*,'sat=',sw(1)
 
-       if(irecord.eq.1.and.irpth.eq.1) then
+       if(irecord == 1.and.irpth == 1) then
       write(7782,*) paso/unitsortie,vzp(nmaille2),vzm(nmaille2)
        do i=1,nm
       write(18181,*)paso/unitsortie,z(i),vzm(i)
@@ -4589,22 +4589,22 @@
 
 
 !CC....SORTIES TEST LUNARDINI
-      if(ytest.eq."THL") then
+      if(ytest == "THL") then
         print*,"OUT",dt,paso
-       if(irecord.eq.1) then
+       if(irecord == 1) then
         print*,"OUT",paso/unitsortie,pr(nm)/rho(1)/g+z(nm),&
      temp(nmaille1),valclt(nm,4),temp(1),pr(1),akr(1)
-       if(paso.lt.86400+1000.and.paso.gt.86400-1000) then
+       if(paso < 86400+1000.and.paso > 86400-1000) then
       do i=1,nm
       write(741,*) i,x(i),z(i),pr(i),pr(i)/rho1/g+z(i),temp(i),sw(i)
       enddo
       endif
-       if(paso.lt.2*86400+1000.and.paso.gt.2*86400-1000) then
+       if(paso < 2*86400+1000.and.paso > 2*86400-1000) then
       do i=1,nm
       write(742,*) i,x(i),z(i),pr(i),pr(i)/rho1/g+z(i),temp(i),sw(i)
        enddo
       endif
-       if(paso.lt.3*86400+1000.and.paso.gt.3*86400-1000) then
+       if(paso < 3*86400+1000.and.paso > 3*86400-1000) then
       do i=1,nm
       write(743,*) i,x(i),z(i),pr(i),pr(i)/rho1/g+z(i),temp(i),sw(i)
       enddo
@@ -4616,9 +4616,9 @@
 !       print*,pr(nm)/rho(nm)/g+z(nm)
 !     &,akr(7666),cimp,alanda(10321),temp(1)
 
-      if(ytest.eq."MAQ") then
-       if(irecord.eq.1) then
-       if(paso.lt.10*86400+1000.and.paso.gt.10*86400-1000) then
+      if(ytest == "MAQ") then
+       if(irecord == 1) then
+       if(paso < 10*86400+1000.and.paso > 10*86400-1000) then
       do i=1,nm
       write(742,*) i,x(i),z(i),pr(i),pr(i)/rho1/g+z(i),temp(i),sw(i)
        enddo
@@ -4668,9 +4668,9 @@
       endif
 !CC....sortie tests performances
 !CC...TEST NEUMAN
-       if(ytest.eq."TH1") then
+       if(ytest == "TH1") then
        print*,"OUT",paso/unitsortie,irecord
-       if(irecord.eq.1) then
+       if(irecord == 1) then
 
         write(18,*) paso/unitsortie,zs(1,1),zs(1,2),zl(1,1),zl(1,2)
        write(53,*) paso/unitsortie,temp(400)
@@ -4688,8 +4688,8 @@
        endif
        endif
 !CC....TEST TH2
-       if(ytest.eq."TH2") then
-       if(irecord.eq.1) then
+       if(ytest == "TH2") then
+       if(irecord == 1) then
        write(181818) real(paso/unitsortie),real(tempmin),&
      real(swtotal),real(PF2)
        call flush(181818)
@@ -4702,10 +4702,10 @@
        endif
        endif
 !CC....TEST TH3
-       if(ytest.eq."TH3") then
+       if(ytest == "TH3") then
       print*,real(paso/unitsortie),real(akeq),real(qtcol),&
      real(qthermtot),real(pt1),real(pt2)
-       if(irecord.eq.1) then
+       if(irecord == 1) then
        write(181818) real(paso/unitsortie),real(akeq),&
      real(qtcol),real(qthermtot),real(pt1),real(pt2)
 !              t,PM1,PM2,PM3,PM4_Pt1,PM4_Pt2
@@ -4728,7 +4728,7 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !       CALL CPU_Time(Seconds)
 !       trest=(nitt-it)*(Seconds-seicold)
-!       if(it.gt.1) then
+!       if(it > 1) then
 !       seicold=Seconds
 !       print*,it,' temps restant: ',trest/60.,dt,pr(1),paso
 !       endif
@@ -4749,7 +4749,7 @@
      pr(i)/(rho1*g)+z(i),temp(i)
       enddo
 
-      if(ytest.eq."AVA") then
+      if(ytest == "AVA") then
       rewind(62)
       do kkcol=1,nc
       write(62,*)x(ibas(kkcol)),zs(kkcol,1)
@@ -4759,19 +4759,19 @@
 
 
 
-       if(ytest.eq."VIT") then
-        if(it.eq.1) then
+       if(ytest == "VIT") then
+        if(it == 1) then
         print*,'thermal conductivity=',alanda(1)
         print*,'apparent heat capacity=',om(1)*sw(1)*rho(1)*cpe+&
      om(1)*(1-sw(1))*rhog*cpg+(1.-om(1))*rhos(1)*cps(1)
         print*,'hydraulic conductivity=',akr(1)*ak(1)*rho(1)/(amu)
         do i=1,nm
-        if(icl(i,4).eq.-2) then
+        if(icl(i,4) == -2) then
         print*,'h(nm) [m]',pr(i)/(rho(i)*g)+z(i),'pr(nm) [Pa]',pr(i)
         prbas=pr(i)
         zbas=z(i)
         endif
-        if(icl(i,3).eq.-2) then
+        if(icl(i,3) == -2) then
         print*,'h(1)[m]',pr(i)/(rho(i)*g)+z(i),'pr(1) [Pa]',pr(i)
         prhaut=pr(i)
         zhaut=z(i)
@@ -4786,16 +4786,16 @@
         print*,'velocity=',-vzp(1)
         endif
 
-       if(irecord.eq.1) then
+       if(irecord == 1) then
         print*,'t(s)',paso,'T_obs [°C]',temp(nmaille1),temp(nmaille2),&
      temp(nmaille3),'velocity=',-vzp(1)
         do i=1,nm
-        if(icl(i,4).eq.-2) then
+        if(icl(i,4) == -2) then
         print*,'h(nm) [m]',pr(i)/(rho(i)*g)+z(i),'pr(nm) [Pa]',pr(i)
         prbas=pr(i)
         zbas=z(i)
         endif
-        if(icl(i,3).eq.-2) then
+        if(icl(i,3) == -2) then
         print*,'h(1)[m]',pr(i)/(rho(i)*g)+z(i),'pr(1) [Pa]',pr(i)
         prhaut=pr(i)
         zhaut=z(i)
@@ -4981,7 +4981,7 @@
       if    (allocated(pr))     DEALLOCATE(pr)
       if    (allocated(prk))    DEALLOCATE(prk)
       if    (allocated(pro))    DEALLOCATE(pro)
-      if (icycle.eq.1) then
+      if (icycle == 1) then
       if    (allocated(alph))   DEALLOCATE(alph)
       if    (allocated(dl))     DEALLOCATE(dl)
       if    (allocated(def))    DEALLOCATE(def)
@@ -4999,7 +4999,7 @@
       if    (allocated(zl))     DEALLOCATE(zl)
 
       endif
-      if (itr.eq.1) then
+      if (itr == 1) then
       if    (allocated(iclc))   DEALLOCATE(iclc)
       if    (allocated(valclc))     DEALLOCATE(valclc)
       if    (allocated(conco))  DEALLOCATE(conco)
@@ -5030,7 +5030,7 @@
       if    (allocated(siceo))  DEALLOCATE(siceo)
       if    (allocated(sicep))  DEALLOCATE(sicep)
 
-        if(ichi.eq.1) then
+        if(ichi == 1) then
       if    (allocated(chg))    DEALLOCATE(chg)
         endif
 
@@ -5038,7 +5038,7 @@
       if    (allocated(temp))   DEALLOCATE(temp)
       if    (allocated(tempo))  DEALLOCATE(tempo)
       if    (allocated(tempk))  DEALLOCATE(tempk)
-      if (ith.eq.1) then
+      if (ith == 1) then
             if  (allocated(valclt))     DEALLOCATE(valclt)
       if    (allocated(rhos))   DEALLOCATE(rhos)
       if    (allocated(cps))    DEALLOCATE(cps)
@@ -5055,8 +5055,8 @@
 
       endif
 
-      if(ytest.eq."AVA".or.ytest.eq."ZHZ"&
-     &.or.ytest.eq."DTS".or.ytest.eq."TEX") then
+      if(ytest == "AVA".or.ytest == "ZHZ"&
+     &.or.ytest == "DTS".or.ytest == "TEX") then
       if    (allocated(alandazone))     DEALLOCATE(alandazone)
       if    (allocated(cpmzone))    DEALLOCATE(cpmzone)
       if    (allocated(rhomzone))   DEALLOCATE(rhomzone)
@@ -5067,7 +5067,7 @@
       endif
 
 
-      if (ytest.eq."AVAV".or.ytest.eq."TEX") then
+      if (ytest == "AVAV".or.ytest == "TEX") then
       if    (allocated(tempRD))     DEALLOCATE(tempRD)
       if    (allocated(tempRG))     DEALLOCATE(tempRG)
       if (allocated(id_RD)) DEALLOCATE(id_RD)
@@ -5086,7 +5086,7 @@
       if    (allocated(aspzone))    DEALLOCATE(aspzone)
       if    (allocated(swresz))     DEALLOCATE(swresz)
       endif
-      if(ytest.eq."DTS") then
+      if(ytest == "DTS") then
       if    (allocated(tempRD))     DEALLOCATE(tempRD)
       if    (allocated(tempRG))     DEALLOCATE(tempRG)
       if (allocated(timeG)) DEALLOCATE(timeG)
@@ -5207,9 +5207,9 @@
 
 
 
-      do while (iosnew.eq.0)
+      do while (iosnew == 0)
       read(My_LUN,*,iostat=iosnew)
-      if (iosnew.eq.0) then
+      if (iosnew == 0) then
        num = num + 1
       endif
       enddo
@@ -5258,32 +5258,32 @@
 !ccc....meth gradient conjugue
       amaxr=1.
       k=0
-      do while (amaxr.ge.1.e-10.and.k.le.1000)
+      do while (amaxr >= 1.e-10.and.k <= 1000)
       k=k+1
-      if(k.gt.1) rhoo=rho
+      if(k > 1) rhoo=rho
       rho=0.D+00
       tt=1
       do i=1,n
       do j=irow_ptr(i),irow_ptr(i+1)-1
-      if(i.eq.j) tt=val(j)
+      if(i == j) tt=val(j)
       enddo
       z(i)=r(i)/tt
       zt(i)=rt(i)/tt
       rho=rho+rt(i)*z(i)
       enddo
-      if (rho.eq.0.) then
+      if (rho == 0.) then
 !       print*,'attention rho=0'
 !       write (20,*) 'rho=0'
       go to 11
       endif
-      if(k.eq.1) then
+      if(k == 1) then
       do i=1,n
       p(i)=z(i)
       pt(i)=zt(i)
       enddo
       else
       beta=rho/rhoo
-      if (beta.eq.0.) then
+      if (beta == 0.) then
 !       print*,'attention beta=0'
 !       write (20,*) 'sum=0'
       endif
@@ -5318,14 +5318,14 @@
       x(i)=x(i)+alfa*p(i)
       r(i)=r(i)-alfa*q(i)
       rt(i)=rt(i)-alfa*qt(i)
-      if(r(i).eq.0.) rt(i)=0.D+00
+      if(r(i) == 0.) rt(i)=0.D+00
 
       enddo
 
 !ccc....limitation du nombre d iteration
       amaxr=0.D+00
       do i=1,n
-      if (abs(r(i)).gt.amaxr) then
+      if (abs(r(i)) > amaxr) then
       amaxr=abs(r(i))
       iii=i
       endif
@@ -5369,9 +5369,9 @@
     amaxr=1.
     k=0
 
-    do while (amaxr.ge.1.e-10.and.k.le.1000)
+    do while (amaxr >= 1.e-10.and.k <= 1000)
     k=k+1
-    if(k.gt.1) rhoo=rho
+    if(k > 1) rhoo=rho
     rho=0.
     do i=1,n
     rho=rho+rt(i)*r(i)
@@ -5380,7 +5380,7 @@
 
 
 
-    if (rho.eq.0.) then
+    if (rho == 0.) then
 !   print*,'attention rho=0'
 !   write (20,*)'rho=0'
     go to 11
@@ -5388,14 +5388,14 @@
 
 
 
-    if(k.eq.1) then
+    if(k == 1) then
     do i=1,n
     u(i)=r(i)
     p(i)=u(i)
     enddo
     else
     beta=rho/rhoo
-    if (beta.eq.0.) then
+    if (beta == 0.) then
 !   print*,'attention beta=0'
 !   write (20,*)'sum=0'
     endif
@@ -5445,7 +5445,7 @@
 
     amaxr=0.
     do i=1,n
-    if (abs(r(i)).gt.amaxr) then
+    if (abs(r(i)) > amaxr) then
     amaxr=abs(r(i))
     iii=i
     endif
@@ -5523,7 +5523,7 @@
 !         FACE HAUTE              C
 !                         C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      if(icl(ik,3).eq.1) then
+      if(icl(ik,3) == 1) then
 !ccc....Maille du haut existe terme gravite J+1/2 negatif annuler avec ixy
       il=il+1
       jp=ivois(ik,3)
@@ -5540,12 +5540,12 @@
       irow_ptr(ik+1)=irow_ptr(ik+1)+1
       endif
 
-      if(icl(ik,3).eq.-1) then
+      if(icl(ik,3) == -1) then
 !ccc....Face haute a flux impose....
       b(ik)=dble(b(ik)-valcl(ik,3)/bm(ik)*rho(ik))
       endif
 
-      if(icl(ik,3).eq.-2) then
+      if(icl(ik,3) == -2) then
 !ccc....Face haute a potentiel impose....
       dzhi=dble((bm(ik)*bm(ik)/2))
       val(ilik)=dble(val(ilik)-1/dzhi*rho(ik)*akv(ik)*akrv(ik)/amu)
@@ -5563,7 +5563,7 @@
 !                         C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !ccc....terme gravite j-1/2 positif
-      if(icl(ik,4).eq.1) then
+      if(icl(ik,4) == 1) then
 !ccc....Maille du ibas existe
       il=il+1
       jm=ivois(ik,4)
@@ -5579,11 +5579,11 @@
      *1*g/bm(ik)*(rho(jm)+rho(ik))/2)
       irow_ptr(ik+1)=irow_ptr(ik+1)+1
       endif
-      if(icl(ik,4).eq.-1) then
+      if(icl(ik,4) == -1) then
 !ccc....Face BASSE a flux impose....
       b(ik)=dble(b(ik)-valcl(ik,4)/bm(ik)*rho(ik))
       endif
-      if(icl(ik,4).eq.-2) then
+      if(icl(ik,4) == -2) then
 !ccc....Face basse a potentiel impose....
       dzbi=dble((bm(ik)*bm(ik)/2))
       val(ilik)=dble(val(ilik)-1/dzbi*rho(ik)*akv(ik)*akrv(ik)/amu)
@@ -5591,7 +5591,7 @@
      *valcl(ik,4))+ixy*1/bm(ik)*rho(ik)*akv(ik)*akrv(ik)/amu*rho(ik)*g
       endif
 
-      if(icl(ik,4).eq.-3) then
+      if(icl(ik,4) == -3) then
 !ccc....Face basse a free drainage..
       b(ik)=dble(b(ik)-rho(ik)*akv(ik)*akrv(ik)/amu/bm(ik)*rho(ik))
       endif
@@ -5601,7 +5601,7 @@
 !         FACE GAUCHE              C
 !                         C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      if(icl(ik,2).eq.1) then
+      if(icl(ik,2) == 1) then
 
 !ccc....Maille de gauche existe CORRECTION TERME DZ/DX*RHO*G/AM terme i-1/2 positif
 
@@ -5624,11 +5624,11 @@
       irow_ptr(ik+1)=irow_ptr(ik+1)+1
       endif
 
-      if(icl(ik,2).eq.-1) then
+      if(icl(ik,2) == -1) then
 !ccc....Face gauche a flux impose....
       b(ik)=dble(b(ik)-valcl(ik,2)/am(ik)*rho(ik))
       endif
-      if(icl(ik,2).eq.-2) then
+      if(icl(ik,2) == -2) then
 !cccccc Face gauchee a potentiel impose....
       b(ik)=dble(b(ik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu*&
      valcl(ik,2))
@@ -5640,7 +5640,7 @@
 !         FACE DROITE              C
 !                         C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      if(icl(ik,1).eq.1) then
+      if(icl(ik,1) == 1) then
 !ccc....Maille de droite existe CORRECTION TERME DZ/DX*RHO*G/AM terme i+1/2 negatif
       il=il+1
       ip=ivois(ik,1)
@@ -5656,13 +5656,13 @@
       irow_ptr(ik+1)=irow_ptr(ik+1)+1
       endif
 
-      if(icl(ik,1).eq.-1) then
+      if(icl(ik,1) == -1) then
 !ccc....Face droite a flux impose....
       b(ik)=dble(b(ik)-valcl(ik,1)/am(ik)*rho(ik))
       endif
 
 
-      if(icl(ik,1).eq.-2) then
+      if(icl(ik,1) == -2) then
 !ccc....Face droite a potentiel impose....
       b(ik)=dble(b(ik)-2/am(ik)**2*rho(ik)*ak(ik)*akr(ik)/amu*&
      valcl(ik,1))
@@ -5676,9 +5676,9 @@
 !                         C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....MCKENZIE CALCUL TAUX DE PRODUCTION DE GLACE
-      if (ysupdp.eq."SPMCK") then
+      if (ysupdp == "SPMCK") then
 !ccc....GEL TERME SURPRESSION
-      if (igel.eq.1) then
+      if (igel == 1) then
       b(ik)=b(ik)-&
      abs((rho(ik)-rhoi(ik))*om(ik)*(dsidtemp(ik))&
      *(tempo(ik)-temp(ik))/dt)
@@ -5686,7 +5686,7 @@
 !ccc....fin gel
 
 !ccc....DEGEL  TERME SURPRESSION
-       if (igel.eq.2) then
+       if (igel == 2) then
       b(ik)=b(ik)+&
      abs((rho(ik)-rhoi(ik))*om(ik)*(dsidtemp(ik))&
      *(tempo(ik)-temp(ik))/dt)
@@ -5700,11 +5700,11 @@
 !CC....ORDONNER LES TABLEAUX icol_IND ET VAL
       ideb=irow_ptr(ik)
       ifin=irow_ptr(ik+1)-1
-      if(ifin.eq.ideb) goto 4
-!     if (ysolv.eq."BIC".or.ysolv.eq."CGS") then
+      if(ifin == ideb) goto 4
+!     if (ysolv == "BIC".or.ysolv == "CGS") then
     2 continue
       do ii=ideb,ifin-1
-      if(icol_ind(ii).gt.icol_ind(ii+1)) then
+      if(icol_ind(ii) > icol_ind(ii+1)) then
       idum=icol_ind(ii+1)
       dum=val(ii+1)
       icol_ind(ii+1)=icol_ind(ii)
@@ -5715,9 +5715,9 @@
       endif
       enddo
 !     endif
-!     if (ysolv.eq."LIB") then
+!     if (ysolv == "LIB") then
 !     do ii=ideb,ifin-1
-!     if(icol_ind(ii).gt.icol_ind(ii+1)) then
+!     if(icol_ind(ii) > icol_ind(ii+1)) then
 !     idum=icol_ind(ii+1)
 !     dum=val(ii+1)
 !     icol_ind(ii+1)=icol_ind(ii)
@@ -5727,7 +5727,7 @@
 !     endif
 !     enddo
 !     do ii=ideb,ifin-1
-!     if(icol_ind(ii).eq.ik) then
+!     if(icol_ind(ii) == ik) then
 !     idum=icol_ind(ifin)
 !     dum=val(ifin)
 !     icol_ind(ifin)=icol_ind(ii)
@@ -5795,7 +5795,7 @@
       b(i)=0.D+00
 
 !CC....FACE DROITE
-      if(iclc(i,1).eq.1) then
+      if(iclc(i,1) == 1) then
       val(ili)=val(ili)-dlip/am(i)/(x(ivois(i,1))-x(i))*dt/om(i)
       il=il+1
       icol_ind(il)=ivois(i,1)
@@ -5803,12 +5803,12 @@
       irow_ptr(i+1)=irow_ptr(i+1)+1
       endif
 !ccc....concentration imposee
-      if(iclc(i,1).eq.-2) then
+      if(iclc(i,1) == -2) then
       val(ili)=val(ili)-dlip/am(i)**2*2*dt/om(i)
       b(i)=b(i)-valclc(i,1)*dlip/am(i)**2*2*dt/om(i)
       endif
 !CC....FACE GAUCHE
-      if(iclc(i,2).eq.1) then
+      if(iclc(i,2) == 1) then
       val(ili)=val(ili)-dlim/am(i)/(x(i)-x(ivois(i,2)))*dt/om(i)
       il=il+1
       icol_ind(il)=ivois(i,2)
@@ -5816,12 +5816,12 @@
       irow_ptr(i+1)=irow_ptr(i+1)+1
       endif
 !ccc....concentration imposee
-      if(iclc(i,2).eq.-2) then
+      if(iclc(i,2) == -2) then
       val(ili)=val(ili)-dlim/am(i)**2*2*dt/om(i)
       b(i)=b(i)-valclc(i,2)*dlim/am(i)**2*2*dt/om(i)
       endif
 !CC....FACE HAUTE
-      if(iclc(i,3).eq.1) then
+      if(iclc(i,3) == 1) then
       val(ili)=val(ili)-dtjp/bm(i)/(z(ivois(i,3))-z(i))*dt/om(i)
       il=il+1
       icol_ind(il)=ivois(i,3)
@@ -5830,12 +5830,12 @@
       irow_ptr(i+1)=irow_ptr(i+1)+1
       endif
 !ccc....concentration imposee
-      if(iclc(i,3).eq.-2) then
+      if(iclc(i,3) == -2) then
       val(ili)=val(ili)-dtjp/bm(i)**2*2*dt/om(i)
       b(i)=b(i)-valclc(i,3)*dtjp/bm(i)**2*2*dt/om(i)
       endif
 !CC....FACE BASSE
-      if(iclc(i,4).eq.1) then
+      if(iclc(i,4) == 1) then
       val(ili)=val(ili)-dtjm/bm(i)/(z(i)-z(ivois(i,4)))*dt/om(i)
       il=il+1
       icol_ind(il)=ivois(i,4)
@@ -5843,7 +5843,7 @@
       irow_ptr(i+1)=irow_ptr(i+1)+1
       endif
 !ccc....concentration imposee
-      if(iclc(i,4).eq.-2) then
+      if(iclc(i,4) == -2) then
       val(ili)=val(ili)-dtjm/bm(i)**2*2*dt/om(i)
       b(i)=b(i)-valclc(i,4)*dtjm/bm(i)**2*2*dt/om(i)
       endif
@@ -5851,10 +5851,10 @@
 !CC....ORDONNER LES TABLEAUX icol_IND ET VAL
       ideb=irow_ptr(i)
       ifin=irow_ptr(i+1)-1
-      if(ifin.eq.ideb) goto 11
+      if(ifin == ideb) goto 11
    10 continue
       do ii=ideb,ifin-1
-      if(icol_ind(ii).gt.icol_ind(ii+1)) then
+      if(icol_ind(ii) > icol_ind(ii+1)) then
       idum=icol_ind(ii+1)
       dum=val(ii+1)
       icol_ind(ii+1)=icol_ind(ii)
@@ -5873,75 +5873,75 @@
       ih=0
       ib=0
       do ij=irow_ptr(i),irow_ptr(i+1)-1
-      if(icol_ind(ij).eq.i) ii=ij
-      if(icol_ind(ij).eq.ivois(i,1)) id=ij
-      if(icol_ind(ij).eq.ivois(i,2)) ig=ij
-      if(icol_ind(ij).eq.ivois(i,3)) ih=ij
-      if(icol_ind(ij).eq.ivois(i,4)) ib=ij
+      if(icol_ind(ij) == i) ii=ij
+      if(icol_ind(ij) == ivois(i,1)) id=ij
+      if(icol_ind(ij) == ivois(i,2)) ig=ij
+      if(icol_ind(ij) == ivois(i,3)) ih=ij
+      if(icol_ind(ij) == ivois(i,4)) ib=ij
       enddo
 
 !CC....TERMES ADVECTIFS
 
 
 !ccc....FACE DROITE
-      if(vxp(i).gt.0) then
+      if(vxp(i) > 0) then
       val(ii)=val(ii)-vxp(i)*dt/am(i)/om(i)
       endif
-      if(iclc(i,1).eq.1.and.vxp(i).lt.0) then
+      if(iclc(i,1) == 1.and.vxp(i) < 0) then
       val(id)=val(id)-vxp(i)*dt/am(i)/om(i)
       endif
 !ccc....si face droite imposee et vxp(i)<0!!!!
-      if(iclc(i,1).eq.-2.and.vxp(i).lt.0) then
+      if(iclc(i,1) == -2.and.vxp(i) < 0) then
       b(i)=b(i)+vxp(i)*dt/am(i)/om(i)*valclc(i,1)
       endif
 !ccc....face droite flux impose (>0 U*C mol/s ou g/s)
-      if(iclc(i,1).eq.-1) then
+      if(iclc(i,1) == -1) then
       b(i)=b(i)-valclc(i,1)*dt/am(i)/om(i)
       endif
 
 !CC....FACE GAUCHE
-      if(vxm(i).gt.0.and.iclc(i,2).eq.1) then
+      if(vxm(i) > 0.and.iclc(i,2) == 1) then
       val(ig)=val(ig)+vxm(i)*dt/am(i)/om(i)
       endif
 !ccc....si face gauche imposee et vxm(i)>0!!!!
-      if(vxm(i).gt.0.and.iclc(i,2).eq.-2) then
+      if(vxm(i) > 0.and.iclc(i,2) == -2) then
       b(i)=b(i)-vxm(i)*dt/am(i)/om(i)*valclc(i,2)
       endif
-      if(vxm(i).lt.0.) then
+      if(vxm(i) < 0.) then
       val(ii)=val(ii)+vxm(i)*dt/am(i)/om(i)
       endif
 !ccc....face gauche flux impose (U*C mol/s ou g/s)
-      if(iclc(i,2).eq.-1) then
+      if(iclc(i,2) == -1) then
       b(i)=b(i)-valclc(i,2)*dt/am(i)/om(i)
       endif
 
 !CC....FACE SUP
-       if(vzp(i).gt.0) then
+       if(vzp(i) > 0) then
       val(ii)=val(ii)-vzp(i)*dt/bm(i)/om(i)
       endif
-      if(vzp(i).lt.0.and.iclc(i,3).eq.1) then
+      if(vzp(i) < 0.and.iclc(i,3) == 1) then
       val(ih)=val(ih)-vzp(i)*dt/bm(i)/om(i)
       endif
-      if(vzp(i).lt.0.and.iclc(i,3).eq.-2) then
+      if(vzp(i) < 0.and.iclc(i,3) == -2) then
       b(i)=b(i)+vzp(i)*dt/bm(i)/om(i)*valclc(i,3)
       endif
 !ccc....face sup flux impose (U*C mol/s ou g/s)
-      if(iclc(i,3).eq.-1) then
+      if(iclc(i,3) == -1) then
       b(i)=b(i)-valclc(i,3)*dt/bm(i)/om(i)
       endif
 
 !CC....FACE INF
-       if(vzm(i).gt.0.and.iclc(i,4).eq.1) then
+       if(vzm(i) > 0.and.iclc(i,4) == 1) then
       val(ib)=val(ib)+vzm(i)*dt/bm(i)/om(i)
       endif
-       if(vzm(i).gt.0.and.iclc(i,4).eq.-2) then
+       if(vzm(i) > 0.and.iclc(i,4) == -2) then
       b(i)=b(i)-vzm(i)*dt/bm(i)/om(i)*valclc(i,4)
       endif
 !ccc....face droite flux impose (U*C mol/s ou g/s)
-      if(iclc(i,4).eq.-1) then
+      if(iclc(i,4) == -1) then
       b(i)=b(i)-valclc(i,4)*dt/bm(i)/om(i)
       endif
-      if(vzm(i).lt.0.) then
+      if(vzm(i) < 0.) then
       val(ii)=val(ii)+vzm(i)*dt/bm(i)/om(i)
       endif
 
@@ -5976,16 +5976,16 @@
       dimension zs(nc,2),zsoo(nc,2),ivois(nm,4),icol(nc)
       dimension pr(nm),pro(nm),dl(nc),def(nc),defo(nc),alph(nm)
 
-      if (igel.eq.1) then
+      if (igel == 1) then
       do kkcol=1,nc
       do i=1,nm
       if(zs(kkcol,1).ne.-99.and.zsoo(kkcol,1).ne.-99) then
-      if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99&
-     .and.pr(i).gt.pro(i)) then
+      if (icol(i) == kkcol.and.ivois(i,4) == -99&
+     .and.pr(i) > pro(i)) then
       dl(kkcol)=(pr(i)-pro(i))*alph(i)*zs(kkcol,1)
       endif
-      if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99&
-     .and.pr(i).lt.pro(i)) then
+      if (icol(i) == kkcol.and.ivois(i,4) == -99&
+     .and.pr(i) < pro(i)) then
       dl(kkcol)=00D+00
       endif
       def(kkcol)=dl(kkcol)+defo(kkcol)
@@ -5993,16 +5993,16 @@
       enddo
       enddo
       endif
-      if (igel.eq.2) then
+      if (igel == 2) then
       do kkcol=1,nc
       do i=1,nm
       if(zs(kkcol,1).ne.-99.and.zsoo(kkcol,1).ne.-99) then
-      if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99&
-     .and.pr(i).gt.pro(i)) then
+      if (icol(i) == kkcol.and.ivois(i,4) == -99&
+     .and.pr(i) > pro(i)) then
       dl(kkcol)=(pr(i)-pro(i))*alph(i)*zs(kkcol,1)
       endif
-      if (icol(i).eq.kkcol.and.ivois(i,4).eq.-99&
-     .and.pr(i).lt.pro(i)) then
+      if (icol(i) == kkcol.and.ivois(i,4) == -99&
+     .and.pr(i) < pro(i)) then
       dl(kkcol)=-(pr(i)-pro(i))*alph(i)*zs(kkcol,1)
       endif
       def(kkcol)=dl(kkcol)+defo(kkcol)
@@ -6034,13 +6034,13 @@
       do i=1,nm
 !CC....Recalcul des parametre dependant de P
       prc=0.D+00
-      if(pr(i).le.0d+00) prc=-pr(i)
+      if(pr(i) <= 0d+00) prc=-pr(i)
 !       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98.1 Pascals
       as=(asun(i)/(rho1*g))
       ans=ansun(i)
       swres=swresz(i)
     sw(i)=swres+(1-swres)*(1./(1+(as*prc)**ans))**((ans-1)/ans)
-    if(sw(i)-swres.le.1d-05) sw(i)=swres+1d-05
+    if(sw(i)-swres <= 1d-05) sw(i)=swres+1d-05
     dswdp(i)=as*(ans-1)*(1-swres)*(as*prc)**(ans-1)/(1+(as*prc)**ans)&
      **((2*ans-1)/ans)
     swt=(sw(i)-swres)/(1.-swres)
@@ -6072,12 +6072,12 @@
       dimension z(nm),bm(nm),ivois(nm,4),akv(nm),ak(nm),tempo(nm)
       dimension am(nm),rho(nm),x(nm),icl(nm,4),valcl(nm,4)
       dimension iclt(nm,4),valclt(nm,4)
-      if (it.eq.ita) goto 22
+      if (it == ita) goto 22
 !       TEST COND PARTICULIERES IMPOSEES SUR CELLULE VOISINE RIVIERE
 !       Bords en contact avec riviere!!!
       do i=1,nm
-      if (z(i).gt.hbot-bm(i).and.z(i).le.hbot&
-     .and.ivois(i,3).eq.-99.and.tempo(i).gt.ts) then
+      if (z(i) > hbot-bm(i).and.z(i) <= hbot&
+     .and.ivois(i,3) == -99.and.tempo(i) > ts) then
       icl(i,3)=-2
       valcl(i,3)=hriv*rho(i)*g
       iclt(i,3)=-2
@@ -6086,15 +6086,15 @@
      (bm(i)-elit)/akcv)
       ak(i)=((elit)*aklit+&
      (am(i)-elit)*akc)/am(i)
-      if(ivois(i,1).eq.-99) then
+      if(ivois(i,1) == -99) then
       icl(i,1)=-1
       valcl(i,1)=0.D+00
       endif
       endif
 
-      if (ivois(i,1).eq.-99&
-     .and.x(i).le.xberg.and.&
-     x(i).gt.(xberg-am(i)).and.tempo(i).gt.ts) then
+      if (ivois(i,1) == -99&
+     .and.x(i) <= xberg.and.&
+     x(i) > (xberg-am(i)).and.tempo(i) > ts) then
       icl(i,1)=-2
       valcl(i,1)=rho(i)*g*(hbot+hriv-z(i))
       iclt(i,1)=-2
@@ -6105,8 +6105,8 @@
      (bm(i)-elit)*akc)/bm(i)
       endif
 
-       if (z(i).gt.hbot-bm(i).and.z(i).le.hbot&
-     .and.ivois(i,3).eq.-99.and.tempo(i).le.ts) then
+       if (z(i) > hbot-bm(i).and.z(i) <= hbot&
+     .and.ivois(i,3) == -99.and.tempo(i) <= ts) then
       icl(i,3)=-1
       valcl(i,3)=0D+00
       iclt(i,3)=-2
@@ -6115,15 +6115,15 @@
      (bm(i)-elit)/akcv)
       ak(i)=((elit)*aklit+&
      (am(i)-elit)*akc)/am(i)
-      if(ivois(i,1).eq.-99) then
+      if(ivois(i,1) == -99) then
       icl(i,1)=-1
       valcl(i,1)=0.D+00
       endif
       endif
 
-      if (ivois(i,1).eq.-99&
-     .and.x(i).le.xberg.and.&
-     x(i).gt.(xberg-am(i)).and.tempo(i).le.ts) then
+      if (ivois(i,1) == -99&
+     .and.x(i) <= xberg.and.&
+     x(i) > (xberg-am(i)).and.tempo(i) <= ts) then
       icl(i,1)=-1
       valcl(i,1)=0D+00
       iclt(i,1)=-2
@@ -6177,22 +6177,22 @@
 !CC....calcul debit de la riviere
       qinf=0D+00
       qriv=0D+00
-      if (iqriv.eq.1)qriv=qriva+qruis
+      if (iqriv == 1)qriv=qriva+qruis
 
 !CC....cellule sous rivière
       do ik=1,nm
-      if (z(ik).gt.(hbot-bm(ik))&
-     .and.z(ik).lt.hbot.and.&
-     ivois(ik,3).eq.-99) then
+      if (z(ik) > (hbot-bm(ik))&
+     .and.z(ik) < hbot.and.&
+     ivois(ik,3) == -99) then
       qriv=qriv+am(ik)*1*vzp(ik)
 
       qinf=qinf-am(ik)*1*vzp(ik)
       endif
 
-      if (ivois(ik,1).eq.-99&
-     .and.x(ik).lt.xberg.and.&
-     x(ik).gt.(xberg-am(ik))) then
-!       if (hriv+hbot.ge.z(ik)-bm(ik)/2.) then
+      if (ivois(ik,1) == -99&
+     .and.x(ik) < xberg.and.&
+     x(ik) > (xberg-am(ik))) then
+!       if (hriv+hbot >= z(ik)-bm(ik)/2.) then
       qriv=qriv+bm(ik)*1*vxp(ik)
 
       qinf=qinf-bm(ik)*1*vxp(ik)
@@ -6201,8 +6201,8 @@
       enddo
 
 !CC....DETERMINATION hauteur DANS RIVIERE hriv
-      if(iqriv.eq.1) then
-      if (qriv.lt.qriva) qriv=qriva
+      if(iqriv == 1) then
+      if (qriv < qriva) qriv=qriva
       hriv=((qriv)**(3./5.))*(rug**(-3./5.))*((al-xberg)**(-3./5.))*&
      (pent**(-3./10.))
       endif
@@ -6268,7 +6268,7 @@
      else
      ap=-abs(dsidtemp(i))
      endif
-     if(sw(i)+sice(i).gt.1.and.icycle.eq.1) print*,"probleme sat"
+     if(sw(i)+sice(i) > 1.and.icycle == 1) print*,"probleme sat"
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                         C
 !      Termal conductivity average      C
@@ -6276,46 +6276,46 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC... arythmetic geometric wooside
 !CC
-    if(igelzns.eq.1) then
-    if (ymoycondtherm.eq."WOODS") then
+    if(igelzns == 1) then
+    if (ymoycondtherm == "WOODS") then
     alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)&
      +sqrt(alandai)*(om(i)*sice(i))+&
      sqrt(alandas(i))*(1D+00-om(i))+&
      sqrt(alandag)*om(i)*(1D+00-sw(i)-sice(i)))**2
-    else if(ymoycondtherm.eq."GEOME") then
+    else if(ymoycondtherm == "GEOME") then
     alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
      alandai**(om(i)*sice(i))*alandag**(om(i)*(1D+00-sw(i)-sice(i))))
-    else if(ymoycondtherm.eq."ARITH") then
+    else if(ymoycondtherm == "ARITH") then
       alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
      +alandai*(om(i)*sice(i))+alandag*(om(i)*(1D+00-sw(i)-sice(i))))
     endif
     endif
-        if(ymoycondtherm.eq."NEUMA") then
-       if(temp(i).lt.ts) alanda(i)=2.619D+00
-       if(temp(i).ge.ts) alanda(i)=1.839D+00
+        if(ymoycondtherm == "NEUMA") then
+       if(temp(i) < ts) alanda(i)=2.619D+00
+       if(temp(i) >= ts) alanda(i)=1.839D+00
         endif
-        if(ymoycondtherm.eq."LUNAR") then
+        if(ymoycondtherm == "LUNAR") then
 !cccc....solution avec conductivite constante sur 3 zones
-!      if(temp(i).le.ts) alanda(i)=3.462696D+00
-!      if(temp(i).ge.ts.and.temp(i).lt.tl) then
+!      if(temp(i) <= ts) alanda(i)=3.462696D+00
+!      if(temp(i) >= ts.and.temp(i) < tl) then
 !      alanda(i)=293994600.D-08
-       if(temp(i).le.ts) alanda(i)=3.4644D+00
-       if(temp(i).ge.ts.and.temp(i).lt.tl) then
+       if(temp(i) <= ts) alanda(i)=3.4644D+00
+       if(temp(i) >= ts.and.temp(i) < tl) then
        alanda(i)=294110000.D-08
        endif
-       if(temp(i).ge.tl) alanda(i)=2.4184D+00
+       if(temp(i) >= tl) alanda(i)=2.4184D+00
 !    if(i.ne.1.and.ap.ne.0) print*,dsidtemp(i),ap,temp(i),i
 !    if(i.ne.1.and.ap.ne.0) print*,"pb",alanda(i)
         else
-        if (sw(i).lt.1) then
-    if (ymoycondtherm.eq."WOODS") then
+        if (sw(i) < 1) then
+    if (ymoycondtherm == "WOODS") then
     alanda(i)=DBLE(sqrt(alandae)*om(i)*sw(i)+&
      sqrt(alandas(i))*(1D+00-om(i))+&
      sqrt(alandag)*om(i)*(1D+00-sw(i)))**2
-    else if(ymoycondtherm.eq."GEOME") then
+    else if(ymoycondtherm == "GEOME") then
     alanda(i)=DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1-om(i))*&
      alandag**(om(i)*(1D+00-sw(i))))
-    else if(ymoycondtherm.eq."ARITH") then
+    else if(ymoycondtherm == "ARITH") then
       alanda(i)=DBLE(alandae*(om(i)*sw(i))+alandas(i)*(1-om(i))&
      +alandag*(om(i)*(1D+00-sw(i)-sice(i))))
     endif
@@ -6357,20 +6357,20 @@
 !ccc....modification de rho dpar rhoi chaleur latente 19-11-2014
 !ccc.... la densite de la glace en degel et la densite de l eau en gel
 !ccc.... TH1 utilisation rho eau degel
-    if(ytest.ne."THL".and.igel.eq.0) then
+    if(ytest.ne."THL".and.igel == 0) then
     val(il)=dble(-(om(i)*sw(i)*rho(i)*cpe+&
      om(i)*(1-sw(i))*rhog*cpg+&
      (1.-om(i))*rhos(i)*cps(i))/dt*irpth)
-      else if(ytest.ne."THL".and.igel.eq.1) then
+      else if(ytest.ne."THL".and.igel == 1) then
     val(il)=dble(-((om(i)*sw(i)*rho(i)*cpe+&
      om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+&
      (1.-om(i))*rhos(i)*cps(i))-rho(i)*om(i)*chlat*ap)/dt*irpth)
-      else if(ytest.ne."THL".and.igel.eq.2) then
+      else if(ytest.ne."THL".and.igel == 2) then
     val(il)=dble(-((om(i)*sw(i)*rho(i)*cpe+&
      om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+&
      (1.-om(i))*rhos(i)*cps(i))-rhoi(i)*om(i)*chlat*ap)/dt*irpth)
     endif
-    if(ytest.eq."THL") then
+    if(ytest == "THL") then
     val(il)=dble(-(690360D+00-rhoi(i)*om(i)*chlat*ap)/dt)
     endif
 
@@ -6383,7 +6383,7 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !          FACE DROITE          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(iclt(i,1).eq.1) then
+    if(iclt(i,1) == 1) then
     val(ili)=dble(val(ili)-dlip/am(i)/(x(ivois(i,1))-x(i)))
     il=il+1
     icol_ind(il)=ivois(i,1)
@@ -6391,14 +6391,14 @@
     irow_ptr(i+1)=irow_ptr(i+1)+1
     endif
 !ccc  temperature imposee
-    if(iclt(i,1).eq.-2) then
+    if(iclt(i,1) == -2) then
     val(ili)=dble(val(ili)-dlip/am(i)**2.D0*2.D00)
     b(i)=dble(b(i)-valclt(i,1)*dlip/am(i)**2.D0*2.D0)
     endif
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !            FACE GAUCHE          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(iclt(i,2).eq.1) then
+    if(iclt(i,2) == 1) then
     val(ili)=dble(val(ili)-dlim/am(i)/(x(i)-x(ivois(i,2))))
     il=il+1
     icol_ind(il)=ivois(i,2)
@@ -6406,14 +6406,14 @@
     irow_ptr(i+1)=irow_ptr(i+1)+1
     endif
 !CC....temperature imposee
-    if(iclt(i,2).eq.-2) then
+    if(iclt(i,2) == -2) then
     val(ili)=dble(val(ili)-dlim/am(i)**2.D00*2.D00)
     b(i)=dble(b(i)-valclt(i,2)*dlim/am(i)**2.D00*2.D00)
     endif
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !          FACE HAUTE            C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(iclt(i,3).eq.1) then
+    if(iclt(i,3) == 1) then
     val(ili)=dble(val(ili)-dtjp/bm(i)/(z(ivois(i,3))-z(i)))
     il=il+1
     icol_ind(il)=ivois(i,3)
@@ -6421,14 +6421,14 @@
     irow_ptr(i+1)=irow_ptr(i+1)+1
     endif
 !CC....temperature imposee
-    if(iclt(i,3).eq.-2) then
+    if(iclt(i,3) == -2) then
     val(ili)=dble(val(ili)-dtjp/bm(i)**2.D00*2.D00)
     b(i)=dble(b(i)-valclt(i,3)*dtjp/bm(i)**2.D00*2.D00)
     endif
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !         FACE BASSE              C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(iclt(i,4).eq.1) then
+    if(iclt(i,4) == 1) then
     val(ili)=dble(val(ili)-dtjm/bm(i)/(z(i)-z(ivois(i,4))))
     il=il+1
     icol_ind(il)=ivois(i,4)
@@ -6436,7 +6436,7 @@
     irow_ptr(i+1)=irow_ptr(i+1)+1
     endif
 !CC....temperature imposee
-    if(iclt(i,4).eq.-2) then
+    if(iclt(i,4) == -2) then
     val(ili)=dble(val(ili)-dtjm/bm(i)**2.D00*2.D00)
     b(i)=dble(b(i)-valclt(i,4)*dtjm/bm(i)**2.D00*2.D00)
     endif
@@ -6449,11 +6449,11 @@
     ifin=irow_ptr(i+1)-1
 
 
-      if(ifin.eq.ideb) goto 11
-      if (ysolv.eq."BIC".or.ysolv.eq."CGS") then
+      if(ifin == ideb) goto 11
+      if (ysolv == "BIC".or.ysolv == "CGS") then
    10 continue
         do ii=ideb,ifin-1
-        if(icol_ind(ii).gt.icol_ind(ii+1)) then
+        if(icol_ind(ii) > icol_ind(ii+1)) then
         idum=icol_ind(ii+1)
         dum=val(ii+1)
         icol_ind(ii+1)=icol_ind(ii)
@@ -6464,9 +6464,9 @@
         endif
         enddo
       endif
-!     if (ysolv.eq."LIB") then
+!     if (ysolv == "LIB") then
 !     do ii=ideb,ifin-1
-!     if(icol_ind(ii).gt.icol_ind(ii+1)) then
+!     if(icol_ind(ii) > icol_ind(ii+1)) then
 !     idum=icol_ind(ii+1)
 !     dum=val(ii+1)
 !     icol_ind(ii+1)=icol_ind(ii)
@@ -6476,7 +6476,7 @@
 !     endif
 !     enddo
 !     do ii=ideb,ifin-1
-!     if(icol_ind(ii).eq.ik) then
+!     if(icol_ind(ii) == ik) then
 !     idum=icol_ind(ifin)
 !     dum=val(ifin)
 !     icol_ind(ifin)=icol_ind(ii)
@@ -6494,11 +6494,11 @@
     ih=0
     ib=0
     do ij=irow_ptr(i),irow_ptr(i+1)-1
-    if(icol_ind(ij).eq.i) ii=ij
-    if(icol_ind(ij).eq.ivois(i,1)) id=ij
-    if(icol_ind(ij).eq.ivois(i,2)) ig=ij
-    if(icol_ind(ij).eq.ivois(i,3)) ih=ij
-    if(icol_ind(ij).eq.ivois(i,4)) ib=ij
+    if(icol_ind(ij) == i) ii=ij
+    if(icol_ind(ij) == ivois(i,1)) id=ij
+    if(icol_ind(ij) == ivois(i,2)) ig=ij
+    if(icol_ind(ij) == ivois(i,3)) ih=ij
+    if(icol_ind(ij) == ivois(i,4)) ib=ij
     enddo
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                         C
@@ -6510,7 +6510,7 @@
 !ccc....vxp(i) face droite
 !ccc....vzm(i) face du dessous
 !ccc....vzp(i) face du dessus
-    if(ithec.eq.0) then
+    if(ithec == 0) then
     vxp(i)=00D+00
     vxm(i)=00D+00
     vzm(i)=00D+00
@@ -6519,16 +6519,16 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !          FACE DROITE          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(vxp(i).gt.0) then
+    if(vxp(i) > 0) then
     val(ii)=dble(val(ii)-rho(i)*cpe*vxp(i)/am(i))
     endif
-    if(iclt(i,1).eq.1.and.vxp(i).lt.0) then
+    if(iclt(i,1) == 1.and.vxp(i) < 0) then
     val(id)=dble(val(id)-rho(ivois(i,1))*cpe*vxp(i)/am(i))
     endif
 !CC....si face droite imposee et vxp(i)<0!!!!
-    if(iclt(i,1).eq.-2.and.vxp(i).lt.0) then
+    if(iclt(i,1) == -2.and.vxp(i) < 0) then
     b(i)=dble(b(i)+rho(i)*cpe*vxp(i)/am(i)*valclt(i,1))
-    if(abs(vxp(i)-vxm(i)).gt.abs(vxm(i))/1D9) then
+    if(abs(vxp(i)-vxm(i)) > abs(vxm(i))/1D9) then
     print*,'pb de vitesse x maille ='
     print*,i,vxp(i),vxm(i)
     print*,'verifiez votre etat initial'
@@ -6536,45 +6536,45 @@
     endif
     endif
 !cccc....face droite flux impose (>0 U*C mol/s ou g/s)
-    if(iclt(i,1).eq.-1) then
+    if(iclt(i,1) == -1) then
     b(i)=dble(b(i)-valclt(i,1)/am(i))
     endif
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !            FACE GAUCHE          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(vxm(i).gt.0.and.iclt(i,2).eq.1) then
+    if(vxm(i) > 0.and.iclt(i,2) == 1) then
     val(ig)=dble(val(ig)+rho(ivois(i,2))*cpe*vxm(i)/am(i))
     endif
 !CC....si face gauche imposee et vxm(i)>0!!!!
-    if(vxm(i).gt.0.and.iclt(i,2).eq.-2) then
+    if(vxm(i) > 0.and.iclt(i,2) == -2) then
     b(i)=dble(b(i)-rho(i)*cpe*vxm(i)/am(i)*valclt(i,2))
-    if(abs(vxp(i)-vxm(i)).gt.abs(vxm(i))/1D9) then
+    if(abs(vxp(i)-vxm(i)) > abs(vxm(i))/1D9) then
     print*,'pb de vitesse x'
     print*,i,vxp(i),vxm(i)
     print*,'verifiez votre etat initial'
     stop
     endif
     endif
-    if(vxm(i).lt.0) then
+    if(vxm(i) < 0) then
     val(ii)=dble(val(ii)+rho(i)*cpe*vxm(i)/am(i))
     endif
 !CC....face gauche flux impose (U*C mol/s ou g/s)
-    if(iclt(i,2).eq.-1) then
+    if(iclt(i,2) == -1) then
     b(i)=dble(b(i)-valclt(i,2)/am(i))
     endif
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !          FACE SUP                C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(vzp(i).gt.0) then
+    if(vzp(i) > 0) then
     val(ii)=dble(val(ii)-rho(i)*cpe*vzp(i)/bm(i))
     endif
-    if(vzp(i).lt.0.and.iclt(i,3).eq.1) then
+    if(vzp(i) < 0.and.iclt(i,3) == 1) then
     val(ih)=dble(val(ih)-rho(ivois(i,3))*cpe*vzp(i)/bm(i))
     endif
-    if(vzp(i).lt.0.and.iclt(i,3).eq.-2) then
-    if(abs(vzp(i)-vzm(i)).ge.abs(vzm(i))/1D9) then
+    if(vzp(i) < 0.and.iclt(i,3) == -2) then
+    if(abs(vzp(i)-vzm(i)) >= abs(vzm(i))/1D9) then
     print*,'pb de vitesse z',vzp(i),vzm(i),i,abs(vzp(i)-vzm(i)),dt
     print*,'verifiez votre etat initial sup'
     stop
@@ -6582,7 +6582,7 @@
     b(i)=dble(b(i)+rho(i)*cpe*vzp(i)/bm(i)*valclt(i,3))
     endif
 !CC....face sup flux impose (U*C mol/s ou g/s)
-    if(iclt(i,3).eq.-1) then
+    if(iclt(i,3) == -1) then
     b(i)=dble(b(i)-valclt(i,3)/bm(i))
 
     endif
@@ -6590,22 +6590,22 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !          FACE INF                C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-    if(vzm(i).gt.0.and.iclt(i,4).eq.1) then
+    if(vzm(i) > 0.and.iclt(i,4) == 1) then
     val(ib)=dble(val(ib)+rho(ivois(i,4))*cpe*vzm(i)/bm(i))
     endif
-    if(vzm(i).gt.0.and.iclt(i,4).eq.-2) then
+    if(vzm(i) > 0.and.iclt(i,4) == -2) then
     b(i)=dble(b(i)-rho(i)*cpe*vzm(i)/bm(i)*valclt(i,4))
-    if(abs(vzp(i)-vzm(i)).ge.abs(vzm(i))/1D9) then
+    if(abs(vzp(i)-vzm(i)) >= abs(vzm(i))/1D9) then
     print*,'pb de vitesse z',abs(vzp(i)-vzm(i)),i
     print*,'verifiez votre etat initial'
     stop
     endif
     endif
 !CC....face basse flux impose (U*C mol/s ou g/s)
-    if(iclt(i,4).eq.-1) then
+    if(iclt(i,4) == -1) then
     b(i)=dble(b(i)-valclt(i,4)/bm(i))
     endif
-    if(vzm(i).lt.0.) then
+    if(vzm(i) < 0.) then
     val(ii)=dble(val(ii)+rho(i)*cpe*vzm(i)/bm(i))
     endif
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -6621,20 +6621,20 @@
 !CC....chaleur latente
 !ccc....modification de rho dpar rhoi chaleur latente 19-11-2014
 !ccc.... la densite de la glace en degel et la densite de l eau en gel.
-    if(ytest.ne."THL".and.igel.eq.0) then
+    if(ytest.ne."THL".and.igel == 0) then
     b(i)=dble(b(i)-tempo(i)*(om(i)*sw(i)*rho(i)*cpe+&
      om(i)*(1-sw(i))*rhog*cpg+&
      (1.-om(i))*rhos(i)*cps(i))/dt*irpth)
-    else if(ytest.ne."THL".and.igel.eq.2) then
+    else if(ytest.ne."THL".and.igel == 2) then
     b(i)=dble(b(i)-tempo(i)*((om(i)*sw(i)*rho(i)*cpe+&
      om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+&
      (1.-om(i))*rhos(i)*cps(i))-rhoi(i)*om(i)*chlat*ap)/dt*irpth)
-      else if(ytest.ne."THL".and.igel.eq.1) then
+      else if(ytest.ne."THL".and.igel == 1) then
     b(i)=dble(b(i)-tempo(i)*((om(i)*sw(i)*rho(i)*cpe+&
      om(i)*sice(i)*rhoi(i)*cpice+om(i)*(1-sw(i)-sice(i))*rhog*cpg+&
      (1.-om(i))*rhos(i)*cps(i))-rho(i)*om(i)*chlat*ap)/dt*irpth)
       endif
-      if(ytest.eq."THL") then
+      if(ytest == "THL") then
     b(i)=dble(b(i)-tempo(i)*(690360D+00-rhoi(i)*om(i)*chlat*ap)/dt)
     endif
 
@@ -6683,9 +6683,9 @@
 !       do i=1,nm
 !       pore(i)=0.
 !C test colonne
-!       if(icol(i).eq.j) then
+!       if(icol(i) == j) then
 !test charge < top maille
-!       if(pr(i)/(rho(i)*g)+z(i).lt.z(i)+bm(i)/2) then
+!       if(pr(i)/(rho(i)*g)+z(i) < z(i)+bm(i)/2) then
 !       pore(i)=(bm(i)/2.D00-pr(i)/(rho(i)*g))*om(i)*am(i)
 !       qtpore(j)=qtpore(j)+pore(i)
 !       endif
@@ -6695,18 +6695,18 @@
 !       do j=1,nc
 !       ruis(j)=0
 !       do i=1,nm
-!          if(icol(i).eq.j) then
-!      if (ivois(i,3).eq.-99.and.icl(i,3).eq.-1.and.
-! c    &valcl(i,3).gt.0.and.x(i).lt.xberg) then
-!     if (qtpore(j).lt.a*am(i)*dt) then
+!          if(icol(i) == j) then
+!      if (ivois(i,3) == -99.and.icl(i,3) == -1.and.
+! c    &valcl(i,3) > 0.and.x(i) < xberg) then
+!     if (qtpore(j) < a*am(i)*dt) then
 !       a=qre
 !       ruis(j)=qre*am(i)*dt-qtpore(j)
 !       valcl(i,3)=qtpore(j)/am(i)/dt
 !       qruis=qruis+ruis(j)/dt
 !       endif
 !       endif
-!       if (ivois(i,3).eq.-99.and.x(i).lt.xberg) then
-!       if(pr(i)/(rho(i)*g)+z(i).gt.z(i)+bm(i)/2) then
+!       if (ivois(i,3) == -99.and.x(i) < xberg) then
+!       if(pr(i)/(rho(i)*g)+z(i) > z(i)+bm(i)/2) then
 !       ruis(j)=ruis(j)+pr(i)/(rho(i)*g)-bm(i)/2
 !       endif
 !       endif
@@ -6744,64 +6744,64 @@
 !CC PASSAGE SUR TOUT LES MAILLES
       do i=1,nm
 ! TEST COLONNE
-      if (icol(i).eq.kkcol) then
+      if (icol(i) == kkcol) then
 !DEGEL
 !CC PAS DE VOISIN EN HAUT CC CAS DEGEL SUP>0 I<0
-      if (ivois(i,3).eq.-99.and.igel.eq.2&
-     .and.temp(i).lt.to.and.valclt(i,3).gt.to.and.&
-     iclt(i,3).eq.-2) then
+      if (ivois(i,3) == -99.and.igel == 2&
+     .and.temp(i) < to.and.valclt(i,3) > to.and.&
+     iclt(i,3) == -2) then
       zo(kkcol,1)=z(i)+&
      (bm(i)/2)/(valclt(i,3)-temp(i))&
      *(to-temp(i))
-      if(zo(kkcol,1).gt.topo(kkcol)) then
+      if(zo(kkcol,1) > topo(kkcol)) then
       zo(kkcol,1)=-99
       endif
       endif
 
 !CC PAS DE VOISIN EN HAUT CC CAS GEL SUP>0 I<0
-      if (ivois(i,3).eq.-99.and.igel.eq.1.and.&
-     temp(i).gt.to.and.&
-     valclt(i,3).lt.to.and.&
-     iclt(i,3).eq.-2) then
+      if (ivois(i,3) == -99.and.igel == 1.and.&
+     temp(i) > to.and.&
+     valclt(i,3) < to.and.&
+     iclt(i,3) == -2) then
       zo(kkcol,1)=z(i)+&
      (bm(i)/2)/(valclt(i,3)-temp(i))&
      *(to-temp(i))
-      if(zo(kkcol,1).gt.topo(kkcol)) then
+      if(zo(kkcol,1) > topo(kkcol)) then
       zo(kkcol,1)=-99
       endif
       endif
 
 
 !CPAS DE VOISIN EN BAS Degel
-      if (ivois(i,4).eq.-99.and.zo(kkcol,2).eq.-99.and.&
-     igel.eq.2.and.temp(i).gt.to.and.&
-     iclt(i,4).eq.-2) then
+      if (ivois(i,4) == -99.and.zo(kkcol,2) == -99.and.&
+     igel == 2.and.temp(i) > to.and.&
+     iclt(i,4) == -2) then
           zo(kkcol,2)=z(i)+&
      (bm(i)/2)/(valclt(i,4)-temp(i))&
      *(to-temp(i))
-      if(zo(kkcol,2).gt.z(i)+bm(i)/2.or.&
-     zo(kkcol,2).lt.z(i)-bm(i)/2) then
+      if(zo(kkcol,2) > z(i)+bm(i)/2.or.&
+     zo(kkcol,2) < z(i)-bm(i)/2) then
       zo(kkcol,2)=-99
       endif
 
       endif
 !CCC cellule interpolation par le bas DEGEL
-      if (igel.eq.2.and.zo(kkcol,2).eq.-99.and.&
-     temp(i).le.to.and.temp(ivois(i,4)).gt.to.and.&
+      if (igel == 2.and.zo(kkcol,2) == -99.and.&
+     temp(i) <= to.and.temp(ivois(i,4)) > to.and.&
      ivois(i,4).ne.-99) then
       zo(kkcol,2)=z(i)+&
      ((z(i)-z(ivois(i,4)))/(temp(i)-temp(ivois(i,4)))&
      *(to-temp(i)))
-      if(zo(kkcol,2).gt.z(i)+bm(i)/2.or.&
-     zo(kkcol,2).lt.z(i)-bm(i)/2) then
+      if(zo(kkcol,2) > z(i)+bm(i)/2.or.&
+     zo(kkcol,2) < z(i)-bm(i)/2) then
       zo(kkcol,2)=-99
       endif
       endif
 !CC ISOTHERME 1
 !ccc cellule milieu modele VOISIN DU HAUT EXISTE  MILIEU MODELE CCCCCCCC
 !CCCC TEMPERATURE VOISIN SUP >0 CAS DEGEL
-      if (ivois(i,3).ne.-99.and.temp(i).le.to.and.&
-     temp(ivois(i,3)).gt.to.and.igel.eq.2) then
+      if (ivois(i,3).ne.-99.and.temp(i) <= to.and.&
+     temp(ivois(i,3)) > to.and.igel == 2) then
       zo(kkcol,1)=z(ivois(i,3))+&
      ((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))&
      *(to-temp(ivois(i,3))))
@@ -6809,15 +6809,15 @@
           endif
 !C ISOTHERME  1 Gel
 !CCCC TEMP VOISIN SUP<0 CAS DEGEL SOUS PERMAFROST / CAS GEL
-      if (igel.eq.1.and.ivois(i,3).ne.-99.and.temp(i).ge.to.and.&
-     temp(ivois(i,3)).lt.to) then
+      if (igel == 1.and.ivois(i,3).ne.-99.and.temp(i) >= to.and.&
+     temp(ivois(i,3)) < to) then
       zo(kkcol,1)=z(ivois(i,3))+&
      ((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))&
      *(to-temp(ivois(i,3))))
           endif
 !C ISOTHERME  2 degel
-      if (igel.eq.2.and.ivois(i,3).ne.-99.and.temp(i).ge.to.and.&
-     temp(ivois(i,3)).lt.to) then
+      if (igel == 2.and.ivois(i,3).ne.-99.and.temp(i) >= to.and.&
+     temp(ivois(i,3)) < to) then
       zo(kkcol,2)=z(ivois(i,3))+&
      ((z(ivois(i,3))-z(i))/(temp(ivois(i,3))-temp(i))&
      *(to-temp(ivois(i,3))))
@@ -6867,16 +6867,16 @@
 !     EXPONENTIAL MODEL OF LUNARDINI
 !........sice VS. TEMP
 !     ---------------------------------------------
-      if(ytypsice.eq."EXPON") then
-!       if(tempo(i).lt.tl.and.temp(i).gt.tl) then
+      if(ytypsice == "EXPON") then
+!       if(tempo(i) < tl.and.temp(i) > tl) then
 !     dsidtemp(i)=((1.D0-swressi)*(2.D0*(temp(i)
 !     &/(cimp*cimp)))*siexp)
 !     endif
-!     if(tempo(i).gt.tl.and.temp(i).lt.tl) then
+!     if(tempo(i) > tl.and.temp(i) < tl) then
 !     dsidtemp(i)=((1.D0-swressi)*(2.D0*(temp(i)
 !     &/(cimp*cimp)))*siexp)
 !     endif
-      if(temp(i).gt.0) then
+      if(temp(i) > 0) then
       sice(i)=0.D0
       else
         tld=-0.00
@@ -6895,10 +6895,10 @@
 !     POWER MODEL Anderson and Tice
 !........sice VS. TEMP
 !     ---------------------------------------------
-      else if(ytypsice.eq."POWER") then
-      if(temp(i).gt.tl) then
+      else if(ytypsice == "POWER") then
+      if(temp(i) > tl) then
       sice(i)=0.D0
-      else if(temp(i).gt.ts) then
+      else if(temp(i) > ts) then
         sice(i)=1.D0-swressi
       else
         tld=0
@@ -6918,21 +6918,21 @@
 !     LINEAR FUNCTION
 !........sice VS. TEMP
 !     ---------------------------------------------              !
-      else if(ytypsice.eq."LINEA") then
+      else if(ytypsice == "LINEA") then
 
-!     if(tempo(i).lt.tl.and.temp(i).gt.tl) then
+!     if(tempo(i) < tl.and.temp(i) > tl) then
 !     dsidtemp(i)=(1.D0-swressi)/(ts-tl)
 !     endif
-!     if(tempo(i).gt.tl.and.temp(i).lt.tl) then
+!     if(tempo(i) > tl.and.temp(i) < tl) then
 !     dsidtemp(i)=(1.D0-swressi)/(ts-tl)
 !     endif
-      if(temp(i).lt.ts) then
+      if(temp(i) < ts) then
       sice(i)=1.D0-swressi
       dsidtemp(i)=0.D0
-      else if(temp(i).gt.tl) then
+      else if(temp(i) > tl) then
       sice(i)=0D+00
       dsidtemp(i)=0.D0
-      else if(temp(i).ge.ts.and.temp(i).le.tl) then
+      else if(temp(i) >= ts.and.temp(i) <= tl) then
       sice(i)=(1.D0-swressi)/(ts-tl)*(temp(i)-tl)
       dsidtemp(i)=(1.D0-swressi)/(ts-tl)
       endif
@@ -6941,27 +6941,27 @@
 !--------------------------
 !     USER-DEFINED MODEL
 !     -----------------
-      else if(ytypsice.eq."UDEF") then
+      else if(ytypsice == "UDEF") then
 !     *  ASSIGN  VALUES TO sice(i) and  dsidtemp(i)
-!     if(tempo(i).lt.ts.and.temp(i).gt.tl) then
+!     if(tempo(i) < ts.and.temp(i) > tl) then
 !     dsidtemp(i)=(siceo(i)-sice(i))/dt
 !     endif
-!     if(tempo(i).gt.tl.and.temp(i).lt.ts) then
+!     if(tempo(i) > tl.and.temp(i) < ts) then
 !     dsidtemp(i)=(siceo(i)-sice(i))/dt
 !     endif
 
-           if (temp(i).le.ts) then
+           if (temp(i) <= ts) then
            sice(i)=1D00
            endif
-           if (temp(i).ge.tl) then
+           if (temp(i) >= tl) then
            sice(i)=0D+00
            endif
 
-      if(temp(i).ge.-0.2.and.temp(i).le.-0.1) then
+      if(temp(i) >= -0.2.and.temp(i) <= -0.1) then
           sice(i)=-1*temp(i)+0.8
            dsidtemp(i)=-1
           endif
-      if(temp(i).ge.-0.1.and.temp(i).le.0) then
+      if(temp(i) >= -0.1.and.temp(i) <= 0) then
           sice(i)=-9*temp(i)
            dsidtemp(i)=-9
 
@@ -6973,29 +6973,29 @@
 !ccc         ---------------------------------------------
 !ccc          Fonction exponentielle brutale en fonction de la temperature (Lundin (19??)
 !ccc         ---------------------------------------------
-          if(ytypakrice.eq."IMPED") then
+          if(ytypakrice == "IMPED") then
 !ccc...........permeabilite relative calcule en fonction de la teneur en glace
 !CC! dans le cas non sature on aura akr=(10**(-1*om*(SI/(SI+SW)))) car SI+SW<1
            akr(i)=1.D1**(-1*omega*om(i)*sice(i))
 !ccc         limitation de la permeabilite relative pour eviter les valeurs nulles
-!c        if(akr(i).le.dk) akr(i)=dk
+!c        if(akr(i) <= dk) akr(i)=dk
 !ccc      ---------------------------------------------
 !ccc         Fonction lineaire brutale en fonction de la temperature
 !ccc      ---------------------------------------------
-          elseif(ytypakrice.eq."LINET") then
+          elseif(ytypakrice == "LINET") then
 !ccc..........permeabilite relative calcule en fonction de la temperature (akr VS. TEMP)
-          if(temp(i).lt.ts)  akr(i)=dk
-          if (temp(i).le.tl.and.temp(i).ge.ts) then
+          if(temp(i) < ts)  akr(i)=dk
+          if (temp(i) <= tl.and.temp(i) >= ts) then
 !          akr(i)=(((dk-1.D0)*(temp(i)-tl)/(tl-ts))+1.D0)
           akr(i)=10**((log(dk))/(tl-ts)*(tl-temp(i)))
           endif
-          if (temp(i).gt.tl) akr(i)=1
+          if (temp(i) > tl) akr(i)=1
 !ccc      ---------------------------------------------
 !ccc        fonction lineaire en fonction de la saturation
 !ccc      ---------------------------------------------
-          elseif(ytypakrice.eq."LINES") then
+          elseif(ytypakrice == "LINES") then
            slopek=-(1.D0-dk)/(1.D0-swressi)
-          if(sw(i).le.swressi) then
+          if(sw(i) <= swressi) then
            akr(i)=dk
           else
           akr(i)=dk+slopek*(sw(i)-swressi)
@@ -7003,26 +7003,26 @@
 !ccc      ---------------------------------------------
 !ccc        UTILISATEUR DEFINIES LA FONCTION
 !ccc      ---------------------------------------------
-          elseif(ytypakrice.eq."UDEF") then
+          elseif(ytypakrice == "UDEF") then
 !C    ecrire fonction akr(i) et akrv(i)
 
-          if (temp(i).le.ts) then
+          if (temp(i) <= ts) then
           akr(i)=dk
           endif
-          if (temp(i).ge.tl) then
+          if (temp(i) >= tl) then
           akr(i)=1
           endif
 
-      if(temp(i).ge.-0.2.and.temp(i).le.-0.1) then
+      if(temp(i) >= -0.2.and.temp(i) <= -0.1) then
            akr(i)=(1D-5-dk)/(-0.1-ts)*temp(i)+(-0.1*dk-ts*1D-5)/&
      (-0.1-ts)
           endif
-      if(temp(i).ge.-0.1.and.temp(i).le.0) then
+      if(temp(i) >= -0.1.and.temp(i) <= 0) then
            akr(i)=(1-1D-5)/(0.1)*temp(i)+1D0
 
           endif
           endif
-!c       if(akr(i).le.dk) akr(i)=dk
+!c       if(akr(i) <= dk) akr(i)=dk
           endif
 !C permeabilite verticale = permeabilite horizontale
           akrv(i)=akr(i)
@@ -7045,7 +7045,7 @@
       dimension om(nm)
       dimension sice(nm),sw(nm)
         Do i=1,nm
-        if(ytypakrice.eq."VGEN") then
+        if(ytypakrice == "VGEN") then
 !     --------------------------------
 !     MODEL OF VANCENUCHTEN
 !     --------------------------------
@@ -7053,7 +7053,7 @@
         akr(i)=((swt**0.5)*((1-(1-swt**(ans/(ans-1)))&
      **((ans-1)/ans))**2))
        endif
-      if(ytypakrice.eq."BCOR") then
+      if(ytypakrice == "BCOR") then
 !     --------------------------------
 !     MODEL OF BROOKS AND COREY (1964)
 !     --------------------------------
@@ -7062,33 +7062,33 @@
 !        (CALCULATED ONLY WHEN IUNSAT=2)
        akr(i)= (swrel**(3D0+2D0/RLAMB))
        endif
-       if(ytypakrice.eq."PLIN") then
+       if(ytypakrice == "PLIN") then
 !     ----------------------
 !      LINEAR MODEL
 !     ----------------------
 !........akr VS. SW
-        if(sw(i).le.swressi) then
+        if(sw(i) <= swressi) then
           akr(i)=dk
          else
         SLOPEK = -(1.D0-dk)/(1.D0-swressi)
         akr(i)= (1.D0+SLOPEK*(1.D0-sw(i)))
-        if(akr(i).LE.dk) akr(i)=dk
+        if(akr(i) <= dk) akr(i)=dk
         endif
 
-        if(ytypakrice.eq."IMPE") then
+        if(ytypakrice == "IMPE") then
 !     ----------------------------------------------
 !     AD-HOC EXPONENTIAL EXPRESSION OF LUNDIN (19??)
 !     ----------------------------------------------
            akr(i)=(10**(-1*om(i)*omega*(sice(i)/(sice(i)+sw(i)))))
-        if(akr(i).le.dk) akr(i)=dk
+        if(akr(i) <= dk) akr(i)=dk
 
         endif
-        if(ytypakrice.eq."UDEF") then
+        if(ytypakrice == "UDEF") then
 !     ------------------
       dkswr = dk/swressi
       SLKRSW = (1.D0 -dkswr)/(1.D0 -swressi)
       akr(i) =sw(i)*(dkswr+SLKRSW)*(sw(i)-swressi)
-      if(akr(i).le.dk) akr(i)=dk
+      if(akr(i) <= dk) akr(i)=dk
        endif
        akrv(i)=akr(i)
         endif
@@ -7129,17 +7129,17 @@
       akrv(i)=1D+00
       dsidtemp(i)=0D+00
 !C POUR ETRE SURE QUI NE SE BALLADE PAS AVEC DES VALEURS NIMP
-      if (temp(i).lt.tl.and.temp(i).gt.ts) then
+      if (temp(i) < tl.and.temp(i) > ts) then
       akr(i)=(((dk-1.D0)*temp(i)/ts)+1.D0)
       sice(i)=((1.D0-swressi)/(ts-tl)*(temp(i)-tl))
       dsidtemp(i)=((1.D0-swressi)/(ts-tl))
        endif
-      if (temp(i).le.ts) then
+      if (temp(i) <= ts) then
       akr(i)=dk
       sice(i)=(1D+00-swressi)
       dsidtemp(i)=0D+00
       endif
-      if (temp(i).ge.tl) then
+      if (temp(i) >= tl) then
       akr(i)=1D+00
       sice(i)=0D+00
       dsidtemp(i)=0D+00
@@ -7147,13 +7147,13 @@
 
 
       do j=1,nc
-      if (icol(i).eq.j) then
+      if (icol(i) == j) then
 !CC Gel maille audessus liquidus
 !CCCCCCCCCCCCCCC GEL attention codé pour une seule aire interface frozen unfrozen
-      if(zs(j,1).eq.-99.and.zl(j,1).ne.-99.and.igel.eq.1)  then
-      if(zl(j,1).lt.z(i)+bm(i)/2&
-     .and.zl(j,1).gt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zs(j,1) == -99.and.zl(j,1).ne.-99.and.igel == 1)  then
+      if(zl(j,1) < z(i)+bm(i)/2&
+     .and.zl(j,1) > z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))&
      /(-bm(i)/2D00)&
      *(bm(i)/2D00+zl(j,1)-z(i))/2.D00+temp(i))
@@ -7174,11 +7174,11 @@
       endif
 !CCCCCCCCCCCCCCfin pas d'isotherme solidus'
 
-      if(zs(j,1).ne.-99.and.zl(j,1).ne.-99.and.igel.eq.1)  then
+      if(zs(j,1).ne.-99.and.zl(j,1).ne.-99.and.igel == 1)  then
 ! maille avec un liquidus mais pas de solidus
-      if(zs(j,1).gt.z(i)+bm(i)/2.and.zl(j,1).lt.z(i)+bm(i)/2&
-     .and.zl(j,1).gt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zs(j,1) > z(i)+bm(i)/2.and.zl(j,1) < z(i)+bm(i)/2&
+     .and.zl(j,1) > z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))/&
      (-bm(i)/2D00)&
      *(bm(i)/2.D00+zl(j,1)-z(i))/2.D00+temp(i))
@@ -7199,10 +7199,10 @@
 
 !CCCfin 1ier cas
 ! maille avec solidus et liquidus
-      if(zs(j,1).lt.z(i)+bm(i)/2.and.zs(j,1).gt.z(i)-bm(i)/2&
-     .and.zl(j,1).lt.z(i)+bm(i)/2.and.zl(j,1).gt.z(i)-bm(i)/2)&
+      if(zs(j,1) < z(i)+bm(i)/2.and.zs(j,1) > z(i)-bm(i)/2&
+     .and.zl(j,1) < z(i)+bm(i)/2.and.zl(j,1) > z(i)-bm(i)/2)&
       then
-      if (ivois(i,3).eq.-99) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))&
      /(-bm(i)/2.D00)&
      *((zs(j,1)+zl(j,1))/2.D00-z(i))+temp(i))
@@ -7223,10 +7223,10 @@
 !cccc fin 2 eme cas
 
 !C maille avec solidus
-      if(zs(j,1).lt.z(i)+bm(i)/2.and.&
-     zs(j,1).gt.z(i)-bm(i)/2.and.&
-     zl(j,1).lt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zs(j,1) < z(i)+bm(i)/2.and.&
+     zs(j,1) > z(i)-bm(i)/2.and.&
+     zl(j,1) < z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))&
      /(-bm(i)/2.D00)&
      *((zs(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
@@ -7247,11 +7247,11 @@
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC fin gel
 !CCCCCCCCCCCCCCC DEGEL attention codé pour deux aires interfaces frozen/unfrozen
 !cc interface SUBPERMAFROST
-      if(zl(j,2).eq.-99.and.zs(j,2).ne.-99.and.igel.eq.2)  then
+      if(zl(j,2) == -99.and.zs(j,2).ne.-99.and.igel == 2)  then
 ! pas de liquidus
-      if(zs(j,2).lt.z(i)+bm(i)/2.and.&
-     zs(j,2).gt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zs(j,2) < z(i)+bm(i)/2.and.&
+     zs(j,2) > z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
      *((zs(j,2)-z(i)-bm(i)/2)/2)+temp(i))
       else
@@ -7270,11 +7270,11 @@
       endif
       endif
 !cc fin pas d'isotherme liquidus'
-      if(zs(j,2).ne.-99.and.zl(j,2).ne.-99.and.igel.eq.2)  then
+      if(zs(j,2).ne.-99.and.zl(j,2).ne.-99.and.igel == 2)  then
 !C maille avec solidus sans liquidus
-      if(zs(j,2).lt.z(i)+bm(i)/2.and.zs(j,2).gt.z(i)-bm(i)/2&
-     .and.zl(j,2).lt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zs(j,2) < z(i)+bm(i)/2.and.zs(j,2) > z(i)-bm(i)/2&
+     .and.zl(j,2) < z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
      *((zs(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
       else
@@ -7294,10 +7294,10 @@
 
 !C fin cas 1
 ! Maille avec liquidus et avec solidus
-      if(zs(j,2).lt.z(i)+bm(i)/2.and.&
-     zs(j,2).gt.z(i)-bm(i)/2.and.zl(j,2).lt.z(i)+bm(i)/2.and.&
-     zl(j,2).gt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zs(j,2) < z(i)+bm(i)/2.and.&
+     zs(j,2) > z(i)-bm(i)/2.and.zl(j,2) < z(i)+bm(i)/2.and.&
+     zl(j,2) > z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
      *((zs(j,2)+zl(j,2))/2.D00-z(i))+temp(i))
       else
@@ -7316,9 +7316,9 @@
       endif
 !cc fin cas 2
 ! Maille avec liquidus et sans solidus
-      if(zl(j,2).lt.z(i)+bm(i)/2.and.zl(j,2).gt.z(i)-bm(i)/2&
-     .and.zs(j,2).gt.z(i)+bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zl(j,2) < z(i)+bm(i)/2.and.zl(j,2) > z(i)-bm(i)/2&
+     .and.zs(j,2) > z(i)+bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
      *((zl(j,2)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
       else
@@ -7338,11 +7338,11 @@
 ! fin cas 3
       endif
 !cc interface sur permafrost SUPRAPERMAFROST SENS INVERSE
-      if(zl(j,1).eq.-99.and.zs(j,1).ne.-99.and.igel.eq.2)  then
+      if(zl(j,1) == -99.and.zs(j,1).ne.-99.and.igel == 2)  then
 !CC pas de liquidus
-      if(zs(j,1).lt.z(i)+bm(i)/2.and.&
-     zs(j,1).gt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zs(j,1) < z(i)+bm(i)/2.and.&
+     zs(j,1) > z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
      *(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
       else
@@ -7363,10 +7363,10 @@
 !CC fin pas de liquidus
 
 ! liquidus au dessus haut cellule
-      if(zl(j,1).ne.-99.and.zs(j,1).ne.-99.and.igel.eq.2)  then
-      if(zl(j,1).gt.z(i)+bm(i)/2.and.zs(j,1).lt.z(i)+bm(i)/2&
-     .and.zs(j,1).gt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zl(j,1).ne.-99.and.zs(j,1).ne.-99.and.igel == 2)  then
+      if(zl(j,1) > z(i)+bm(i)/2.and.zs(j,1) < z(i)+bm(i)/2&
+     .and.zs(j,1) > z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
      *(bm(i)/2.D00+zs(j,1)-z(i))/2.D00+temp(i))
       else
@@ -7385,10 +7385,10 @@
 !       print*,'degel4',akr(i),sice(i),temp(i),zl(j,1),zs(j,1)
       endif
 ! fin cas 1
-      if(zl(j,1).lt.z(i)+bm(i)/2.and.zl(j,1).gt.&
+      if(zl(j,1) < z(i)+bm(i)/2.and.zl(j,1) > &
      z(i)-bm(i)/2.and.&
-     zs(j,1).lt.z(i)+bm(i)/2.and.zs(j,1).gt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+     zs(j,1) < z(i)+bm(i)/2.and.zs(j,1) > z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
      *((zl(j,1)+zs(j,1))/2.D00-z(i))+temp(i))
       else
@@ -7406,10 +7406,10 @@
       endif
       endif
 !cccc fin cas 2
-      if(zl(j,1).lt.z(i)+bm(i)/2.and.&
-     zl(j,1).gt.z(i)-bm(i)/2.and.&
-     zs(j,1).lt.z(i)-bm(i)/2) then
-      if (ivois(i,3).eq.-99) then
+      if(zl(j,1) < z(i)+bm(i)/2.and.&
+     zl(j,1) > z(i)-bm(i)/2.and.&
+     zs(j,1) < z(i)-bm(i)/2) then
+      if (ivois(i,3) == -99) then
       tifrt=((temp(i)-valclt(i,3))/(-bm(i)/2.D00)&
      *((zl(j,1)+z(i)-bm(i)/2)/2.D00-z(i))+temp(i))
       else
@@ -7430,7 +7430,7 @@
       endif
       endif
       enddo
-      if(akr(i).lt.dk) akr(i)=dk
+      if(akr(i) < dk) akr(i)=dk
       akrv(i)=akr(i)
       enddo
       return
@@ -7749,17 +7749,17 @@
       dimension id_river(ligne5),chgriver(ligne2)
 
        kimp=int(paso/itlecture)+1
-        if(kimp.gt.ligne2)   kimp=ligne2
+        if(kimp > ligne2)   kimp=ligne2
 !CCC position surf piezo
       do kkcol=1,nc
       zo(kkcol,1)=-99D+00
 !CC PASSAGE SUR TOUT LES MAILLES
       do i=1,nm
 ! TEST COLONNE
-      if (icol(i).eq.kkcol) then
+      if (icol(i) == kkcol) then
         ili=ivois(i,3)
-      if (ili.lt.nm+1.and.ili.ne.-99.and.&
-     pr(i).ge.to.and.pr(ili).lt.to) then
+      if (ili < nm+1.and.ili.ne.-99.and.&
+     pr(i) >= to.and.pr(ili) < to) then
       zo(kkcol,1)=z(ivois(i,3))+&
      ((z(ili)-z(i))/(pr(ili)-pr(i))&
      *(to-pr(ili)))
@@ -7767,11 +7767,11 @@
 
 
 !CC PAS DE VOISIN EN HAUT
-      if (zo(kkcol,1).eq.-99.and.&
-     ivois(i,3).eq.-99.and.&
-     pr(i).gt.to.and.&
-     valcl(i,3).lt.to.and.&
-     icl(i,3).eq.-2) then
+      if (zo(kkcol,1) == -99.and.&
+     ivois(i,3) == -99.and.&
+     pr(i) > to.and.&
+     valcl(i,3) < to.and.&
+     icl(i,3) == -2) then
       zo(kkcol,1)=z(i)+&
      (bm(i)/2)/(valcl(i,3)-pr(i))&
      *(to-valcl(i,3))
@@ -7779,27 +7779,27 @@
 
 
 !CPAS DE VOISIN EN BAS
-      if (ivois(i,4).eq.-99.and.zo(kkcol,1).eq.-99.and.&
-     pr(i).lt.to.and.icl(i,4).eq.-2.and.valcl(i,4).gt.to) then
+      if (ivois(i,4) == -99.and.zo(kkcol,1) == -99.and.&
+     pr(i) < to.and.icl(i,4) == -2.and.valcl(i,4) > to) then
        zo(kkcol,1)=z(i)-&
      (bm(i)/2)/(pr(i)-valcl(i,4))&
      *(to-pr(i))
       endif
 
 
-      if(zo(kkcol,1).eq.-99.and.ivois(i,3).eq.-99) then
+      if(zo(kkcol,1) == -99.and.ivois(i,3) == -99) then
       zo(kkcol,1)=pr(i)/(rho1*g)+z(i)
       endif
 
 
       do j=1,ligne5
-      if(i.eq.id_river(j)) then
+      if(i == id_river(j)) then
       zo(kkcol,1)=chgriver(kimp)
       endif
       enddo
 
       do j=1,ligne6
-      if(i.eq.id_rivert(j)) then
+      if(i == id_rivert(j)) then
       zo(kkcol,1)=chgriver(kimp)
       endif
       enddo
@@ -7817,14 +7817,14 @@
 !CC PASSAGE SUR TOUT LES MAILLES
       do i=1,nm
 ! TEST COLONNE
-      if (icol(i).eq.kkcol) then
+      if (icol(i) == kkcol) then
       do j=1,ligne5
-      if(i.eq.id_river(j)) then
+      if(i == id_river(j)) then
       zo(kkcol,1)=chgriver(kimp)
       endif
       enddo
       do j=1,ligne6
-      if(i.eq.id_rivert(j)) then
+      if(i == id_rivert(j)) then
       zo(kkcol,1)=chgriver(kimp)
       endif
       enddo
@@ -7866,7 +7866,7 @@
       dimension chgobs1(1),chgobs2(1),chgobs3(1),chgobs4(1)
       dimension chgobs5(1),chgobs6(1),qinfobs(1)
 
-      if(modulo(int(paso),itlecture).eq.0.and.paso.ge.itlecture) then
+      if(modulo(int(paso),itlecture) == 0.and.paso >= itlecture) then
       k=int((paso)/itlecture)+1
       eo1=0D+00
       eo2=0D+00
@@ -8076,7 +8076,7 @@
       select case (ytest)
 
       case ("WAR")
-      if(kimp.gt.ligne4) kimp=ligne4
+      if(kimp > ligne4) kimp=ligne4
       select case (icl(nm,4))
       case (-2)
       valcl(nm,4)=chgbottom(kimp)*rho(nm)*g
@@ -8091,21 +8091,21 @@
       end select
       case ("ZNS")
 
-      if(kimp.gt.ligne4) kimp=ligne4
+      if(kimp > ligne4) kimp=ligne4
       select case (icl(nm,4))
       case (-2)
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
+      if(abs(zbas) < 1e-6) zbas=0D+00
       valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
       case (-1)
       valcl(nm,4)=qbottom(kimp)
       end select
 
-       if (ivois(1,3).eq.-99) then
+       if (ivois(1,3) == -99) then
       select case (icl(1,3))
       case (-2)
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
       valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
       case (-1)
       valcl(1,3)=qsurf(kimp)
@@ -8114,19 +8114,19 @@
 
           case ("ZND")
 
-      if(kimp.gt.ligne4) kimp=ligne4
+      if(kimp > ligne4) kimp=ligne4
       select case (icl(nm,4))
       case (-2)
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
+      if(abs(zbas) < 1e-6) zbas=0D+00
       valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
       case (-1)
       valcl(nm,4)=0
       end select
 
-       if (ivois(1,3).eq.-99) then
+       if (ivois(1,3) == -99) then
        zhaut=z(1)+bm(1)/2
-       if(chgsurf(kimp)-zhaut.ge.0.001) then
+       if(chgsurf(kimp)-zhaut >= 0.001) then
         icl(1,3) =-2
        else
         icl(1,3) =-1
@@ -8135,7 +8135,7 @@
       case (-2)
       print*,'coucou',chgsurf(kimp)
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
       valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
       case (-1)
       valcl(1,3)=0
@@ -8149,44 +8149,44 @@
 
 
 
-      if (ytest.eq."ZHR".or.ytest.eq."ZHZ") then
-      if(kimp.gt.ligne4) kimp=ligne4
+      if (ytest == "ZHR".or.ytest == "ZHZ") then
+      if(kimp > ligne4) kimp=ligne4
       iclt(1,3)=-2
       valclt(1,3)=tempsurf(kimp)
       icl(1,3)=-2
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
       valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
       icl(nm,4)=-2
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
+      if(abs(zbas) < 1e-6) zbas=0D+00
       valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
       iclt(nm,4)=-2
       valclt(nm,4)=tempbottom(kimp)
-      if(kimp.gt.ligne4) then
+      if(kimp > ligne4) then
       iclt(1,3)=-2
       valclt(1,3)=tempsurf(ligne4)
       icl(1,3)=-2
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
       valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
       icl(nm,4)=-2
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
+      if(abs(zbas) < 1e-6) zbas=0D+00
       valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
       iclt(nm,4)=-2
       valclt(nm,4)=tempbottom(ligne4)
       endif
-      if(irptha.eq.0) then
+      if(irptha == 0) then
       iclt(1,3)=-2
       valclt(1,3)=tempsurf(1)
       icl(1,3)=-2
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
       valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
       icl(nm,4)=-2
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
+      if(abs(zbas) < 1e-6) zbas=0D+00
       valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
       iclt(nm,4)=-2
       valclt(i,4)=tempbottom(1)
@@ -8200,53 +8200,53 @@
 
 
 
-      if (ytest.eq."1DS") then
-      if(kimp.lt.1) kimp=1
+      if (ytest == "1DS") then
+      if(kimp < 1) kimp=1
 
 
 
-      if(kimp.gt.ligne4) kimp=ligne4
+      if(kimp > ligne4) kimp=ligne4
       valclt(1,3)=tempsurf(kimp)
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
-      if(icl(1,3).eq.-2) valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
-      if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(kimp)
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
+      if(icl(1,3) == -2) valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+      if(icl(1,3) == -1) valcl(1,3)=chgsurf(kimp)
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
-      if(icl(nm,4).eq.-2) valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
-      if(icl(nm,4).eq.-1) valcl(nm,4)=chgbottom(kimp)
+      if(abs(zbas) < 1e-6) zbas=0D+00
+      if(icl(nm,4) == -2) valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
+      if(icl(nm,4) == -1) valcl(nm,4)=chgbottom(kimp)
       valclt(nm,4)=tempbottom(kimp)
 
-      if(kimp.gt.ligne4) then
+      if(kimp > ligne4) then
       valclt(1,3)=tempsurf(ligne4)
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
-      if(icl(1,3).eq.-2) valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
-      if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(ligne4)
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
+      if(icl(1,3) == -2) valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
+      if(icl(1,3) == -1) valcl(1,3)=chgsurf(ligne4)
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
-      if(icl(nm,4).eq.-2) then
+      if(abs(zbas) < 1e-6) zbas=0D+00
+      if(icl(nm,4) == -2) then
         valcl(nm,4)=rho(nm)*g*(chgbottom(ligne4)-zbas)
         endif
-      if(icl(nm,4).eq.-1) then
+      if(icl(nm,4) == -1) then
         valcl(nm,4)=chgbottom(ligne4)
         endif
       valclt(nm,4)=tempbottom(ligne4)
       endif
 
 
-      if(irptha.eq.0) then
+      if(irptha == 0) then
       iclt(1,3)=-2
       valclt(1,3)=tempsurf(1)
       icl(1,3)=-2
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
-      if(icl(1,3).eq.-2) valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
-      if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(1)
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
+      if(icl(1,3) == -2) valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
+      if(icl(1,3) == -1) valcl(1,3)=chgsurf(1)
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
-      if(icl(nm,4).eq.-2)  valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
-      if(icl(nm,4).eq.-1)  valcl(nm,4)=chgbottom(1)
+      if(abs(zbas) < 1e-6) zbas=0D+00
+      if(icl(nm,4) == -2)  valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
+      if(icl(nm,4) == -1)  valcl(nm,4)=chgbottom(1)
       endif
 
 
@@ -8259,48 +8259,48 @@
 
 
 
-      if (ytest.eq."1DJ") then
-      if(kimp.lt.1) kimp=1
+      if (ytest == "1DJ") then
+      if(kimp < 1) kimp=1
 
 
 
-      if(kimp.gt.ligne4) kimp=ligne4
+      if(kimp > ligne4) kimp=ligne4
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
-      if(icl(1,3).eq.-2) valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
-      if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(kimp)
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
+      if(icl(1,3) == -2) valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+      if(icl(1,3) == -1) valcl(1,3)=chgsurf(kimp)
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
-      if(icl(nm,4).eq.-2) valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
-      if(icl(nm,4).eq.-1) valcl(nm,4)=chgbottom(kimp)
+      if(abs(zbas) < 1e-6) zbas=0D+00
+      if(icl(nm,4) == -2) valcl(nm,4)=rho(nm)*g*(chgbottom(kimp)-zbas)
+      if(icl(nm,4) == -1) valcl(nm,4)=chgbottom(kimp)
 
-      if(kimp.gt.ligne4) then
+      if(kimp > ligne4) then
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
-      if(icl(1,3).eq.-2) valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
-      if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(ligne4)
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
+      if(icl(1,3) == -2) valcl(1,3)=(rho(1)*g*(chgsurf(ligne4)-zhaut))
+      if(icl(1,3) == -1) valcl(1,3)=chgsurf(ligne4)
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
-      if(icl(nm,4).eq.-2) then
+      if(abs(zbas) < 1e-6) zbas=0D+00
+      if(icl(nm,4) == -2) then
         valcl(nm,4)=rho(nm)*g*(chgbottom(ligne4)-zbas)
         endif
-      if(icl(nm,4).eq.-1) then
+      if(icl(nm,4) == -1) then
         valcl(nm,4)=chgbottom(ligne4)
         endif
       endif
 
 
-      if(irptha.eq.0) then
+      if(irptha == 0) then
       iclt(1,3)=-2
       icl(1,3)=-2
       zhaut=z(1)+bm(1)/2
-      if(abs(zhaut).lt.1e-6) zhaut=0D+00
-      if(icl(1,3).eq.-2) valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
-      if(icl(1,3).eq.-1) valcl(1,3)=chgsurf(1)
+      if(abs(zhaut) < 1e-6) zhaut=0D+00
+      if(icl(1,3) == -2) valcl(1,3)=rho(1)*g*(chgsurf(1)-zhaut)
+      if(icl(1,3) == -1) valcl(1,3)=chgsurf(1)
       zbas=z(nm)-bm(nm)/2
-      if(abs(zbas).lt.1e-6) zbas=0D+00
-      if(icl(nm,4).eq.-2)  valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
-      if(icl(nm,4).eq.-1)  valcl(nm,4)=chgbottom(1)
+      if(abs(zbas) < 1e-6) zbas=0D+00
+      if(icl(nm,4) == -2)  valcl(nm,4)=rho(nm)*g*(chgbottom(1)-zbas)
+      if(icl(nm,4) == -1)  valcl(nm,4)=chgbottom(1)
       endif
 
 
@@ -8314,27 +8314,27 @@
 
 
 
-      if (ytest.eq."MAQ") then
-      if(kimp.gt.ligne4) kimp=ligne4
+      if (ytest == "MAQ") then
+      if(kimp > ligne4) kimp=ligne4
       do i=1,nm
-!     if(paso.ge.86400*1) then
-!       if (ivois(i,4).eq.-99) then
+!     if(paso >= 86400*1) then
+!       if (ivois(i,4) == -99) then
 !     icl(i,4)=-2
 !     valcl(i,4)=(1-z(i))*rho(i)*g
 !     endif
 !     endif
-!     if(paso.gt.86400*3) then
-!     if (ivois(i,4).eq.-99) then
+!     if(paso > 86400*3) then
+!     if (ivois(i,4) == -99) then
 !     icl(i,4)=-1
 !     valcl(i,4)=0
 !     endif
 !     endif
 
-      if (ivois(i,3).eq.-99) then
+      if (ivois(i,3) == -99) then
       iclt(i,3)=-2
       valclt(i,3)=tempsurf(kimp)
       endif
-      if (ivois(i,4).eq.-99) then
+      if (ivois(i,4) == -99) then
       iclt(i,4)=-2
       valclt(i,4)=tempbottom(kimp)
       endif
@@ -8343,25 +8343,25 @@
 
 
 
-      if (ytest.eq."AVA") then
+      if (ytest == "AVA") then
 
-        if(kimp.gt.ligne2)   kimp=ligne2
+        if(kimp > ligne2)   kimp=ligne2
 !ccc.... 1 heure
       kheure=int(paso/3600)+1
-      if(kheure.gt.ligne)   kheure=ligne
+      if(kheure > ligne)   kheure=ligne
 !ccc.... 1 jour
       kjour=int(paso/86400)+1
-      if(kjour.gt.ligne1)   kjour=ligne1
+      if(kjour > ligne1)   kjour=ligne1
       do i=1,nm
 !ccc....CDT LIMITE SOL
-      if (ivois(i,3).eq.-99) then
+      if (ivois(i,3) == -99) then
       iclt(i,3)=-2
       icl(i,3)=-1
       valcl(i,3)=qpluie(kjour)
 !     valclt(i,3)=tempsol(kheure)
       endif
 !ccc....CDT LIMITE BOTTOM
-      if (ivois(i,4).eq.-99) then
+      if (ivois(i,4) == -99) then
       iclt(i,4)=-1
       icl(i,4)=-1
 !     valclt(i,4)=0
@@ -8370,8 +8370,8 @@
 !ccc....CDT LIMITE RD
 
       do j=1,ligne3
-      if(i.eq.id_RD(j)) then
-      if(kimp.ge.ligne2) kimp=ligne2
+      if(i == id_RD(j)) then
+      if(kimp >= ligne2) kimp=ligne2
       icl(i,1)=-2
       valcl(i,1)=(chgRD(kimp)-z(i))*rho(i)*g
 !     iclt(i,1)=-2
@@ -8383,8 +8383,8 @@
 
 !ccc....CDT LIMITE RG
       do j=1,ligne4
-      if(i.eq.id_RG(j)) then
-      if(kimp.ge.ligne2) kimp=ligne2
+      if(i == id_RG(j)) then
+      if(kimp >= ligne2) kimp=ligne2
       icl(i,2)=-2
       valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
 !     print*,valcl(i,2),chgRG(kimp)
@@ -8396,8 +8396,8 @@
       enddo
 !ccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
       do j=1,ligne5
-      if(i.eq.id_river(j)) then
-      if(kimp.ge.ligne2) kimp=ligne2
+      if(i == id_river(j)) then
+      if(kimp >= ligne2) kimp=ligne2
       icl(i,3)=-2
       zhaut=z(i)+bm(i)/2
       valcl(i,3)=(chgriver(kimp)-zhaut)*rho(i)*g
@@ -8409,9 +8409,9 @@
 
 !ccc....CDT LIMITE RIVER a tester
       do j=1,ligne6
-      if(i.eq.id_rivert(j)) then
-      if(kimp.ge.ligne2) kimp=ligne2
-      if(z(i)+bm(i)/2.lt.chgriver(kimp)) then
+      if(i == id_rivert(j)) then
+      if(kimp >= ligne2) kimp=ligne2
+      if(z(i)+bm(i)/2 < chgriver(kimp)) then
       icl(i,3)=-2
       zhaut=z(i)+bm(i)/2
       valcl(i,3)=(chgriver(kimp)-zhaut)*rho(i)*g
@@ -8424,28 +8424,28 @@
       enddo
       endif
 
-      if (ytest.eq."VAU") then
+      if (ytest == "VAU") then
 !CC....ECOULEMENT VAUCLIN
       do i=1,nm
-      if(ivois(i,1).eq.-99) then
+      if(ivois(i,1) == -99) then
       icl(i,1)=-2
       valcl(i,1)=dble(0.65-z(i))*rho(i)*g
       endif
 
-      if(ivois(i,2).eq.-99) then
+      if(ivois(i,2) == -99) then
       icl(i,2)=-1
       valcl(i,1)=dble(0)
       endif
       qre=148D-03/3600
-      if(ivois(i,3).eq.-99) then
+      if(ivois(i,3) == -99) then
       icl(i,3)=-1
       valcl(i,3)=dble(0)
       endif
-      if(ivois(i,3).eq.-99.and.x(i).le.0.5) then
+      if(ivois(i,3) == -99.and.x(i) <= 0.5) then
       icl(i,3)=-1
       valcl(i,3)=qre
       endif
-      if(ivois(i,4).eq.-99) then
+      if(ivois(i,4) == -99) then
       icl(i,4)=-1
       valcl(i,4)=dble(0)
       endif
@@ -8454,11 +8454,11 @@
 
 
 
-      if (ytest.eq."DTS") then
+      if (ytest == "DTS") then
 
-      if(kimp.ge.ligne2) kimp=ligne2
-      if(kimp.ge.ligne1) kimp=ligne1
-      if(kimp.lt.1) kimp=1
+      if(kimp >= ligne2) kimp=ligne2
+      if(kimp >= ligne1) kimp=ligne1
+      if(kimp < 1) kimp=1
 !     headG=cRivG(kimp)
 !     headPG=chgRG(kimp)
 !     temperatureG=tempRG(kimp)
@@ -8468,12 +8468,12 @@
       do i=1,nm
 
 !ccPetit Paris
-      if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
+      if (ivois(i,1) == -99.and.x(i) > 999.5) then
       if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
       iclt(i,1)=-2
       valclt(i,1)=tempo(i)
       endif
-      if (z(i).lt.1) then
+      if (z(i) < 1) then
       icl(i,1)=-2
       valcl(i,1)=(chgRD(kimp)-z(i)-4.188)*rho(i)*g
       else
@@ -8487,13 +8487,13 @@
 
 
 !ccBertin
-      if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
+      if (ivois(i,2) == -99.and.x(i) < 0.5) then
       if (ivois(i,4).ne.-99.or.ivois(i,3).ne.-99) then
       iclt(i,2)=-2
       valclt(i,2)=tempo(i)
       endif
 
-      if (z(i).lt.1) then
+      if (z(i) < 1) then
       icl(i,2)=-2
       valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
       else
@@ -8505,21 +8505,21 @@
 
 
 !ccc....CDT LIMITE BOTTOM for the water zero flux
-      if (ivois(i,4).eq.-99) then
+      if (ivois(i,4) == -99) then
 !cc heat transport
       iclt(i,4)=-2
       valclt(i,4)=tempRG(kimp)
 !cc water flow
       icl(i,4)=-1
       valcl(i,4)=0
-      if (ivois(i,1).eq.-99) then
+      if (ivois(i,1) == -99) then
 !cc corner cell
       iclt(i,1)=-2
       valclt(i,1)=tempRG(kimp)
       icl(i,1)=-2
       valcl(i,1)=pro(i)
       endif
-      if (ivois(i,2).eq.-99) then
+      if (ivois(i,2) == -99) then
 !cc corner cell
       iclt(i,2)=-2
       valclt(i,2)=tempRG(kimp)
@@ -8532,18 +8532,18 @@
 
 
 !ccc....Boundary condition river/ZH for the heat transport
-      if(kimp.ge.ligne) kimp=ligne
+      if(kimp >= ligne) kimp=ligne
       do i=1,nm
-      if(icol(i).gt.nc) icol(i)=nc
-      if (ivois(i,3).eq.-99) then
+      if(icol(i) > nc) icol(i)=nc
+      if (ivois(i,3) == -99) then
       temperature=tempDTS(kimp,icol(i))
       icl(i,3)=-2
       valclt(i,3)=temperature
-      if (ivois(i,2).eq.-99) then
+      if (ivois(i,2) == -99) then
       iclt(i,2)=-2
       valclt(i,2)=temperature
       endif
-      if (ivois(i,1).eq.-99) then
+      if (ivois(i,1) == -99) then
       iclt(i,1)=-2
       valclt(i,1)=temperature
       endif
@@ -8554,23 +8554,23 @@
       do i=1,nm
       headbk=0
 !ccc loop on the element
-        if (ivois(i,3).eq.-99) then
+        if (ivois(i,3) == -99) then
 !ccc no neigh top
       icl(i,3)=-2
 !ccc boundary diricler for the water flow
       do j=1,ligne3
 !cc loop on the piece of the line of the water level of the river
 !ccc slope for each element
-      if(x(i).le.392)     slope=slopeRH(2,1)
-      if(x(i).le.392)     kj=1
-      if(x(i).ge.392.and.x(i).lt.397)     slope=slopeRH(2,2)
-      if(x(i).ge.392.and.x(i).lt.397)     kj=2
-      if(x(i).ge.397.and.x(i).lt.929)     slope=slopeRH(2,3)
-      if(x(i).ge.397.and.x(i).lt.929)     kj=3
-      if(x(i).ge.929.and.x(i).lt.931)     slope=slopeRH(2,4)
-      if(x(i).ge.929.and.x(i).lt.931)     kj=4
+      if(x(i) <= 392)     slope=slopeRH(2,1)
+      if(x(i) <= 392)     kj=1
+      if(x(i) >= 392.and.x(i) < 397)     slope=slopeRH(2,2)
+      if(x(i) >= 392.and.x(i) < 397)     kj=2
+      if(x(i) >= 397.and.x(i) < 929)     slope=slopeRH(2,3)
+      if(x(i) >= 397.and.x(i) < 929)     kj=3
+      if(x(i) >= 929.and.x(i) < 931)     slope=slopeRH(2,4)
+      if(x(i) >= 929.and.x(i) < 931)     kj=4
 !cc id = number of upstream part
-      if(x(i).gt.931) then
+      if(x(i) > 931) then
         kj=5
         slope=slopeRH(2,5)
       endif
@@ -8579,39 +8579,39 @@
 
 
 !cc slope from bertin water level for the downstream part
-      if (x(i).lt.392) slope=slopeRH(2,1)
-      if (x(i).lt.392)  headbk=cRivG(kimp)
+      if (x(i) < 392) slope=slopeRH(2,1)
+      if (x(i) < 392)  headbk=cRivG(kimp)
 
 
 !cc between the downstream and the first cascade
-      if (kj.eq.2) then
+      if (kj == 2) then
       do k=1,kj
-      if (k.eq.1)  headbk=cRivG(kimp)
-      if (k.gt.1) headbk=slopeRH(2,k-1)*&
+      if (k == 1)  headbk=cRivG(kimp)
+      if (k > 1) headbk=slopeRH(2,k-1)*&
      (slopeRH(1,k)-slopeRH(1,k-1))+headbk
       enddo
       endif
 !ccc water level of the river = altitude of the first cascade
-      if (kj.eq.3) headbk=116.29999694824218D+00
+      if (kj == 3) headbk=116.29999694824218D+00
 !ccc water level of the river = altitude of the second cascade
-      if (kj.eq.4) headbk=120.5D+00
+      if (kj == 4) headbk=120.5D+00
 !ccc water level of the upstream part
-      if(kj.eq.ligne3) headbk=cRivD(kimp)-2.16
+      if(kj == ligne3) headbk=cRivD(kimp)-2.16
 
-!     if(kj.eq.ligne3.or.kj.eq.3) then
-      if(kj.eq.ligne3) then
+!     if(kj == ligne3.or.kj == 3) then
+      if(kj == ligne3) then
       slopeRH(2,kj)=(cRivD(kimp)-2.16-120.5D+00)/&
      (1000-slopeRH(1,ligne3))
       slope=slopeRH(2,kj)
       endif
 
 !cc slope inside the first cascade
-      if(kj.eq.2) slope=(headbk-116.29999694824218D+00)/&
+      if(kj == 2) slope=(headbk-116.29999694824218D+00)/&
      (slopeRH(1,2)-slopeRH(1,3))
 
 !cc Inside the second cascade
 !cc calculatation the slope
-      if (kj.eq.4) then
+      if (kj == 4) then
       headbk=slopeRH(2,3)*&
      (slopeRH(1,kj)-slopeRH(1,kj-1))+116.29999694824218D+00
       slope=(headbk-120.5D+00)/(slopeRH(1,kj)-slopeRH(1,ligne3))
@@ -8619,24 +8619,24 @@
       endif
 
 
-      if (kj.le.4) then
+      if (kj <= 4) then
         head=slope*(x(i)-slopeRH(1,kj))+headbk
       endif
 
-      if (kj.eq.ligne3) head=slope*(x(i)-1000)+headbk
+      if (kj == ligne3) head=slope*(x(i)-1000)+headbk
       valcl(i,3)=(head-z(i)-bm(i)/2)*rho(i)*g
 
 
 
-      if (ivois(i,2).eq.-99) then
+      if (ivois(i,2) == -99) then
       icl(i,2)=-2
       valcl(i,2)=(head-z(i))*rho(i)*g
       endif
-      if (ivois(i,1).eq.-99.and.x(i).lt.999.5) then
+      if (ivois(i,1) == -99.and.x(i) < 999.5) then
       icl(i,1)=-2
       valcl(i,1)=(head-z(i))*rho(i)*g
       endif
-      if(ivois(ivois(i,4),2).eq.-99.and.x(i).gt.0.5) then
+      if(ivois(ivois(i,4),2) == -99.and.x(i) > 0.5) then
       icl(i,2)=-2
       valcl(i,2)=(head-z(i))*rho(i)*g
       endif
@@ -8645,7 +8645,7 @@
 
 
 !ccc....Boundary UPSTREAM
-        if (ivois(i,1).eq.-99.and.x(i).gt.999.5) then
+        if (ivois(i,1) == -99.and.x(i) > 999.5) then
         icl(i,1)=-2
         iclt(i,1)=-2
             valcl(i,1)=(chgRD(kimp)-z(i))*rho(i)*g
@@ -8653,7 +8653,7 @@
         endif
 
 !ccc....Boundary DOWNSTREAM
-        if (ivois(i,2).eq.-99.and.x(i).lt.0.5) then
+        if (ivois(i,2) == -99.and.x(i) < 0.5) then
         icl(i,2)=-2
         iclt(i,2)=-2
             valcl(i,2)=(chgRD(kimp)-z(i))*rho(i)*g
@@ -8668,32 +8668,32 @@
 
 
 
-      if (ytest.eq."TEX") then
+      if (ytest == "TEX") then
 
-        if(kimp.gt.ligne2)   kimp=ligne2
+        if(kimp > ligne2)   kimp=ligne2
 !ccc.... 1 heure
       kheure=int(paso/3600)+1
-      if(kheure.gt.ligne)   kheure=ligne
+      if(kheure > ligne)   kheure=ligne
 !ccc.... 1 jour
       kjour=int(paso/86400)+1
-      if(kjour.gt.ligne1)   kjour=ligne1
+      if(kjour > ligne1)   kjour=ligne1
       do i=1,nm
 !ccc....CDT LIMITE SOL
-      if (ivois(i,3).eq.-99) then
+      if (ivois(i,3) == -99) then
       iclt(i,3)=-2
       icl(i,3)=-1
       valcl(i,3)=qpluie(kjour)
       endif
 !ccc....CDT LIMITE BOTTOM
-      if (ivois(i,4).eq.-99) then
+      if (ivois(i,4) == -99) then
       iclt(i,4)=-1
       icl(i,4)=-1
       endif
 !ccc....CDT LIMITE RD
 
       do j=1,ligne3
-      if(i.eq.id_RD(j)) then
-      if(kimp.ge.ligne2) kimp=ligne2
+      if(i == id_RD(j)) then
+      if(kimp >= ligne2) kimp=ligne2
       icl(i,1)=-2
       valcl(i,1)=(chgRD(kimp)-z(i))*rho(i)*g
       endif
@@ -8701,16 +8701,16 @@
 
 !ccc....CDT LIMITE RG
       do j=1,ligne4
-      if(i.eq.id_RG(j)) then
-      if(kimp.ge.ligne2) kimp=ligne2
+      if(i == id_RG(j)) then
+      if(kimp >= ligne2) kimp=ligne2
       icl(i,2)=-2
       valcl(i,2)=(chgRG(kimp)-z(i))*rho(i)*g
       endif
       enddo
 !ccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
       do j=1,ligne5
-      if(i.eq.id_river(j)) then
-      if(kimp.ge.ligne2) kimp=ligne2
+      if(i == id_river(j)) then
+      if(kimp >= ligne2) kimp=ligne2
       icl(i,3)=-2
       zhaut=z(i)+bm(i)/2
       valcl(i,3)=(chgriver(kimp)-zhaut)*rho(i)*g
@@ -8720,9 +8720,9 @@
 
 !ccc....CDT LIMITE RIVER variable dans le temps
       do j=1,ligne6
-      if(i.eq.id_rivert(j)) then
-      if(kimp.ge.ligne2) kimp=ligne2
-      if(z(i)+bm(i)/2.lt.chgriver(kimp)) then
+      if(i == id_rivert(j)) then
+      if(kimp >= ligne2) kimp=ligne2
+      if(z(i)+bm(i)/2 < chgriver(kimp)) then
       icl(i,3)=-2
       zhaut=z(i)+bm(i)/2
       valcl(i,3)=(chgriver(kimp)-zhaut)*rho(i)*g
