@@ -66,6 +66,7 @@ c	  allocatable :: zbot(:),zaqui(:)
       integer,dimension(:), allocatable :: id_river,id_rivert,id_ZH
       integer,dimension(:), allocatable :: id_RD,id_RG
       double precision,dimension(:),allocatable::chgbot,chgsurf,chgriver
+      integer,dimension(:),allocatable::iclbot,iclsurf
 	  double precision,dimension(:),allocatable:: qbot,qsurf,xDTS
       double precision,dimension(:),allocatable::tempbot,tempsurf
 	  double precision,dimension(:,:),allocatable::  tempDTS,slopeRH
@@ -470,23 +471,27 @@ C	  	  	  	  	       					  C
 C	   LECTURE FICHIER ZHR	  	  			  C
 C	  	  	  	  	       					  C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  if(ytest.eq."ZHR".or.ytest.eq."ZHZ") then
+	  SELECT CASE (ytest)
+	  CASE("ZHR")
 	  open(unit=45,file='E_charge_t.dat',iostat=iop)
 	  open(unit=68,file='E_temp_t.dat',iostat=ios)
 	  if (ios /= 0) then
 	  stop 'File E_temp_t.dat does not exist' 
 	  end if
-	  endif
-	  if(ytest.eq."ZHZ") then
+
+	  CASE("ZHZ")
+	  open(unit=45,file='E_charge_t.dat',iostat=iop)
+	  open(unit=68,file='E_temp_t.dat',iostat=ios)
+	  if (ios /= 0) then
+	  stop 'File E_temp_t.dat does not exist' 
+	  end if
 	  call open_file('E_zone.dat', An_Error,32)
 	  open(unit=321,file='E_zone_parameter.dat')
 	  if (ios /= 0) then
 	  stop 'File E_zone.dat does not exist' 
 	  end if
-	  endif
 
-
-	  if(ytest.eq."1DS") then
+  	  CASE ("1DJ")
 	  open(unit=45,file='E_ec_bc_t.dat',iostat=iop)
 	  open(unit=68,file='E_temp_t.dat',iostat=ios)
 	  if (ios /= 0) then
@@ -497,29 +502,28 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  if (ios /= 0) then
 	  stop 'File E_zone.dat does not exist' 
 	  end if
-	  endif
+       OPEN(unit=45, file='E_ec_bc_t.dat', iostat=iop)
+	  OPEN(unit=32, file='E_zone.dat', iostat=ios)
+	  OPEN(unit=321, file='E_zone_parameter.dat')
 
-	  if(ytest.eq."1DJ".or.ytest.eq."ZND") then
-	  open(unit=45,file='E_ec_bc_t.dat',iostat=iop)
-	  endif
+	  IF (ios /= 0) THEN
+	  STOP 'File E_zone.dat does not exist'
+	  END IF
 
-	  if(ytest.eq."ZNS".or.ytest.eq."1DJ".or.ytest.eq."ZND") then
-	  open(unit=32,file='E_zone.dat')
-	  open(unit=321,file='E_zone_parameter.dat')
-	  if (ios /= 0) then
-	  stop 'File E_zone.dat does not exist' 
-	  end if
-	  endif
-	  
-	  
+  	  CASE ("ZND")
+       OPEN(unit=45, file='E_ec_bc_t.dat', iostat=iop)
+	  OPEN(unit=32, file='E_zone.dat', iostat=ios)
+	  OPEN(unit=321, file='E_zone_parameter.dat')
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C	  	  	  	  	       					  C
-C	   LECTURE FICHIER ZNS 1D ou warrick   	  C
-C	  	  	  	  	       					  C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-	  if(ytest.eq."ZNS".or.ytest.eq."WAR") then
-	  	if(iclchgt.eq.1) then
+	  IF (ios /= 0) THEN
+	  STOP 'File E_zone.dat does not exist'
+	  END IF
+	  CASE ("ZNS")
+	  OPEN(unit=32, file='E_zone.dat', iostat=ios)
+	  OPEN(unit=321, file='E_zone_parameter.dat')
+	  IF (ios /= 0) THEN
+	  STOP 'File E_zone.dat does not exist'
+	  if(iclchgt.eq.1) then
 	  	 select case (icl_bas)
      	  	 case (-1) 
 	  open(unit=45,file='E_debit_bas_t.dat',iostat=iop)
@@ -533,7 +537,40 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 	  open(unit=68,file='E_charge_haut_t.dat',iostat=ios)
    	  	  end select
 	  	endif
-	  endif
+	  END IF
+	  
+	  
+	  CASE ("TGU")
+	  OPEN(unit=32, file='E_zone.dat', iostat=ios)
+	  OPEN(unit=321, file='E_zone_parameter.dat')
+	  IF (ios /= 0) THEN
+	  STOP 'File E_zone.dat does not exist'
+	  END IF
+	  open(unit=45,file='E_cl_icl.dat',iostat=iop)
+	  open(unit=68,file='E_cl_val.dat',iostat=ios2) 
+	  CASE("WAR") 
+	  	if(iclchgt.eq.1) then
+	  	 select case (icl_bas)
+     	  	 case (-1) 
+	  open(unit=45,file='E_debit_bas_t.dat',iostat=iop)
+     	  	 case (-2)
+	  open(unit=45,file='E_charge_bas_t.dat',iostat=iop)
+   	  	  end select
+	  select case (icl_haut)
+     	  	 case (-1) 
+	  open(unit=68,file='E_debit_haut_t.dat',iostat=ios)
+     	  	 case (-2)
+	  open(unit=68,file='E_charge_haut_t.dat',iostat=ios)
+   	  	  end select
+	  	endif  
+	  
+	  
+	  END SELECT
+
+
+	  
+
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C	  	  	  	  	       					  C
 C	   FICHIERS ERREUR VERIF		  		  C
@@ -640,6 +677,32 @@ CCC....lecture des données temperature time
 	enddo
       endif
 
+
+      if (ytest.eq."TGU") then
+	  ligne4=0
+CCC....lecture des données temperature time
+      do while (iop.eq.0)
+      read(45,*,iostat=iop)
+      if (ios.eq.0) then
+      ligne4=ligne4+1
+	endif
+	enddo
+
+
+	   allocate(iclbot(ligne4))
+	   allocate(iclsurf(ligne4))
+	   	   allocate(chgbot(ligne4))
+	   allocate(chgsurf(ligne4))
+
+	rewind(45)
+	do j=1,ligne4
+	read(45,*,iostat=iop) iclsurf(j),iclbot(j)
+	enddo
+	do j=1,ligne4
+	read(68,*,iostat=ios2) chgsurf(j),chgbot(j)
+	enddo
+
+      endif
 
 CCC....ZNS 1D ou Warrick
 	  if(ytest.eq."ZNS".or.ytest.eq."WAR") then
@@ -1578,7 +1641,8 @@ CCC...Calcul le nombre de zone
 	      allocate(jzone(nzone))
 	  endif
 
-	  if(ytest.eq."ZNS".or.ytest.eq."ZND") then
+	  if(ytest.eq."ZNS".or.ytest.eq."ZND"
+     &.or.ytest.eq."TGU") then
 
 	  nzone=0
 	  do i=1,nm
@@ -1688,7 +1752,31 @@ ccc test zone
 
 ccc loop zone
 	  enddo
+        CASE ('TGU')
 
+	  do j=1,nzone
+	  read(321,*)jzone(j),akzone(j),omzone(j),aspzone(j),anszone(j),
+     &swreszone(j)
+
+	  enddo
+
+ 
+	  do i=1,nm
+	  do j=1,nzone
+	  if (izone(i).eq.jzone(j)) then
+	  ak(i)=akzone(j)
+	  akv(i)=akzone(j)
+	  om(i)=omzone(j)
+	  ss(i)=omzone(j)
+	  ansun(i)=anszone(j)
+	  asun(i)=aspzone(j)
+	  swresz(i)=swreszone(j)
+	  endif
+ccc test zone
+	  enddo
+
+ccc loop zone
+	  enddo
 	 CASE ('1DS')
 	  do j=1,nzone
 	  read(321,*)jzone(j),akzone(j),omzone(j),anszone(j),aspzone(j),
@@ -1957,7 +2045,7 @@ CCC...HYDROSTATIQUE
 	  if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
 	  pr(i)=dble((rho(i)*g*(chg(i)-z(i))))
 	  enddo
-	  CASE ("ZND") 
+	  CASE ("ZND","TGU") 
 	  do i=1,nm
        	read(24,*) chg(i)
 	  if (abs(chg(j)).lt.10D-9) chg(j)=0D+00
@@ -2804,13 +2892,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
        if(iclchgt.eq.1) then
 	  select case (ytest) 
-  	   case ("WAR")	    
-	  	ntsortie=ligne4	  
-	  case ("ZNS")
-	  	ntsortie=ligne4
-	  		  case ("ZND")
-	  	ntsortie=ligne4	 	   
-	  case ("ZHR")
+  	   case ("WAR","ZNS","ZND","ZHR","TGU")
 	  	ntsortie=ligne4	 
 	  case ("1DS")
 	  	ntsortie=ligne4
@@ -2848,7 +2930,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &cRivG,timeG,cRivD,timeD,
      &timeDTS,xDTS,
      &tempDTS,x,icol,nc,tempo,pro,slopeRH,
-     &qsurf,qbot)
+     &qsurf,qbot,iclsurf,iclbot)
        endif
 
 
@@ -2939,19 +3021,7 @@ cccc....irecord = booléen si vrai ecriture sinon rien
 
        if(iclchgt.eq.1) then
 	  select case (ytest) 
-  	   case ("WAR")	    
-	  	ntsortie=ligne4	  
-	  case ("ZNS")
-	  	ntsortie=ligne4
-	  case ("ZND")
-	  	ntsortie=ligne4	 	  	  	   
-	  case ("ZHR")
-	  	ntsortie=ligne4	  
-	  case ("1DS")
-	  	ntsortie=ligne4
-	  case ("1DJ")
-	  	ntsortie=ligne4	 	   
-	  case ("ZHZ")
+  	   case ("WAR","ZNS","ZND","ZHR","1DS","1DJ","ZHZ","TGU")
 	  	ntsortie=ligne4 
    	  case default	    
 	  	ntsortie=ligne2	  
@@ -2985,7 +3055,7 @@ cccc....recalcul car chgt pas temps
      &cRivG,timeG,cRivD,timeD,
      &timeDTS,xDTS,
      &tempDTS,x,icol,nc,tempo,pro,slopeRH,
-     &qsurf,qbot)
+     &qsurf,qbot,iclsurf,iclbot)
        endif
 
 
@@ -4017,7 +4087,14 @@ CCC....FICHIERS ZNS 1D
 	  open(1818,file='S_hydraulic_conductivities_profil_t.dat')
 	  open(18181,file='S_saturation_profil_t.dat')
 	  open(18182,file='S_pressure_profil_t.dat')
-       endif       
+       endif    
+       
+       if(ytest.eq."TGU") then
+	  open(1818,file='S_hydraulic_conductivities_profil_t.dat')
+	  open(18181,file='S_saturation_profil_t.dat')
+	  open(18182,file='S_pressure_profil_t.dat')
+	  open(18183,file='S_vitesse_profil_t.dat')
+       endif             
 
 CCC....FICHIERS ZNS 1D
        if(ytest.eq."WAR") then
@@ -4254,6 +4331,23 @@ CCC....SORTIE ZNS 1D
        endif
        endif       
 
+
+       if(ytest.eq."TGU") then
+	  print*,"time",paso,"dt",dt,pr(1)/rho1/g+z(1),
+     &valcl(1,3)/rho1/g+z(1),sw(100),ak(100)
+		if(modulo(int(paso),itsortie).eq.0) then
+			irecord=1
+		endif
+
+       if (irp.eq.1.and.irecord.eq.1) then
+	   do i=1,nm
+	  write(1818,*)paso/unitsortie,z(i),akr(i)*ak(i)
+	  write(18181,*)paso/unitsortie,z(i),sw(i)
+	  write(18182,*)paso/unitsortie,z(i),pr(i),pr(i)/rho1/g+z(i)
+	  write(18183,*)paso/unitsortie,z(i),vzm(i)
+	enddo
+       endif
+       endif
 CCC....SORTIE ZNS 1D
        if(ytest.eq."WAR") then
 	  print*,"time",paso,"dt",dt,vzm(1),pr(1),"K",ak(1)*akr(1)
@@ -8036,7 +8130,7 @@ cccc....
      &cRivG,timeG,cRivD,timeD,
      &timeDTS,xDTS,
      &tempDTS,x,icol,nc,tempo,pro,slopeRH,
-     &qsurf,qbottom)
+     &qsurf,qbottom,iclsurf,iclbottom)
 c     nc nb de colonnes
 c     nr nb de ligne
 c       qre debit pluie
@@ -8065,6 +8159,7 @@ c       ak(i)=permeabilite intrinseque
 	  dimension rho(nm),bm(nm),x(nm)
 	  dimension icol(nm)
 	  dimension chgbottom(ntsortie),chgsurf(ntsortie)
+	  dimension iclbottom(ntsortie),iclsurf(ntsortie)  	  
 	  dimension qbottom(ntsortie),qsurf(ntsortie)
 	  dimension tempsol(ligne)
 	  dimension qpluie(ligne1),chgRD(ligne2)
@@ -8112,7 +8207,7 @@ c       ak(i)=permeabilite intrinseque
 	  case (-2)
 	  zbas=z(nm)-bm(nm)/2
 	  if(abs(zbas).lt.1e-6) zbas=0D+00
-	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
+	  valcl(nm,4)=(rho(nm)*g*(chgbottom(kimp)- zbas))
 	  case (-1) 
 	  valcl(nm,4)=qbottom(kimp)
 	  end select
@@ -8135,7 +8230,7 @@ c       ak(i)=permeabilite intrinseque
 	  case (-2)
 	  zbas=z(nm)-bm(nm)/2
 	  if(abs(zbas).lt.1e-6) zbas=0D+00
-	  valcl(nm,4)=(rho(nm)*g*(chgbottom(ligne4)- zbas))
+	  valcl(nm,4)=(rho(nm)*g*(chgbottom(kimp)- zbas))
 	  case (-1) 
 	  valcl(nm,4)=0
 	  end select
@@ -8149,16 +8244,37 @@ c       ak(i)=permeabilite intrinseque
 	   endif 
 	  select case (icl(1,3)) 	   
 	  case (-2)
-	  print*,'coucou',chgsurf(kimp)
 	  zhaut=z(1)+bm(1)/2
 	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
 	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
 	  case (-1) 
 	  valcl(1,3)=0
+	  
 	  end select
 	  endif
 	  
-	  
+	  	  
+	  case ("TGU")	
+   
+	  if(kimp.gt.ligne4) kimp=ligne4
+	  icl(1,3)=iclsurf(kimp)
+	  icl(nm,4)=iclbottom(kimp)
+	  select case (icl(nm,4)) 
+	  case (-2)
+	  zbas=z(nm)-bm(nm)/2
+	  if(abs(zbas).lt.1e-6) zbas=0D+00
+	  valcl(nm,4)=(rho(nm)*g*(chgbottom(kimp)- zbas))
+	  case (-1) 
+	  valcl(nm,4)=chgbottom(kimp)
+	  end select
+
+	  select case (icl(1,3)) 
+	  case (-2)
+	  if(abs(zhaut).lt.1e-6) zhaut=0D+00
+	  valcl(1,3)=rho(1)*g*(chgsurf(kimp)-zhaut)
+	  case (-1) 
+	  valcl(1,3)=chgsurf(kimp)
+	  end select
 	  
 	  end select 
 

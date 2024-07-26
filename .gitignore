@@ -4,6 +4,7 @@
 .Ruserdata
 *.Rout
 S_*
+fort*
 Sim_*
 application/mini-LOMOS/formatToGinette.Rout
 application/mini-LOMOS/Obs_temperature_maille4_t.dat
