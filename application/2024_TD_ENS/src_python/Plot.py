@@ -62,6 +62,60 @@ def plot_obs_zoom(all_data, start_date, end_date):
 
     plt.show()
     
+def plot_domain(nb_zone, alt_thk, z_top, z_bottom):
+    """
+    Plot cells based on coordinates x and z, and color the cells based on the condition alt_thk > z.
+
+    Parameters:
+    - nb_zone: Number of zones. If nb_zone=1, the porous medium is homogeneous.
+    - alt_thk: Altitude threshold for coloring the cells.
+    - z_top: Top z-coordinate for the plot.
+    - z_bottom: Bottom z-coordinate for the plot.
+    """
+    # Read coordinates with z_top and z_bottom
+    coord = pd.read_csv('E_coordonnee.dat', sep='\s+', header=None, names=['x', 'z'])
+    zone_parameters = pd.read_csv('E_zone_parameter.dat', sep='\s+', header=None, names=['zone', 'k', 'n', 'l', 'r'])
+
+    # Extract coordinates
+    x = coord['x'].values
+    z = coord['z'].values
+
+    # Calculate cell height
+    z_unique = np.sort(np.unique(z))
+    cell_height = np.diff(z_unique).mean() if len(z_unique) > 1 else 1.0  # Use 1.0 by default if only one value
+
+    # Define cell width (you can adjust this value)
+    x_unique = np.sort(np.unique(x))
+    cell_width = np.diff(x_unique).mean() if len(x_unique) > 1 else 1.0  # Use 1.0 by default if only one value
+
+    # Create a grid of cells centered on the points (x, z)
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Plot cells with colors based on the condition alt_thk > z
+    for xi, zi in zip(x, z):
+        if nb_zone == 1:
+            color = 'blue'  # Color for homogeneous porous medium
+        else:
+            if zi > alt_thk:
+                color = 'red'  # Color if alt_thk > z
+            else:
+                color = 'green'  # Color otherwise
+        rect = plt.Rectangle((xi - cell_width / 2, zi - cell_height / 2), cell_width, cell_height, edgecolor='black', facecolor=color)
+        ax.add_patch(rect)
+
+    # Add labels to the points
+    for i, (xi, zi) in enumerate(zip(x, z)):
+        ax.text(xi, zi, str(i), ha='center', va='center', color='white')
+
+    # Configure axes
+    ax.set_xlabel('x')
+    ax.set_ylabel('z')
+    ax.set_title('Domain')
+    ax.set_aspect(10)  # Adjust aspect ratio so that z scale is 10 times x scale
+    ax.set_ylim(z_bottom, z_top)  # Adjust y-axis to go from z_bottom to z_top
+    plt.grid(True)
+    plt.show()
+  
     
 def plot_compare_temperatures_obs_sim(sim_temp, obs_temp,fontsize=15):
     """
