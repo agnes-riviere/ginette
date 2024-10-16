@@ -297,4 +297,71 @@ def plot_heat_flux_profiles_interpol(fontsize=15, date_simul_bg=None):
 
     plt.tight_layout()
     plt.show()
-   
+    
+    
+def plot_fluxes_timeseries(fontsize=15, date_simul_bg=None):
+    """
+    Trace le profil de vitesse de l'eau en fonction de la profondeur (z) et des dates.
+
+    Parameters:
+    - fontsize: Taille de la police pour les étiquettes (par défaut 15).
+    - date_simul_bg: Date de début de la simulation.
+    - top_n_z: Nombre de valeurs de z les plus élevées à tracer (par défaut 10).
+    """
+    # Lire les profils de vitesse
+    sim_water_discharge = pd.read_csv('Sim_velocity_profil_t.dat', sep='\s+', header=None, names=['Time', 'z', 'q'])
+    # delete first day of simulation
+    sim_water_discharge = sim_water_discharge[sim_water_discharge['Time'] > 86400*2]
+    sim_water_discharge['dates'] = pd.to_datetime(sim_water_discharge['Time'], unit='s', origin=date_simul_bg)
+
+    # Supprimer les doublons
+    sim_water_discharge = sim_water_discharge.drop_duplicates(subset=['q', 'z', 'Time'])
+    # maximun value of z
+    z_max=sim_water_discharge['z'].max()
+
+    # Filtrer pour les valeurs de z supérieures ou égales à z_max
+    sim_water_discharge = sim_water_discharge[sim_water_discharge['z'] >= z_max]
+
+
+
+    # Lire les profils de flux de chaleur
+    sim_flux = pd.read_csv('Sim_heat_flux_profil_t.dat', sep='\s+', header=None, names=['Time', 'z', 'Conductive', 'Advective', 'Total'])
+    # Supprimer les deux premiers jours de simulation
+    sim_flux = sim_flux[sim_flux['Time'] > 86400 * 2]
+    sim_flux['dates'] = pd.to_datetime(sim_flux['Time'], unit='s', origin=date_simul_bg)
+
+    # Supprimer les doublons
+    sim_flux = sim_flux.drop_duplicates(subset=['Conductive', 'Advective', 'Total', 'z', 'Time'])
+        # Filtrer pour les valeurs de z supérieures ou égales à z_max
+    sim_flux = sim_flux[sim_flux['z'] >= z_max]
+
+    # add 4 subplots (water velocity, conductive flux, advective flux, total flux)
+    fig, axes = plt.subplots(4, 1, figsize=(15, 24), sharex=True)
+    # Water velocity
+    axes[0].plot(sim_water_discharge['dates'], sim_water_discharge['q'])
+    axes[0].set_ylabel("Water velocity (m/s)", fontsize=fontsize)
+    axes[0].set_title("Water velocity", fontsize=fontsize, pad=20)
+    axes[0].grid()  
+    # Conductive flux
+    axes[1].plot(sim_flux['dates'], sim_flux['Conductive'])
+    axes[1].set_ylabel("Conductive flux (W/m²)", fontsize=fontsize)
+    axes[1].set_title("Conductive flux", fontsize=fontsize, pad=20)
+    axes[1].grid()
+    # Advective flux
+    axes[2].plot(sim_flux['dates'], sim_flux['Advective'])
+    axes[2].set_ylabel("Advective flux (W/m²)", fontsize=fontsize)
+    axes[2].set_title("Advective flux", fontsize=fontsize, pad=20)
+    axes[2].grid()
+    # Total flux
+    axes[3].plot(sim_flux['dates'], sim_flux['Total'])
+    axes[3].set_ylabel("Total flux (W/m²)", fontsize=fontsize)
+    axes[3].set_xlabel("Date", fontsize=fontsize)
+    axes[3].set_title("Total flux", fontsize=fontsize, pad=20)
+    axes[3].grid()
+    # Formater les dates sur l'axe des x
+    axes[3].xaxis_date()
+    fig.autofmt_xdate()
+    plt.tight_layout()
+    plt.show()
+    
+    
