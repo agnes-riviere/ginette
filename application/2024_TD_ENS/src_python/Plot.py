@@ -90,13 +90,15 @@ def plot_domain(nb_zone, alt_thk, z_top, z_bottom):
 
     # Create a grid of cells centered on the points (x, z)
     fig, ax = plt.subplots(figsize=(10, 6))
+    # Plot cells with colors based on the condition alt_thk > z or alt_thk >= z
+
 
     # Plot cells with colors based on the condition alt_thk > z
     for xi, zi in zip(x, z):
         if nb_zone == 1:
             color = 'blue'  # Color for homogeneous porous medium
         else:
-            if zi > alt_thk:
+            if zi >= alt_thk:
                 color = 'red'  # Color if alt_thk > z
             else:
                 color = 'green'  # Color otherwise
