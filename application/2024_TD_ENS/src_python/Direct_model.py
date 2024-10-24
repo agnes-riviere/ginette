@@ -43,7 +43,19 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     f_param_new.write(setup_model)
     f_param_bck.close()
     f_param_new.close()
-    
+    f_param_lec=open("E_cdt_aux_limites_bck.dat", "r")
+    f_param_lec_new=open("E_cdt_aux_limites.dat", "w")
+    lec_bc=f_param_lec.read()
+    iclchgt = 1
+    lec_bc = lec_bc.replace('[iclchgt]', '%1i' % iclchgt)
+    lec_bc = lec_bc.replace('[itlecture]', '%08.0f' % dt)
+
+    # Écrire les modifications dans le fichier
+    f_param_lec_new.write(lec_bc)
+
+    # Fermer les fichiers
+    f_param_lec_new.close()
+    f_param_lec.close()
     return z_obs
     
     #-----------------------------------------------------------------
@@ -157,7 +169,7 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     
     # zone parameter by cell (homogenous domain = 1 zone)
     coord['zone'] = 1
-    print(coord.head())
+
 
     # Pour plusieurs zones modification AR
     if nb_zone >= 2:
