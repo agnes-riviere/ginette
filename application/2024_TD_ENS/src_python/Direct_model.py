@@ -47,62 +47,51 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     return z_obs
     
     #-----------------------------------------------------------------
- 
 
 
 def initial_conditions(all_data, z_top, z_bottom, dz, z_obs):
-     # Initial conditions
-    f_temp_IC = open("E_temperature_initiale.dat", "w")
-    initial_temps = all_data.iloc[0][['TempMolo', 'Temp1', 'Temp2', 'Temp3', 'Temp4']]
-    z_temps = np.array([z_top + 0.005] + z_obs)
-    initial = pd.DataFrame({'z': z_temps, 'T': initial_temps})
-    initial['z'] = initial['z'].astype(float)
-    initial['T'] = initial['T'].astype(float)
+    # Initial conditions
+    with open("E_temperature_initiale.dat", "w") as f_temp_IC:
+        # Dynamically select temperature columns based on the number of z_obs
+        temp_columns = ['TempMolo'] + [f'Temp{i+1}' for i in range(len(z_obs))]
+        initial_temps = all_data.iloc[0][temp_columns]
+        z_temps = np.array([z_top + 0.005] + z_obs)
+        initial = pd.DataFrame({'z': z_temps, 'T': initial_temps})
+        initial['z'] = initial['z'].astype(float)
+        initial['T'] = initial['T'].astype(float)
 
-    # Define the range of depths for interpolation
-    z_values = np.arange(z_bottom + dz / 2, z_top + 0.001, dz)  # Depth range from -0.4 to 0.005
+        # Define the range of depths for interpolation
+        z_values = np.arange(z_bottom + dz / 2, z_top + 0.001, dz)  # Depth range from z_bottom to z_top
 
-    # Perform linear interpolation
-    Temp_init = np.interp(z_values, initial['z'][::-1], initial['T'][::-1])  # Reversed to align with depths
+        # Perform linear interpolation
+        Temp_init = np.interp(z_values, initial['z'][::-1], initial['T'][::-1])  # Reversed to align with depths
 
-    # Creating a DataFrame for the interpolated data
-    interpolated_temp = {
-        'z': z_values,
-        'T': Temp_init
-    }
+        # Creating a DataFrame for the interpolated data
+        interpolated_temp = pd.DataFrame({'z': z_values, 'T': Temp_init})
+        interpolated_temp_sorted = interpolated_temp.sort_values(by='z', ascending=False)
 
-    interpolated_temp = pd.DataFrame(interpolated_temp)
-    interpolated_temp_sorted = interpolated_temp.sort_values(by='z', ascending=False)
-
-    interpolated_temp_sorted['T'].to_csv(f_temp_IC, index=False, sep='\n', header=False)
+        interpolated_temp_sorted['T'].to_csv(f_temp_IC, index=False, sep='\n', header=False)
 
     # To apply dp to the column, we need to convert it to a pressure value
-    f_chg_IC = open("E_charge_initiale.dat", "w")
-    initial_pres = all_data.iloc[0][['deltaP']] * -1
-    initial_chg = pd.DataFrame({'z': [z_bottom], 'chg': [0]})
-    new_row = pd.DataFrame({'z': [0], 'chg': initial_pres})
-    initial_chg = pd.concat([initial_chg, new_row], ignore_index=True)
-    initial_chg['z'] = initial_chg['z'].astype(float)
-    initial_chg['chg'] = initial_chg['chg'].astype(float)
-    z_values = np.arange(z_bottom + dz / 2, z_top + 0.001, dz)
+    with open("E_charge_initiale.dat", "w") as f_chg_IC:
+        initial_pres = all_data.iloc[0][['deltaP']] * -1
+        initial_chg = pd.DataFrame({'z': [z_bottom], 'chg': [0]})
+        new_row = pd.DataFrame({'z': [0], 'chg': initial_pres})
+        initial_chg = pd.concat([initial_chg, new_row], ignore_index=True)
+        initial_chg['z'] = initial_chg['z'].astype(float)
+        initial_chg['chg'] = initial_chg['chg'].astype(float)
+        z_values = np.arange(z_bottom + dz / 2, z_top + 0.001, dz)
 
-    # Perform linear interpolation
-    charge_init = np.interp(z_values, initial_chg['z'][:], initial_chg['chg'][:])  # Reversed to align with depths
+        # Perform linear interpolation
+        charge_init = np.interp(z_values, initial_chg['z'], initial_chg['chg'])  # Reversed to align with depths
 
-    # Creating a DataFrame for the interpolated data
-    interpolated_chg = {
-        'z': z_values,
-        'chg': charge_init
-    }
-    interpolated_chg = pd.DataFrame(interpolated_chg)
-    interpolated_chg_sorted = interpolated_chg.sort_values(by='z', ascending=False)
+        # Creating a DataFrame for the interpolated data
+        interpolated_chg = pd.DataFrame({'z': z_values, 'chg': charge_init})
+        interpolated_chg_sorted = interpolated_chg.sort_values(by='z', ascending=False)
 
-    interpolated_chg_sorted['chg'].to_csv(f_chg_IC, index=False, sep='\n', header=False)
+        interpolated_chg_sorted['chg'].to_csv(f_chg_IC, index=False, sep='\n', header=False)
 
-    f_chg_IC.close()
-    f_temp_IC.close()
-    
-    
+
 
 def boundary_conditions(all_data):
     # Boundary conditions
