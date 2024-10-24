@@ -52,13 +52,19 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
 def initial_conditions(all_data, z_top, z_bottom, dz, z_obs):
     # Initial conditions
     with open("E_temperature_initiale.dat", "w") as f_temp_IC:
-        # Dynamically select temperature columns based on the number of z_obs
-        temp_columns = ['TempMolo'] + [f'Temp{i+1}' for i in range(len(z_obs))]
+        # Dynamically select temperature columns based on the names in all_data
+        if 'T_top' in all_data.columns and 'T_bottom' in all_data.columns:
+            temp_columns = ['T_top', 'T_bottom']
+            z_temps = np.array([z_top + 0.005, z_bottom])
+        else:
+            temp_columns = ['TempMolo'] + [f'Temp{i+1}' for i in range(len(z_obs))]
+            z_temps = np.array([z_top + 0.005] + z_obs)
+
         initial_temps = all_data.iloc[0][temp_columns]
-        z_temps = np.array([z_top + 0.005] + z_obs)
         initial = pd.DataFrame({'z': z_temps, 'T': initial_temps})
         initial['z'] = initial['z'].astype(float)
         initial['T'] = initial['T'].astype(float)
+
 
         # Define the range of depths for interpolation
         z_values = np.arange(z_bottom + dz / 2, z_top + 0.001, dz)  # Depth range from z_bottom to z_top
@@ -72,9 +78,10 @@ def initial_conditions(all_data, z_top, z_bottom, dz, z_obs):
 
         interpolated_temp_sorted['T'].to_csv(f_temp_IC, index=False, sep='\n', header=False)
 
+
     # To apply dp to the column, we need to convert it to a pressure value
     with open("E_charge_initiale.dat", "w") as f_chg_IC:
-        initial_pres = all_data.iloc[0][['deltaP']] * -1
+        initial_pres = all_data.iloc[0][['deltaP']] 
         initial_chg = pd.DataFrame({'z': [z_bottom], 'chg': [0]})
         new_row = pd.DataFrame({'z': [0], 'chg': initial_pres})
         initial_chg = pd.concat([initial_chg, new_row], ignore_index=True)
@@ -97,9 +104,17 @@ def boundary_conditions(all_data):
     # Boundary conditions
     all_data['bot'] = 0
     all_data['top'] = all_data['deltaP']
+    
+    # Save charge boundary conditions
     all_data[['top', 'bot']].to_csv('E_charge_t.dat', sep=' ', index=False, header=False)
-    all_data[['TempMolo', 'Temp4']].to_csv('E_temp_t.dat', sep=' ', index=False, header=False)
+    
+    # Save temperature boundary conditions
+    if 'T_top' in all_data.columns and 'T_bottom' in all_data.columns:
+        all_data[['T_top', 'T_bottom']].to_csv('E_temp_t.dat', sep=' ', index=False, header=False)
+    else:
+        all_data[['TempMolo', 'Temp4']].to_csv('E_temp_t.dat', sep=' ', index=False, header=False)
 
+# 
 
    
 def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l, REF_r, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None):
@@ -142,6 +157,7 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     
     # zone parameter by cell (homogenous domain = 1 zone)
     coord['zone'] = 1
+    print(coord.head())
 
     # Pour plusieurs zones modification AR
     if nb_zone >= 2:
