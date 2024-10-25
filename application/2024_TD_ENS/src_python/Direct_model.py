@@ -21,6 +21,7 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     setup_model = setup_model.replace('[az]', '%7.3e' % az)
     setup_model = setup_model.replace('[dz]', '%6.2e' % dz)
     setup_model = setup_model.replace('[nb_cell]', '%05.0f' % nb_cell)
+    setup_model= setup_model.replace('[itsortie]', '%08.0f' % dt)
 
     # Observation positions x 0.50000
     # Observation in meter
