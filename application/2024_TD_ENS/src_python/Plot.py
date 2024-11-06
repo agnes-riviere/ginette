@@ -6,6 +6,23 @@ from scipy.interpolate import griddata
 from matplotlib.colors import LogNorm
 
 def plot_obs(all_data):
+    """
+    Plots observation data for 'dp' and multiple temperature readings.
+    This function creates a figure with two vertically stacked subplots:
+    one for 'dp' (delta pressure) and one for various temperature readings.
+    The 'dp' subplot displays a single line plot, while the temperature subplot
+    displays multiple line plots for different temperature columns.
+    Parameters:
+    all_data (DataFrame): A pandas DataFrame containing the data to be plotted.
+                        It must include the following columns:
+                        - 'dates': The dates for the x-axis.
+                        - 'deltaP': The delta pressure values for the 'dp' plot.
+                        - 'TempMolo', 'Temp1', 'Temp2', 'Temp3', 'Temp4': The temperature values for the temperature plot.
+    Returns:
+    None: This function does not return any value. It displays the plots.
+    """
+    
+   
     # Creating subplots for 'dp' and 'temp' graphs vertically
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
 
@@ -32,8 +49,19 @@ def plot_obs(all_data):
     plt.show()
 
 
-
 def plot_obs_zoom(all_data, start_date, end_date):
+    """
+    Plots zoomed-in observations of 'dp' and 'Temperature' within a specified date range.
+    This function filters the input data based on the provided start and end dates,
+    and then creates two subplots: one for 'dp' and another for various temperature readings.
+    Parameters:
+    all_data (DataFrame): The input data containing 'dates', 'deltaP', and temperature columns.
+    start_date (str or datetime): The start date for filtering the data.
+    end_date (str or datetime): The end date for filtering the data.
+    Returns:
+    None: This function does not return any value. It displays the plots.
+    """
+    
     # Filtrer les données selon les dates spécifiées
     filtered_data = all_data[(all_data['dates'] > start_date) & (all_data['dates'] < end_date)]
     
@@ -61,16 +89,16 @@ def plot_obs_zoom(all_data, start_date, end_date):
     plt.tight_layout()
 
     plt.show()
-    
+
 def plot_domain(nb_zone, alt_thk, z_top, z_bottom):
     """
     Plot cells based on coordinates x and z, and color the cells based on the condition alt_thk > z.
 
     Parameters:
-    - nb_zone: Number of zones. If nb_zone=1, the porous medium is homogeneous.
-    - alt_thk: Altitude threshold for coloring the cells.
-    - z_top: Top z-coordinate for the plot.
-    - z_bottom: Bottom z-coordinate for the plot.
+    - nb_zone (int): Number of zones. If nb_zone=1, the porous medium is homogeneous.
+    - alt_thk (float): Altitude threshold for coloring the cells.
+    - z_top (float): Top z-coordinate for the plot.
+    - z_bottom (float): Bottom z-coordinate for the plot.
     """
     # Read coordinates with z_top and z_bottom
     coord = pd.read_csv('E_coordonnee.dat', sep='\s+', header=None, names=['x', 'z'])
@@ -117,17 +145,16 @@ def plot_domain(nb_zone, alt_thk, z_top, z_bottom):
     ax.set_ylim(z_bottom, z_top)  # Adjust y-axis to go from z_bottom to z_top
     plt.grid(True)
     plt.show()
-  
-    
+
+
 def plot_compare_temperatures_obs_sim(sim_temp, obs_temp,fontsize=15):
     """
-    Trace et compare les températures observées et simulées pour chaque capteur.
+    Plots and compares observed and simulated temperatures for each sensor.
 
     Parameters:
-    - sim_temp: DataFrame contenant les températures simulées avec une colonne 'Date'.
-    - sim_obs: DataFrame contenant les températures observées avec une colonne 'Date'.
-    - tunits: Unités de température (par défaut "C").
-    - fontsize: Taille de la police pour les étiquettes (par défaut 15).
+    - sim_temp: DataFrame containing the simulated temperatures. Must contain a 'dates' column and temperature columns named 'Temp1', 'Temp2', 'Temp3', etc.
+    - obs_temp: DataFrame containing the observed temperatures. Must contain a 'dates' column and temperature columns named 'Temp1', 'Temp2', 'Temp3', etc.
+    - fontsize: Font size for the labels (default is 15).
     """
     zoomSize = 2
     titleSize = fontsize + zoomSize
@@ -157,16 +184,45 @@ def plot_compare_temperatures_obs_sim(sim_temp, obs_temp,fontsize=15):
     plt.subplots_adjust(wspace=0.05)
     plt.tight_layout()
     plt.show()
-    
 
+def plot_temperatures_sim(sim_temp, fontsize=15):
+    """
+    Plots the simulated temperatures for each sensor.
+    Parameters:
+    - sim_temp: DataFrame containing the simulated temperatures with a 'Date' column.
+    - fontsize: Font size for the labels (default is 15).
+    """
+    zoomSize = 2
+    titleSize = fontsize + zoomSize
+    fig, axes = plt.subplots(1, 3, figsize=(20, 5), sharey=True)
+
+    # Assurez-vous que les dates sont alignées
+    sim_temp['dates'] = pd.to_datetime(sim_temp['dates'])
+    sim_temp.set_index('dates', inplace=True)
+
+    # Colonnes de température (en supposant qu'elles soient nommées 'Temp1', 'Temp2', 'Temp3')
+    temp_columns = ['Temp1', 'Temp2', 'Temp3']
+
+    axes[0].set_ylabel("Temperature in C", fontsize=fontsize)  # Label y-axis
+
+    for i, col in enumerate(temp_columns):
+        axes[i].set_xlabel("Date", fontsize=fontsize)
+        axes[i].plot(sim_temp.index, sim_temp[f'{col}'], label="Simulated")
+        axes[i].legend()
+        axes[i].set_title(f"Sensor {i+1}")
+
+    plt.subplots_adjust(wspace=0.05)
+    plt.tight_layout()
+    plt.show()
 
 def plot_temperatures_profiles(fontsize=15, interval=43200):
     """
-    Trace l'évolution du profil de température à des intervalles spécifiés.
+    This function plots the evolution of the temperature profile over time at specified intervals.
+    Plots the evolution of the temperature profile at specified intervals.
 
     Parameters:
-    - fontsize: Taille de la police pour les étiquettes (par défaut 15).
-    - interval: Intervalle de temps en secondes pour l'affichage des profils de température (par défaut 43200 secondes, soit 12 heures).
+    - interval (int): Time interval in seconds for displaying the temperature profiles (default is 43200 seconds, or 12 hours).
+    - interval: Time interval in seconds for displaying the temperature profiles (default is 43200 seconds, or 12 hours).
     """
     sim_profile = 'Sim_temperature_profil_t.dat'
     # Lire les profils de température
@@ -195,16 +251,26 @@ def plot_temperatures_profiles(fontsize=15, interval=43200):
     ax.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=fontsize)
     plt.tight_layout()
     plt.show()
-    
-    
+
+
 def plot_water_profiles_interpol(fontsize=15, date_simul_bg=None):
     """
-    Trace le profil de vitesse de l'eau en fonction de la profondeur (z) et des dates.
+    The above code is a Python docstring that provides a description of a function that plots the water
+    velocity profile as a function of depth (z) and dates. It specifies the parameters `fontsize` and
+    `date_simul_bg`, with default values for `fontsize` set to 15. The `date_simul_bg` parameter
+    represents the start date of the simulation.
+    Plots the water velocity profile as a function of depth (z) and dates.
 
     Parameters:
-    - fontsize: Taille de la police pour les étiquettes (par défaut 15).
-    - date_simul_bg: Date de début de la simulation.
+    - fontsize: Font size for the labels (default is 15).
+    - date_simul_bg (str or datetime, optional): Start date of the simulation in a format recognized by pandas.to_datetime. If not provided, defaults to the current date and time.
     """
+    # Set default date_simul_bg if not provided
+    if date_simul_bg is None:
+        date_simul_bg = pd.to_datetime('now')
+    else:
+        date_simul_bg = pd.to_datetime(date_simul_bg)
+
     # Lire les profils de vitesse
     sim_water_discharge = pd.read_csv('Sim_velocity_profil_t.dat', sep='\s+', header=None, names=['Time', 'z', 'q'])
     # delete first day of simulation
@@ -244,11 +310,12 @@ def plot_water_profiles_interpol(fontsize=15, date_simul_bg=None):
 
 def plot_temperature_profiles_interpol(fontsize=15, date_simul_bg=None):
     """
-    Trace le profil de température en fonction de la profondeur (z) et des dates.
+    This function plots the temperature profile over time and depth using interpolated data.
+    Plots the temperature profile as a function of depth (z) and dates.
 
     Parameters:
-    - fontsize: Taille de la police pour les étiquettes (par défaut 15).
-    - date_simul_bg: Date de début de la simulation.
+    - fontsize: Font size for the labels (default is 15).
+    - date_simul_bg: Start date of the simulation.
     """
     # Lire les profils de température
     sim_temp = pd.read_csv('Sim_temperature_profil_t.dat', sep='\s+', header=None, names=['Time', 'z', 'Temp'])
@@ -287,16 +354,18 @@ def plot_temperature_profiles_interpol(fontsize=15, date_simul_bg=None):
 
     plt.tight_layout()
     plt.show()
-    
-    
-    
-def plot_heat_flux_profiles_interpol(fontsize=15, date_simul_bg=None):
+
+
+def plot_heat_flux_profiles_interpolated(fontsize=15, date_simul_bg=None):
     """
-    Trace les profils de flux de chaleur (conductifs, advectifs et totaux) en fonction de la profondeur (z) et des dates.
+    Plots the heat flux profiles (conductive, advective, and total) as a function of depth (z) and dates.
+    
+    Returns:
+    None: This function does not return any value. It displays the plots.
 
     Parameters:
-    - fontsize: Taille de la police pour les étiquettes (par défaut 15).
-    - date_simul_bg: Date de début de la simulation.
+    - fontsize: Font size for the labels (default is 15).
+    - date_simul_bg: Start date of the simulation.
     """
     # Lire les profils de flux de chaleur
     sim_flux = pd.read_csv('Sim_heat_flux_profil_t.dat', sep='\s+', header=None, names=['Time', 'z', 'Conductive', 'Advective', 'Total'])
@@ -353,16 +422,18 @@ def plot_heat_flux_profiles_interpol(fontsize=15, date_simul_bg=None):
 
     plt.tight_layout()
     plt.show()
-    
-    
+
+
 def plot_fluxes_timeseries(fontsize=15, date_simul_bg=None):
     """
-    Trace le profil de vitesse de l'eau en fonction de la profondeur (z) et des dates.
+    Plots the time series of water velocity and heat flux profiles (conductive, advective, and total) at the maximum depth (z_max).
 
     Parameters:
-    - fontsize: Taille de la police pour les étiquettes (par défaut 15).
-    - date_simul_bg: Date de début de la simulation.
-    - top_n_z: Nombre de valeurs de z les plus élevées à tracer (par défaut 10).
+    - fontsize (int): Font size for the labels (default is 15).
+    - date_simul_bg (str or datetime): Start date of the simulation in a format recognized by pandas.to_datetime.
+
+    The function reads the water velocity and heat flux profiles from CSV files, filters the data to remove the first two days of simulation,
+    and plots the time series of water velocity, conductive flux, advective flux, and total flux at the maximum depth (z_max).
     """
     # Lire les profils de vitesse
     sim_water_discharge = pd.read_csv('Sim_velocity_profil_t.dat', sep='\s+', header=None, names=['Time', 'z', 'q'])
@@ -392,7 +463,7 @@ def plot_fluxes_timeseries(fontsize=15, date_simul_bg=None):
     sim_flux = sim_flux[sim_flux['z'] >= z_max]
 
     # add 4 subplots (water velocity, conductive flux, advective flux, total flux)
-    fig, axes = plt.subplots(4, 1, figsize=(15, 24), sharex=True)
+    fig, axes = plt.subplots(4, 1, figsize=(10, 24), sharex=True)
     # Water velocity
     axes[0].plot(sim_water_discharge['dates'], sim_water_discharge['q'])
     axes[0].set_ylabel("Water velocity (m/s)", fontsize=fontsize)
@@ -419,5 +490,3 @@ def plot_fluxes_timeseries(fontsize=15, date_simul_bg=None):
     fig.autofmt_xdate()
     plt.tight_layout()
     plt.show()
-    
-    
