@@ -28,4 +28,4 @@ iclectchgt=[iclchgt]		iclectchgt=1						; i1				c CL
 iclchgt=1		 modification des conditions aux limites au cours du temps	; i1	c CL
 icldrain=0		icldrain=1 condition autour du drain					; i1		c CL
 iclriviere=0		icldrain=1, modification condition riviere en fonction du temps		; i1		c CL
-itlecture=[itlecture]    s pas de temps de lecture des CDT aux Limites							; i1					c CL
+itlecture=00000600    s pas de temps de lecture des CDT aux Limites							; i1					c CL
