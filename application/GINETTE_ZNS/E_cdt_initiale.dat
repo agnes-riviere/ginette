@@ -1,0 +1,8 @@
+chgi=00078D+00 	m		charge initiale
+conci=0015d+00			concentration initiale
+tempi=0012d+00	C		temperature initiale
+ichi=0		ichi=1 variation spatiale cdt ini ecoulement ; remplir charge_initiale.dat, une charge par colonne, calcul hydrostatique
+ichi2=1				ichi2=1 variation spatiale condition initiale ecoulement ; remplir pression_initiale.dat
+iconci=0			iconci=1 variation spatiale condition initiale concentration ; remplir conc_initiale.dat, une conc par maille
+itempi=0		itempi=1 variation spatiale condition initiale temperature ; remplir temperature_initiale.dat, une temp par maille
+
