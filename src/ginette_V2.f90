@@ -315,9 +315,9 @@ program pression_ecoulement_transport_thermique
 !      GEOMETRIE MODEL                    C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-   allocate (ibas(nci))
-   allocate (topo(nci))
-   allocate (bot(nci))
+   allocate(ibas(nci))
+   allocate(topo(nci))
+   allocate(bot(nci))
 
    select case (itopo)
    case (1)
@@ -359,7 +359,7 @@ program pression_ecoulement_transport_thermique
       open (unit=223, file='E_BordRG.dat', iostat=iidRG)
       open (unit=224, file='E_Id_river.dat', iostat=iidrv)
       open (unit=2244, file='E_Id_river_max.dat', iostat=iidrvtest)
-      open (unit=226, file='E_PluieR.dat', iostat=ipluie)
+      open (unit=226, file='E_PluieR.dat', iostat=i226)
       open (unit=227, file='E_chargeT_RD.dat', iostat=iCRD)
       open (unit=228, file='E_chargeT_RG.dat')
       open (unit=232, file='E_chargeT_Riv.dat')
@@ -402,6 +402,8 @@ program pression_ecoulement_transport_thermique
 
       call DTS_open(icolone, imaille, itopo, ligne, ligne1, &
                     ligne2, ligne3, ligne4, ligne6)
+      allocate(cRivD(ligne))
+      allocate(cRivG(ligne))
 
    end if
 
@@ -513,54 +515,46 @@ program pression_ecoulement_transport_thermique
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....INITIALISATION COMPTEUR LIGNES
-
-   if (ytest == "ZHR" .or. ytest == "ZHZ") then
+   select case (ytest)
+   case("ZHR", "ZHZ")
       ligne4 = 0
+
 !CC....lecture des données
-      do while (ios == 0)
-         read (68, *, iostat=ios)
-         if (ios == 0) then
-            ligne4 = ligne4 + 1
-         end if
-      end do
+      call count_file(68, ios, ligne4)
 
-      if (allocated(chgbot)) deallocate (chgbot)
 
-      allocate (chgbot(ligne4))
-      allocate (chgsurf(ligne4))
-      allocate (tempbot(ligne4))
-      allocate (tempsurf(ligne4))
+      if (allocated(chgbot)) deallocate(chgbot)
+
+      allocate(chgbot(ligne4))
+      allocate(chgsurf(ligne4))
+      allocate(tempbot(ligne4))
+      allocate(tempsurf(ligne4))
       rewind (68)
       do j = 1, ligne4
          read (45, *, iostat=iop) chgsurf(j), chgbot(j)
          read (68, *, iostat=ios) tempsurf(j), tempbot(j)
       end do
-   end if
 
-   if (ytest == "1DS") then
+   CASE('1DS')
+
       ligne4 = 0
 !CC....lecture des données temperature time
-      do while (ios == 0)
-         read (68, *, iostat=ios)
-         if (ios == 0) then
-            ligne4 = ligne4 + 1
-         end if
-      end do
+      call count_file(68, ios, ligne4)
 
-      if (allocated(chgbot)) deallocate (chgbot)
 
-      allocate (chgbot(ligne4))
-      allocate (chgsurf(ligne4))
-      allocate (tempsurf(ligne4))
-      allocate (tempbot(ligne4))
+      if (allocated(chgbot)) deallocate(chgbot)
+
+      allocate(chgbot(ligne4))
+      allocate(chgsurf(ligne4))
+      allocate(tempsurf(ligne4))
+      allocate(tempbot(ligne4))
       rewind (68)
       do j = 1, ligne4
          read (45, *, iostat=iop) chgsurf(j), chgbot(j)
          read (68, *, iostat=ios) tempsurf(j), tempbot(j)
       end do
-   end if
 
-   if (ytest == "1DJ" .or. ytest == "ZND") then
+   case("1DJ", "ZND")
       ligne4 = 0
 !CC....lecture des données temperature time
       do while (ios == 0)
@@ -569,19 +563,20 @@ program pression_ecoulement_transport_thermique
             ligne4 = ligne4 + 1
          end if
       end do
-      if (allocated(chgbot)) deallocate (chgbot)
+      if (allocated(chgbot)) deallocate(chgbot)
 
-      allocate (chgbot(ligne4))
-      allocate (chgsurf(ligne4))
+      allocate(chgbot(ligne4))
+      allocate(chgsurf(ligne4))
 
       rewind (45)
       do j = 1, ligne4
          read (45, *, iostat=iop) chgsurf(j), chgbot(j)
       end do
-   end if
+
 
 !CC....ZNS 1D ou Warrick
-   if (ytest == "ZNS" .or. ytest == "WAR") then
+   case ("ZNS", "WAR")
+
       if (iclchgt == 1) then
          ligne4 = 0
 !CC....lecture des données
@@ -595,12 +590,12 @@ program pression_ecoulement_transport_thermique
 
          select case (icl_bas)
          case (-1)
-            allocate (qbot(ligne4))
+            allocate(qbot(ligne4))
             do j = 1, ligne4
                read (45, *, iostat=iop) qbot(j)
             end do
          case (-2)
-            allocate (chgbot(ligne4))
+            allocate(chgbot(ligne4))
             do j = 1, ligne4
                read (45, *, iostat=iop) chgbot(j)
             end do
@@ -608,19 +603,19 @@ program pression_ecoulement_transport_thermique
          end select
          select case (icl_haut)
          case (-1)
-            allocate (qsurf(ligne4))
+            allocate(qsurf(ligne4))
             do j = 1, ligne4
                read (68, *, iostat=iop) qsurf(j)
             end do
          case (-2)
-            allocate (chgsurf(ligne4))
+            allocate(chgsurf(ligne4))
             do j = 1, ligne4
                read (68, *, iostat=iop) chgsurf(j)
 
             end do
          end select
       end if
-   end if
+
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! MARINE
@@ -631,7 +626,10 @@ program pression_ecoulement_transport_thermique
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....INITIALISATION COMPTEUR LIGNES
-   if (ytest == "AVA" .or. ytest == "TEX") then
+
+   case ("AVA", "TEX")
+
+
 
       ligne = 0
       ligne1 = 0
@@ -639,46 +637,42 @@ program pression_ecoulement_transport_thermique
 
 !CC....lecture des données
 !ccc...tempsol
-      do while (iTsol == 0)
-         read (225, *, iostat=iTsol)
-         if (iTsol == 0) then
-            ligne = ligne + 1
-         end if
-      end do
-      allocate (tempsol(ligne))
+      call count_file(225, iTsol, ligne)
+      allocate(tempsol(ligne))
+
+
       rewind (225)
       do j = 1, ligne
          read (225, *, iostat=iTsol) tempsol(j)
       end do
 
 !ccc...qpluie
-      do while (ipluie == 0)
-         read (226, *, iostat=i226)
-         if (ipluie == 0) then
-            ligne1 = ligne1 + 1
-         end if
-      end do
+      call count_file(226, i226, ligne1)
 
-      allocate (qpluie(ligne1))
+
+      allocate(qpluie(ligne1))
       rewind (226)
       do j = 1, ligne1
          read (226, *, iostat=i226) qpluie(j)
       end do
-
 !ccc...boundaries wall
-      do while (iCRD == 0)
-         read (227, *, iostat=iCRD)
-         if (iCRD == 0) then
-            ligne2 = ligne2 + 1
-         end if
-      end do
+      call count_file(222, iCRD, ligne2)
 
-      allocate (chgRD(ligne2))
-      allocate (chgRG(ligne2))
-      allocate (tempRD(ligne2))
-      allocate (tempRG(ligne2))
-      allocate (tempriver(ligne2))
-      allocate (chgriver(ligne2))
+
+      allocate(chgbot(ligne2))
+      allocate(chgsurf(ligne2))
+      allocate(tempbot(ligne2))
+      allocate(tempsurf(ligne2))
+      allocate(chgRD(ligne2))
+      allocate(chgRG(ligne2))
+      allocate(tempRD(ligne2))
+      allocate(tempRG(ligne2))
+      allocate(tempriver(ligne2))
+      allocate(chgriver(ligne2))
+      allocate(cRivG(ligne2))
+      allocate(cRivD(ligne2))
+      allocate(qsurf(ligne2))
+      allocate(qbot(ligne2))
       rewind (227)
 
       do j = 1, ligne2
@@ -705,82 +699,51 @@ program pression_ecoulement_transport_thermique
 
 !CC....lecture des données
 !ccc...bord droit
+      call count_file(222, iidRD, ligne3)  ! 222 = E_BordRD.dat
 
-      do while (iidRD == 0)
-         read (222, *, iostat=iidRD)
-         if (iidRD == 0) then
-            ligne3 = ligne3 + 1
-         end if
-      end do
-
-      allocate (id_RD(ligne3))
+      allocate(id_RD(ligne3))
       rewind (222)
       do j = 1, ligne3
          read (222, *, iostat=iidRD) id_RD(j)
       end do
 
 !ccc...bord gauche
-
-      do while (iidRG == 0)
-         read (223, *, iostat=iidRG)
-         if (iidRG == 0) then
-            ligne4 = ligne4 + 1
-         end if
-      end do
-
-      allocate (id_RG(ligne4))
+      call count_file(223, iidRG, ligne4) ! 223 = E_BordRG.dat
+      allocate(id_RG(ligne4))
       rewind (223)
       do j = 1, ligne4
          read (223, *, iostat=iidRG) id_RG(j)
       end do
 
 !ccc...riviere
-      do while (iidrv == 0)
-         read (224, *, iostat=iidrv)
-         if (iidrv == 0) then
-            ligne5 = ligne5 + 1
-         end if
-      end do
+      call count_file(224, iidrv, ligne5) ! 224 = E_Id_river.dat
       rewind (224)
 
-      allocate (id_river(ligne5))
+      allocate(id_river(ligne5))
 
       do j = 1, ligne5
          read (224, *, iostat=iidrv) id_river(j)
       end do
 
 !ccc...riviere a tester
-      do while (iidrvtest == 0)
-         read (2244, *, iostat=iidrvtest)
-         if (iidrvtest == 0) then
-            ligne6 = ligne6 + 1
-         end if
-      end do
+      call count_file(2244, iidrvtest, ligne6) ! 2244 = E_Id_river_max.dat
       rewind (2244)
 
-      allocate (id_rivert(ligne6))
+      allocate(id_rivert(ligne6))
 
       do j = 1, ligne6
          read (2244, *, iostat=iidrvtest) id_rivert(j)
       end do
 
 !CC if ZH pour flux
-
-      do while (iidZH == 0)
-         read (2242, *, iostat=iidZH)
-         if (iidZH == 0) then
-            ligne7 = ligne7 + 1
-         end if
-      end do
+      call count_file(2242, iidZH, ligne7) ! 2242 = E_bottomZH.dat
       rewind (2242)
-
-      allocate (id_ZH(ligne7))
+      allocate(id_ZH(ligne7))
 
       do j = 1, ligne7
          read (2242, *, iostat=iidZH) id_ZH(j)
       end do
-
-   end if
+   end select
 
 !       ligne5=0
 !CC....TEST POUR MAQUETTE DECONNECTION
@@ -866,14 +829,14 @@ program pression_ecoulement_transport_thermique
       ncnr = nc*nr
    END SELECT
 
-   allocate (x(ncnr))
-   allocate (z(ncnr))
-   allocate (inum(ncnr))
-   allocate (inum2(ncnr))
-   allocate (icol(ncnr))
-   allocate (am(ncnr))
-   allocate (bm(ncnr))
-   allocate (ivois(ncnr, 4))
+   allocate(x(ncnr))
+   allocate(z(ncnr))
+   allocate(inum(ncnr))
+   allocate(inum2(ncnr))
+   allocate(icol(ncnr))
+   allocate(am(ncnr))
+   allocate(bm(ncnr))
+   allocate(ivois(ncnr, 4))
 
    select case (imaille)
    CASE (1)
@@ -1154,112 +1117,112 @@ program pression_ecoulement_transport_thermique
 
    nmax = 5*nm + 1
 
-   nmax1 = nm + 1
+   nmax1 = nm + 2
 
-   allocate (icol_ind(nmax))
-   allocate (irow_ptr(nmax1))
-   allocate (val(nmax))
+   allocate(icol_ind(nmax))
+   allocate(irow_ptr(nmax1))
+   allocate(val(nmax))
 !         allocate(zaqui(nc))
 !         allocate(zbot(nm))
-   allocate (b(nm))
-   allocate (pr(nm))
-   allocate (pro(nm))
-   allocate (conco(nm))
+   allocate(b(nm))
+   allocate(pr(nm))
+   allocate(pro(nm))
+   allocate(conco(nm))
 
-   allocate (izone(nm))
+   allocate(izone(nm))
 
-   allocate (vxm(nm))
-   allocate (vxp(nm))
-   allocate (vzp(nm))
-   allocate (vzm(nm))
+   allocate(vxm(nm))
+   allocate(vxp(nm))
+   allocate(vzp(nm))
+   allocate(vzm(nm))
 
-   allocate (ss(nm))
-   allocate (dswdp(nm))
-   allocate (om(nm))
-   allocate (rhold(nm))
-   allocate (akr(nm))
-   allocate (ak(nm))
-   allocate (rho(nm))
-   allocate (sw(nm))
-   allocate (asun(nm))
-   allocate (ansun(nm))
-   allocate (swresz(nm))
-   allocate (akrv(nm))
-   allocate (akv(nm))
+   allocate(ss(nm))
+   allocate(dswdp(nm))
+   allocate(om(nm))
+   allocate(rhold(nm))
+   allocate(akr(nm))
+   allocate(ak(nm))
+   allocate(rho(nm))
+   allocate(sw(nm))
+   allocate(asun(nm))
+   allocate(ansun(nm))
+   allocate(swresz(nm))
+   allocate(akrv(nm))
+   allocate(akv(nm))
 
-   allocate (swp(nm))
-   allocate (dswpdp(nm))
-   allocate (dswdt(nm))
-   allocate (iclt(nm, 4))
-   allocate (valclt(nm, 4))
-   allocate (cps(nm))
-   if (iaquitard == 1) allocate (irow(nm))
+   allocate(swp(nm))
+   allocate(dswpdp(nm))
+   allocate(dswdt(nm))
+   allocate(iclt(nm, 4))
+   allocate(valclt(nm, 4))
+   allocate(cps(nm))
+   if (iaquitard == 1) allocate(irow(nm))
 
-   allocate (prk(nm))
-   allocate (zs(nc, 2))
-   allocate (zso(nc, 2))
-   allocate (zsoo(nc, 2))
-   allocate (rhos(nm))
-   allocate (alandas(nm))
-   allocate (temp(nm))
-   allocate (tempo(nm))
-   allocate (tempk(nm))
-   allocate (tempoo(nm))
-   allocate (valcl(nm, 4))
-   allocate (icl(nm, 4))
+   allocate(prk(nm))
+   allocate(zs(nc, 2))
+   allocate(zso(nc, 2))
+   allocate(zsoo(nc, 2))
+   allocate(rhos(nm))
+   allocate(alandas(nm))
+   allocate(temp(nm))
+   allocate(tempo(nm))
+   allocate(tempk(nm))
+   allocate(tempoo(nm))
+   allocate(valcl(nm, 4))
+   allocate(icl(nm, 4))
    if (itr == 1) then
-      allocate (iclc(nm, 4))
-      allocate (valclc(nm, 4))
+      allocate(iclc(nm, 4))
+      allocate(valclc(nm, 4))
    end if
    if (ith == 1) then
-      allocate (valclto(nm, 4))
-      allocate (zl(nc, 2))
-      allocate (zlo(nc, 2))
-      allocate (zloo(nc, 2))
-      allocate (alanda(nm))
-      allocate (qtherm(nm))
-      allocate (qad(nm))
-      allocate (qcondu(nm))
+      allocate(valclto(nm, 4))
+      allocate(zl(nc, 2))
+      allocate(zlo(nc, 2))
+      allocate(zloo(nc, 2))
+      allocate(alanda(nm))
+      allocate(qtherm(nm))
+      allocate(qad(nm))
+      allocate(qcondu(nm))
    end if
 
    if (itr == 1) then
-      allocate (conck(nm))
-      allocate (conc(nm))
+      allocate(conck(nm))
+      allocate(conc(nm))
    end if
 
    if (ichi == 1) then
       select case (ytest)
       case ("1DS")
-         allocate (chg(nm))
+         allocate(chg(nm))
       case ("1DJ")
-         allocate (chg(nm))
+         allocate(chg(nm))
       case ("ZNS")
-         allocate (chg(nm))
+         allocate(chg(nm))
       case ("WAR")
-         allocate (chg(nm))
+         allocate(chg(nm))
       case default
-         allocate (chg(nc))
+         allocate(chg(nc))
       end select
 
    end if
 
    if (icycle == 1) then
-      allocate (alph(nm))
-      allocate (dsidtempoo(nm))
-      allocate (dsidtempo(nm))
-      allocate (dl(nc))
-      allocate (def(nc))
-      allocate (defo(nc))
-      allocate (dsidp(nm))
-      allocate (dsipdp(nm))
-      allocate (dsipdtemp(nm))
-      allocate (siceoo(nm))
+      allocate(alph(nm))
+      allocate(dsidtempoo(nm))
+      allocate(dsidtempo(nm))
+      allocate(dl(nc))
+      allocate(def(nc))
+      allocate(defo(nc))
+      allocate(dsidp(nm))
+      allocate(dsipdp(nm))
+      allocate(dsipdtemp(nm))
+      allocate(siceoo(nm))
    end if
-   allocate (sicep(nm))
-   allocate (siceo(nm))
-   allocate (sice(nm))
-   allocate (dsidtemp(nm))
-   allocate (rhoi(nm))
+   allocate(sicep(nm))
+   allocate(siceo(nm))
+   allocate(sice(nm))
+   allocate(dsidtemp(nm))
+   allocate(rhoi(nm))
 
    do ik = 1, nm
 !ccc....MODIF AVRIL 2011
@@ -1330,68 +1293,68 @@ program pression_ecoulement_transport_thermique
 
    if (ytest == "DTS") then
 
-      if (allocated(timeDTS)) deallocate (timeDTS)
-      if (allocated(xDTS)) deallocate (xDTS)
-      if (allocated(tempDTS)) deallocate (tempDTS)
-      allocate (timeDTS(ligne))
-      allocate (xDTS(nc))
-      allocate (tempDTS(ligne, nc))
-      if (allocated(chgRG)) deallocate (chgRG)
-      if (allocated(cRivG)) deallocate (cRivG)
-      if (allocated(timeG)) deallocate (timeG)
-      if (allocated(tempRG)) deallocate (tempRG)
-      allocate (chgRG(ligne1))
-      allocate (cRivG(ligne1))
-      allocate (timeG(ligne1))
-      allocate (tempRG(ligne1))
-      if (allocated(chgRD)) deallocate (chgRD)
-      if (allocated(cRivD)) deallocate (cRivD)
-      if (allocated(timeD)) deallocate (timeD)
-      if (allocated(tempRD)) deallocate (tempRD)
-      allocate (chgRD(ligne2))
-      allocate (cRivD(ligne2))
-      allocate (timeD(ligne2))
-      allocate (tempRD(ligne2))
+      if (allocated(timeDTS)) deallocate(timeDTS)
+      if (allocated(xDTS)) deallocate(xDTS)
+      if (allocated(tempDTS)) deallocate(tempDTS)
+      allocate(timeDTS(ligne))
+      allocate(xDTS(nc))
+      allocate(tempDTS(ligne, nc))
+      if (allocated(chgRG)) deallocate(chgRG)
+      if (allocated(cRivG)) deallocate(cRivG)
+      if (allocated(timeG)) deallocate(timeG)
+      if (allocated(tempRG)) deallocate(tempRG)
+      allocate(chgRG(ligne1))
+      allocate(cRivG(ligne1))
+      allocate(timeG(ligne1))
+      allocate(tempRG(ligne1))
+      if (allocated(chgRD)) deallocate(chgRD)
+      if (allocated(cRivD)) deallocate(cRivD)
+      if (allocated(timeD)) deallocate(timeD)
+      if (allocated(tempRD)) deallocate(tempRD)
+      allocate(chgRD(ligne2))
+      allocate(cRivD(ligne2))
+      allocate(timeD(ligne2))
+      allocate(tempRD(ligne2))
 
-      allocate (slopeRH(2, ligne3))
+      allocate(slopeRH(2, ligne3))
 
-      if (allocated(xriffle)) deallocate (xriffle)
-      if (allocated(qout_wR)) deallocate (qout_wR)
-      if (allocated(qin_wR)) deallocate (qin_wR)
-      if (allocated(qout_hR)) deallocate (qout_hR)
-      if (allocated(qin_hR)) deallocate (qin_hR)
-      if (allocated(qcondout_hR)) deallocate (qcondout_hR)
-      if (allocated(qadvout_hR)) deallocate (qadvout_hR)
-      if (allocated(qcondin_hR)) deallocate (qcondin_hR)
-      if (allocated(qadvin_hR)) deallocate (qadvin_hR)
+      if (allocated(xriffle)) deallocate(xriffle)
+      if (allocated(qout_wR)) deallocate(qout_wR)
+      if (allocated(qin_wR)) deallocate(qin_wR)
+      if (allocated(qout_hR)) deallocate(qout_hR)
+      if (allocated(qin_hR)) deallocate(qin_hR)
+      if (allocated(qcondout_hR)) deallocate(qcondout_hR)
+      if (allocated(qadvout_hR)) deallocate(qadvout_hR)
+      if (allocated(qcondin_hR)) deallocate(qcondin_hR)
+      if (allocated(qadvin_hR)) deallocate(qadvin_hR)
 
-      allocate (xriffle(2, ligne6))
-      allocate (qout_wR(ligne6))
-      allocate (qin_wR(ligne6))
-      allocate (qout_hR(ligne6))
-      allocate (qin_hR(ligne6))
-      allocate (qcondout_hR(ligne6))
-      allocate (qadvout_hR(ligne6))
-      allocate (qcondin_hR(ligne6))
-      allocate (qadvin_hR(ligne6))
-      if (allocated(xpool)) deallocate (xpool)
-      if (allocated(qout_w)) deallocate (qout_w)
-      if (allocated(qin_w)) deallocate (qin_w)
-      if (allocated(qout_h)) deallocate (qout_h)
-      if (allocated(qin_h)) deallocate (qin_h)
-      if (allocated(qcondout_h)) deallocate (qcondout_h)
-      if (allocated(qadvout_h)) deallocate (qadvout_h)
-      if (allocated(qcondin_h)) deallocate (qcondin_h)
-      if (allocated(qadvin_h)) deallocate (qadvin_h)
-      allocate (xpool(2, ligne4))
-      allocate (qout_w(ligne4))
-      allocate (qin_w(ligne4))
-      allocate (qout_h(ligne4))
-      allocate (qin_h(ligne4))
-      allocate (qcondout_h(ligne4))
-      allocate (qadvout_h(ligne4))
-      allocate (qcondin_h(ligne4))
-      allocate (qadvin_h(ligne4))
+      allocate(xriffle(2, ligne6))
+      allocate(qout_wR(ligne6))
+      allocate(qin_wR(ligne6))
+      allocate(qout_hR(ligne6))
+      allocate(qin_hR(ligne6))
+      allocate(qcondout_hR(ligne6))
+      allocate(qadvout_hR(ligne6))
+      allocate(qcondin_hR(ligne6))
+      allocate(qadvin_hR(ligne6))
+      if (allocated(xpool)) deallocate(xpool)
+      if (allocated(qout_w)) deallocate(qout_w)
+      if (allocated(qin_w)) deallocate(qin_w)
+      if (allocated(qout_h)) deallocate(qout_h)
+      if (allocated(qin_h)) deallocate(qin_h)
+      if (allocated(qcondout_h)) deallocate(qcondout_h)
+      if (allocated(qadvout_h)) deallocate(qadvout_h)
+      if (allocated(qcondin_h)) deallocate(qcondin_h)
+      if (allocated(qadvin_h)) deallocate(qadvin_h)
+      allocate(xpool(2, ligne4))
+      allocate(qout_w(ligne4))
+      allocate(qin_w(ligne4))
+      allocate(qout_h(ligne4))
+      allocate(qin_h(ligne4))
+      allocate(qcondout_h(ligne4))
+      allocate(qadvout_h(ligne4))
+      allocate(qcondin_h(ligne4))
+      allocate(qadvin_h(ligne4))
 
       call DTS_read(nc, xpool, ligne, ligne1, &
                     ligne2, ligne3, ligne4, &
@@ -1401,31 +1364,29 @@ program pression_ecoulement_transport_thermique
                     xriffle, slopeRH)
 
    end if
+      
+   !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+   !                                                 C
+   !         Zonage des parametres         C
+   !                                                 C
+   !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!                                                 C
-!         Zonage des parametres         C
-!                                                 C
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
-   if (ytest == "AVA" .or. ytest == "ZHZ"&
-  &.or. ytest == "DTS" .or. ytest == "TEX") then
+   if (ytest == "AVA" .or. ytest == "ZHZ" .or. ytest == "DTS" .or. ytest == "TEX") then
       nzone = 0
       do i = 1, nm
          read (32, *) izone(i)
          nzone = max(nzone, izone(i))
-!CC...Calcul le nombre de zone
+   !CC...Calcul le nombre de zone
       end do
-
-      allocate (alandazone(nzone))
-      allocate (rhomzone(nzone))
-      allocate (akzone(nzone))
-      allocate (omzone(nzone))
-      allocate (aspzone(nzone))
-      allocate (jzone(nzone))
-   end if
-
-   if (ytest == "ZNS" .or. ytest == "ZND") then
+      
+      allocate(alandazone(nzone))
+      allocate(rhomzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(aspzone(nzone))
+      allocate(jzone(nzone))
+      end if
+      if (ytest == "ZNS" .or. ytest == "ZND") then
 
       nzone = 0
       do i = 1, nm
@@ -1433,17 +1394,17 @@ program pression_ecoulement_transport_thermique
 
          nzone = max(nzone, izone(i))
 
-!CC...Calcul le nombre de zone
+   !CC...Calcul le nombre de zone
       end do
 
-      allocate (jzone(nzone))
-      allocate (akzone(nzone))
-      allocate (omzone(nzone))
-      allocate (anszone(nzone))
-      allocate (aspzone(nzone))
-      allocate (swreszone(nzone))
-      allocate (rhomzone(nzone))
-   end if
+      allocate(jzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(anszone(nzone))
+      allocate(aspzone(nzone))
+      allocate(swreszone(nzone))
+      allocate(rhomzone(nzone))
+      end if
 
    if (ytest == "1DS") then
       nzone = 0
@@ -1453,15 +1414,15 @@ program pression_ecoulement_transport_thermique
 !CC...Calcul le nombre de zone
       end do
 
-      allocate (alandazone(nzone))
-      allocate (cpmzone(nzone))
-      allocate (rhomzone(nzone))
-      allocate (jzone(nzone))
-      allocate (akzone(nzone))
-      allocate (omzone(nzone))
-      allocate (anszone(nzone))
-      allocate (aspzone(nzone))
-      allocate (swreszone(nzone))
+      allocate(alandazone(nzone))
+      allocate(cpmzone(nzone))
+      allocate(rhomzone(nzone))
+      allocate(jzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(anszone(nzone))
+      allocate(aspzone(nzone))
+      allocate(swreszone(nzone))
    end if
 
    if (ytest == "1DJ") then
@@ -1472,12 +1433,12 @@ program pression_ecoulement_transport_thermique
 !CC...Calcul le nombre de zone
       end do
 
-      allocate (jzone(nzone))
-      allocate (akzone(nzone))
-      allocate (omzone(nzone))
-      allocate (anszone(nzone))
-      allocate (aspzone(nzone))
-      allocate (swreszone(nzone))
+      allocate(jzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(anszone(nzone))
+      allocate(aspzone(nzone))
+      allocate(swreszone(nzone))
    end if
 
    SELECT CASE (ytest)
@@ -1549,7 +1510,7 @@ program pression_ecoulement_transport_thermique
          swresz(i) = swreszone(j)
          rhos(i) = rhomzone(j)
       end if
-      print *, ak(1)
+
 
 !cc test zone
       end do
@@ -1580,11 +1541,12 @@ program pression_ecoulement_transport_thermique
 !cc loop zone
       end do
 !cc loop element
-
+ 
    CASE ('AVA', 'TEX')
-      allocate (cpmzone(nzone))
-      allocate (anszone(nzone))
-      allocate (swreszone(nzone))
+      allocate(cpmzone(nzone))
+      allocate(anszone(nzone))
+      allocate(swreszone(nzone))
+
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), anszone(j), aspzone(j), &
             swreszone(j), alandazone(j), cpmzone(j), rhomzone(j)
@@ -1599,7 +1561,7 @@ program pression_ecoulement_transport_thermique
          ansun(i) = anszone(j)
          asun(i) = aspzone(j)
          swresz(i) = swreszone(j)
-         alandas(i) = alandazone(j)
+        alandas(i) = alandazone(j)
          cps(i) = cpmzone(j)
          rhos(i) = rhomzone(j)
       end if
@@ -2443,12 +2405,14 @@ program pression_ecoulement_transport_thermique
 !                          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !CC....COMPTEUR
+
    icpt = 0
    it = 0
 !CC....indice regime permanant thermique
    irptha = irpth
 !CC....Boucle temps jusqu a fin de simulation
    do while (nitt*unitsim - paso > 0)
+         print*,dt,paso
       it = it + 1
 !CC....Compteur iteration calcul PICARD
       nk = 0
@@ -2597,9 +2561,10 @@ program pression_ecoulement_transport_thermique
                                     chgRD, chgRG, tempRD, tempRG, &
                                     id_RD, id_RG, id_river, id_rivert, tempsurf, &
                                     tempbot, chgsurf, chgbot, &
-                                    cRivG, cRivD, &
-                                    tempDTS, x, icol, nc, tempo, pro, slopeRH, &
+                                    x, icol, nc, tempo, pro, &
                                     qsurf, qbot)
+
+
       end if
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2713,16 +2678,16 @@ program pression_ecoulement_transport_thermique
 
 !ccc....recalcul car chgt pas temps
                call variation_cdt_limites(nm, paso, itlecture, ytest, &
-                                          ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
-                                          icl, valcl, iclt, valclt, ivois, &
-                                          z, g, ntsortie, bm, irptha, &
-                                          rho, qpluie, chgriver, &
-                                          chgRD, chgRG, tempRD, tempRG, &
-                                          id_RD, id_RG, id_river, id_rivert, tempsurf, &
-                                          tempbot, chgsurf, chgbot, &
-                                          cRivG, cRivD, &
-                                          tempDTS, x, icol, nc, tempo, pro, slopeRH, &
-                                          qsurf, qbot)
+                                    ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
+                                    icl, valcl, iclt, valclt, ivois, &
+                                    z, g, ntsortie, bm, irptha, &
+                                    rho, qpluie, chgriver, &
+                                    chgRD, chgRG, tempRD, tempRG, &
+                                    id_RD, id_RG, id_river, id_rivert, tempsurf, &
+                                    tempbot, chgsurf, chgbot, &
+                                    x, icol, nc, tempo, pro, &
+                                    qsurf, qbot)
+
             end if
 
             do i = 1, nm
@@ -3072,9 +3037,7 @@ program pression_ecoulement_transport_thermique
             nz = nm
             nmaxz = nmax
             nmaxzz = nmax1
-!         allocate(icol_ind(nmax))
-!         allocate(irow_ptr(nmax1))
-!         allocate(val(nmax)
+
 
             call matp(val, icol_ind, irow_ptr, x, z, b, am, ivois, &
                       rho, ak, akr, amu, dt, ia2, g, icl, valcl, rhold, om, pro, dswdp, &
@@ -3083,13 +3046,13 @@ program pression_ecoulement_transport_thermique
 !CC....Resolution
             n1 = nm
             nmaxz = nmax
-            nmaxzz = nmax1
-            if (ysolv == "BIC") then
+            nmaxzz = nmax
+         select case(ysolv)
+            case("BIC")
                call bicg(pr, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
-            end if
-            if (ysolv == "CGS") then
+            case("CGS")
                call cgs(pr, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
-            end if
+         end select
 
 !     if (ysolv == "LIB") then
 !       do i=1,nm+1
@@ -3108,7 +3071,10 @@ program pression_ecoulement_transport_thermique
             do ii = 1, nm
                if (abs(prk(ii) - pr(ii)) >= amaxp) amaxp = abs(prk(ii) - pr(ii))
                if (abs(prk(ii) - pr(ii)) >= amaxp) ipb = ii
-!       print*,"coucou",amaxp,pr(ii),prk(ii)
+
+      if (amaxp>50) print*,"coucou",amaxp,pr(ii),prk(ii),ipb,nk,am(ii),bm(ii),bm(ivois(ii,4))
+      
+      !   endif
             end do
             if (k > 999) amaxp = 1000
             if (k > 999) ipb = -9999
@@ -3724,12 +3690,9 @@ program pression_ecoulement_transport_thermique
       if (ytest == "ZHR" .or. ytest == "ZHZ") then
 
          if (irpth == 1 .and. irp .ne. 0) then
-            open (7782, file='S_vitesse_nmaille2_hb.dat')
             open (unit=59, file='Sim_temperature_maille1_t.dat')
             open (unit=60, file='Sim_temperature_maille2_t.dat')
             open (unit=61, file='Sim_temperature_maille3_t.dat')
-            open (7782, file='S_vitesse_nmaille2_hb.dat')
-            open (1818, file='S_flux_therm_velocity_1_t.dat')
             open (18181, file='Sim_velocity_profil_t.dat')
             open (18182, file='Sim_heat_flux_profil_t.dat')
             open (18183, file='Sim_temperature_profil_t.dat')
@@ -4185,13 +4148,12 @@ program pression_ecoulement_transport_thermique
 
 !CC....SORTIE ZH Karina
       if (ytest == "ZHR" .or. ytest == "ZHZ") then
+    !           print*,paso,vzm(1),valclt(1,3),temp(nmaille1)
+      !         print*,temp(nmaille2),temp(nmaille3)
          if (irecord == 1 .and. irpth == 1) then
             write (59, *) paso/unitsortie, temp(nmaille1)
             write (60, *) paso/unitsortie, temp(nmaille2)
             write (61, *) paso/unitsortie, temp(nmaille3)
-            write (7782, *) paso/unitsortie, vzp(nmaille2), vzm(nmaille2)
-            write (1818, *) paso/unitsortie, qcondu(1), qad(1), qtherm(1), vzm(1), &
-               temp(1), temp(2)
             do i = 1, nm
                write (18181, *) paso/unitsortie, z(i), vzm(i)
                write (18182, *) paso/unitsortie, z(i), qcondu(i), qad(i), qtherm(i)
@@ -4588,180 +4550,180 @@ program pression_ecoulement_transport_thermique
    close (321)
    close (331)
 
-   if (allocated(irow)) DEALLOCATE (irow)
-   if (allocated(icol_ind)) DEALLOCATE (icol_ind)
-   if (allocated(irow_ptr)) DEALLOCATE (irow_ptr)
-   if (allocated(b)) DEALLOCATE (b)
+   if (allocated(irow)) deallocate(irow)
+   if (allocated(icol_ind)) deallocate(icol_ind)
+   if (allocated(irow_ptr)) deallocate(irow_ptr)
+   if (allocated(b)) deallocate(b)
 
-   if (allocated(val)) DEALLOCATE (val)
-   if (allocated(ss)) DEALLOCATE (ss)
-   if (allocated(dswdp)) DEALLOCATE (dswdp)
-   if (allocated(om)) DEALLOCATE (om)
-   if (allocated(rhold)) DEALLOCATE (rhold)
-   if (allocated(akr)) DEALLOCATE (akr)
-   if (allocated(ak)) DEALLOCATE (ak)
-   if (allocated(akv)) DEALLOCATE (akv)
-   if (allocated(akrv)) DEALLOCATE (akrv)
+   if (allocated(val)) deallocate(val)
+   if (allocated(ss)) deallocate(ss)
+   if (allocated(dswdp)) deallocate(dswdp)
+   if (allocated(om)) deallocate(om)
+   if (allocated(rhold)) deallocate(rhold)
+   if (allocated(akr)) deallocate(akr)
+   if (allocated(ak)) deallocate(ak)
+   if (allocated(akv)) deallocate(akv)
+   if (allocated(akrv)) deallocate(akrv)
 
-   if (allocated(rho)) DEALLOCATE (rho)
-   if (allocated(sw)) DEALLOCATE (sw)
+   if (allocated(rho)) deallocate(rho)
+   if (allocated(sw)) deallocate(sw)
 
-   if (allocated(x)) DEALLOCATE (x)
-   if (allocated(z)) DEALLOCATE (z)
-   if (allocated(inum)) DEALLOCATE (inum)
-   if (allocated(inum2)) DEALLOCATE (inum2)
-   if (allocated(icol)) DEALLOCATE (icol)
-   if (allocated(am)) DEALLOCATE (am)
-   if (allocated(bm)) DEALLOCATE (bm)
+   if (allocated(x)) deallocate(x)
+   if (allocated(z)) deallocate(z)
+   if (allocated(inum)) deallocate(inum)
+   if (allocated(inum2)) deallocate(inum2)
+   if (allocated(icol)) deallocate(icol)
+   if (allocated(am)) deallocate(am)
+   if (allocated(bm)) deallocate(bm)
 
-   if (allocated(qbot)) DEALLOCATE (qbot)
-   if (allocated(qsurf)) DEALLOCATE (qsurf)
-   if (allocated(icl)) DEALLOCATE (icl)
-   if (allocated(valcl)) DEALLOCATE (valcl)
+   if (allocated(qbot)) deallocate(qbot)
+   if (allocated(qsurf)) deallocate(qsurf)
+   if (allocated(icl)) deallocate(icl)
+   if (allocated(valcl)) deallocate(valcl)
 
-   if (allocated(ivois)) DEALLOCATE (ivois)
+   if (allocated(ivois)) deallocate(ivois)
 
-   if (allocated(topo)) DEALLOCATE (topo)
-   if (allocated(bot)) DEALLOCATE (bot)
+   if (allocated(topo)) deallocate(topo)
+   if (allocated(bot)) deallocate(bot)
 
-   if (allocated(ibas)) DEALLOCATE (ibas)
+   if (allocated(ibas)) deallocate(ibas)
 
 !     if    (allocated(zbot))   DEALLOCATE(zbot)
 
-   if (allocated(vxm)) DEALLOCATE (vxm)
-   if (allocated(vxp)) DEALLOCATE (vxp)
-   if (allocated(vzp)) DEALLOCATE (vzp)
-   if (allocated(vzm)) DEALLOCATE (vzm)
-   if (allocated(pr)) DEALLOCATE (pr)
-   if (allocated(prk)) DEALLOCATE (prk)
-   if (allocated(pro)) DEALLOCATE (pro)
+   if (allocated(vxm)) deallocate(vxm)
+   if (allocated(vxp)) deallocate(vxp)
+   if (allocated(vzp)) deallocate(vzp)
+   if (allocated(vzm)) deallocate(vzm)
+   if (allocated(pr)) deallocate(pr)
+   if (allocated(prk)) deallocate(prk)
+   if (allocated(pro)) deallocate(pro)
    if (icycle == 1) then
-      if (allocated(alph)) DEALLOCATE (alph)
-      if (allocated(dl)) DEALLOCATE (dl)
-      if (allocated(def)) DEALLOCATE (def)
-      if (allocated(defo)) DEALLOCATE (defo)
-      if (allocated(dsipdtemp)) DEALLOCATE (dsipdtemp)
-      if (allocated(dsidp)) DEALLOCATE (dsidp)
-      if (allocated(dsipdp)) DEALLOCATE (dsipdp)
-      if (allocated(dsidtempoo)) DEALLOCATE (dsidtempoo)
-      if (allocated(dsidtempo)) DEALLOCATE (dsidtempo)
-      if (allocated(siceoo)) DEALLOCATE (siceoo)
-      if (allocated(dsidtempoo)) DEALLOCATE (dsidtempoo)
-      if (allocated(dsidtempo)) DEALLOCATE (dsidtempo)
-      if (allocated(zlo)) DEALLOCATE (zlo)
-      if (allocated(zloo)) DEALLOCATE (zloo)
-      if (allocated(zl)) DEALLOCATE (zl)
+      if (allocated(alph)) deallocate(alph)
+      if (allocated(dl)) deallocate(dl)
+      if (allocated(def)) deallocate(def)
+      if (allocated(defo)) deallocate(defo)
+      if (allocated(dsipdtemp)) deallocate(dsipdtemp)
+      if (allocated(dsidp)) deallocate(dsidp)
+      if (allocated(dsipdp)) deallocate(dsipdp)
+      if (allocated(dsidtempoo)) deallocate(dsidtempoo)
+      if (allocated(dsidtempo)) deallocate(dsidtempo)
+      if (allocated(siceoo)) deallocate(siceoo)
+      if (allocated(dsidtempoo)) deallocate(dsidtempoo)
+      if (allocated(dsidtempo)) deallocate(dsidtempo)
+      if (allocated(zlo)) deallocate(zlo)
+      if (allocated(zloo)) deallocate(zloo)
+      if (allocated(zl)) deallocate(zl)
 
    end if
    if (itr == 1) then
-      if (allocated(iclc)) DEALLOCATE (iclc)
-      if (allocated(valclc)) DEALLOCATE (valclc)
-      if (allocated(conco)) DEALLOCATE (conco)
-      if (allocated(conck)) DEALLOCATE (conck)
-      if (allocated(conc)) DEALLOCATE (conc)
+      if (allocated(iclc)) deallocate(iclc)
+      if (allocated(valclc)) deallocate(valclc)
+      if (allocated(conco)) deallocate(conco)
+      if (allocated(conck)) deallocate(conck)
+      if (allocated(conc)) deallocate(conc)
    end if
-   if (allocated(chgbot)) DEALLOCATE (chgbot)
-   if (allocated(chgsurf)) DEALLOCATE (chgsurf)
-   if (allocated(tempbot)) DEALLOCATE (tempbot)
-   if (allocated(tempsurf)) DEALLOCATE (tempsurf)
-   if (allocated(asun)) DEALLOCATE (asun)
-   if (allocated(ansun)) DEALLOCATE (ansun)
-   if (allocated(dswpdp)) DEALLOCATE (dswpdp)
-   if (allocated(dswdt)) DEALLOCATE (dswdt)
+   if (allocated(chgbot)) deallocate(chgbot)
+   if (allocated(chgsurf)) deallocate(chgsurf)
+   if (allocated(tempbot)) deallocate(tempbot)
+   if (allocated(tempsurf)) deallocate(tempsurf)
+   if (allocated(asun)) deallocate(asun)
+   if (allocated(ansun)) deallocate(ansun)
+   if (allocated(dswpdp)) deallocate(dswpdp)
+   if (allocated(dswdt)) deallocate(dswdt)
 
-   if (allocated(zs)) DEALLOCATE (zs)
-   if (allocated(zso)) DEALLOCATE (zso)
-   if (allocated(zsoo)) DEALLOCATE (zsoo)
-   if (allocated(dsidtemp)) DEALLOCATE (dsidtemp)
-   if (allocated(sice)) DEALLOCATE (sice)
-   if (allocated(rhoi)) DEALLOCATE (rhoi)
-   if (allocated(siceo)) DEALLOCATE (siceo)
-   if (allocated(sicep)) DEALLOCATE (sicep)
+   if (allocated(zs)) deallocate(zs)
+   if (allocated(zso)) deallocate(zso)
+   if (allocated(zsoo)) deallocate(zsoo)
+   if (allocated(dsidtemp)) deallocate(dsidtemp)
+   if (allocated(sice)) deallocate(sice)
+   if (allocated(rhoi)) deallocate(rhoi)
+   if (allocated(siceo)) deallocate(siceo)
+   if (allocated(sicep)) deallocate(sicep)
 
    if (ichi == 1) then
-      if (allocated(chg)) DEALLOCATE (chg)
+      if (allocated(chg)) deallocate(chg)
    end if
 
-   if (allocated(tempoo)) DEALLOCATE (tempoo)
-   if (allocated(temp)) DEALLOCATE (temp)
-   if (allocated(tempo)) DEALLOCATE (tempo)
-   if (allocated(tempk)) DEALLOCATE (tempk)
+   if (allocated(tempoo)) deallocate(tempoo)
+   if (allocated(temp)) deallocate(temp)
+   if (allocated(tempo)) deallocate(tempo)
+   if (allocated(tempk)) deallocate(tempk)
    if (ith == 1) then
-      if (allocated(valclt)) DEALLOCATE (valclt)
-      if (allocated(rhos)) DEALLOCATE (rhos)
-      if (allocated(cps)) DEALLOCATE (cps)
-      if (allocated(alanda)) DEALLOCATE (alanda)
-      if (allocated(qad)) DEALLOCATE (qad)
-      if (allocated(alandas)) DEALLOCATE (alandas)
-      if (allocated(iclt)) DEALLOCATE (iclt)
+      if (allocated(valclt)) deallocate(valclt)
+      if (allocated(rhos)) deallocate(rhos)
+      if (allocated(cps)) deallocate(cps)
+      if (allocated(alanda)) deallocate(alanda)
+      if (allocated(qad)) deallocate(qad)
+      if (allocated(alandas)) deallocate(alandas)
+      if (allocated(iclt)) deallocate(iclt)
 
-      if (allocated(qtherm)) DEALLOCATE (qtherm)
-      if (allocated(valclto)) DEALLOCATE (valclto)
+      if (allocated(qtherm)) deallocate(qtherm)
+      if (allocated(valclto)) deallocate(valclto)
 
-      if (allocated(qcondu)) DEALLOCATE (qcondu)
+      if (allocated(qcondu)) deallocate(qcondu)
 
    end if
 
    if (ytest == "AVA" .or. ytest == "ZHZ"&
   &.or. ytest == "DTS" .or. ytest == "TEX") then
-      if (allocated(alandazone)) DEALLOCATE (alandazone)
-      if (allocated(cpmzone)) DEALLOCATE (cpmzone)
-      if (allocated(rhomzone)) DEALLOCATE (rhomzone)
-      if (allocated(izone)) DEALLOCATE (izone)
-      if (allocated(jzone)) DEALLOCATE (jzone)
-      if (allocated(akzone)) DEALLOCATE (akzone)
-      if (allocated(omzone)) DEALLOCATE (omzone)
+      if (allocated(alandazone)) deallocate(alandazone)
+      if (allocated(cpmzone)) deallocate(cpmzone)
+      if (allocated(rhomzone)) deallocate(rhomzone)
+      if (allocated(izone)) deallocate(izone)
+      if (allocated(jzone)) deallocate(jzone)
+      if (allocated(akzone)) deallocate(akzone)
+      if (allocated(omzone)) deallocate(omzone)
    end if
 
-   if (ytest == "AVAV" .or. ytest == "TEX") then
-      if (allocated(tempRD)) DEALLOCATE (tempRD)
-      if (allocated(tempRG)) DEALLOCATE (tempRG)
-      if (allocated(id_RD)) DEALLOCATE (id_RD)
-      if (allocated(id_RG)) DEALLOCATE (id_RG)
-      if (allocated(id_ZH)) DEALLOCATE (id_ZH)
-      if (allocated(chgRD)) DEALLOCATE (chgRD)
-      if (allocated(chgRG)) DEALLOCATE (chgRG)
-      if (allocated(id_river)) DEALLOCATE (id_river)
-      if (allocated(id_rivert)) DEALLOCATE (id_rivert)
-      if (allocated(chgriver)) DEALLOCATE (chgriver)
-      if (allocated(tempriver)) DEALLOCATE (tempriver)
-      if (allocated(tempsol)) DEALLOCATE (tempsol)
-      if (allocated(qpluie)) DEALLOCATE (qpluie)
-      if (allocated(anszone)) DEALLOCATE (anszone)
-      if (allocated(swreszone)) DEALLOCATE (swreszone)
-      if (allocated(aspzone)) DEALLOCATE (aspzone)
-      if (allocated(swresz)) DEALLOCATE (swresz)
+   if (ytest == "AVA" .or. ytest == "TEX") then
+      if (allocated(tempRD)) deallocate(tempRD)
+      if (allocated(tempRG)) deallocate(tempRG)
+      if (allocated(id_RD)) deallocate(id_RD)
+      if (allocated(id_RG)) deallocate(id_RG)
+      if (allocated(id_ZH)) deallocate(id_ZH)
+      if (allocated(chgRD)) deallocate(chgRD)
+      if (allocated(chgRG)) deallocate(chgRG)
+      if (allocated(id_river)) deallocate(id_river)
+      if (allocated(id_rivert)) deallocate(id_rivert)
+      if (allocated(chgriver)) deallocate(chgriver)
+      if (allocated(tempriver)) deallocate(tempriver)
+      if (allocated(tempsol)) deallocate(tempsol)
+      if (allocated(qpluie)) deallocate(qpluie)
+      if (allocated(anszone)) deallocate(anszone)
+      if (allocated(swreszone)) deallocate(swreszone)
+      if (allocated(aspzone)) deallocate(aspzone)
+      if (allocated(swresz)) deallocate(swresz)
    end if
    if (ytest == "DTS") then
-      if (allocated(tempRD)) DEALLOCATE (tempRD)
-      if (allocated(tempRG)) DEALLOCATE (tempRG)
-      if (allocated(timeG)) DEALLOCATE (timeG)
-      if (allocated(timeD)) DEALLOCATE (timeD)
-      if (allocated(timeDTS)) DEALLOCATE (timeDTS)
-      if (allocated(cRivG)) DEALLOCATE (cRivG)
-      if (allocated(cRivD)) DEALLOCATE (cRivD)
-      if (allocated(xDTS)) DEALLOCATE (xDTS)
-      if (allocated(tempDTS)) DEALLOCATE (tempDTS)
-      if (allocated(xDTS)) DEALLOCATE (xDTS)
-      if (allocated(slopeRH)) DEALLOCATE (slopeRH)
-      if (allocated(xpool)) DEALLOCATE (xpool)
-      if (allocated(xriffle)) DEALLOCATE (xriffle)
-      if (allocated(qout_w)) DEALLOCATE (qout_w)
-      if (allocated(qout_wR)) DEALLOCATE (qout_wR)
-      if (allocated(qin_w)) DEALLOCATE (qin_w)
-      if (allocated(qin_wR)) DEALLOCATE (qin_wR)
-      if (allocated(qout_h)) DEALLOCATE (qout_h)
-      if (allocated(qout_hR)) DEALLOCATE (qout_hR)
-      if (allocated(qin_h)) DEALLOCATE (qin_h)
-      if (allocated(qin_hR)) DEALLOCATE (qin_hR)
-      if (allocated(qadvout_h)) DEALLOCATE (qadvout_h)
-      if (allocated(qadvout_hR)) DEALLOCATE (qadvout_hR)
-      if (allocated(qadvin_h)) DEALLOCATE (qadvin_h)
-      if (allocated(qadvin_hR)) DEALLOCATE (qadvin_hR)
-      if (allocated(qcondout_h)) DEALLOCATE (qcondout_h)
-      if (allocated(qcondout_hR)) DEALLOCATE (qcondout_hR)
-      if (allocated(qcondin_h)) DEALLOCATE (qcondin_h)
-      if (allocated(qcondin_hR)) DEALLOCATE (qcondin_hR)
+      if (allocated(tempRD)) deallocate(tempRD)
+      if (allocated(tempRG)) deallocate(tempRG)
+      if (allocated(timeG)) deallocate(timeG)
+      if (allocated(timeD)) deallocate(timeD)
+      if (allocated(timeDTS)) deallocate(timeDTS)
+      if (allocated(cRivG)) deallocate(cRivG)
+      if (allocated(cRivD)) deallocate(cRivD)
+      if (allocated(xDTS)) deallocate(xDTS)
+      if (allocated(tempDTS)) deallocate(tempDTS)
+      if (allocated(xDTS)) deallocate(xDTS)
+      if (allocated(slopeRH)) deallocate(slopeRH)
+      if (allocated(xpool)) deallocate(xpool)
+      if (allocated(xriffle)) deallocate(xriffle)
+      if (allocated(qout_w)) deallocate(qout_w)
+      if (allocated(qout_wR)) deallocate(qout_wR)
+      if (allocated(qin_w)) deallocate(qin_w)
+      if (allocated(qin_wR)) deallocate(qin_wR)
+      if (allocated(qout_h)) deallocate(qout_h)
+      if (allocated(qout_hR)) deallocate(qout_hR)
+      if (allocated(qin_h)) deallocate(qin_h)
+      if (allocated(qin_hR)) deallocate(qin_hR)
+      if (allocated(qadvout_h)) deallocate(qadvout_h)
+      if (allocated(qadvout_hR)) deallocate(qadvout_hR)
+      if (allocated(qadvin_h)) deallocate(qadvin_h)
+      if (allocated(qadvin_hR)) deallocate(qadvin_hR)
+      if (allocated(qcondout_h)) deallocate(qcondout_h)
+      if (allocated(qcondout_hR)) deallocate(qcondout_hR)
+      if (allocated(qcondin_h)) deallocate(qcondin_h)
+      if (allocated(qcondin_hR)) deallocate(qcondin_hR)
    end if
 
 !     if    (allocated(zaqui))  DEALLOCATE(zaqui)
@@ -4822,7 +4784,7 @@ SUBROUTINE count_file(My_LUN, iosnew, Num)
    integer, INTENT(OUT) :: num
    integer :: iosnew
    Integer                         :: My_LUN
-
+        num=0
    do while (iosnew == 0)
       read (My_LUN, *, iostat=iosnew)
       if (iosnew == 0) then
@@ -4830,6 +4792,7 @@ SUBROUTINE count_file(My_LUN, iosnew, Num)
       end if
    end do
    rewind (My_LUN)
+       
 
    return
 end
@@ -5072,7 +5035,7 @@ subroutine matp(val, icol_ind, irow_ptr, x, z, b, am, ivois, &
    implicit CHARACTER*5(y)
    dimension b(nm), x(nm), z(nm)
    dimension ivois(nm, 4), dsidtemp(nm), temp(nm)
-   dimension val(nmax), icol_ind(nmax), irow_ptr(nmax1)
+   dimension val(nmax1), icol_ind(nmax1), irow_ptr(nmax1)
    dimension dswdp(nm), om(nm), rhold(nm)
    dimension akr(nm), ak(nm), rho(nm), sw(nm), pro(nm)
    dimension icl(nm, 4), am(nm), valcl(nm, 4)
@@ -5604,24 +5567,38 @@ subroutine unsaturated(pr, sw, dswdp, swresz, ans, akr, &
    dimension pr(nm), sw(nm)
    dimension akr(nm), dswdp(nm), akrv(nm)
    dimension ansun(nm), asun(nm), swresz(nm)
+
+   double precision :: prc, as, ans, swres, swt
+
 !CCCC ZNS SSSSSSSSSSSSSSSS
+
+
+!$omp parallel do private(prc, as, ans, swres, swt)
    do i = 1, nm
-!CC....Recalcul des parametre dependant de P
+      ! Recalcul des parametres dependant de P
       prc = 0.D+00
       if (pr(i) <= 0d+00) prc = -pr(i)
-!       alpha parametres de VG permeabilite en fonction de la saturation 1cm= 98.1 Pascals
-      as = (asun(i)/(rho1*g))
+
+      ! Calcul des paramètres de Van Genuchten
+      as = asun(i) / (rho1 * g)
       ans = ansun(i)
       swres = swresz(i)
-      sw(i) = swres + (1 - swres)*(1./(1 + (as*prc)**ans))**((ans - 1)/ans)
-      if (sw(i) - swres <= 1d-05) sw(i) = swres + 1d-05
-      dswdp(i) = as*(ans - 1)*(1 - swres)*(as*prc)**(ans - 1)/(1 + (as*prc)**ans) &
-                 **((2*ans - 1)/ans)
-      swt = (sw(i) - swres)/(1.-swres)
-      akr(i) = (swt**0.5)*((1 - (1 - swt**(ans/(ans - 1)))**((ans - 1)/ans))**2)
-      akrv(i) = (swt**0.5)*((1 - (1 - swt**(ans/(ans - 1)))**((ans - 1)/ans))**2)
 
+      ! Calcul de la saturation en eau
+      sw(i) = swres + (1 - swres) * (1.D0 / (1.D0 + (as * prc)**ans))**((ans - 1.D0) / ans)
+      if (sw(i) - swres <= 1d-05) sw(i) = swres + 1d-05
+
+      ! Calcul de la dérivée de la saturation par rapport à la pression
+      dswdp(i) = as * (ans - 1.D0) * (1.D0 - swres) * (as * prc)**(ans - 1.D0) / &
+                 (1.D0 + (as * prc)**ans)**((2.D0 * ans - 1.D0) / ans)
+
+      ! Calcul de la perméabilité relative
+      swt = (sw(i) - swres) / (1.D0 - swres)
+      akr(i) = (swt**0.5D0) * ((1.D0 - (1.D0 - swt**(ans / (ans - 1.D0)))**((ans - 1.D0) / ans))**2)
+      akrv(i) = akr(i)
    end do
+!$omp end parallel do
+
    return
 end
 
@@ -7284,7 +7261,7 @@ subroutine interpolsurf(nc, zo, nm, icol, pr, ivois, &
    dimension bm(nm), pr(nm)
    dimension icol(nm), icl(nm, 4), id_rivert(ligne6)
    dimension id_river(ligne5), chgriver(ligne2)
-
+   to=0
    kimp = int(paso/itlecture) + 1
    if (kimp > ligne2) kimp = ligne2
 !CCC position surf piezo
@@ -7295,16 +7272,10 @@ subroutine interpolsurf(nc, zo, nm, icol, pr, ivois, &
 ! TEST COLONNE
          if (icol(i) == kkcol) then
             ili = ivois(i, 3)
-            if (ili < nm + 1 .and. ili .ne. -99 .and. &
-                pr(i) >= to .and. pr(ili) < to) then
-               zo(kkcol, 1) = z(ivois(i, 3)) + &
-                              ((z(ili) - z(i))/(pr(ili) - pr(i)) &
-                               *(to - pr(ili)))
-            end if
-
-!CC PAS DE VOISIN EN HAUT
-            if (zo(kkcol, 1) == -99 .and. &
-                ivois(i, 3) == -99 .and. &
+            select case (ivois(i, 3))
+            case (-99)
+         !CC PAS DE VOISIN EN HAUT
+            if (zo(kkcol, 1) == -99 .and.  &
                 pr(i) > to .and. &
                 valcl(i, 3) < to .and. &
                 icl(i, 3) == -2) then
@@ -7312,6 +7283,16 @@ subroutine interpolsurf(nc, zo, nm, icol, pr, ivois, &
                               (bm(i)/2)/(valcl(i, 3) - pr(i)) &
                               *(to - valcl(i, 3))
             end if
+            case default
+            if (ili < nm + 1 .and. &
+                pr(i) >= to .and. pr(ili) < to) then
+               zo(kkcol, 1) = z(ivois(i, 3)) + &
+                              ((z(ili) - z(i))/(pr(ili) - pr(i)) &
+                               *(to - pr(ili)))
+            end if
+            end select
+
+
 
 !CPAS DE VOISIN EN BAS
             if (ivois(i, 4) == -99 .and. zo(kkcol, 1) == -99 .and. &
@@ -7525,6 +7506,466 @@ end
 !ccc....
 
 subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
+                                 ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
+                                 icl, valcl, iclt, valclt, ivois, &
+                                 z, g, ntsortie, bm, irptha, &
+                                 rho, qpluie, chgriver, &
+                                 chgRD, chgRG, tempRD, tempRG, &
+                                 id_RD, id_RG, id_river, id_rivert, tempsurf, &
+                                 tempbottom, chgsurf, chgbottom, &
+                                 x, icol, nc, tempo, pro, &
+                                 qsurf, qbottom)
+!     nc nb de colonnes
+!     nr nb de ligne
+!       qre debit pluie
+!       ivois(ik,1)= voisin droite
+!       ivois(ik,2)= voisin gauche
+!       ivois(ik,3)= voisin haut
+!       ivois(ik,4)= voisin ibas
+!       nm nombre de mailles reelles
+! ECOULEMENT icl condition valcl valeur
+!       ICL=-1 Flux impose sur une face
+!       ICL=-2 potentiel impose sur une face
+!       ICL=1 Mailles 'normale'
+!       ICL(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
+! THERMIQUE iclt condition valclt valeur
+!       ICLT=-1 Flux impose sur une face
+!       ICLT=-2 potentiel impose sur une face
+!       ICLT=1 Mailles 'normale'
+!       ICLT(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
+!       akr(i)=permeabilite relative
+!       ak(i)=permeabilite intrinseque
+
+   implicit double precision(a - h, o - z)
+   implicit integer(i - n)
+   dimension ivois(nm, 4), valcl(nm, 4), icl(nm, 4)
+   dimension valclt(nm, 4), iclt(nm, 4), z(nm)
+   dimension rho(nm), bm(nm), x(nm)
+   dimension icol(nm)
+   dimension chgbottom(ntsortie), chgsurf(ntsortie)
+   dimension qbottom(ntsortie), qsurf(ntsortie)
+   dimension qpluie(ligne1), chgRD(ligne2)
+   dimension chgRG(ligne2), tempRD(ligne2)
+   dimension id_RD(ligne3), id_RG(ligne4)
+   dimension id_river(ligne5), chgriver(ligne2)
+   dimension tempRG(ligne1), id_rivert(ligne6)
+   dimension tempsurf(ntsortie), tempbottom(ntsortie)
+   dimension pro(nm)
+   dimension tempo(nm)
+   CHARACTER(3) :: ytest
+   kimp = int(paso/itlecture)
+
+   select case (ytest)
+
+   case ("WAR")
+      if (kimp > ligne4) kimp = ligne4
+      select case (icl(nm, 4))
+      case (-2)
+         valcl(nm, 4) = chgbottom(kimp)*rho(nm)*g
+      case (-1)
+         valcl(nm, 4) = qbottom(kimp)
+      end select
+      select case (icl(1, 3))
+      case (-2)
+         valcl(1, 3) = chgsurf(kimp)*rho(1)*g
+      case (-1)
+         valcl(1, 3) = qsurf(kimp)
+      end select
+   case ("ZNS")
+
+      if (kimp > ligne4) kimp = ligne4
+      select case (icl(nm, 4))
+      case (-2)
+         zbas = z(nm) - bm(nm)/2
+         if (abs(zbas) < 1e-6) zbas = 0D+00
+         valcl(nm, 4) = (rho(nm)*g*(chgbottom(ligne4) - zbas))
+      case (-1)
+         valcl(nm, 4) = qbottom(kimp)
+      end select
+
+      if (ivois(1, 3) == -99) then
+         select case (icl(1, 3))
+         case (-2)
+            zhaut = z(1) + bm(1)/2
+            if (abs(zhaut) < 1e-6) zhaut = 0D+00
+            valcl(1, 3) = rho(1)*g*(chgsurf(kimp) - zhaut)
+         case (-1)
+            valcl(1, 3) = qsurf(kimp)
+         end select
+      end if
+
+   case ("ZND")
+
+      if (kimp > ligne4) kimp = ligne4
+      select case (icl(nm, 4))
+      case (-2)
+         zbas = z(nm) - bm(nm)/2
+         if (abs(zbas) < 1e-6) zbas = 0D+00
+         valcl(nm, 4) = (rho(nm)*g*(chgbottom(ligne4) - zbas))
+      case (-1)
+         valcl(nm, 4) = 0
+      end select
+
+      if (ivois(1, 3) == -99) then
+         zhaut = z(1) + bm(1)/2
+         if (chgsurf(kimp) - zhaut >= 0.001) then
+            icl(1, 3) = -2
+         else
+            icl(1, 3) = -1
+         end if
+         select case (icl(1, 3))
+         case (-2)
+            print *, 'coucou', chgsurf(kimp)
+            zhaut = z(1) + bm(1)/2
+            if (abs(zhaut) < 1e-6) zhaut = 0D+00
+            valcl(1, 3) = rho(1)*g*(chgsurf(kimp) - zhaut)
+         case (-1)
+            valcl(1, 3) = 0
+         end select
+      end if
+
+   end select
+
+   if (ytest == "ZHR" .or. ytest == "ZHZ") then
+      if (kimp > ligne4) kimp = ligne4
+      iclt(1, 3) = -2
+      valclt(1, 3) = tempsurf(kimp)
+      icl(1, 3) = -2
+      zhaut = z(1) + bm(1)/2
+      if (abs(zhaut) < 1e-6) zhaut = 0D+00
+      valcl(1, 3) = rho(1)*g*(chgsurf(kimp) - zhaut)
+      icl(nm, 4) = -2
+      zbas = z(nm) - bm(nm)/2
+      if (abs(zbas) < 1e-6) zbas = 0D+00
+      valcl(nm, 4) = rho(nm)*g*(chgbottom(kimp) - zbas)
+      iclt(nm, 4) = -2
+      valclt(nm, 4) = tempbottom(kimp)
+      if (kimp > ligne4) then
+         iclt(1, 3) = -2
+         valclt(1, 3) = tempsurf(ligne4)
+         icl(1, 3) = -2
+         zhaut = z(1) + bm(1)/2
+         if (abs(zhaut) < 1e-6) zhaut = 0D+00
+         valcl(1, 3) = (rho(1)*g*(chgsurf(ligne4) - zhaut))
+         icl(nm, 4) = -2
+         zbas = z(nm) - bm(nm)/2
+         if (abs(zbas) < 1e-6) zbas = 0D+00
+         valcl(nm, 4) = (rho(nm)*g*(chgbottom(ligne4) - zbas))
+         iclt(nm, 4) = -2
+         valclt(nm, 4) = tempbottom(ligne4)
+      end if
+      if (irptha == 0) then
+         iclt(1, 3) = -2
+         valclt(1, 3) = tempsurf(1)
+         icl(1, 3) = -2
+         zhaut = z(1) + bm(1)/2
+         if (abs(zhaut) < 1e-6) zhaut = 0D+00
+         valcl(1, 3) = rho(1)*g*(chgsurf(1) - zhaut)
+         icl(nm, 4) = -2
+         zbas = z(nm) - bm(nm)/2
+         if (abs(zbas) < 1e-6) zbas = 0D+00
+         valcl(nm, 4) = rho(nm)*g*(chgbottom(1) - zbas)
+         iclt(nm, 4) = -2
+         valclt(i, 4) = tempbottom(1)
+      end if
+
+   end if
+
+   if (ytest == "1DS") then
+      if (kimp < 1) kimp = 1
+
+      if (kimp > ligne4) kimp = ligne4
+      valclt(1, 3) = tempsurf(kimp)
+      zhaut = z(1) + bm(1)/2
+      if (abs(zhaut) < 1e-6) zhaut = 0D+00
+      if (icl(1, 3) == -2) valcl(1, 3) = rho(1)*g*(chgsurf(kimp) - zhaut)
+      if (icl(1, 3) == -1) valcl(1, 3) = chgsurf(kimp)
+      zbas = z(nm) - bm(nm)/2
+      if (abs(zbas) < 1e-6) zbas = 0D+00
+      if (icl(nm, 4) == -2) valcl(nm, 4) = rho(nm)*g*(chgbottom(kimp) - zbas)
+      if (icl(nm, 4) == -1) valcl(nm, 4) = chgbottom(kimp)
+      valclt(nm, 4) = tempbottom(kimp)
+
+      if (kimp > ligne4) then
+         valclt(1, 3) = tempsurf(ligne4)
+         zhaut = z(1) + bm(1)/2
+         if (abs(zhaut) < 1e-6) zhaut = 0D+00
+         if (icl(1, 3) == -2) valcl(1, 3) = (rho(1)*g*(chgsurf(ligne4) - zhaut))
+         if (icl(1, 3) == -1) valcl(1, 3) = chgsurf(ligne4)
+         zbas = z(nm) - bm(nm)/2
+         if (abs(zbas) < 1e-6) zbas = 0D+00
+         if (icl(nm, 4) == -2) then
+            valcl(nm, 4) = rho(nm)*g*(chgbottom(ligne4) - zbas)
+         end if
+         if (icl(nm, 4) == -1) then
+            valcl(nm, 4) = chgbottom(ligne4)
+         end if
+         valclt(nm, 4) = tempbottom(ligne4)
+      end if
+
+      if (irptha == 0) then
+         iclt(1, 3) = -2
+         valclt(1, 3) = tempsurf(1)
+         icl(1, 3) = -2
+         zhaut = z(1) + bm(1)/2
+         if (abs(zhaut) < 1e-6) zhaut = 0D+00
+         if (icl(1, 3) == -2) valcl(1, 3) = rho(1)*g*(chgsurf(1) - zhaut)
+         if (icl(1, 3) == -1) valcl(1, 3) = chgsurf(1)
+         zbas = z(nm) - bm(nm)/2
+         if (abs(zbas) < 1e-6) zbas = 0D+00
+         if (icl(nm, 4) == -2) valcl(nm, 4) = rho(nm)*g*(chgbottom(1) - zbas)
+         if (icl(nm, 4) == -1) valcl(nm, 4) = chgbottom(1)
+      end if
+
+   end if
+
+   if (ytest == "1DJ") then
+      if (kimp < 1) kimp = 1
+
+      if (kimp > ligne4) kimp = ligne4
+      zhaut = z(1) + bm(1)/2
+      if (abs(zhaut) < 1e-6) zhaut = 0D+00
+      if (icl(1, 3) == -2) valcl(1, 3) = rho(1)*g*(chgsurf(kimp) - zhaut)
+      if (icl(1, 3) == -1) valcl(1, 3) = chgsurf(kimp)
+      zbas = z(nm) - bm(nm)/2
+      if (abs(zbas) < 1e-6) zbas = 0D+00
+      if (icl(nm, 4) == -2) valcl(nm, 4) = rho(nm)*g*(chgbottom(kimp) - zbas)
+      if (icl(nm, 4) == -1) valcl(nm, 4) = chgbottom(kimp)
+
+      if (kimp > ligne4) then
+         zhaut = z(1) + bm(1)/2
+         if (abs(zhaut) < 1e-6) zhaut = 0D+00
+         if (icl(1, 3) == -2) valcl(1, 3) = (rho(1)*g*(chgsurf(ligne4) - zhaut))
+         if (icl(1, 3) == -1) valcl(1, 3) = chgsurf(ligne4)
+         zbas = z(nm) - bm(nm)/2
+         if (abs(zbas) < 1e-6) zbas = 0D+00
+         if (icl(nm, 4) == -2) then
+            valcl(nm, 4) = rho(nm)*g*(chgbottom(ligne4) - zbas)
+         end if
+         if (icl(nm, 4) == -1) then
+            valcl(nm, 4) = chgbottom(ligne4)
+         end if
+      end if
+
+      if (irptha == 0) then
+         iclt(1, 3) = -2
+         icl(1, 3) = -2
+         zhaut = z(1) + bm(1)/2
+         if (abs(zhaut) < 1e-6) zhaut = 0D+00
+         if (icl(1, 3) == -2) valcl(1, 3) = rho(1)*g*(chgsurf(1) - zhaut)
+         if (icl(1, 3) == -1) valcl(1, 3) = chgsurf(1)
+         zbas = z(nm) - bm(nm)/2
+         if (abs(zbas) < 1e-6) zbas = 0D+00
+         if (icl(nm, 4) == -2) valcl(nm, 4) = rho(nm)*g*(chgbottom(1) - zbas)
+         if (icl(nm, 4) == -1) valcl(nm, 4) = chgbottom(1)
+      end if
+
+   end if
+
+   if (ytest == "MAQ") then
+      if (kimp > ligne4) kimp = ligne4
+      do i = 1, nm
+!     if(paso >= 86400*1) then
+!       if (ivois(i,4) == -99) then
+!     icl(i,4)=-2
+!     valcl(i,4)=(1-z(i))*rho(i)*g
+!     endif
+!     endif
+!     if(paso > 86400*3) then
+!     if (ivois(i,4) == -99) then
+!     icl(i,4)=-1
+!     valcl(i,4)=0
+!     endif
+!     endif
+
+         if (ivois(i, 3) == -99) then
+            iclt(i, 3) = -2
+            valclt(i, 3) = tempsurf(kimp)
+         end if
+         if (ivois(i, 4) == -99) then
+            iclt(i, 4) = -2
+            valclt(i, 4) = tempbottom(kimp)
+         end if
+      end do
+   end if
+
+   if (ytest == "AVA") then
+
+      if (kimp > ligne2) kimp = ligne2
+!ccc.... 1 heure
+      kheure = int(paso/3600) + 1
+      if (kheure > ligne) kheure = ligne
+!ccc.... 1 jour
+      kjour = int(paso/86400) + 1
+      if (kjour > ligne1) kjour = ligne1
+      do i = 1, nm
+!ccc....CDT LIMITE SOL
+         if (ivois(i, 3) == -99) then
+            iclt(i, 3) = -2
+            icl(i, 3) = -1
+            valcl(i, 3) = qpluie(kjour)
+!     valclt(i,3)=tempsol(kheure)
+         end if
+!ccc....CDT LIMITE BOTTOM
+         if (ivois(i, 4) == -99) then
+            iclt(i, 4) = -1
+            icl(i, 4) = -1
+!     valclt(i,4)=0
+!     valcl(i,4)=0
+         end if
+!ccc....CDT LIMITE RD
+
+         do j = 1, ligne3
+         if (i == id_RD(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            icl(i, 1) = -2
+            valcl(i, 1) = (chgRD(kimp) - z(i))*rho(i)*g
+!     iclt(i,1)=-2
+!     valclt(i,1)=tempRD(kimp)-
+!     &(tempRD(kimp)-tempsol(kheure))
+!     &/(76.83-79.81)*(76.83-z(i))
+         end if
+         end do
+
+!ccc....CDT LIMITE RG
+         do j = 1, ligne4
+         if (i == id_RG(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            icl(i, 2) = -2
+            valcl(i, 2) = (chgRG(kimp) - z(i))*rho(i)*g
+!     print*,valcl(i,2),chgRG(kimp)
+!     iclt(i,2)=-2
+!     valclt(i,2)=tempRG(kimp)-
+!     &(tempRG(kimp)-tempsol(kheure))
+!     &/(76.83-79.81)*(76.83-z(i))
+         end if
+         end do
+!ccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
+         do j = 1, ligne5
+         if (i == id_river(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            icl(i, 3) = -2
+            zhaut = z(i) + bm(i)/2
+            valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
+!     iclt(i,3)=-2
+!     valclt(i,3)=tempriver(kimp)
+         end if
+         end do
+
+!ccc....CDT LIMITE RIVER a tester
+         do j = 1, ligne6
+         if (i == id_rivert(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            if (z(i) + bm(i)/2 < chgriver(kimp)) then
+               icl(i, 3) = -2
+               zhaut = z(i) + bm(i)/2
+               valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
+!     iclt(i,3)=-2
+!     valclt(i,3)=tempriver(kimp)
+            end if
+         end if
+         end do
+
+      end do
+   end if
+
+   if (ytest == "VAU") then
+!CC....ECOULEMENT VAUCLIN
+      do i = 1, nm
+      if (ivois(i, 1) == -99) then
+         icl(i, 1) = -2
+         valcl(i, 1) = dble(0.65 - z(i))*rho(i)*g
+      end if
+
+      if (ivois(i, 2) == -99) then
+         icl(i, 2) = -1
+         valcl(i, 1) = dble(0)
+      end if
+      qre = 148D-03/3600
+      if (ivois(i, 3) == -99) then
+         icl(i, 3) = -1
+         valcl(i, 3) = dble(0)
+      end if
+      if (ivois(i, 3) == -99 .and. x(i) <= 0.5) then
+         icl(i, 3) = -1
+         valcl(i, 3) = qre
+      end if
+      if (ivois(i, 4) == -99) then
+         icl(i, 4) = -1
+         valcl(i, 4) = dble(0)
+      end if
+      end do
+   end if
+
+   if (ytest == "TEX") then
+
+      if (kimp > ligne2) kimp = ligne2
+!ccc.... 1 heure
+      kheure = int(paso/3600) + 1
+      if (kheure > ligne) kheure = ligne
+!ccc.... 1 jour
+      kjour = int(paso/86400) + 1
+      if (kjour > ligne1) kjour = ligne1
+      do i = 1, nm
+!ccc....CDT LIMITE SOL
+         if (ivois(i, 3) == -99) then
+            iclt(i, 3) = -2
+            icl(i, 3) = -1
+            valcl(i, 3) = qpluie(kjour)
+         end if
+!ccc....CDT LIMITE BOTTOM
+         if (ivois(i, 4) == -99) then
+            iclt(i, 4) = -1
+            icl(i, 4) = -1
+         end if
+!ccc....CDT LIMITE RD
+
+         do j = 1, ligne3
+         if (i == id_RD(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            icl(i, 1) = -2
+            valcl(i, 1) = (chgRD(kimp) - z(i))*rho(i)*g
+         end if
+         end do
+
+!ccc....CDT LIMITE RG
+         do j = 1, ligne4
+         if (i == id_RG(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            icl(i, 2) = -2
+            valcl(i, 2) = (chgRG(kimp) - z(i))*rho(i)*g
+         end if
+         end do
+!ccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
+         do j = 1, ligne5
+         if (i == id_river(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            icl(i, 3) = -2
+            zhaut = z(i) + bm(i)/2
+            valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
+         end if
+         end do
+
+!ccc....CDT LIMITE RIVER variable dans le temps
+         do j = 1, ligne6
+         if (i == id_rivert(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            if (z(i) + bm(i)/2 < chgriver(kimp)) then
+               icl(i, 3) = -2
+               zhaut = z(i) + bm(i)/2
+               valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
+            end if
+         end if
+         end do
+
+      end do
+   end if
+
+   return
+end
+
+
+subroutine variation_cdt_limitesDTS(nm, paso, itlecture, ytest, &
                                  ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
                                  icl, valcl, iclt, valclt, ivois, &
                                  z, g, ntsortie, bm, irptha, &
@@ -8179,4 +8620,6 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
    end if
 
    return
+
+
 end
