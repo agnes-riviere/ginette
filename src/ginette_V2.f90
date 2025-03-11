@@ -630,52 +630,48 @@ program pression_ecoulement_transport_thermique
    case ("AVA", "TEX")
 
 
-
       ligne = 0
       ligne1 = 0
       ligne2 = 0
 
 !CC....lecture des données
 !ccc...tempsol
-      call count_file(225, iTsol, ligne)
-      allocate(tempsol(ligne))
+      call count_file(225, iTsol, ligneT)  !E_TempSol.dat
+      allocate(tempsol(ligneT))
 
 
       rewind (225)
-      do j = 1, ligne
+      do j = 1, ligneT
          read (225, *, iostat=iTsol) tempsol(j)
       end do
-
+      ligne=ligneT
 !ccc...qpluie
-      call count_file(226, i226, ligne1)
+      call count_file(226, i226, ligne_pluie)  !E_PluieR.dat
 
-
-      allocate(qpluie(ligne1))
+      ligne1=ligne_pluie
+      allocate(qpluie(ligne_pluie))
       rewind (226)
-      do j = 1, ligne1
+      do j = 1, ligne_pluie
          read (226, *, iostat=i226) qpluie(j)
       end do
 !ccc...boundaries wall
-      call count_file(222, iCRD, ligne2)
-
-
-      allocate(chgbot(ligne2))
-      allocate(chgsurf(ligne2))
-      allocate(tempbot(ligne2))
-      allocate(tempsurf(ligne2))
-      allocate(chgRD(ligne2))
-      allocate(chgRG(ligne2))
-      allocate(tempRD(ligne2))
-      allocate(tempRG(ligne2))
-      allocate(tempriver(ligne2))
-      allocate(chgriver(ligne2))
-      allocate(cRivG(ligne2))
-      allocate(cRivD(ligne2))
-      allocate(qsurf(ligne2))
-      allocate(qbot(ligne2))
+      call count_file(227, iCRD, ligneCL)  !E_chargeT_RD.dat'
+      ligne2=ligneCL
+      
+      allocate(chgbot(ligneCL))
+      allocate(chgsurf(ligneCL))
+      allocate(tempbot(ligneCL))
+      allocate(tempsurf(ligneCL))
+      allocate(chgRD(ligneCL))
+      allocate(chgRG(ligneCL))
+      allocate(tempRD(ligneCL))
+      allocate(tempRG(ligneCL))
+      allocate(tempriver(ligneCL))
+      allocate(chgriver(ligneCL))
+      allocate(qsurf(ligneCL))
+      allocate(qbot(ligneCL))
       rewind (227)
-
-      do j = 1, ligne2
+      do j = 1, ligneCL
          read (228, *) chgRG(j)
          read (227, *, iostat=iCRD) chgRD(j)
 !      read(229,*)tempRD(j)
@@ -1551,8 +1547,9 @@ program pression_ecoulement_transport_thermique
          read (321, *) jzone(j), akzone(j), omzone(j), anszone(j), aspzone(j), &
             swreszone(j), alandazone(j), cpmzone(j), rhomzone(j)
       end do
-      do i = 1, nm
+
       do j = 1, nzone
+            do i = 1, nm
       if (izone(i) == jzone(j)) then
          ak(i) = akzone(j)
          akv(i) = akzone(j)
@@ -2399,6 +2396,197 @@ program pression_ecoulement_transport_thermique
    end do
    end if
 
+
+ !!!!!!!!!!!!!!!!!!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!                                                               C
+!     OUVERTURE FICHIERS SORTIES                                C
+!                                                               C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+!CC....FICHIER FIN DE SIMULATION
+      open (74, file='S_pression_charge_temperature.dat')
+!CC....FICHIERS A TRIER
+!       open(49,file='S_profil_temp_colonne_choisie_t.dat')
+!       open(91,file='S_pression_charge_temperature_t.dat')
+!       open(62,file='S_bound_permafrost_t.dat')
+!       open(63,file='S_soulevemnt_t.dat')
+!       open(67,file='S_debit_riviere_t.dat')
+!       open(782,file='S_moy_vitesses.dat')
+!       open(786,file='S_flux.dat')
+!       open(52,file='S_pression_charge_temperature_maillechoisie.dat')
+!       open(53,file='S_charge_capteurs.dat')
+!       OPEN(94,FILE='S_permeabilite_t.dat')
+!       open(96,FILE='S_surpression_t.dat')
+      select case(ytest)
+!CC....FICHIERS these texier
+      case("TEX") 
+      if (irpth == 1) then
+         open (7782, file='S_fichier_tot.dat')
+      end if
+
+!CC....FICHIERS ZNS 1D
+      case ("ZNS") 
+         open (1818, file='S_hydraulic_conductivities_profil_t.dat')
+         open (18181, file='S_saturation_profil_t.dat')
+         open (18182, file='S_pressure_profil_t.dat')
+
+
+      case ("ZND") 
+         open (1818, file='S_hydraulic_conductivities_profil_t.dat')
+         open (18181, file='S_saturation_profil_t.dat')
+         open (18182, file='S_pressure_profil_t.dat')
+
+!CC....FICHIERS ZNS 1D
+      case ("WAR") 
+      if (irp == 1) then
+         open (1818, file='S_hydraulic_conductivities_profil_t.dat')
+         open (18181, file='S_saturation_profil_t.dat')
+         open (18182, file='S_pressure_profil_t.dat')
+      end if
+
+
+!CC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
+      case ("ZHR", "ZHZ")
+
+         if (irpth == 1 .and. irp .ne. 0) then
+            open (unit=59, file='Sim_temperature_maille1_t.dat')
+            open (unit=60, file='Sim_temperature_maille2_t.dat')
+            open (unit=61, file='Sim_temperature_maille3_t.dat')
+            open (18181, file='Sim_velocity_profil_t.dat')
+            open (18182, file='Sim_heat_flux_profil_t.dat')
+            open (18183, file='Sim_temperature_profil_t.dat')
+!       open(unit=64,file='Sim_temperature_maille4_t.dat')
+!       open(unit=65,file='Sim_temperature_maille5_t.dat')
+         end if
+
+!CC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
+      case ("1DS") 
+
+         if (irpth == 1 .and. irp .ne. 0) then
+            open (7782, file='S_vitesse_nmaille2_hb.dat')
+            open (unit=59, file='Sim_temperature_maille1_t.dat')
+            open (unit=60, file='Sim_temperature_maille2_t.dat')
+            open (unit=61, file='Sim_temperature_maille3_t.dat')
+            open (unit=65, file='Sim_temperature_maille5_t.dat')
+            open (unit=66, file='Sim_temperature_maille6_t.dat')
+            open (unit=67, file='Sim_temperature_maille7_t.dat')
+            open (unit=591, file='Sim_temperature_maille8_t.dat')
+            open (unit=69, file='Sim_temperature_maille9_t.dat')
+            open (unit=591, file='Sim_temperature_maille10_t.dat')
+            open (7782, file='S_vitesse_nmaille2_hb.dat')
+            open (181822, file='Sim_pressure_profil_t.dat')
+            open (1818, file='S_flux_therm_velocity_1_t.dat')
+            open (18181, file='Sim_velocity_profil_t.dat')
+            open (18182, file='Sim_heat_flux_profil_t.dat')
+            open (18183, file='Sim_temperature_profil_t.dat')
+            open (unit=64, file='Sim_temperature_maille4_t.dat')
+            OPEN (94, FILE='S_permeabilite_t.dat')
+            OPEN (941, FILE='S_saturation_profil_t.dat')
+            OPEN (942, FILE='S_conduct_therm_t.dat')
+            OPEN (943, FILE='S_cap_term_t.dat')
+
+         end if
+
+
+!CC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
+      case("1DJ") 
+
+         if (irpth == 1 .and. irp .ne. 0) then
+            open (7782, file='S_vitesse_nmaille2_hb.dat')
+            open (181822, file='Sim_pressure_profil_t.dat')
+            open (18181, file='Sim_velocity_profil_t.dat')
+            OPEN (94, FILE='S_permeabilite_t.dat')
+            OPEN (941, FILE='S_saturation_profil_t.dat')
+
+         end if
+
+
+!CC....SORTIE MAQ GEL/DEGEL
+      case ("MAQ") 
+         open (19, file='S_soulevement_1_t.dat')
+         open (53, file='S_Charges_cap_t.dat')
+         open (54, file='S_temp_cap_t.dat')
+         open (56, file='S_temp_PT100_t.dat')
+         open (18, file='S_bound_permaf_1_t.dat')
+
+!CC...INTERFROST LUNARDINI
+      case ("THL") 
+         open (743, file='S_pression_charge_temperature_day_3.dat')
+         open (742, file='S_pression_charge_temperature_day_2.dat')
+         open (741, file='S_pression_charge_temperature_day_1.dat')
+!CC...INTERFROST TEST NEUMAN
+      case ("TH1") 
+         open (18, file='S_bound_permaf_1_t.dat')
+         open (53, file='S_Temp_id400_t.dat')
+         open (1818, file='S_bilan_therm_t.dat')
+
+!CC....INTERFROST TEST TH3
+      case ("TH3") 
+         OPEN (181818, FILE='S_TH3.dat', form='unformatted')
+         OPEN (181819, FILE='S_TH31.dat')
+         OPEN (181820, FILE='S_TH3nm.dat')
+
+
+!CC....INTERFROST TEST TH2
+      case ("TH2") 
+         OPEN (181819, FILE='S_TH21.dat')
+         OPEN (181820, FILE='S_sortie_TH2nm.dat')
+         OPEN (181818, FILE='S_TH2.dat', form='unformatted')
+
+
+      case ("VIT") 
+         open (unit=59, file='Sim_temperature_maille1_t.dat')
+         open (unit=60, file='Sim_temperature_maille2_t.dat')
+         open (unit=61, file='Sim_temperature_maille3_t.dat')
+
+
+!CC...AVAV Marine Dangead
+      case ("AVA") 
+         if (ith == 1) then
+            OPEN (181819, FILE='S_temp_zns1.dat')
+            OPEN (181820, FILE='S_temp_zns2.dat')
+            OPEN (181818, FILE='S_temp_zns3.dat')
+            OPEN (181821, FILE='S_temp_TRes1.dat')
+            OPEN (181822, FILE='S_temp_TRes2.dat')
+            OPEN (181823, FILE='S_temp_HoboRD.dat')
+            OPEN (181824, FILE='S_temp_HoboRG.dat')
+         end if
+         OPEN (94, FILE='S_permeabilite_t.dat')
+         OPEN (941, FILE='S_saturation_t.dat')
+         OPEN (942, FILE='S_temperature_t.dat')
+         OPEN (943, FILE='S_pression_t.dat')                     
+         OPEN (181825, FILE='S_piezoB_RD.dat')
+         OPEN (181826, FILE='S_piezoB_RG.dat')
+         OPEN (181827, FILE='S_surf_piezo_avril.dat')
+         OPEN (181831, FILE='S_surf_piezo_juin_bf_rain.dat')
+         OPEN (181828, FILE='S_surf_piezo_juin.dat')
+         OPEN (181829, FILE='S_surf_piezo_aout.dat')
+         OPEN (62, file='S_surf_piezo_finale.dat')
+         open (751, file='S_charge_initiale_10days.dat')
+         open (181830, FILE='S_flux_ZH_aq.dat')
+
+
+!CC...DTS
+      case ("DTS") 
+!       OPEN(181819,FILE='S_velocity.dat')
+!       OPEN(181820,FILE='S_temperature.dat')
+!       OPEN(181821,FILE='S_pressure.dat')
+         open (751, file='S_charge_initiale_10days.dat')
+         OPEN (181822, FILE='S_MolTempP40.dat')
+         OPEN (181823, FILE='S_MolTempP42.dat')
+         OPEN (181840, FILE='S_MolTempP41.dat')
+         OPEN (181841, FILE='S_MolTempP43.dat')
+         OPEN (181842, FILE='S_MolTempP44.dat')
+         OPEN (181843, FILE='S_MolTempP45.dat')
+!     OPEN(181845,FILE='S_MolFluxpP41.dat')
+!     OPEN(181846,FILE='S_MolFluxP43.dat')
+!     OPEN(181847,FILE='S_MolFluxP44.dat')
+!     OPEN(181848,FILE='S_MolFluxP45.dat')
+!     OPEN(329,FILE='S_Hd_P_month1.dat')
+!     OPEN(330,FILE='S_Hd_P_month2.dat')
+!     OPEN(331,FILE='S_Hd_P_month3.dat')
+      end select
+
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                          C
 !          BOUCLE TEMPS               C
@@ -2412,7 +2600,7 @@ program pression_ecoulement_transport_thermique
    irptha = irpth
 !CC....Boucle temps jusqu a fin de simulation
    do while (nitt*unitsim - paso > 0)
-         print*,dt,paso
+!         print*,dt,paso
       it = it + 1
 !CC....Compteur iteration calcul PICARD
       nk = 0
@@ -3072,7 +3260,7 @@ program pression_ecoulement_transport_thermique
                if (abs(prk(ii) - pr(ii)) >= amaxp) amaxp = abs(prk(ii) - pr(ii))
                if (abs(prk(ii) - pr(ii)) >= amaxp) ipb = ii
 
-      if (amaxp>50) print*,"coucou",amaxp,pr(ii),prk(ii),ipb,nk,am(ii),bm(ii),bm(ivois(ii,4))
+
       
       !   endif
             end do
@@ -3636,205 +3824,7 @@ program pression_ecoulement_transport_thermique
 !                                                 C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!                                                 C
-!     OUVERTURE FICHIERS SORTIES          C
-!                                                 C
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-!CC....FICHIER FIN DE SIMULATION
-      open (74, file='S_pression_charge_temperature.dat')
-!CC....FICHIERS A TRIER
-!       open(49,file='S_profil_temp_colonne_choisie_t.dat')
-!       open(91,file='S_pression_charge_temperature_t.dat')
-!       open(62,file='S_bound_permafrost_t.dat')
-!       open(63,file='S_soulevemnt_t.dat')
-!       open(67,file='S_debit_riviere_t.dat')
-!       open(782,file='S_moy_vitesses.dat')
-!       open(786,file='S_flux.dat')
-!       open(52,file='S_pression_charge_temperature_maillechoisie.dat')
-!       open(53,file='S_charge_capteurs.dat')
-!       OPEN(94,FILE='S_permeabilite_t.dat')
-!       open(96,FILE='S_surpression_t.dat')
-
-!CC....FICHIERS these texier
-      if (ytest == "TEX") then
-      if (irpth == 1) then
-         open (7782, file='S_fichier_tot.dat')
-      end if
-      end if
-
-!CC....FICHIERS ZNS 1D
-      if (ytest == "ZNS") then
-         open (1818, file='S_hydraulic_conductivities_profil_t.dat')
-         open (18181, file='S_saturation_profil_t.dat')
-         open (18182, file='S_pressure_profil_t.dat')
-      end if
-
-      if (ytest == "ZND") then
-         open (1818, file='S_hydraulic_conductivities_profil_t.dat')
-         open (18181, file='S_saturation_profil_t.dat')
-         open (18182, file='S_pressure_profil_t.dat')
-      end if
-
-!CC....FICHIERS ZNS 1D
-      if (ytest == "WAR") then
-      if (irp == 1) then
-         open (1818, file='S_hydraulic_conductivities_profil_t.dat')
-         open (18181, file='S_saturation_profil_t.dat')
-         open (18182, file='S_pressure_profil_t.dat')
-      end if
-      end if
-
-!CC....FICHIERS KARINA SCRIPT INVERSION COUPLAGE MAD
-      if (ytest == "ZHR" .or. ytest == "ZHZ") then
-
-         if (irpth == 1 .and. irp .ne. 0) then
-            open (unit=59, file='Sim_temperature_maille1_t.dat')
-            open (unit=60, file='Sim_temperature_maille2_t.dat')
-            open (unit=61, file='Sim_temperature_maille3_t.dat')
-            open (18181, file='Sim_velocity_profil_t.dat')
-            open (18182, file='Sim_heat_flux_profil_t.dat')
-            open (18183, file='Sim_temperature_profil_t.dat')
-!       open(unit=64,file='Sim_temperature_maille4_t.dat')
-!       open(unit=65,file='Sim_temperature_maille5_t.dat')
-         end if
-      end if
-
-!CC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
-      if (ytest == "1DS") then
-
-         if (irpth == 1 .and. irp .ne. 0) then
-            open (7782, file='S_vitesse_nmaille2_hb.dat')
-            open (unit=59, file='Sim_temperature_maille1_t.dat')
-            open (unit=60, file='Sim_temperature_maille2_t.dat')
-            open (unit=61, file='Sim_temperature_maille3_t.dat')
-            open (unit=65, file='Sim_temperature_maille5_t.dat')
-            open (unit=66, file='Sim_temperature_maille6_t.dat')
-            open (unit=67, file='Sim_temperature_maille7_t.dat')
-            open (unit=591, file='Sim_temperature_maille8_t.dat')
-            open (unit=69, file='Sim_temperature_maille9_t.dat')
-            open (unit=591, file='Sim_temperature_maille10_t.dat')
-            open (7782, file='S_vitesse_nmaille2_hb.dat')
-            open (181822, file='Sim_pressure_profil_t.dat')
-            open (1818, file='S_flux_therm_velocity_1_t.dat')
-            open (18181, file='Sim_velocity_profil_t.dat')
-            open (18182, file='Sim_heat_flux_profil_t.dat')
-            open (18183, file='Sim_temperature_profil_t.dat')
-            open (unit=64, file='Sim_temperature_maille4_t.dat')
-            OPEN (94, FILE='S_permeabilite_t.dat')
-            OPEN (941, FILE='S_saturation_profil_t.dat')
-            OPEN (942, FILE='S_conduct_therm_t.dat')
-            OPEN (943, FILE='S_cap_term_t.dat')
-
-         end if
-      end if
-
-!CC....FICHIERS KARINA SCRIPT EMMANUEL LEGER
-      if (ytest == "1DJ") then
-
-         if (irpth == 1 .and. irp .ne. 0) then
-            open (7782, file='S_vitesse_nmaille2_hb.dat')
-            open (181822, file='Sim_pressure_profil_t.dat')
-            open (18181, file='Sim_velocity_profil_t.dat')
-            OPEN (94, FILE='S_permeabilite_t.dat')
-            OPEN (941, FILE='S_saturation_profil_t.dat')
-
-         end if
-      end if
-
-!CC....SORTIE MAQ GEL/DEGEL
-      if (ytest == "MAQ") then
-         open (19, file='S_soulevement_1_t.dat')
-         open (53, file='S_Charges_cap_t.dat')
-         open (54, file='S_temp_cap_t.dat')
-         open (56, file='S_temp_PT100_t.dat')
-         open (18, file='S_bound_permaf_1_t.dat')
-      end if
-!CC...INTERFROST LUNARDINI
-      if (ytest == "THL") then
-         open (743, file='S_pression_charge_temperature_day_3.dat')
-         open (742, file='S_pression_charge_temperature_day_2.dat')
-         open (741, file='S_pression_charge_temperature_day_1.dat')
-      end if
-!CC...INTERFROST TEST NEUMAN
-      if (ytest == "TH1") then
-         open (18, file='S_bound_permaf_1_t.dat')
-         open (53, file='S_Temp_id400_t.dat')
-         open (1818, file='S_bilan_therm_t.dat')
-      end if
-!CC....INTERFROST TEST TH3
-      if (ytest == "TH3") then
-         OPEN (181818, FILE='S_TH3.dat', form='unformatted')
-         OPEN (181819, FILE='S_TH31.dat')
-         OPEN (181820, FILE='S_TH3nm.dat')
-      end if
-
-!CC....INTERFROST TEST TH2
-      if (ytest == "TH2") then
-         OPEN (181819, FILE='S_TH21.dat')
-         OPEN (181820, FILE='S_sortie_TH2nm.dat')
-         OPEN (181818, FILE='S_TH2.dat', form='unformatted')
-      end if
-
-      if (ytest == "VIT") then
-         open (unit=59, file='Sim_temperature_maille1_t.dat')
-         open (unit=60, file='Sim_temperature_maille2_t.dat')
-         open (unit=61, file='Sim_temperature_maille3_t.dat')
-      end if
-
-!CC...AVAV Marine Dangead
-      if (ytest == "AVA") then
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!                                                 C
-!     SURFACE PIEZO               C
-!                                                 C
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
-         ts = 0
-         call interpolsurf(nc, zs, nm, icol, pr, ivois, &
-                           bm, z, valcl, icl, id_river, id_rivert, chgriver, &
-                           ligne5, ligne6, ligne2, paso, itlecture, rho1, g)
-         if (ith == 1) then
-            OPEN (181819, FILE='S_temp_zns1.dat')
-            OPEN (181820, FILE='S_temp_zns2.dat')
-            OPEN (181818, FILE='S_temp_zns3.dat')
-            OPEN (181821, FILE='S_temp_TRes1.dat')
-            OPEN (181822, FILE='S_temp_TRes2.dat')
-            OPEN (181823, FILE='S_temp_HoboRD.dat')
-            OPEN (181824, FILE='S_temp_HoboRG.dat')
-         end if
-         OPEN (181825, FILE='S_piezoB_RD.dat')
-         OPEN (181826, FILE='S_piezoB_RG.dat')
-         OPEN (181827, FILE='S_surf_piezo_avril.dat')
-         OPEN (181831, FILE='S_surf_piezo_juin_bf_rain.dat')
-         OPEN (181828, FILE='S_surf_piezo_juin.dat')
-         OPEN (181829, FILE='S_surf_piezo_aout.dat')
-         OPEN (62, file='S_surf_piezo_finale.dat')
-         open (751, file='S_charge_initiale_10days.dat')
-         open (181830, FILE='S_flux_ZH_aq.dat')
-      end if
-
-!CC...DTS
-      if (ytest == "DTS") then
-!       OPEN(181819,FILE='S_velocity.dat')
-!       OPEN(181820,FILE='S_temperature.dat')
-!       OPEN(181821,FILE='S_pressure.dat')
-         open (751, file='S_charge_initiale_10days.dat')
-         OPEN (181822, FILE='S_MolTempP40.dat')
-         OPEN (181823, FILE='S_MolTempP42.dat')
-         OPEN (181840, FILE='S_MolTempP41.dat')
-         OPEN (181841, FILE='S_MolTempP43.dat')
-         OPEN (181842, FILE='S_MolTempP44.dat')
-         OPEN (181843, FILE='S_MolTempP45.dat')
-!     OPEN(181845,FILE='S_MolFluxpP41.dat')
-!     OPEN(181846,FILE='S_MolFluxP43.dat')
-!     OPEN(181847,FILE='S_MolFluxP44.dat')
-!     OPEN(181848,FILE='S_MolFluxP45.dat')
-!     OPEN(329,FILE='S_Hd_P_month1.dat')
-!     OPEN(330,FILE='S_Hd_P_month2.dat')
-!     OPEN(331,FILE='S_Hd_P_month3.dat')
-      end if
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
@@ -3842,7 +3832,9 @@ program pression_ecoulement_transport_thermique
 !                                                 C
 
 !CC....SORTIE these texier
-      if (ytest == "TEX") then
+         select case(ytest)
+         
+         case ("TEX") 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !     SURFACE PIEZO  INTERPOLATION LINEAR  C
@@ -3861,10 +3853,10 @@ program pression_ecoulement_transport_thermique
             end do
          end if
          end if
-      end if
+
 
 !CC....SORTIE ZNS 1D
-      if (ytest == "ZNS") then
+      case ("ZNS") 
          print *, "time", paso, "dt", dt, pr(100)/rho1/g + z(100), &
             valcl(1, 3), sw(1), sw(50), sw(2), akr(1)
          if (modulo(int(paso), itsortie) == 0) then
@@ -3878,9 +3870,9 @@ program pression_ecoulement_transport_thermique
             write (18182, *) paso/unitsortie, z(i), pr(i), pr(i)/rho1/g + z(i)
          end do
          end if
-      end if
 
-      if (ytest == "ZND") then
+
+      case ("ZND") 
          print *, "time", paso, "dt", dt, pr(1)/rho1/g + z(1), &
             valcl(1, 3)/rho1/g + z(1), sw(100), ak(100)
          if (modulo(int(paso), itsortie) == 0) then
@@ -3894,10 +3886,10 @@ program pression_ecoulement_transport_thermique
             write (18182, *) paso/unitsortie, z(i), pr(i), pr(i)/rho1/g + z(i)
          end do
          end if
-      end if
+
 
 !CC....SORTIE ZNS 1D
-      if (ytest == "WAR") then
+      case ("WAR") 
          print *, "time", paso, "dt", dt, vzm(1), pr(1), "K", ak(1)*akr(1)
 
          if (modulo(int(paso), itsortie) == 0) then
@@ -3911,10 +3903,10 @@ program pression_ecoulement_transport_thermique
             write (18182, *) paso/unitsortie, z(i), pr(i), pr(i)/rho1/g + z(i)
          end do
          end if
-      end if
+
 
 !CC...SORTIES DTS
-      if (ytest == "DTS") then
+      case ("DTS") 
       if (irecord == 1) then
 
          if (paso < 86400 + 10 .and. paso > 86400 - 10) then
@@ -4010,12 +4002,11 @@ program pression_ecoulement_transport_thermique
       print *, "cell 1", paso/86400, pr(98445)/rho1/g + z(98445), temp(98445)
       print *, "cell 1", paso/86400, pr(98525)/rho1/g + z(98525), temp(98525)
       print *, "cell 1", izone(98524)
-      end if
 
 !CC...SORTIES VAUCLIN parametre clement
 !       print*,paso/86400,dtCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      if (ytest == "VAU") then
+      case( "VAU") 
          ts = 0
          call interpolsurf(nc, zs, nm, icol, pr, ivois, &
                            bm, z, valcl, icl, id_river, id_rivert, chgriver, &
@@ -4063,23 +4054,35 @@ program pression_ecoulement_transport_thermique
             end if
 
          end if
-      end if
+
 
 !CC...SORTIES AVAV
 !CCC     id_ZH(j)
 
-      if (ytest == "AVA") then
+      case ("AVA")
+      
       if (irecord == 1) then
+         ts = 0
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!                                                 C
+!     SURFACE PIEZO               C
+!                                                 C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+         call interpolsurf(nc, zs, nm, icol, pr, ivois, &
+                           bm, z, valcl, icl, id_river, id_rivert, chgriver, &
+                           ligne5, ligne6, ligne2, paso, itlecture, rho1, g)
          qflux = 0D+00
          do j = 1, ligne7
             qflux = vzm(id_ZH(j))*am(id_ZH(j)) + qflux
          end do
          write (181830, *) paso/unitsortie, qflux
-
-         print *, "out", paso/86400, am(id_ZH(1)), qflux
+         print *, "out", paso/86400, paso,dt,am(id_ZH(1)), qflux,irecord
 !     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
 !     &zs(65,1),zs(217,1)
          if (ith == 1) then
+         do i=1,nm
+         write (942, *) paso/unitsortie,x(i), z(i), temp(i)
+         enddo
 !ccc....S_temp_zns1.dat') au milieu RD
             write (181819, *) paso/unitsortie, temp(257), temp(578), &
                temp(866), temp(1335)
@@ -4102,7 +4105,12 @@ program pression_ecoulement_transport_thermique
             write (181824, *) paso/unitsortie, temp(6927), temp(8107), temp(8992), &
                temp(9877)
          end if
+            do i=1,nm
+            write (94, *) paso/unitsortie,x(i), z(i), akv(i)*akrv(i)*rho(i)*g/amu
+            write (941, *) paso/unitsortie,x(i), z(i), sw(i)
 
+            write (943, *) paso/unitsortie,x(i), z(i), pr(i)
+            end do              
 !ccc....S_piezoB_RG.dat') zone 4
          write (181826, *) paso/unitsortie, pr(2706)/rho(2706)/g + z(2706), &
             zs(65, 1)
@@ -4144,10 +4152,10 @@ program pression_ecoulement_transport_thermique
          end do
          end if
       end if
-      end if
+
 
 !CC....SORTIE ZH Karina
-      if (ytest == "ZHR" .or. ytest == "ZHZ") then
+       case( "ZHR" ,"ZHZ")
     !           print*,paso,vzm(1),valclt(1,3),temp(nmaille1)
       !         print*,temp(nmaille2),temp(nmaille3)
          if (irecord == 1 .and. irpth == 1) then
@@ -4160,10 +4168,10 @@ program pression_ecoulement_transport_thermique
                write (18183, *) paso/unitsortie, z(i), temp(i)
             end do
          end if
-      end if
+
 
 !CC....SORTIE sol Emmanuel leger
-      if (ytest == "1DS") then
+      case ( "1DS") 
 
          print *, paso/unitsortie, dt, pr(1)/9800 + z(1), pr(nm)/9800 + z(nm)
          print *, 'bas=', valcl(nm, 4)/9800 + z(nm)
@@ -4197,10 +4205,10 @@ program pression_ecoulement_transport_thermique
                write (181822, *) paso/unitsortie, z(i), pr(i), pr(i)/rho1/g + z(i)
             end do
          end if
-      end if
+
 
 !CC....SORTIE sol Jose
-      if (ytest == "1DJ") then
+      case ( "1DJ") 
 
          print *, paso/unitsortie, dt, pr(1)/9800 + z(1), pr(nm)/9800 + z(nm)
          print *, 'bas=', valcl(nm, 4)/9800 + z(nm)
@@ -4216,10 +4224,10 @@ program pression_ecoulement_transport_thermique
                write (181822, *) paso/unitsortie, z(i), pr(i), pr(i)/rho1/g + z(i)
             end do
          end if
-      end if
+      
 
 !CC....SORTIES TEST LUNARDINI
-      if (ytest == "THL") then
+      case( "THL") 
          print *, "OUT", dt, paso
          if (irecord == 1) then
             print *, "OUT", paso/unitsortie, pr(nm)/rho(1)/g + z(nm), &
@@ -4240,13 +4248,13 @@ program pression_ecoulement_transport_thermique
                end do
             end if
          end if
-      end if
+
 !CC...SORTIES MAQUETTE EXP CYCLE 2
 !       print*,paso/86400,dt
 !       print*,pr(nm)/rho(nm)/g+z(nm)
 !     &,akr(7666),cimp,alanda(10321),temp(1)
 
-      if (ytest == "MAQ") then
+      case ("MAQ") 
          if (irecord == 1) then
          if (paso < 10*86400 + 1000 .and. paso > 10*86400 - 1000) then
             do i = 1, nm
@@ -4295,10 +4303,10 @@ program pression_ecoulement_transport_thermique
 !      write(63,*) paso/unitsortie,dl(kkcol),def(kkcol)
 !      enddo
          end if
-      end if
+
 !CC....sortie tests performances
 !CC...TEST NEUMAN
-      if (ytest == "TH1") then
+      case ( "TH1") 
          print *, "OUT", paso/unitsortie, irecord
          if (irecord == 1) then
 
@@ -4316,9 +4324,9 @@ program pression_ecoulement_transport_thermique
             end do
             rewind (unit=74)
          end if
-      end if
+
 !CC....TEST TH2
-      if (ytest == "TH2") then
+      case ("TH2") 
       if (irecord == 1) then
          write (181818) real(paso/unitsortie), real(tempmin), &
             real(swtotal), real(PF2)
@@ -4330,9 +4338,9 @@ program pression_ecoulement_transport_thermique
          end do
          rewind (unit=74)
       end if
-      end if
+
 !CC....TEST TH3
-      if (ytest == "TH3") then
+      case ("TH3") 
          print *, real(paso/unitsortie), real(akeq), real(qtcol), &
             real(qthermtot), real(pt1), real(pt2)
          if (irecord == 1) then
@@ -4349,7 +4357,7 @@ program pression_ecoulement_transport_thermique
             end do
             rewind (unit=74)
          end if
-      end if
+      end select
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                      C
@@ -4920,101 +4928,112 @@ subroutine cgs(x, b, n, k, val, icol_ind, irow_ptr, nmax, nmax1)
    dimension val(nmax), icol_ind(nmax), irow_ptr(nmax1)
    dimension x(n), r(n), u(n), p(n), vc(n)
    dimension b(n), q(n), rt(n), qc(n), uc(n), pc(n)
+   double precision :: sum, rho, rhoo, beta, alfa, amaxr
+   integer :: i, j, iii
+
 !ccccccResidu INITIAL
 ! produit matrice vecteur
+   !$omp parallel do private(i, j, sum) shared(val, icol_ind, irow_ptr, x, b, r, rt)
    do i = 1, n
-      sum = 0.
+      sum = 0.D0
       do j = irow_ptr(i), irow_ptr(i + 1) - 1
-         sum = sum + val(j)*x(icol_ind(j))
+         sum = sum + val(j) * x(icol_ind(j))
       end do
-
       r(i) = b(i) - sum
       rt(i) = r(i)
    end do
+   !$omp end parallel do
 
 !ccccccmeth gradient conjugue
-
-   amaxr = 1.
+   amaxr = 1.D0
    k = 0
 
    do while (amaxr >= 1.e-10 .and. k <= 1000)
       k = k + 1
       if (k > 1) rhoo = rho
-      rho = 0.
+      rho = 0.D0
+
+      !$omp parallel for reduction(+:rho) private(i) shared(rt, r)
       do i = 1, n
-         rho = rho + rt(i)*r(i)
-
+         rho = rho + rt(i) * r(i)
       end do
+      !$omp end parallel for
 
-      if (rho == 0.) then
-!   print*,'attention rho=0'
-!   write (20,*)'rho=0'
-         go to 11
+      if (rho == 0.D0) then
+         exit
       end if
 
       if (k == 1) then
-      do i = 1, n
-         u(i) = r(i)
-         p(i) = u(i)
-      end do
+         !$omp parallel do private(i) shared(u, p, r)
+         do i = 1, n
+            u(i) = r(i)
+            p(i) = u(i)
+         end do
+         !$omp end parallel do
       else
-      beta = rho/rhoo
-      if (beta == 0.) then
-!   print*,'attention beta=0'
-!   write (20,*)'sum=0'
-      end if
-      do i = 1, n
-         u(i) = r(i) + beta*q(i)
-         p(i) = u(i) + beta*(q(i) + beta*p(i))
-      end do
+         beta = rho / rhoo
+         if (beta == 0.D0) then
+            ! print*,'attention beta=0'
+         end if
+         !$omp parallel do private(i) shared(u, p, r, q, beta)
+         do i = 1, n
+            u(i) = r(i) + beta * q(i)
+            p(i) = u(i) + beta * (q(i) + beta * p(i))
+         end do
+         !$omp end parallel do
       end if
 
+      !$omp parallel do private(i) shared(pc, p)
       do i = 1, n
          pc(i) = p(i)
-
       end do
+      !$omp end parallel do
 
-      sum = 0.
+      sum = 0.D0
+      !$omp parallel do private(i, j) reduction(+:sum) shared(vc, val, icol_ind, irow_ptr, pc, rt)
       do i = 1, n
-         vc(i) = 0.
-!   sum=0.
-! produit matrice vecteur
+         vc(i) = 0.D0
          do j = irow_ptr(i), irow_ptr(i + 1) - 1
-            vc(i) = vc(i) + val(j)*pc(icol_ind(j))
+            vc(i) = vc(i) + val(j) * pc(icol_ind(j))
          end do
-         sum = sum + vc(i)*rt(i)
+         sum = sum + vc(i) * rt(i)
       end do
-      alfa = rho/sum
+      !$omp end parallel do
 
+      alfa = rho / sum
+
+      !$omp parallel do private(i) shared(q, u, vc, alfa, uc, x)
       do i = 1, n
-         q(i) = u(i) - alfa*vc(i)
+         q(i) = u(i) - alfa * vc(i)
          uc(i) = u(i) + q(i)
-         x(i) = x(i) + alfa*uc(i)
+         x(i) = x(i) + alfa * uc(i)
       end do
-! produit matrice vecteur
+      !$omp end parallel do
+
+      !$omp parallel do private(i, j) shared(qc, val, icol_ind, irow_ptr, uc, r, alfa)
       do i = 1, n
-         qc(i) = 0.
+         qc(i) = 0.D0
          do j = irow_ptr(i), irow_ptr(i + 1) - 1
-            qc(i) = qc(i) + val(j)*uc(icol_ind(j))
+            qc(i) = qc(i) + val(j) * uc(icol_ind(j))
          end do
-
-         r(i) = r(i) - alfa*qc(i)
-
+         r(i) = r(i) - alfa * qc(i)
       end do
+      !$omp end parallel do
 
-      amaxr = 0.
+      amaxr = 0.D0
+      !$omp parallel do private(i) shared(r) reduction(max:amaxr)
       do i = 1, n
-      if (abs(r(i)) > amaxr) then
-         amaxr = abs(r(i))
-         iii = i
-      end if
+         if (abs(r(i)) > amaxr) then
+            amaxr = abs(r(i))
+            iii = i
+         end if
       end do
+      !$omp end parallel do
 
    end do
 
-11 continue
-
 end
+
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
@@ -7624,9 +7643,9 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
          end select
       end if
 
-   end select
 
-   if (ytest == "ZHR" .or. ytest == "ZHZ") then
+
+   case ("ZHR","ZHZ") 
       if (kimp > ligne4) kimp = ligne4
       iclt(1, 3) = -2
       valclt(1, 3) = tempsurf(kimp)
@@ -7669,9 +7688,8 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
          valclt(i, 4) = tempbottom(1)
       end if
 
-   end if
 
-   if (ytest == "1DS") then
+   case("1DS") 
       if (kimp < 1) kimp = 1
 
       if (kimp > ligne4) kimp = ligne4
@@ -7717,9 +7735,8 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
          if (icl(nm, 4) == -1) valcl(nm, 4) = chgbottom(1)
       end if
 
-   end if
 
-   if (ytest == "1DJ") then
+   case ( "1DJ") 
       if (kimp < 1) kimp = 1
 
       if (kimp > ligne4) kimp = ligne4
@@ -7760,9 +7777,8 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
          if (icl(nm, 4) == -1) valcl(nm, 4) = chgbottom(1)
       end if
 
-   end if
 
-   if (ytest == "MAQ") then
+   case ( "MAQ") 
       if (kimp > ligne4) kimp = ligne4
       do i = 1, nm
 !     if(paso >= 86400*1) then
@@ -7787,9 +7803,9 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
             valclt(i, 4) = tempbottom(kimp)
          end if
       end do
-   end if
 
-   if (ytest == "AVA") then
+
+   case ("AVA") 
 
       if (kimp > ligne2) kimp = ligne2
 !ccc.... 1 heure
@@ -7867,9 +7883,9 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
          end do
 
       end do
-   end if
 
-   if (ytest == "VAU") then
+
+   case ( "VAU") 
 !CC....ECOULEMENT VAUCLIN
       do i = 1, nm
       if (ivois(i, 1) == -99) then
@@ -7895,9 +7911,9 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
          valcl(i, 4) = dble(0)
       end if
       end do
-   end if
+   
 
-   if (ytest == "TEX") then
+   case ( "TEX") 
 
       if (kimp > ligne2) kimp = ligne2
 !ccc.... 1 heure
@@ -7959,7 +7975,7 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
          end do
 
       end do
-   end if
+   end select
 
    return
 end
