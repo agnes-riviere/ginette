@@ -2,7 +2,8 @@
 AUCUNE MODIFICATION DU CODE N'IMPLIQUE LES DEVELLOPEURS AGNES RIVIERE JULIO GONCALVES ANNE JOST
 
 _Authors contacts_
-- agnes.riviere@mines_paristech.fr
+- agnes.riviere@minesparis.psl.eu
+- nicolas.radic@minesparis.psl.eu
 - goncalves@cerege.fr
 - anne.jost@upmc.fr
 
@@ -11,6 +12,18 @@ Pour toutes utilisation de ce code, les références suivantes doivent être cit
 > _Rivière, A., Jost, A., Gonçalvès, J., and Font, M. (2019) – Experimental and numerical studies of pore-water pressure variations in sub-permafrost groundwater. Cold Regions Science and Technology, 158, 76-94. ⟨10.1016/j.coldregions.2018.11.005⟩. _
 
 > _Rivière, A., Gonçalvès, J., Jost, A. and Font, M. (2014) – Experimental and numerical assessment of stream-aquifer exchanges during disconnection. Journal of Hydrology, 517, 574-583. ⟨10.1016/j.jhydrol.2014.05.040⟩._
+
+### COMPILATION
+#### Use gfortan
+$ gorftran -o #NAME_EXECUTABLE# ginette_V2.f90
+
+#### use meson 
+sudo apt-get install python3 ninja-build meson
+$ cd /path/to/ginette/src
+$ meson setup builddir && cd builddir
+$ meson compile
+$ meson test
+
 
 ### FICHIER ENTREE
     A REMPLIR :
