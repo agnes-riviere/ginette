@@ -388,6 +388,28 @@ program pression_ecoulement_transport_thermique
 
    end if
 
+   if (ytest == "R2D") then
+      icolone = 1
+      imaille = 0
+      itopo = 1
+      open (unit=32, file='E_zone.dat')
+      open (unit=321, file='E_zone_parameter.dat')
+      open (unit=222, file='E_BordRD.dat', iostat=iidRD)
+      open (unit=223, file='E_BordRG.dat', iostat=iidRG)
+      open (unit=2242, file='E_bottomZH.dat', iostat=iidZH)
+      open (unit=224, file='E_Id_river.dat', iostat=iidrv)
+      open (unit=2244, file='E_Id_river_max.dat', iostat=iidrvtest)
+ !     open (unit=225, file='E_TempSol.dat', iostat=iTsol)
+ !     open (unit=226, file='E_PluieR.dat', iostat=i226)
+      open (unit=227, file='E_chargeT_RD.dat', iostat=iCRD)
+      open (unit=228, file='E_chargeT_RG.dat')
+     open(unit=229,file='E_tempT_RD.dat')
+     open(unit=230,file='E_tempT_RG.dat')
+     open(unit=231,file='E_tempT_Riv.dat')
+      open (unit=232, file='E_chargeT_Riv.dat')
+
+   end if
+
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !    FICHIERS DTS                             C
@@ -670,6 +692,95 @@ program pression_ecoulement_transport_thermique
       allocate(chgriver(ligneCL))
       allocate(qsurf(ligneCL))
       allocate(qbot(ligneCL))
+      rewind (227)
+      do j = 1, ligneCL
+         read (228, *) chgRG(j)
+         read (227, *, iostat=iCRD) chgRD(j)
+!      read(229,*)tempRD(j)
+!      read(230,*)tempRG(j)
+!      read(231,*)tempriver(j)
+         read (232, *) chgriver(j)
+      end do
+
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!                                                 C
+!   LECTURE FILE IBUILT   IDENTIFIANT      C
+!                                                 C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+!CC....INITIALISATION COMPTEUR LIGNES
+      ligne3 = 0
+      ligne4 = 0
+      ligne5 = 0
+      ligne6 = 0
+      ligne7 = 0
+
+!CC....lecture des données
+!ccc...bord droit
+      call count_file(222, iidRD, ligne3)  ! 222 = E_BordRD.dat
+
+      allocate(id_RD(ligne3))
+      rewind (222)
+      do j = 1, ligne3
+         read (222, *, iostat=iidRD) id_RD(j)
+      end do
+
+!ccc...bord gauche
+      call count_file(223, iidRG, ligne4) ! 223 = E_BordRG.dat
+      allocate(id_RG(ligne4))
+      rewind (223)
+      do j = 1, ligne4
+         read (223, *, iostat=iidRG) id_RG(j)
+      end do
+
+!ccc...riviere
+      call count_file(224, iidrv, ligne5) ! 224 = E_Id_river.dat
+      rewind (224)
+
+      allocate(id_river(ligne5))
+
+      do j = 1, ligne5
+         read (224, *, iostat=iidrv) id_river(j)
+      end do
+
+!ccc...riviere a tester
+      call count_file(2244, iidrvtest, ligne6) ! 2244 = E_Id_river_max.dat
+      rewind (2244)
+
+      allocate(id_rivert(ligne6))
+
+      do j = 1, ligne6
+         read (2244, *, iostat=iidrvtest) id_rivert(j)
+      end do
+
+!CC if ZH pour flux
+      call count_file(2242, iidZH, ligne7) ! 2242 = E_bottomZH.dat
+      rewind (2242)
+      allocate(id_ZH(ligne7))
+
+      do j = 1, ligne7
+         read (2242, *, iostat=iidZH) id_ZH(j)
+      end do
+
+
+     case ("R2D")
+
+
+      ligne = 0
+      ligne1 = 0
+      ligne2 = 0
+
+!CC....lecture des données
+!ccc...boundaries wall
+      call count_file(227, iCRD, ligneCL)  !E_chargeT_RD.dat'
+      ligne2=ligneCL
+      
+      allocate(chgRD(ligneCL))
+      allocate(chgRG(ligneCL))
+      allocate(tempRD(ligneCL))
+      allocate(tempRG(ligneCL))
+      allocate(tempriver(ligneCL))
+      allocate(chgriver(ligneCL))
       rewind (227)
       do j = 1, ligneCL
          read (228, *) chgRG(j)
@@ -1367,78 +1478,29 @@ program pression_ecoulement_transport_thermique
    !                                                 C
    !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-   if (ytest == "AVA" .or. ytest == "ZHZ" .or. ytest == "DTS" .or. ytest == "TEX") then
-      nzone = 0
-      do i = 1, nm
-         read (32, *) izone(i)
-         nzone = max(nzone, izone(i))
-   !CC...Calcul le nombre de zone
-      end do
-      
-      allocate(alandazone(nzone))
-      allocate(rhomzone(nzone))
-      allocate(akzone(nzone))
-      allocate(omzone(nzone))
-      allocate(aspzone(nzone))
-      allocate(jzone(nzone))
-      end if
-      if (ytest == "ZNS" .or. ytest == "ZND") then
-
-      nzone = 0
-      do i = 1, nm
-         read (32, *) izone(i)
-
-         nzone = max(nzone, izone(i))
-
-   !CC...Calcul le nombre de zone
-      end do
-
-      allocate(jzone(nzone))
-      allocate(akzone(nzone))
-      allocate(omzone(nzone))
-      allocate(anszone(nzone))
-      allocate(aspzone(nzone))
-      allocate(swreszone(nzone))
-      allocate(rhomzone(nzone))
-      end if
-
-   if (ytest == "1DS") then
-      nzone = 0
-      do i = 1, nm
-         read (32, *) izone(i)
-         nzone = max(nzone, izone(i))
-!CC...Calcul le nombre de zone
-      end do
-
-      allocate(alandazone(nzone))
-      allocate(cpmzone(nzone))
-      allocate(rhomzone(nzone))
-      allocate(jzone(nzone))
-      allocate(akzone(nzone))
-      allocate(omzone(nzone))
-      allocate(anszone(nzone))
-      allocate(aspzone(nzone))
-      allocate(swreszone(nzone))
-   end if
-
-   if (ytest == "1DJ") then
-      nzone = 0
-      do i = 1, nm
-         read (32, *) izone(i)
-         nzone = max(nzone, izone(i))
-!CC...Calcul le nombre de zone
-      end do
-
-      allocate(jzone(nzone))
-      allocate(akzone(nzone))
-      allocate(omzone(nzone))
-      allocate(anszone(nzone))
-      allocate(aspzone(nzone))
-      allocate(swreszone(nzone))
-   end if
-
+    
    SELECT CASE (ytest)
+
    CASE ('ZNS')
+
+      nzone = 0
+      do i = 1, nm
+         read (32, *) izone(i)
+
+         nzone = max(nzone, izone(i))
+
+   !CC...Calcul le nombre de zone
+      end do
+
+      allocate(jzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(anszone(nzone))
+      allocate(aspzone(nzone))
+      allocate(swreszone(nzone))
+      allocate(rhomzone(nzone))
+   
+
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), aspzone(j), anszone(j), &
             swreszone(j)
@@ -1461,6 +1523,23 @@ program pression_ecoulement_transport_thermique
 !cc loop zone
       end do
    CASE ('ZND')
+
+      nzone = 0
+      do i = 1, nm
+         read (32, *) izone(i)
+
+         nzone = max(nzone, izone(i))
+
+   !CC...Calcul le nombre de zone
+      end do
+
+      allocate(jzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(anszone(nzone))
+      allocate(aspzone(nzone))
+      allocate(swreszone(nzone))
+      allocate(rhomzone(nzone))
 
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), aspzone(j), anszone(j), &
@@ -1486,6 +1565,34 @@ program pression_ecoulement_transport_thermique
       end do
 
    CASE ('1DS')
+      nzone = 0
+      do i = 1, nm
+         read (32, *) izone(i)
+         nzone = max(nzone, izone(i))
+   !CC...Calcul le nombre de zone
+      end do
+      
+      allocate(alandazone(nzone))
+      allocate(rhomzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(aspzone(nzone))
+      allocate(jzone(nzone))
+      do i = 1, nm
+         read (32, *) izone(i)
+         nzone = max(nzone, izone(i))
+!CC...Calcul le nombre de zone
+      end do
+
+      allocate(alandazone(nzone))
+      allocate(cpmzone(nzone))
+      allocate(rhomzone(nzone))
+      allocate(jzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(anszone(nzone))
+      allocate(aspzone(nzone))
+      allocate(swreszone(nzone))
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), anszone(j), aspzone(j), &
             swreszone(j), alandazone(j), cpmzone(j), rhomzone(j)
@@ -1514,6 +1621,19 @@ program pression_ecoulement_transport_thermique
       end do
 
    CASE ('1DJ')
+      nzone = 0
+      do i = 1, nm
+         read (32, *) izone(i)
+         nzone = max(nzone, izone(i))
+!CC...Calcul le nombre de zone
+      end do
+
+      allocate(jzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(anszone(nzone))
+      allocate(aspzone(nzone))
+      allocate(swreszone(nzone))      
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), anszone(j), aspzone(j), &
             swreszone(j)
@@ -1539,6 +1659,11 @@ program pression_ecoulement_transport_thermique
 !cc loop element
  
    CASE ('AVA', 'TEX')
+      do i = 1, nm
+         read (32, *) izone(i)
+         nzone = max(nzone, izone(i))
+!CC...Calcul le nombre de zone
+      end do
       allocate(cpmzone(nzone))
       allocate(anszone(nzone))
       allocate(swreszone(nzone))
@@ -1566,8 +1691,53 @@ program pression_ecoulement_transport_thermique
       end do
 !cc loop zone
       end do
+
+
+   CASE ('R2D')
+      do i = 1, nm
+         read (32, *) izone(i)
+         nzone = max(nzone, izone(i))
+!CC...Calcul le nombre de zone
+      end do
+      allocate(cpmzone(nzone))
+
+      do j = 1, nzone
+         read (321, *) jzone(j), akzone(j), omzone(j), &
+             alandazone(j), cpmzone(j), rhomzone(j)
+      end do
+
+      do j = 1, nzone
+            do i = 1, nm
+      if (izone(i) == jzone(j)) then
+         ak(i) = akzone(j)
+         akv(i) = akzone(j)
+         om(i) = omzone(j)
+         ss(i) = omzone(j)
+        alandas(i) = alandazone(j)
+         cps(i) = cpmzone(j)
+         rhos(i) = rhomzone(j)
+      end if
+!cc test zone
+      end do
+!cc loop zone
+      end do      
 !cc loop element
    CASE ('DTS')
+         nzone = 0
+      do i = 1, nm
+         read (32, *) izone(i)
+         nzone = max(nzone, izone(i))
+   !CC...Calcul le nombre de zone
+      end do
+      
+      allocate(alandazone(nzone))
+      allocate(rhomzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(aspzone(nzone))
+      allocate(jzone(nzone))
+
+
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), &
             alandazone(j), rhomzone(j)
@@ -1596,6 +1766,33 @@ program pression_ecoulement_transport_thermique
 !cc loop element
 
    CASE ('ZHZ')
+      nzone = 0
+      do i = 1, nm
+         read (32, *) izone(i)
+         nzone = max(nzone, izone(i))
+   !CC...Calcul le nombre de zone
+      end do
+      
+      allocate(alandazone(nzone))
+      allocate(rhomzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(aspzone(nzone))
+      allocate(jzone(nzone))
+      nzone = 0
+      do i = 1, nm
+         read (32, *) izone(i)
+         nzone = max(nzone, izone(i))
+   !CC...Calcul le nombre de zone
+      end do
+      
+      allocate(alandazone(nzone))
+      allocate(rhomzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(aspzone(nzone))
+      allocate(jzone(nzone))
+
 
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), &
@@ -2565,6 +2762,14 @@ program pression_ecoulement_transport_thermique
          open (751, file='S_charge_initiale_10days.dat')
          open (181830, FILE='S_flux_ZH_aq.dat')
 
+      case ("R2D") 
+         if (ith == 1) then
+            OPEN (181823, FILE='S_temp_HoboRD.dat')
+            OPEN (181824, FILE='S_temp_HoboRG.dat')
+         end if
+         OPEN (942, FILE='S_temperature_t.dat')
+         OPEN (943, FILE='S_pression_t.dat')                     
+         open (181830, FILE='S_flux_ZH_aq.dat')
 
 !CC...DTS
       case ("DTS") 
@@ -2800,10 +3005,10 @@ program pression_ecoulement_transport_thermique
             end if
 
             dto = dble(dt)
-            dt = dble(dto)/10
+            dt = dble(dto)/2
 
             if (dt > dta) dt = dta
-            if (modulo(dta, dt) .ne. 0) dt = dble(dta)/10
+ !           if (modulo(dta, dt) .ne. 0) dt = dble(dta)/10
             it = int(it - 1)
 !CC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
 !ccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
@@ -4153,7 +4358,33 @@ program pression_ecoulement_transport_thermique
          end if
       end if
 
+      case ("R2D")
+      
+      if (irecord == 1) then
+         qflux = 0D+00
+         do j = 1, ligne7
+            qflux = vzm(id_ZH(j))*am(id_ZH(j)) + qflux
+         end do
+         write (181830, *) paso/unitsortie, qflux
+         print *, "out", paso/86400, paso,dt,am(id_ZH(1)), qflux,irecord
+!     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
+!     &zs(65,1),zs(217,1)
+         if (ith == 1) then
+         do i=1,nm
+         write (942, *) paso/unitsortie,x(i), z(i), temp(i)
+         enddo
+!ccc....S_temp_HoboRD.dat')
+            write (181823, *) paso/unitsortie, temp(nmaille5), temp(nmaille6), temp(nmaille7), &
+               temp(nmaille8)
+!ccc....S_temp_HoboRG.dat')
+            write (181824, *) paso/unitsortie, temp(nmaille1), temp(nmaille2), temp(nmaille3), &
+               temp(nmaille4)
+         end if
+            do i=1,nm
+            write (943, *) paso/unitsortie,x(i), z(i), pr(i)
+            end do              
 
+      end if
 !CC....SORTIE ZH Karina
        case( "ZHR" ,"ZHZ")
     !           print*,paso,vzm(1),valclt(1,3),temp(nmaille1)
@@ -4673,7 +4904,8 @@ program pression_ecoulement_transport_thermique
    end if
 
    if (ytest == "AVA" .or. ytest == "ZHZ"&
-  &.or. ytest == "DTS" .or. ytest == "TEX") then
+  &.or. ytest == "DTS" .or. ytest == "TEX"&
+  &.or. ytest == "R2D") then
       if (allocated(alandazone)) deallocate(alandazone)
       if (allocated(cpmzone)) deallocate(cpmzone)
       if (allocated(rhomzone)) deallocate(rhomzone)
@@ -4683,7 +4915,8 @@ program pression_ecoulement_transport_thermique
       if (allocated(omzone)) deallocate(omzone)
    end if
 
-   if (ytest == "AVA" .or. ytest == "TEX") then
+   if (ytest == "AVA" .or. ytest == "TEX"&
+  &.or. ytest == "R2D") then
       if (allocated(tempRD)) deallocate(tempRD)
       if (allocated(tempRG)) deallocate(tempRG)
       if (allocated(id_RD)) deallocate(id_RD)
@@ -7884,7 +8117,85 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
 
       end do
 
+   case ("R2D") 
 
+      if (kimp > ligne2) kimp = ligne2
+!ccc.... 1 heure
+      kheure = int(paso/3600) + 1
+      if (kheure > ligne) kheure = ligne
+!ccc.... 1 jour
+      kjour = int(paso/86400) + 1
+      if (kjour > ligne1) kjour = ligne1
+      do i = 1, nm
+!ccc....CDT LIMITE SOL
+         if (ivois(i, 3) == -99) then
+            iclt(i, 3) = -1
+            icl(i, 3) = -1
+            valcl(i, 3) = 0
+!     valclt(i,3)=tempsol(kheure)
+            valclt(i, 3) = 0
+         end if
+!ccc....CDT LIMITE BOTTOM
+         if (ivois(i, 4) == -99) then
+            iclt(i, 4) = -1
+            icl(i, 4) = -1
+     valclt(i,4)=0
+     valcl(i,4)=0
+         end if
+!ccc....CDT LIMITE RD
+         max_z=max(z)
+         do j = 1, ligne3
+         if (i == id_RD(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            icl(i, 1) = -2
+            valcl(i, 1) = (chgRD(kimp) - z(i))*rho(i)*g
+     iclt(i,1)=-2
+     valclt(i,1)=tempRD(kimp)-&
+     &(tempRD(kimp)-tempriver(kimp))
+!     &/(76.83-79.81)*(76.83-z(i))
+         end if
+         end do
+
+!ccc....CDT LIMITE RG
+         do j = 1, ligne4
+         if (i == id_RG(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            icl(i, 2) = -2
+            valcl(i, 2) = (chgRG(kimp) - z(i))*rho(i)*g
+!     print*,valcl(i,2),chgRG(kimp)
+!     iclt(i,2)=-2
+!     valclt(i,2)=tempRG(kimp)-
+!     &(tempRG(kimp)-tempsol(kheure))
+!     &/(76.83-79.81)*(76.83-z(i))
+         end if
+         end do
+!ccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
+         do j = 1, ligne5
+         if (i == id_river(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            icl(i, 3) = -2
+            zhaut = z(i) + bm(i)/2
+            valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
+!     iclt(i,3)=-2
+!     valclt(i,3)=tempriver(kimp)
+         end if
+         end do
+
+!ccc....CDT LIMITE RIVER a tester
+         do j = 1, ligne6
+         if (i == id_rivert(j)) then
+            if (kimp >= ligne2) kimp = ligne2
+            if (z(i) + bm(i)/2 < chgriver(kimp)) then
+               icl(i, 3) = -2
+               zhaut = z(i) + bm(i)/2
+               valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
+!     iclt(i,3)=-2
+!     valclt(i,3)=tempriver(kimp)
+            end if
+         end if
+         end do
+
+      end do
    case ( "VAU") 
 !CC....ECOULEMENT VAUCLIN
       do i = 1, nm
