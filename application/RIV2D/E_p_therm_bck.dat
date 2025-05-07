@@ -1,0 +1,54 @@
+rpth=[state]		           rpth=1 regime transitoire ; rpth=1 regime permanent  format : i1      Rgime
+crconvt=0001D-05	   Critere de convergence temperature   fromat :i1
+ithec=1			       =0 annule terme advectif en thermique, =1 avec terme advectif format i1
+idecouplage=0	       decouplage code  =1 utilisation des pression n-1 pour le terme adveectif format : i1
+ysupdp=ANNUL		   SPWAC systeme multicouche Wang ,SPWAL Wang  multimaille,SPWAM wang monocouche,SPMCK surpression McKenzie, ANNUL annule
+bll=0000D+00	       m	dispersivite thermique longitudinale		d8.0
+blt=0000D+00	       m	dispersivite thermique transversale		d8.0
+alandae=0598D-03	   kg.m/s-3/C	conductivite thermique eau
+cpe=4185D+00	       m2/s2/C	capacite calorifique specifique de l'eau
+ilanda=0		       ilanda=1 variation conductivite thermique	 E_conductivite_thermique
+alandam=7.70D+00 		kg.m/s-3/C	conductivite thermique solide 3.376722
+irhomi=0		       irhomi=1 variation de la densite du milieu poreux
+rhosi=2650D+00        kg/m3	solid density								CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE
+icpm=0			       icpm=1 variation spatiale capacite calorifique specifique du milieu poreux
+cpm=00001000	m2/s2/C	capacite calorifique specifique du solide			   CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE GEL
+ymoycondtherm=ARITH	   LUNAR,WOODS,GEOME,ARITH,NEUMA
+icycle=0		       icycle=1 gel/degel actif, icycle=0 transport de chaleur sans gel/degel	####### GEL/DEGEL
+igel=0                 indice gel=1 premiere iteration en gel igel=2 premiere iteration en degel ####### GEL/DEGE
+igelzns=0		        igelzns=1 gel zone non saturee				 ####### GEL/DEGE
+iomdegel=0              zone non gelee nappe libre                              ####### GEL/DEGE
+ytypakrice=ANNUL        Fully saturated : LINET,LINES,IMPED,,UDEF attention meme parametre sur tout le domaine ####### GEL/DEGE
+ytypsice=ANNUL          EXPON,LINEA,UDEF                                  ####### GEL/DEGE
+ibigridice=0			i1                                     ####### GEL/DEGE
+alandai=0000D-03        kg.m/s-3/C      conductivite thermique glace            ####### GEL/DEGE
+rhoi=0000D+00       	kg/m3   densite glace						####### GEL/DEGE
+cpice=000000D+00    	m2/s2/C capacite calorifique specifique glace		####### GEL/DEGEL
+lat=000000D+00	        m2/s2	    J/kg chaleur latente volumique de fusion de l'eau 	 ####### GEL/DEGEL
+rhog=0012D-01           densite de l'air                                     ####### GEL/DEGEL OU ZNS
+alandag=0025D-03        conductivite thermique de l'air                      ####### GEL/DEGEL OU ZNS
+cpg=1010D+00            capacite calorifique specifique de l'air             ####### GEL/DEGEL OU ZNS
+dk=0001d-06             facteur de reduction de la permeabilite zone gelee   ####### GEL/DEGEL
+tsg=-001d+10            temperature eau solide  GEL                     ####### GEL/DEGEL
+tlg=0000d+00            temperature eau liquide GEL                     ####### GEL/DEGEL
+tsd=-001d+10            temperature eau solide  DEGEL                   ###### GEL/DEGEL
+tld=0000d+00            temperature eau liquide DEGEL                   ####### GEL/DEGEL
+cimp=0005d-01           facteur d'impedance   ice saturation                          ####### GEL ZNS
+cimp=0005d-01           facteur d'impedance   ice saturation                          ####### DEGEL ZNS
+omega=0005d+01          Impedance factor relative permeability
+rlamb=0664D-02		    parametre de Brook and Corey 			####### GEL/DEGEL ZNS
+swressi=0.0500          saturation eau reste mobile en dessous ts      ####### GEL/DEGEL
+iaquitard=0             iaquitard=1 petit bassin		####### GEL/DEGEL	 AQUITARD
+aktardx=0001D-13                                        ####### GEL/DEGEL        AQUITARD
+aktardz=0001D-13						                ####### GEL/DEGEL	 AQUITARD
+omptard=0.000											####### GEL/DEGEL	 AQUITARD
+alandatard=2000D-03										####### GEL/DEGEL	 AQUITARD
+sstard=0001D-04											####### GEL/DEGEL	 AQUITARD
+nrowtard=00011						  					####### GEL/DEGEL	 AQUITARD
+nmailleaqui=00001                                      ####### GEL/DEGEL         AQUITARD
+iexutoire=0							####### GEL/DEGEL			 EXUTOIRE SURPRESSION
+xexutoire=0014D+04					####### GEL/DEGEL			 EXUTOIRE SURPRESSION
+tempexutoire=0005D+00				####### GEL/DEGEL			 EXUTOIRE SURPRESSION
+iinfil=0				iinfil=1 ecretage recharge et routage excedent dans riviere		     RECHARGE
+itopomch=0				itopomch=1 marche escalier topo				 Maille bord model marche escalier c
+ytest=R2D        		cas test TH2 TH3 THL ANU annule les cas test
