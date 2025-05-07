@@ -5,9 +5,8 @@ from dataclasses import dataclass
 from random import uniform, gauss
 from numpy import inf, nansum, log, size, var, mean, isclose, sqrt, zeros, all
 from typing import Callable, Tuple, Sequence
-from Direct_model import setup_ginette, generate_zone_parameters, initial_conditions, boundary_conditions, run_direct_model, remove_first_two_days
-
-
+# filepath: /home/ariviere/Programmes/ginette/src/src_python/stat_critere.py
+from src.src_python.Direct_model import setup_ginette, generate_zone_parameters, initial_conditions, boundary_conditions, run_direct_model, remove_first_two_days
 
 def rmse(predictions, ref,sigma):
     differences = ((predictions - ref)/sigma)                      #the DIFFERENCEs.

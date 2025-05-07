@@ -33,26 +33,16 @@ def prepare_ginette_directories(base_path, subdirectories=['SENSI', 'OUTPUT']):
         print("file deleted",f)        
             
 def compile_ginette():
+    import shutil
+    import subprocess
     """
-    Compile Ginette si le fichier exécutable n'existe pas.
+    Compile Ginette if the executable does not exist.
+    This function uses Meson for building the project.
     """
     if os.path.isfile('ginette'):
         print("ginette exists")
     else:
         print("ginette does not exist")
-        print("You must compile ginette in the Ginette_SENSI directory")
-        print("Using CMake to compile ginette")
-        
-        # Créez un répertoire de build
-        if not os.path.exists('build'):
-            os.makedirs('build')
-        
-        # Changez de répertoire pour build
-        os.chdir('build')
-        
-        # Exécutez CMake et Make
-        subprocess.run(['cmake', '..'])
-        subprocess.run(['cmake', '--build', '.'])
-        
-        # Revenez au répertoire précédent
-        os.chdir('..')
+        subprocess.run(['gfortran', '-o', 'ginette', '../../src/ginette_V2.f90'])
+        if os.path.isfile('ginette'):
+            print("ginette compiled")

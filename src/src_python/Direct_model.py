@@ -77,7 +77,72 @@ def setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg
     #-----------------------------------------------------------------
 
 
+def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row):
+    """
+    Sets up the Ginette model parameters and writes them to the appropriate files in steady state.
+    Parameters:
+    dt (float): Time step for the simulation.
+    state (int): State of the simulation.
+    nb_day (float): Number of days for the simulation.
+    date_simul_bg (str): Start date of the simulation.
+    pt100_coord (DataFrame): DataFrame containing the coordinates of the PT100 sensors.
+                            hobo  pt100    x       z  index  distance  xmaille  zmaille  n_maille
+    Returns:
+    """
+    
 
+    # time step
+    dt=900
+    # state
+    state=0
+    nb_day=10
+    itsortie=dt 
+    #-----------------------------------------------------------------
+    ## write the setup of the modeled domain
+    f_param_bck = open("E_parametre_backup.dat", "r")
+    f_param_new = open("E_parametre.dat", 'w')
+    setup_model = f_param_bck.read()
+    setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
+    setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)    
+    setup_model = setup_model.replace('[state]', '%1i' % state)
+    setup_model = setup_model.replace('[nb_cell]', '%05.0f' % nb_cell)
+    setup_model = setup_model.replace('[nb_col]', '%05.0f' % nb_col)
+    setup_model = setup_model.replace('[nb_row]', '%05.0f' % nb_row)
+    setup_model= setup_model.replace('[itsortie]', '%08.0f' % dt)
+
+    # read pt100_coord to get the number of rows 
+    nb_pt100=len(pt100_coord)
+    # number cell to replace = nb_pt100
+    # create the int of cell1, cell2, cell3, cell4,cell5, cell6,cell7, cell8 =10
+    for i in range(8):
+        # create the name of variable cell1, cell2, cell3, cell4,cell5, cell6,cell7, cell8 in function of i
+        cell_name = 'cell' + str(i+1)
+        # get the value of cell1, cell2, cell3, cell4,cell5, cell6,cell7, cell8 in function of i
+        if i < nb_pt100:
+            cell_value = pt100_coord.iloc[i]['n_maille']
+        else:
+            cell_value = 10
+        setup_model = setup_model.replace('[' + cell_name + ']', '%05.0f' % cell_value)
+        # write the value of cell1, cell2, cell3, cell4,cell5, cell6,cell7, cell8 in the file
+        setup_model = setup_model.replace('[' + cell_name + ']', '%05.0f' % cell_value)
+
+
+
+    f_param_new.write(setup_model)
+    f_param_bck.close()
+    f_param_new.close()
+    
+    #-----------------------------------------------------------------
+    f_param_therm=open("E_p_therm_bck.dat", "r")
+    f_param_therm_new=open("E_p_therm.dat", "w")
+    therm=f_param_therm.read()
+    therm = therm.replace('[state]', '%1i' % state)
+    f_param_therm_new.write(therm)
+    f_param_therm_new.close()
+    f_param_therm.close()
+    
+
+    return 
 
 
 def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_obs):
@@ -151,6 +216,18 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     return z_obs
     
     #-----------------------------------------------------------------
+def initial_conditions_perm_2D():
+    ## write the setup of the modeled domain
+    f_IC_bck = open("E_cdt_initiale_bck.dat", "r")
+    f_IC_new = open("E_cdt_initiale.dat", 'w')
+    setup_IC=f_IC_bck.read()
+    ichg_i=0
+    itemp_i=0
+    setup_IC = setup_IC.replace('[chg_i]', '%1i' % ichg_i)
+    setup_IC = setup_IC.replace('[temp_i]', '%1i' % itemp_i)
+    f_IC_new.write(setup_IC)
+    f_IC_bck.close()
+    f_IC_new.close()   
 
 
 def initial_conditions(all_data, z_top, z_bottom, dz, z_obs):
@@ -376,6 +453,72 @@ def boundary_conditions_perm(all_data):
 # 
 
 
+def boundary_conditions_perm(all_data):
+    """
+    Sets boundary conditions for permeability based on the provided data and writes them to a file.
+    Parameters:
+    all_data (DataFrame): A pandas DataFrame containing the necessary boundary condition data. 
+                        Expected columns are 'deltaP', 'h_top', 'h_bottom', 'T_top', 'T_bottom', 
+                        'TempMolo', and 'Temp4'.
+    The function performs the following steps:
+    1. Opens the existing boundary condition file "E_cdt_aux_limites_perm_bck.dat" for reading.
+    2. Opens a new file "E_cdt_aux_limites.dat" for writing the updated boundary conditions.
+    3. Reads the content of the existing boundary condition file.
+    4. Checks for flow boundary conditions in the DataFrame:
+    -Chg_RD, Chg_riv,Chg_RG
+    5. Checks for temperature boundary conditions in the DataFrame:
+    -  'T_riv' 
+    -  'T_RG'
+    -  'T_RD'
+    - If neither condition is met, prints an error message and exits.
+    6. Sets the charge boundary condition placeholder '[iclchgt]' to 0.
+    7. Replaces placeholders '[valcl_haut]', '[valcl_gauche]' and '[valcl_droite]' in the file content with 'riv', 'RD' and 'RG' values.
+    8. Writes the modified content to the new boundary condition file.
+    9. Closes both the new and existing boundary condition files.
+    Returns:
+    None
+    """   
+        #-----------------------------------------------------------------
+    f_param_lec=open("E_cdt_aux_limites_perm_bck.dat", "r")
+    f_param_lec_new=open("E_cdt_aux_limites.dat", "w")
+    lec_bc=f_param_lec.read()
+    # Test if the three boundary conditions are present in the DataFrame
+    if 'Chg_riv' in all_data.columns and 'Chg_RD' in all_data.columns and 'Chg_RG' in all_data.columns:
+        print('Flow boundaries columns names are OK')
+    else:
+        print("Error: Missing one or more flow boundary conditions (Chg_riv, Chg_RD, Chg_RG).")
+        return
+    
+    # Save charge boundary conditions
+
+    
+    # Save temperature boundary conditions
+    if 'Temp_riv' in all_data.columns and 'Temp_RG' in all_data.columns and 'Temp_RD' in all.data.columns:
+        print('Heat boundaries columns names are Ok')
+    else:
+        print("Error: No temperature boundary conditions found.")
+        return
+
+
+    iclchgt = 0
+    lec_bc = lec_bc.replace('[iclchgt]', '%1i' % iclchgt)
+    lec_bc = lec_bc.replace('[valcl_haut]', '%70f' % all_data['Chg_riv'].iloc[0])
+    lec_bc = lec_bc.replace('[valcl_gauche]', '%70f' % all_data['Chg_RG'].iloc[0])
+    lec_bc = lec_bc.replace('[valcl_droite]', '%70f' % all_data['Chg_RD'].iloc[0])
+    lec_bc = lec_bc.replace('[valclt_haut]', '%70f' % all_data['Temp_riv'].iloc[0])
+    lec_bc = lec_bc.replace('[valclt_gauche]', '%70f' % all_data['Temp_RG'].iloc[0])
+    lec_bc = lec_bc.replace('[valclt_droite]', '%70f' % all_data['Temp_RD'].iloc[0])
+    # Écrire les modifications dans le fichier
+    f_param_lec_new.write(lec_bc)
+
+    # Fermer les fichiers
+    f_param_lec_new.close()
+    f_param_lec.close()
+
+# 
+
+
+
    
 def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l, REF_r, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None):
     """
@@ -465,6 +608,96 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     # Écrire les paramètres dans le nouveau fichier
     f_paramZ_new.write(param_zone)
     f_paramZ_new.close()
+
+
+
+def generate_zone_parameters_undef(nb_zone,):
+    """
+    Writes the zone parameter file based on the number of zones and parameter values.
+
+    Parameters:
+    - nb_zone: 
+    - dataframe: 
+    - REF_k: Intrinsic permeability for zone 1.
+    - REF_n: Porosity for zone 1.
+    - REF_l: Thermal conductivity for zone 1.
+    - REF_r: Density for zone 1.
+    - REF_k2: Intrinsic permeability for zone 2 (if nb_zone == 2).
+    - REF_n2: Porosity for zone 2 (if nb_zone == 2).
+    - REF_l2: Thermal conductivity for zone 2 (if nb_zone == 2).
+    - REF_r2: Density for zone 2 (if nb_zone == 2).
+    """
+    ########### Zone of parameters
+    f_coor = open("E_coordonnee.dat", "w")
+    f_zone = open("E_zone.dat", 'w')
+
+    coord = pd.DataFrame()    
+
+    # Coodrinate  
+    zvalues = np.sort(np.arange(z_bottom + dz / 2, dz / 2, dz))
+    xvalues = np.array([0.5])
+    zz, xx = np.meshgrid(zvalues, xvalues)
+    NT = np.prod(zz.shape)  # Remplacement de np.product par np.prod
+    data = {
+        "x": np.reshape(xx, NT),
+        "z": np.reshape(zz, NT)
+    }
+    coord = pd.DataFrame(data=data)
+    coord['id'] = coord.index.values.astype(int)
+    coord['id'] = coord['id'] + 1
+    cols = coord.columns.tolist()
+    cols = cols[-1:] + cols[:-1]
+    coord = coord[cols] 
+    coord.to_csv(f_coor, index=False, sep=' ', header=False)
+    
+    # zone parameter by cell (homogenous domain = 1 zone)
+    coord['zone'] = 1
+
+
+    # Pour plusieurs zones modification AR
+    if nb_zone >= 2:
+        coord['zone'] = np.where(coord['z'] >= alt_thk, 2, coord['zone'])
+    
+    # Write new ginette files
+    coord.zone.to_csv(f_zone, index=False, header=False)
+
+    # close files    
+    f_zone.close()
+    f_coor.close()
+    
+    param_zone = None
+ 
+    if nb_zone == 1:
+        k1= 10**REF_k
+        # Lire le fichier de sauvegarde des paramètres de zone
+        with open("E_zone_parameter_backup.dat", "r") as f_paramZ_bck:
+            param_zone = f_paramZ_bck.read()
+        # Remplacer les valeurs des paramètres
+        param_zone = param_zone.replace('[k1]', '%8.2e' % k1)
+        param_zone = param_zone.replace('[n1]', '%6.2f' % REF_n)
+        param_zone = param_zone.replace('[l1]', '%6.2f' % REF_l)
+        param_zone = param_zone.replace('[r1]', '%6.2f' % REF_r)
+    elif nb_zone == 2:
+        # Lire le fichier de sauvegarde des paramètres de zone pour 2 zones
+        with open("E_zone_parameter_backup_2zones.dat", "r") as f_paramZ_bck:
+            param_zone = f_paramZ_bck.read()
+        k1= 10**REF_k
+        k2= 10**REF_k2
+        # Remplacer les valeurs des paramètres pour les deux zones
+        param_zone = param_zone.replace('[k1]', '%8.2e' % k1)
+        param_zone = param_zone.replace('[n1]', '%6.2f' % REF_n)
+        param_zone = param_zone.replace('[l1]', '%6.2f' % REF_l)
+        param_zone = param_zone.replace('[r1]', '%6.2f' % REF_r)
+        param_zone = param_zone.replace('[k2]', '%8.2e' % k2)
+        param_zone = param_zone.replace('[n2]', '%6.2f' % REF_n2)
+        param_zone = param_zone.replace('[l2]', '%6.2f' % REF_l2)
+        param_zone = param_zone.replace('[r2]', '%6.2f' % REF_r2)
+    # Ouvrir le fichier de paramètres de zone
+    f_paramZ_new = open("E_zone_parameter.dat", 'w')
+    # Écrire les paramètres dans le nouveau fichier
+    f_paramZ_new.write(param_zone)
+    f_paramZ_new.close()
+    
 
 def run_direct_model(date_simul_bg,z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l, REF_r, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None):
     """
