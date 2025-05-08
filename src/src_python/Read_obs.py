@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 from pathlib import Path
+import glob
 
 def read_csv_with_multiple_separators(file_path, separators=[',', ';', '\t']):
     """
@@ -23,8 +24,6 @@ def read_csv_with_multiple_separators(file_path, separators=[',', ';', '\t']):
             continue
     raise ValueError(f"Cannot read the file {file_path} with the provided separators.")
 
-import pandas as pd
-import numpy as np
 
 def convert_dates(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     """
@@ -117,11 +116,30 @@ def convert_dates(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     # If no format works, raise a descriptive error
     raise ValueError(f"Failed to convert '{date_column}' to datetime with known formats.")
 
-import os
-from pathlib import Path
-import pandas as pd
+
 
 def process_obs_data(Obs_data, date_simul_bg, coef, ost, nb_day):
+    """
+    Processes observational data by reading, merging, cleaning, and interpolating data files.
+    Args:
+        Obs_data (str): Path to the directory containing observational data files.
+        date_simul_bg (datetime): The starting date for filtering the data.
+        coef (float): Coefficient to scale the 'deltaP' values.
+        ost (float): Offset to add to the scaled 'deltaP' values.
+        nb_day (int): Number of days to calculate the end date from the start date.
+    Returns:
+        pd.DataFrame: A processed DataFrame with interpolated data aligned to 15-minute intervals.
+    Raises:
+        ValueError: If no 'deltaP' data could be read from the provided files.
+    Notes:
+        - The function reads files containing 'deltaP' and 'Temp' data, merges them, and processes the data.
+        - Columns named '#' and 'ST2' are dropped if they exist.
+        - The 'dates' column is converted to datetime and filtered based on `date_simul_bg`.
+        - The 'deltaP' values are scaled and offset using `coef` and `ost`.
+        - The data is reindexed to 15-minute intervals, and missing values are interpolated using time-based interpolation.
+        - The function checks if all time differences between rows are 900 seconds (15 minutes) before and after interpolation.
+    """
+
     all_data, temp_data = None, None
     
     # Reading the files and populating the dataframes
@@ -200,4 +218,116 @@ def process_obs_data(Obs_data, date_simul_bg, coef, ost, nb_day):
         print(indices_not_equal_900_sec_after_interp)
         print(all_data.loc[indices_not_equal_900_sec_after_interp])
     
+    return all_data
+
+
+
+def process_obs_RIV2D(Station, Obs_data, date_simul_bg, nb_day, desc_station, pt100_coord):
+    """
+    Processes observational data by reading, merging, cleaning, and interpolating data files.
+    
+    Args:
+        Station (str): Name of the station.
+        Obs_data (str): Path to the directory containing observational data files.
+        date_simul_bg (datetime): Start date for filtering observations.
+        nb_day (int): Number of days to calculate the end date from the start date.
+        desc_station (dict): Dictionary mapping station codes to sensor names.
+        pt100_coord (pd.DataFrame): DataFrame containing mapping of hobo and pt100 sensors to indices.
+
+    Returns:
+        pd.DataFrame: Cleaned and merged observational data.
+    """
+    # Construct the path to the station's data directory
+    station_path = os.path.join(Obs_data, Station)
+    all_data = None
+
+    # Iterate over all CSV files in the station's directory
+    for csv_file in glob.glob(os.path.join(station_path, "*.csv")):
+        file_name = os.path.basename(csv_file)
+        # Extract the sensor type from the file name
+        type_sensor = file_name.split("_")[0].replace(".csv", "")
+        print("Processing sensor type:", type_sensor)
+
+        # Read the CSV file using multiple possible separators
+        df = read_csv_with_multiple_separators(csv_file, separators=[',', ';', '\t'])
+        # Convert other columns than 'dates' to numeric
+        for col in df.columns:
+            if col != 'dates':
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        # Convert the 'dates' column to datetime format
+        df = convert_dates(df, 'dates')
+        # Filter rows based on the start date
+        df = df[df['dates'] >= date_simul_bg]
+        # Ensure dates each have seconds set to zero 	2016-07-12 12:15:00 and not 	2016-07-12 12:15:02
+        # Floor the dates to 15-minute intervals
+        df['dates'] = df['dates'].dt.floor('15min')
+
+        # Set 'dates' as the index for resampling
+        df.set_index('dates', inplace=True)
+
+        # Resample to 15-minute intervals and fill NaN values with hourly data if available
+        df = df.resample('15T').mean()
+        df.fillna(method='ffill', limit=3, inplace=True)  # Fill NaN using forward fill up to 1 hour (3 intervals)
+
+        # Interpolate remaining missing values
+        df.interpolate(method='time', inplace=True)
+
+        # Reset the index to bring 'dates' back as a column
+        df.reset_index(inplace=True)
+
+
+        # Drop the conductivity column if it exists
+        conductivity_column = next((col for col in df.columns if col.strip().lower() == 'conductivity [ms/cm]'), None)
+        if conductivity_column:
+            df.drop(columns=[conductivity_column], inplace=True)
+
+        # Rename columns based on the sensor type
+        if " Hydraulic Head [mNGF]" in df.columns:
+            df.rename(columns={" Hydraulic Head [mNGF]": f"H_{type_sensor}"}, inplace=True)
+
+        # Rename temperature depth columns
+        for i in range(1, 5):
+            col_name = f"temperature_depth_{i}_C"
+            if col_name in df.columns:
+                df.rename(columns={col_name: f"Temp_{type_sensor}_{i}"}, inplace=True)
+
+        # Rename general temperature column
+        if " Temperature [°C]" in df.columns:
+            df.rename(columns={" Temperature [°C]": f"Temp_{type_sensor}"}, inplace=True)
+
+        # Merge the current DataFrame with the accumulated data
+        all_data = df if all_data is None else pd.merge(all_data, df, on='dates', how='outer')
+
+
+
+
+
+    # Replace sensor names with station codes using the desc_station dictionary
+    for key, value in desc_station.items():
+        all_data.columns = [
+            col.replace(f"H_{value}", f"H_{key}").replace(f"Temp_{value}", f"T_{key}") if isinstance(col, str) else col
+            for col in all_data.columns
+        ]
+
+    # Replace temperature columns in all_data with indices from pt100_coord
+    pt100_coord["index"] = pt100_coord.index + 1  # Add an index column to pt100_coord
+    for column in all_data.columns:
+        if column.startswith("Temp_"):
+            # Extract hobo and pt100 information from the column name
+            parts = column.split("_")
+            if len(parts) == 3 and parts[1].lower().startswith("hobo"):
+                hobo = parts[1].lower()
+                pt100 = int(parts[2])
+                
+                # Find the index in pt100_coord where hobo and pt100 match
+                matching_row = pt100_coord[(pt100_coord['hobo'] == hobo) & (pt100_coord['pt100'] == pt100)]
+                
+                if not matching_row.empty:
+                    # Extract the single index value
+                    index_value = matching_row['index'].iloc[0]
+                    # Rename the column with the corresponding index
+                    all_data.rename(columns={column: f"Temp_{index_value}"}, inplace=True)
+
+
+
     return all_data
