@@ -2764,12 +2764,11 @@ program pression_ecoulement_transport_thermique
 
       case ("R2D") 
          if (ith == 1) then
-            OPEN (181823, FILE='S_temp_HoboRD.dat')
-            OPEN (181824, FILE='S_temp_HoboRG.dat')
+         open (56, file='S_temp_PT100_t.dat')
          end if
-         OPEN (942, FILE='S_temperature_t.dat')
-         OPEN (943, FILE='S_pression_t.dat')                     
-         open (181830, FILE='S_flux_ZH_aq.dat')
+!         OPEN (942, FILE='S_temperature_t.dat')
+!         OPEN (943, FILE='S_pression_t.dat')                     
+!         open (181830, FILE='S_flux_ZH_aq.dat')
 
 !CC...DTS
       case ("DTS") 
@@ -4365,24 +4364,21 @@ program pression_ecoulement_transport_thermique
          do j = 1, ligne7
             qflux = vzm(id_ZH(j))*am(id_ZH(j)) + qflux
          end do
-         write (181830, *) paso/unitsortie, qflux
+!         write (181830, *) paso/unitsortie, qflux
          print *, "out", paso/86400, paso,dt,am(id_ZH(1)), qflux,irecord
 !     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
 !     &zs(65,1),zs(217,1)
          if (ith == 1) then
-         do i=1,nm
-         write (942, *) paso/unitsortie,x(i), z(i), temp(i)
-         enddo
-!ccc....S_temp_HoboRD.dat')
-            write (181823, *) paso/unitsortie, temp(nmaille5), temp(nmaille6), temp(nmaille7), &
-               temp(nmaille8)
-!ccc....S_temp_HoboRG.dat')
-            write (181824, *) paso/unitsortie, temp(nmaille1), temp(nmaille2), temp(nmaille3), &
-               temp(nmaille4)
+!         do i=1,nm
+!         write (942, *) paso/unitsortie,x(i), z(i), temp(i)
+!         enddo
+            write (56, *) paso/unitsortie, temp(nmaille1), temp(nmaille2), temp(nmaille3), &
+            temp(nmaille4), temp(nmaille5), temp(nmaille6), temp(nmaille7), &
+            temp(nmaille8)
          end if
-            do i=1,nm
-            write (943, *) paso/unitsortie,x(i), z(i), pr(i)
-            end do              
+ !           do i=1,nm
+ !           write (943, *) paso/unitsortie,x(i), z(i), pr(i)
+ !           end do              
 
       end if
 !CC....SORTIE ZH Karina
@@ -8143,16 +8139,13 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
      valcl(i,4)=0
          end if
 !ccc....CDT LIMITE RD
-         max_z=max(z)
          do j = 1, ligne3
          if (i == id_RD(j)) then
             if (kimp >= ligne2) kimp = ligne2
             icl(i, 1) = -2
             valcl(i, 1) = (chgRD(kimp) - z(i))*rho(i)*g
      iclt(i,1)=-2
-     valclt(i,1)=tempRD(kimp)-&
-     &(tempRD(kimp)-tempriver(kimp))
-!     &/(76.83-79.81)*(76.83-z(i))
+     valclt(i,1)=tempRD(kimp)
          end if
          end do
 
@@ -8163,9 +8156,9 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
             icl(i, 2) = -2
             valcl(i, 2) = (chgRG(kimp) - z(i))*rho(i)*g
 !     print*,valcl(i,2),chgRG(kimp)
-!     iclt(i,2)=-2
-!     valclt(i,2)=tempRG(kimp)-
-!     &(tempRG(kimp)-tempsol(kheure))
+        iclt(i,2)=-2
+        valclt(i,2)=tempRG(kimp)
+!     &-(tempRG(kimp)-tempsol(kheure))
 !     &/(76.83-79.81)*(76.83-z(i))
          end if
          end do
@@ -8176,8 +8169,8 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
             icl(i, 3) = -2
             zhaut = z(i) + bm(i)/2
             valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
-!     iclt(i,3)=-2
-!     valclt(i,3)=tempriver(kimp)
+           iclt(i,3)=-2
+           valclt(i,3)=tempriver(kimp)
          end if
          end do
 

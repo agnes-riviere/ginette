@@ -6,6 +6,7 @@ from .Init_folders import *
 from .Plot import *
 from .Read_obs import *
 from .stat_critere import *
+from .Metro import *
 
 # Add code to execute when the package is run
 if __name__ == "__main__":
