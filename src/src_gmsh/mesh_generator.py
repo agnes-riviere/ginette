@@ -1360,6 +1360,7 @@ def readGmsh(fName, precision=None):
 
 
 
+
 def voisin_mesh(directory):
     """
     function to compute the neighbors of each mesh element from the file "E_coordonnee.dat",
@@ -1385,6 +1386,9 @@ def voisin_mesh(directory):
     coord = pd.read_csv(f"{directory}/E_coordonnee.dat",
                         sep="\s+", header=None, names=["x", "z"])
     n = len(coord)
+    # Load def_maille
+    def_maille = pd.read_csv(f"{directory}/E_def_maille.dat",
+                        sep="\s+", header=None, names=["am", "bm"])
     
     # Prepare an all-(-99) neighbor table (0-based internally)
     ivois = pd.DataFrame(-99, index=range(n),
@@ -1396,14 +1400,27 @@ def voisin_mesh(directory):
     
     # Find neighbors (0-based)
     for ik, (x_ik, z_ik) in coord[["x", "z"]].iterrows():
+        am_ik = def_maille.loc[ik,"am"]
         # RIGHT / LEFT (same z)
         same_z = x_groups.get_group(z_ik).sort_values('x')
         xs, idx_z = same_z["x"].values, same_z.index.values
         p = np.searchsorted(xs, x_ik)
-        if p + 1 < len(idx_z):
-            ivois.at[ik, "right"] = idx_z[p+1]
+        if p + 1 < len(idx_z): # maille droite
+            voisin_idx = idx_z[p+1] # On prend le numéro de maille qui se trouve a droite de notre maille
+            x_voisin = coord.loc[voisin_idx,"x"] # Ce qui nous permet d'obtenir sa coordonée en x
+            am_voisin = def_maille.loc[voisin_idx,"am"] # Ainsi que sa dimension en x
+            dx_reel = abs(x_voisin - x_ik) # Distance entre les deux points
+            if dx_reel - (0.5 * (am_ik + am_voisin)) < 1e-1 : # Dans le cas où la différence entre le dx réel et le dx théorique avec la dimension est proche les mailles sont voisines
+                ivois.at[ik, "right"] = idx_z[p+1]
+
         if p - 1 >= 0:
-            ivois.at[ik, "left"]  = idx_z[p-1]
+            voisin_idx = idx_z[p-1] # idem maille de gauche
+            x_voisin = coord.loc[voisin_idx,"x"]
+            am_voisin = def_maille.loc[voisin_idx,"am"]
+            dx_reel = abs(x_voisin - x_ik)
+            if dx_reel - (0.5 * (am_ik + am_voisin)) < 1e-1 :
+                ivois.at[ik, "left"]  = idx_z[p-1]
+
         
         # TOP / BOTTOM (same x)
         same_x = z_groups.get_group(x_ik).sort_values('z')
@@ -1426,6 +1443,57 @@ def voisin_mesh(directory):
     print("Neighbors saved to E_voisins.dat.")
     
     return ivois
+    
+
+
+def maille_limite(directory):
+    """
+    function to compute the element limite from the file "E_coordonnee.dat",
+    producing indices in E_BordRG.dat and E_BordRD.dat.
+    The function creates a table id of each limit mesh element,
+    PARAMETERS
+    ----------
+    directory : str
+        The directory where the mesh files are located.
+    OUTPUT
+    -------
+    Writes the table to files named "E_BordRG.dat" and "E_BordRD.dat" in the specified directory.
+    """
+    # Load coordinates
+    coord = pd.read_csv(f"{directory}/E_coordonnee.dat",
+                        sep="\s+", header=None, names=["x", "z"])
+    n = len(coord)
+    
+    # Prepare an all-(-99) neighbor table (0-based internally)
+    BordRG = list()
+    BordRD = list()
+    
+    # Group once for efficient lookup
+    x_groups = coord.groupby('z')
+    # z_groups = coord.groupby('x')
+    
+    # Find neighbors (0-based)
+    for ik, (x_ik, z_ik) in coord[["x", "z"]].iterrows():
+        # RIGHT / LEFT (same z)
+        same_z = x_groups.get_group(z_ik).sort_values('x')
+        xs, idx_z = same_z["x"].values, same_z.index.values
+        p = np.searchsorted(xs, x_ik)
+        if p + 1 >= len(idx_z):
+            BordRD.append(ik+1)
+        if p - 1 < 0:
+            BordRG.append(ik+1)
+    
+    with open(f"{directory}/E_BordRD.dat", "w") as f:
+        for item in BordRD:
+            f.write(f"{item}\n")
+    with open(f"{directory}/E_BordRG.dat", "w") as f:
+        for item in BordRG:
+            f.write(f"{item}\n")
+    # print("Neighbors saved to E_voisins.dat.")
+
+    return BordRG,BordRD
+ 
+
 
 def coord_to_row_column(repertory):
     """
@@ -1562,52 +1630,97 @@ def compute_am_bm_from_row_col(directory):
 
 
 #Definition de la fontion
-def creation_E_zone(path_E_coor,path_E_zone,polygons_by_zone,default_zone = 1):
-    '''
-    Fonction qui permet de remplir le fichier E_zone.dat utile pour ginette. On a besoin pour cela du maillage (fichier E_coordonee.dat) et d'un dataframe comprenant
-    les polygones rangés selon leur zone respectivent. La fonction test si le centre de chaque maille se trouve ou non dans un polygone. Une fois la zone de la maille
-    trouvé c'est ajouté à une liste qui en fin de fonction sera écrit dans le fichier E_zone.dat
+from shapely.geometry import Point, Polygon
+# Definition of the function to create the E_zone.dat file
+def creation_E_zone(directory, polygons_by_zone, default_zone=1):
+    """
+    Function to create the E_zone.dat file required for Ginette. This function uses the mesh (E_coordonnee.dat file) 
+    and a dictionary containing polygons grouped by their respective zones. The function checks if the center of each 
+    mesh lies within a polygon. Once the zone of the mesh is determined, it is added to a list, which is written to 
+    the E_zone.dat file at the end.
 
-    Entrée
-    path_E_coor (str) : Chemin (relatif ou absolu) amenant au fichier E_coordonee.dat
-    path_E_zone (str) : Chemin (relatif ou absolu) amenant au fichier E_zone.dat
-    polygons_by_zone (DataFrame) : Df comprenant les polygones qui définissent les différentes zones du maillage. Un exemple de création de polygons_by_zone est donné dans la suite du code
-    default_zone (int) : zone (par default = 1) que l'on va attribuer au point contenu dans aucun polygone (Evite de définir tout les polygone dans polygons_by_zone)
-    '''
+    Parameters:
+    - directory (str): Path (relative or absolute) to the directory containing the E_coordonnee.dat file.
+    - polygons_by_zone (dict): Dictionary containing polygons that define the different zones of the mesh.
+    - default_zone (int): Default zone (default = 1) assigned to points not contained in any polygon 
+                          (avoids defining all polygons in polygons_by_zone).
 
-    liste_zone = list() # Liste qui va contenir le zone de chaque maille qui va nous permettre d'écrire dans le fichier E_zone.dat
+    Output:
+    - Creates the E_zone.dat file in the specified directory.
+    """
 
-    #Chargement des coordonées
-    coord = np.loadtxt(path_E_coor)
-    coord_x = coord[:,0]
-    coord_z = coord[:,1]
+    # List to store the zone of each mesh, which will be written to the E_zone.dat file
+    liste_zone = []
 
-    for x,z in zip (coord_x,coord_z): # On test tout les couples de coord
+    # Load the coordinates from the E_coordonnee.dat file
+    coord = pd.read_csv(
+        os.path.join(directory, "E_coordonnee.dat"),
+        sep="\s+", header=None, names=["x", "z"]
+    )
 
-        test_contain = False # re-initialisation du bool
-        p = Point(x,z) # Point que l'on va tester
+    # Iterate over all coordinate pairs (x, z)
+    for x, z in zip(coord['x'], coord['z']):
+        point = Point(x, z)
+        zone_found = False
 
-        for zone in polygons_by_zone: # test sur toutes les zones
+        for zone, polygons in polygons_by_zone.items():
+            if any(poly.contains(point) for poly in polygons):
+                liste_zone.append(zone)
+                zone_found = True
+            break
 
-            for poly in polygons_by_zone[zone] : # test sur tout les poly de la zone
-                if poly.contains(p):
-                    # print(f"Le point est à l'intérieur ✅ de la région {zone}")
-                    test_contain = True
-                    liste_zone.append(zone)
-                    break # Sortie de la boucle poly (evite de tester tous les poly)
-
-            if test_contain :
-                break # idem mais pour la boucle zone
-                
-        if test_contain == False :
-            # print(f"Le point est à l'extérieur ❌ de toute les région et devient region {default_zone}")
+        if not zone_found:
             liste_zone.append(default_zone)
 
-    # Ecriture dans le fichier E_zone.dat
-    filename = path_E_zone
+    # Save the zones to the E_zone.dat file
+    pd.DataFrame(liste_zone, columns=["zone"]).to_csv(
+        os.path.join(directory, "E_zone.dat"), sep=' ', header=False, index=False
+    )
 
-    with open(filename, "w") as f:
-        for item in liste_zone:
-            f.write(f"{item}\n") # \n necessaire pour ecrire un par ligne 
+
+
+def id_mesh_river(directory,hmax,hmin,xRG,xRD):
+    """
+    Read:
+      - E_coordonnee.dat  (x,z of each mesh centre)
+      - E_voisin.dat    (col1: right: index of the right neighbor, col2 : left: index of the left neighbor, 
+      col3 top: index of the top neighbor and col4 : bottom: index of the bottom neighbor  , -99 no neighbor)
+     - id maille begins at 1
+
+    Compute:
+        -id_river : id of the mesh element which are in the river
+        -id_max
+
+    Write:
+      - E_Id_river.dat
+      - E_Id_river_max.dat
+    """
+# read file
+    coord = pd.read_csv(f"{directory}/E_coordonnee.dat",
+                        sep="\s+", header=None, names=["x","z"])
+    vois=pd.read_csv(f"{directory}/E_voisins.dat",
+                        sep="\s+", header=None, names=["right","left","top","bottom"])
+    # find the id of the mesh element which are in the river
+    # find all id whithout neighbor at top and x between xRG and xRD
+    id_river = vois[vois["top"] == -99].index + 1
+    # keep onfly between xRG and xRD
+    id_river = id_river[(coord["x"].iloc[id_river-1] > xRG) & (coord["x"].iloc[id_river-1] < xRD)]
+    # find the id of the mesh element below h_min
+    id_river_min=id_river[coord["z"].iloc[id_river-1] < hmin]
+    # find the id of the mesh element above h_max
+    id_river_max=id_river[coord["z"].iloc[id_river-1] < hmax]
+
+    # write files
+    with open(f"{directory}/E_Id_river.dat", "w") as f:
+        for item in id_river_min:
+            f.write(f"{item}\n") # \n necessaire pour ecrire un par ligne
+    with open(f"{directory}/E_Id_river_max.dat", "w") as f:
+        for item in id_river_max:
+            f.write(f"{item}\n")
+
+    return id_river_min,id_river_max
+
+
+
 
 
