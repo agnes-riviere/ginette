@@ -134,4 +134,5 @@ def read_bounds_params(nb_zone, parameters):
 
 
 
-
+# example file structure bound_params.txt
+# 1 k 0.1 0.5 0.01
