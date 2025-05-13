@@ -240,7 +240,9 @@ def process_obs_RIV2D(Station, Obs_data, date_simul_bg, nb_day, desc_station, pt
     # Construct the path to the station's data directory
     station_path = os.path.join(Obs_data, Station)
     all_data = None
-
+    date_begin=date_simul_bg
+    date_end = pd.to_datetime(date_begin) + pd.to_timedelta(nb_day, unit='d')
+    print('Start date:', date_begin, 'End date:', date_end)
     # Iterate over all CSV files in the station's directory
     for csv_file in glob.glob(os.path.join(station_path, "*.csv")):
         file_name = os.path.basename(csv_file)
@@ -258,6 +260,7 @@ def process_obs_RIV2D(Station, Obs_data, date_simul_bg, nb_day, desc_station, pt
         df = convert_dates(df, 'dates')
         # Filter rows based on the start date
         df = df[df['dates'] >= date_simul_bg]
+        df=df[df['dates'] <= date_end]
         # Ensure dates each have seconds set to zero 	2016-07-12 12:15:00 and not 	2016-07-12 12:15:02
         # Floor the dates to 15-minute intervals
         df['dates'] = df['dates'].dt.floor('15min')

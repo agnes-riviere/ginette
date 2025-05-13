@@ -142,6 +142,7 @@ def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row):
 
     # read pt100_coord to get the number of rows 
     nb_pt100=len(pt100_coord)
+    print(pt100_coord.head())
     # number cell to replace = nb_pt100
     # create the int of cell1, cell2, cell3, cell4,cell5, cell6,cell7, cell8 =10
     for i in range(8):
@@ -172,7 +173,7 @@ def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row):
     f_param_therm.close()
     
 
-    return 
+     
 
 
 def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_obs):
@@ -419,8 +420,13 @@ def boundary_conditions_2D(all_data,dt):
     iclchgt = 1
     lec_bc = lec_bc.replace('[iclchgt]', '%1i' % iclchgt)
     lec_bc = lec_bc.replace('[itlecture]', '%08.0f' % dt)
-    lec_bc = lec_bc.replace('[valcl_haut]', format_value(all_data['top'].iloc[0]))
-    lec_bc = lec_bc.replace('[valcl_bas]', format_value(all_data['bot'].iloc[0]))
+    lec_bc = lec_bc.replace('[valcl_haut]', format_value(all_data['H_RIV'].iloc[0]))
+    lec_bc = lec_bc.replace('[valcl_gauche]', format_value(all_data['H_RG'].iloc[0]))
+    lec_bc = lec_bc.replace('[valcl_droite]', format_value(all_data['H_RD'].iloc[0]))
+    lec_bc = lec_bc.replace('[valclt_haut]', format_value(all_data['T_RIV'].iloc[0]))
+    lec_bc = lec_bc.replace('[valclt_gauche]', format_value(all_data['T_RG'].iloc[0]))
+    lec_bc = lec_bc.replace('[valclt_droite]', format_value(all_data['T_RD'].iloc[0]))
+    lec_bc = lec_bc.replace('[itlecture]', '%08.0f' % dt) 
     
     # Écrire les modifications dans le fichier
     f_param_lec_new.write(lec_bc)
@@ -680,30 +686,34 @@ def generate_zone_parameters_undef(nb_zone,value_zone_parameter):
 
     Parameters:
     - nb_zone: 
-    - parameters: List of parameter names to be written in the file (e.g., ['k', 'n', 'l', 'cpm', 'r']).
-    - value_zone_parameter: List of parameter values for each zone, dataframe: with the 
+    - value_zone_parameter: dataframe of parameter values for each zone, dataframe: with the 
     colum name are the same as parameters and each row is the value of the parameter for each zone.
     """
     f_param_zone=open("E_zone_parameter_bck.dat", "r")
-    f_param_zone_new=open("E_zone_parameter_bck.dat", "w")
+    f_param_zone_new=open("E_zone_parameter.dat", "w")
     param_zone=f_param_zone.read()
-    # if the parameter k exist in the file replace by k=10**k
-    if value_zone_parameter.columns == 'k':
-        # transform the value of k to 10**k
-        value_zone_parameter['k'] = 10**value_zone_parameter['k']
+    # if the parameter k exist in the file replace by k=10**k value_zone_parameter is a dataframe
+
+    if 'k' in value_zone_parameter.columns:
+        for i in range(nb_zone):
+            # transform the value of k to 10**k
+            value_zone_parameter = value_zone_parameter.copy()
+            value_zone_parameter.loc[i, 'k'] = 10**value_zone_parameter.loc[i, 'k']
 
 
     # remplacer les valeurs des paramètres
     for i in range(nb_zone):
         for j in range(len(value_zone_parameter.columns)):
-            param_zone = param_zone.replace('[' + value_zone_parameter.columns[j] + str(i+1) + ']', '{:0=+12.2e}'.format(value_zone_parameter.iloc[i, j]).replace('e', 'd'))
+            param_zone = param_zone.replace('[' + value_zone_parameter.columns[j]
+                                             + str(i+1) + ']', '{:0=12.2e}'.format
+                                             (value_zone_parameter.iloc[i, j]).replace('e', 'd'))
     # write in new file E_zone_parameter.dat
     f_param_zone_new.write(param_zone)
     f_param_zone.close()
     f_param_zone_new.close()
     #-----------------------------------------------------------------          
 
-    
+
 
 def run_direct_model(date_simul_bg,z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l, REF_r, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None):
     """
@@ -757,7 +767,27 @@ def run_direct_model(date_simul_bg,z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n,
 
     return sim_temp
 
+def run_direct_model_2D():
+    """
+        Run the direct model simulation and process the output temperature data.
+        Parameters:
+        date_simul_bg (str): The start date of the simulation in a string format.
+        Returns:
+        pd.DataFrame: A DataFrame containing the simulation time, temperatures, and corresponding dates.
+        -S_temp_PT100_t.dat
+        Notes:
+        - This function generates zone parameters and runs the 'ginette' simulation.
+        - It reads the output temperature data from files and merges them into a single DataFrame.
+        - The resulting DataFrame includes a 'dates' column calculated from the simulation start date and time.
+    """
 
+
+
+    # run ginette
+    subprocess.call(["./ginette"])
+    # Colonnes pour les températures
+
+    return 
 
 def remove_first_two_days(sim_temp, obs_temp):
     """
