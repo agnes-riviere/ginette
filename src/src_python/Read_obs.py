@@ -258,9 +258,6 @@ def process_obs_RIV2D(Station, Obs_data, date_simul_bg, nb_day, desc_station, pt
                 df[col] = pd.to_numeric(df[col], errors='coerce')
         # Convert the 'dates' column to datetime format
         df = convert_dates(df, 'dates')
-        # Filter rows based on the start date
-        df = df[df['dates'] >= date_simul_bg]
-        df=df[df['dates'] <= date_end]
         # Ensure dates each have seconds set to zero 	2016-07-12 12:15:00 and not 	2016-07-12 12:15:02
         # Floor the dates to 15-minute intervals
         df['dates'] = df['dates'].dt.floor('15min')
@@ -300,10 +297,22 @@ def process_obs_RIV2D(Station, Obs_data, date_simul_bg, nb_day, desc_station, pt
 
         # Merge the current DataFrame with the accumulated data
         all_data = df if all_data is None else pd.merge(all_data, df, on='dates', how='outer')
+    # find the sensor of RIV in desc_station
+    if 'RIV' in desc_station:
+        name_sensor_riv = desc_station['RIV']
+        # create the column H_name_sensor_riv
+        col_name_riv = f"H_{name_sensor_riv}"
+    else:
+        raise KeyError("'RIV' is not a key in desc_station.")
 
 
+    hmax=all_data[col_name_riv].max()
+    hmin=all_data[col_name_riv].mean()
+    hqt95=all_data[col_name_riv].quantile(0.95)
 
-
+    # Filter rows based on the start date
+    all_data = all_data[all_data['dates'] >= date_simul_bg]
+    all_data=all_data[all_data['dates'] <= date_end]
 
     # Replace sensor names with station codes using the desc_station dictionary
     for key, value in desc_station.items():
@@ -333,4 +342,4 @@ def process_obs_RIV2D(Station, Obs_data, date_simul_bg, nb_day, desc_station, pt
 
 
 
-    return all_data
+    return all_data, hmax,hmin,hqt95

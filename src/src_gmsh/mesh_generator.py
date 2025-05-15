@@ -13,6 +13,7 @@ from matplotlib import ticker
 from matplotlib.ticker import AutoMinorLocator
 import matplotlib.patches as patches
 from shapely.geometry import Point, Polygon
+import gmshparser
 
 
 #verify if gmsh is installed
@@ -1290,11 +1291,9 @@ def remove_elements_above_curve_all_entities(table, mesh_path, ajout, retirer=''
     gmsh.finalize()
 
 
-
-
 def readGmsh(fName, precision=None):
     """
-    Lire un fichier Gmsh (.msh) et calculer les centres des éléments.
+    Lire un fichier Gmsh (.msh) et calculer les centres des éléments ainsi que c'est dimension en x et z
 
     Parameters
     ----------
@@ -1309,9 +1308,10 @@ def readGmsh(fName, precision=None):
         Liste des coordonnées des centres des éléments sous forme de tuples (x, y, z).
     nb_mesh : int
         nb of center(mesh) in the mesh.
+    dimension : list of tuple
+        Liste des dimensions spatiales des éléments sous forme de tuples (am, bm).
     """
-    import gmshparser
-    import numpy as np
+
 
     assert (precision is None or (isinstance(precision, int) and precision >= 0)), \
         "Precision doit être None ou un entier positif."
@@ -1327,7 +1327,8 @@ def readGmsh(fName, precision=None):
             node_coords[nid] = coords
 
     # Step 2: Calculate centers of elements
-    centers_elements = []
+    centers_dimension_elements = []
+    # dimension_elements = []
     for entity in mesh.get_element_entities():
         # Get the dimension of the entity (e.g., 1 for lines, 2 for surfaces)
         dimension = entity.get_dimension()
@@ -1340,25 +1341,28 @@ def readGmsh(fName, precision=None):
                 # Calculate the center of the element
                 x = np.mean([c[0] for c in coords])
                 z = np.mean([c[2] for c in coords])  # Assuming 2D (x, z)
-                centers_elements.append((x, z))
+                am = max(round(c[0],4) for c in coords) - min(round(c[0],4) for c in coords)
+                bm = max(round(c[2],4) for c in coords) - min(round(c[2],4) for c in coords)
+                centers_dimension_elements.append((x, z, am, bm))
+                # dimension_elements.append((am,bm))
 
     # Step 3: Round coordinates if precision is specified
     if precision is not None:
-        centers_elements = [(round(x, precision), round(z, precision)) for x, z in centers_elements]
+        centers_dimension_elements = [(round(x, precision), round(z, precision), round(am,precision), round(bm,precision)) for x, z, am, bm in centers_dimension_elements]
 
     # Step 4: Create a DataFrame for the centers
-    df_centers = pd.DataFrame(centers_elements, columns=["x", "z"])
+    df_centers = pd.DataFrame(centers_dimension_elements, columns=["x", "z", "am", "bm"])
 
     # Step 5: Sort the DataFrame
     # Order with x ascending and z descending
     df_centers = df_centers.sort_values(by=["x", "z"], ascending=[True, False]).reset_index(drop=True)
+    df_dimension = df_centers[["am",'bm']]
+    df_centers = df_centers.drop(columns=["am","bm"])
 
     # Step 6: Count the number of elements
     nb_mesh = len(df_centers)
 
-    return df_centers, nb_mesh
-
-
+    return df_centers, nb_mesh, df_dimension
 
 
 def voisin_mesh(directory):
@@ -1526,12 +1530,12 @@ def coord_to_row_column(repertory):
     #   b) Map each z → its rank in that sorted array (1-based)
     z_to_col = {z_val: idx+1 for idx, z_val in enumerate(z_unique)}
     #   c) Vectorized lookup: map every row’s z to coord["colonne"]
-    coord["colonne"] = coord["z"].map(z_to_col)
+    coord["row"] = coord["z"].map(z_to_col)
 
     # 3) Build the row index from 'x' (same pattern)
     x_unique = np.sort(coord["x"].unique())
     x_to_row = {x_val: idx+1 for idx, x_val in enumerate(x_unique)}
-    coord["row"] = coord["x"].map(x_to_row)
+    coord["colonne"] = coord["x"].map(x_to_row)
 
     # 4) (Optional Diagnostics)
     nb_col=coord['colonne'].max()
@@ -1556,77 +1560,6 @@ def coord_to_row_column(repertory):
 
 
     return nb_col,nb_row
-
-
-import pandas as pd
-import numpy as np
-
-def compute_am_bm_from_row_col(directory):
-    """
-    Read:
-      - E_coordonnee.dat  (x,z of each mesh centre)
-      - E_colonne.dat     (1-based column index for each centre)
-      - E_row.dat         (1-based row    index for each centre)
-
-    Compute:
-      - am[i] = full width in x = Δx at its column
-      - bm[i] = full height in z = Δz at its row
-
-    Write:
-      - E_def_maille.dat  (two cols: am(i) bm(i), one line per element)
-    """
-      # 1) Load
-    coord = pd.read_csv(f"{directory}/E_coordonnee.dat",
-                        sep="\s+", header=None, names=["x","z"])
-    cols  = pd.read_csv(f"{directory}/E_colonne.dat",
-                        sep="\s+", header=None, names=["col"])
-    rows  = pd.read_csv(f"{directory}/E_row.dat",
-                        sep="\s+", header=None, names=["row"])
-    df    = pd.concat([coord, cols, rows], axis=1)
-
-    # 2) Sorted unique coordinates
-    x_u = np.sort(df["x"].unique())   # one entry per row index
-    z_u = np.sort(df["z"].unique())   # one entry per column index
-
-
-    # If you have already read E_row.dat / E_colonne.dat into df:
-    print("len(x_u) (unique x’s):", len(x_u))
-    print("max row index  (from file):", df["row"].max())
-    print("len(z_u) (unique z’s):", len(z_u))
-    print("max col index  (from file):", df["col"].max())
-
-
-    # 3) Build full-widths dx for each ROW
-    nrow = len(x_u)
-    dx   = np.empty(nrow, float)
-    dx[0]      = x_u[1]   - x_u[0]
-    dx[1:-1]   = (x_u[2:] - x_u[:-2]) / 2.0
-    dx[-1]     = x_u[-1]  - x_u[-2]
-
-    # 4) Build full-heights dz for each COLUMN
-    ncol = len(z_u)
-    dz   = np.empty(ncol, float)
-    dz[0]      = z_u[1]   - z_u[0]
-    dz[1:-1]   = (z_u[2:] - z_u[:-2]) / 2.0
-    dz[-1]     = z_u[-1]  - z_u[-2]
-
-    # 5) Map each element’s (row,col) → its dx,dz
-    #    subtract 1 because col/row arrays are 1-based
-    df["dx"] = dx[df["row"].to_numpy(dtype=int) - 1]
-    df["dz"] = dz[df["col"].to_numpy(dtype=int) - 1]
-
-    # 6) Write out E_def_maille.dat (dx dz on each line)
-    df[["dx","dz"]].to_csv(
-        f"{directory}/E_def_maille.dat",
-        sep=" ",
-        header=False,
-        index=False,
-        float_format="%.6f"
-    )
-    print(f"Wrote {len(df)} lines to {directory}/E_def_maille.dat")
-
-    return df[["x","z","row","col","dx","dz"]]
-
 
 
 #Definition de la fontion
@@ -1709,7 +1642,8 @@ def id_mesh_river(directory,hmax,hmin,xRG,xRD):
     id_river_min=id_river[coord["z"].iloc[id_river-1] < hmin]
     # find the id of the mesh element above h_max
     id_river_max=id_river[coord["z"].iloc[id_river-1] < hmax]
-
+    # exclude id of id_river_max already in id_river_min
+    id_river_max = id_river_max[~id_river_max.isin(id_river_min)]
     # write files
     with open(f"{directory}/E_Id_river.dat", "w") as f:
         for item in id_river_min:
@@ -1722,5 +1656,69 @@ def id_mesh_river(directory,hmax,hmin,xRG,xRD):
 
 
 
+def am_bm_modif(fName, precision=None):
+    """
+    Lire un fichier Gmsh (.msh) et calculer les dimensions de chaques des éléments.
 
+    Parameters
+    ----------
+    fName : str
+        Chemin vers le fichier Gmsh (.msh).
+    precision : int, optional
+        Si spécifié, arrondir les coordonnées des centres à ce nombre de décimales.
+
+    Returns
+    -------
+    centers : list of tuple
+        Liste des coordonnées des centres des éléments sous forme de tuples (x, y, z).
+    nb_mesh : int
+        nb of center(mesh) in the mesh.
+    """
+    import gmshparser
+    import numpy as np
+
+    assert (precision is None or (isinstance(precision, int) and precision >= 0)), \
+        "Precision doit être None ou un entier positif."
+    # Parse the Gmsh file
+    mesh = gmshparser.parse(fName)
+    node_coords = {}
+
+    # Step 1: Collect all node coordinates
+    for entity in mesh.get_node_entities():
+        for node in entity.get_nodes():
+            nid = node.get_tag()
+            coords = node.get_coordinates()
+            node_coords[nid] = coords
+
+    # Step 2: Calculate centers of elements
+    centers_elements = []
+    for entity in mesh.get_element_entities():
+        # Get the dimension of the entity (e.g., 1 for lines, 2 for surfaces)
+        dimension = entity.get_dimension()
+        if dimension == 2:  # Only process 2D elements (surfaces)
+            for element in entity.get_elements():
+                node_ids = element.get_connectivity()
+                coords = [node_coords[nid] for nid in node_ids if nid in node_coords]
+                if not coords:
+                    continue
+                am=[c[0] for c in coords]
+                bm=[c[2] for c in coords]
+                # Calculate the center of the element
+                x = np.mean([c[0] for c in coords])
+                z = np.mean([c[2] for c in coords])  # Assuming 2D (x, z)
+                centers_elements.append((x, z))
+
+    # Step 3: Round coordinates if precision is specified
+    if precision is not None:
+        centers_elements = [(round(x, precision), round(z, precision)) for x, z in centers_elements]
+
+    # Step 4: Create a DataFrame for the centers
+    df_centers = pd.DataFrame(centers_elements, columns=["x", "z"])
+
+    # Step 5: Sort the DataFrame
+    # Order with x ascending and z descending
+    df_centers = df_centers.sort_values(by=["x", "z"], ascending=[True, False]).reset_index(drop=True)
+
+    # Step 6: Count the number of elements
+    nb_mesh = len(df_centers)
 

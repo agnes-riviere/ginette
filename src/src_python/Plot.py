@@ -4,6 +4,9 @@ import numpy as np
 from scipy.interpolate import interp1d
 from scipy.interpolate import griddata
 from matplotlib.colors import LogNorm
+import os
+import glob
+import matplotlib.dates as mdates
 
 def plot_obs(all_data):
     """
@@ -146,44 +149,60 @@ def plot_domain(nb_zone, alt_thk, z_top, z_bottom):
     plt.grid(True)
     plt.show()
 
+def plot_compare_temperatures_obs_sim(sim_temp, obs_temp, temp_columns, fontsize=15):
+    import matplotlib.pyplot as plt
+    import matplotlib.dates as mdates
+    import numpy as np
+    import pandas as pd
 
-def plot_compare_temperatures_obs_sim(sim_temp, obs_temp,fontsize=15):
-    """
-    Plots and compares observed and simulated temperatures for each sensor.
+    n_col = len(temp_columns)
+    max_per_row = 4
+    n_row = int(np.ceil(n_col / max_per_row))
 
-    Parameters:
-    - sim_temp: DataFrame containing the simulated temperatures. Must contain a 'dates' column and temperature columns named 'Temp1', 'Temp2', 'Temp3', etc.
-    - obs_temp: DataFrame containing the observed temperatures. Must contain a 'dates' column and temperature columns named 'Temp1', 'Temp2', 'Temp3', etc.
-    - fontsize: Font size for the labels (default is 15).
-    """
-    zoomSize = 2
-    titleSize = fontsize + zoomSize
-    fig, axes = plt.subplots(1, 3, figsize=(20, 5), sharey=True)
+    fig, axes = plt.subplots(n_row, max_per_row, figsize=(5 * max_per_row, 5 * n_row), sharey=True)
+    axes = np.array(axes).reshape(-1)
 
-    # Assurez-vous que les dates sont alignées
-    sim_temp['dates'] = pd.to_datetime(sim_temp['dates'])
-    obs_temp['dates'] = pd.to_datetime(obs_temp['dates'])
-    sim_temp.set_index('dates', inplace=True)
-    obs_temp.set_index('dates', inplace=True)
 
-    # Fusionner les DataFrames pour s'assurer qu'ils ont la même taille
+    # Ensure sim_temp has datetime index
+    if 'dates' in sim_temp.columns:
+        sim_temp['dates'] = pd.to_datetime(sim_temp['dates'])
+        sim_temp = sim_temp.set_index('dates')
+    # Ensure obs_temp has datetime index
+    if 'dates' in obs_temp.columns:
+        obs_temp['dates'] = pd.to_datetime(obs_temp['dates'])
+        obs_temp = obs_temp.set_index('dates')
+
+
+    # Merge and plot
+    # print dates of sim_temp and obs_temp
+    print("Simulated dates:")
+    print(sim_temp.index.values)
+    print("Observed dates:")    
+    print(obs_temp.index.values)
+
+
     merged_df = pd.merge(sim_temp, obs_temp, left_index=True, right_index=True, suffixes=('_sim', '_obs'))
-
-    # Colonnes de température (en supposant qu'elles soient nommées 'Temp1', 'Temp2', 'Temp3')
-    temp_columns = ['Temp1', 'Temp2', 'Temp3']
-
-    axes[0].set_ylabel("Temperature in C", fontsize=fontsize)  # Label y-axis
-
+    print(merged_df.index.values)
+    axes[0].set_ylabel("Temperature (°C)", fontsize=fontsize)
     for i, col in enumerate(temp_columns):
-        axes[i].set_xlabel("Date", fontsize=fontsize)
-        axes[i].plot(merged_df.index, merged_df[f'{col}_sim'], label="Simulated")
-        axes[i].plot(merged_df.index, merged_df[f'{col}_obs'], label="Observed")
-        axes[i].legend()
-        axes[i].set_title(f"Sensor {i+1}")
+        if f"{col}_sim" not in merged_df.columns or f"{col}_obs" not in merged_df.columns:
+            raise ValueError(f"Missing column: {col} in either simulated or observed data.")
 
-    plt.subplots_adjust(wspace=0.05)
+        ax = axes[i]
+        ax.plot(merged_df.index, merged_df[f'{col}_sim'], label="Simulated",color='red')
+        ax.plot(merged_df.index, merged_df[f'{col}_obs'], label="Observed",color='blue')
+        ax.set_title(f"{col} Comparison")
+        ax.set_xlabel("Date", fontsize=fontsize)
+        ax.tick_params(axis='x', rotation=45)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        ax.grid(True)
+        ax.legend()
+
+    for j in range(n_col, n_row * max_per_row):
+        fig.delaxes(axes[j])
+
     plt.tight_layout()
-    plt.show()
+ #   plt.show()
 
 def plot_temperatures_sim(sim_temp, fontsize=15):
     """
@@ -491,3 +510,96 @@ def plot_fluxes_timeseries(fontsize=15, date_simul_bg=None):
     plt.tight_layout()
     plt.show()
 
+
+
+
+
+
+
+def plot_obs_station(station,base_csv,start_date='2013-06-01',end_date='2016-09-01'):
+
+
+    chemin_csv = os.path.join(base_csv, station)
+    dataframes = {}
+
+    for fichier in glob.glob(os.path.join(chemin_csv, "*.csv")):
+        nom_fichier = os.path.basename(fichier)
+        nom_capteur = nom_fichier.split("_")[0].replace(".csv", "")
+
+        with open(fichier, "r") as f:
+            preview = f.readline()
+            separateur = ";" if ";" in preview else ","
+
+        df = pd.read_csv(fichier, sep=separateur, parse_dates=True, dayfirst=True, index_col=0)
+        df.drop(columns=[' Conductivity [mS/cm]'], inplace=True, errors='ignore')
+        df.index = pd.to_datetime(df.index)
+        dataframes[nom_capteur] = df
+
+    for nom_capteur, df in dataframes.items():
+        for i in range(1, 5):
+            old_col = f"temperature_depth_{i}_C"
+            new_col = f"Temp_{nom_capteur}_C{i}"
+            if old_col in df.columns:
+                df.rename(columns={old_col: new_col}, inplace=True)
+
+        if " Hydraulic Head [mNGF]" in df.columns:
+            df.rename(columns={" Hydraulic Head [mNGF]": f"H_{nom_capteur}"}, inplace=True)
+
+        if " Temperature [°C]" in df.columns:
+            df.rename(columns={" Temperature [°C]": f"Temp_{nom_capteur}"}, inplace=True)
+
+    print("Capteurs chargés :", list(dataframes.keys()))
+
+    dfs_concatenes = []
+    for nom_capteur, df in dataframes.items():
+        if nom_capteur.startswith(('pzps', 'riv')):
+            df_numeric = df.apply(pd.to_numeric, errors='coerce')
+            dfs_concatenes.append(df_numeric)
+
+    df_Diver = pd.concat(dfs_concatenes, axis=1)
+    df_Diver.sort_index(inplace=True)
+    for df in dataframes.values():
+        df.sort_index(inplace=True)
+
+    start_date = pd.to_datetime(start_date)
+    end_date = pd.to_datetime(end_date)
+    mask = (df_Diver.index >= start_date) & (df_Diver.index <= end_date)
+    df_Diver_filtré = df_Diver.loc[mask]
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    for nom_capteur in dataframes:
+        if nom_capteur.startswith(('pzps', 'riv')):
+            col = f"H_{nom_capteur}"
+            if col in df_Diver_filtré.columns:
+                ax.plot(df_Diver_filtré.index, df_Diver_filtré[col], label=f"H {nom_capteur}")
+
+    ax.set_xlabel('Dates')
+    ax.set_ylabel('Charge hydraulique [mNGF]')
+    ax.grid(True)
+    ax.legend()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    for nom_capteur, df in dataframes.items():
+        if nom_capteur.startswith('Hobo'):
+            mask = (df.index >= start_date) & (df.index <= end_date)
+            df_filtré = df.loc[mask]
+            for col in df_filtré.columns:
+                if 'Temp' in col:
+                    ax.plot(df_filtré.index, df_filtré[col], label=f"{nom_capteur} - {col}")
+
+    for nom_capteur in dataframes:
+        if nom_capteur.startswith(('pzps', 'riv')):
+            col = f"Temp_{nom_capteur}"
+            if col in df_Diver_filtré.columns:
+                ax.plot(df_Diver_filtré.index, df_Diver_filtré[col], label=f"T {nom_capteur}")
+
+    ax.set_xlabel('Dates')
+    ax.set_ylabel('Température [°C]')
+    ax.grid(True)
+    ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()

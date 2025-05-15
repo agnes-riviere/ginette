@@ -27,12 +27,13 @@ import pandas as pd
 import numpy as np
 import subprocess
 import os
+from itertools import product
 
 def format_value(value):
     """
     Formate une valeur flottante dans le format 00000000d+00.
     """
-    return "{:0=+12.2e}".format(value).replace('e', 'd')
+    return "{:0=12.2e}".format(value).replace('e', 'd')
 
 def setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs):
     """
@@ -107,7 +108,7 @@ def setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg
     #-----------------------------------------------------------------
 
 
-def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row):
+def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row,nb_day=10,dt=900):
     """
     Sets up the Ginette model parameters and writes them to the appropriate files in steady state.
     Parameters:
@@ -121,11 +122,9 @@ def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row):
     """
     
 
-    # time step
-    dt=900
+    # time step dt
     # state
     state=0
-    nb_day=10
     itsortie=dt 
     #-----------------------------------------------------------------
     ## write the setup of the modeled domain
@@ -142,7 +141,6 @@ def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row):
 
     # read pt100_coord to get the number of rows 
     nb_pt100=len(pt100_coord)
-    print(pt100_coord.head())
     # number cell to replace = nb_pt100
     # create the int of cell1, cell2, cell3, cell4,cell5, cell6,cell7, cell8 =10
     for i in range(8):
@@ -282,6 +280,49 @@ def initial_conditions_perm_2D():
     f_IC_bck.close()
     f_IC_new.close()   
 
+
+
+def initial_conditions_2D():
+    """
+    Sets up the initial conditions for the Ginette model in a 2D domain.
+
+    This function initializes the model by preparing the necessary input files 
+    and setting up the modeled domain based on predefined templates and parameters.
+
+
+    File Operations:
+        - Reads from "S_pression_charge_temperature.dat" to generate:
+            - "E_pression_initiale.dat"
+            - "E_temperature_initiale.dat"
+        - Reads from "E_cdt_initiale_bck.dat" to generate "E_cdt_initiale.dat".
+
+    Replacements in "E_cdt_initiale.dat":
+        - Replaces placeholder '[chg_i]' with the value of `ichg_i` (set to 1).
+        - Replaces placeholder '[temp_i]' with the value of `itemp_i` (set to 1).
+
+    Notes:
+        - The function assumes the existence of the source files in the working directory.
+        - The `reuse_end_in_initial` function is used to copy and process data from 
+          the source files to the destination files.
+    """
+    # Initial conditions
+    source_file="S_pression_charge_temperature.dat"
+    destination_file="E_pression_initiale.dat"
+    reuse_end_in_initial(source_file, destination_file)
+    source_file="S_pression_charge_temperature.dat"
+    destination_file="E_temperature_initiale.dat"
+    reuse_end_in_initial(source_file, destination_file)
+    ## write the setup of the modeled domain
+    f_IC_bck = open("E_cdt_initiale_bck.dat", "r")
+    f_IC_new = open("E_cdt_initiale.dat", 'w')
+    setup_IC=f_IC_bck.read()
+    ichg_i=1
+    itemp_i=1
+    setup_IC = setup_IC.replace('[chg_i]', '%1i' % ichg_i)
+    setup_IC = setup_IC.replace('[temp_i]', '%1i' % itemp_i)
+    f_IC_new.write(setup_IC)
+    f_IC_bck.close()
+    f_IC_new.close()  
 
 def initial_conditions(all_data, z_top, z_bottom, dz, z_obs):
     """
@@ -498,14 +539,10 @@ def boundary_conditions(all_data,dt):
     # Écrire les modifications dans le fichier
     f_param_lec_new.write(lec_bc)
     return
-
-
-# 
-
 #-----------------------------------------------------------------
 
 
-def boundary_conditions_perm_2D(all_data):
+def boundary_conditions_perm_2D(all_data,dt):
     """
     Sets boundary conditions for permeability based on the provided data and writes them to a file.
     Parameters:
@@ -531,35 +568,19 @@ def boundary_conditions_perm_2D(all_data):
     None
     """   
         #-----------------------------------------------------------------
-    f_param_lec=open("E_cdt_aux_limites_perm_bck.dat", "r")
+    f_param_lec=open("E_cdt_aux_limites_bck.dat", "r")
     f_param_lec_new=open("E_cdt_aux_limites.dat", "w")
     lec_bc=f_param_lec.read()
-    # Test if the three boundary conditions are present in the DataFrame
-    if 'H_RIV' in all_data.columns and 'H_RD' in all_data.columns and 'H_RG' in all_data.columns:
-        print('Flow boundaries columns names are OK')
-    else:
-        print("Error: Missing one or more flow boundary conditions (H_RIV, H_RD, H_RG).")
-        return
-    
-    # Save charge boundary conditions
-
-    
-    # Save temperature boundary conditions
-    if 'T_RIV' in all_data.columns and 'T_RG' in all_data.columns and 'T_RD' in all.data.columns:
-        print('Heat boundaries columns names are Ok')
-    else:
-        print("Error: No temperature boundary conditions found.")
-        return
-
 
     iclchgt = 0
     lec_bc = lec_bc.replace('[iclchgt]', '%1i' % iclchgt)
-    lec_bc = lec_bc.replace('[valcl_haut]', '%70f' % all_data['H_RIV'].iloc[0])
-    lec_bc = lec_bc.replace('[valcl_gauche]', '%70f' % all_data['H_RG'].iloc[0])
-    lec_bc = lec_bc.replace('[valcl_droite]', '%70f' % all_data['H_RD'].iloc[0])
-    lec_bc = lec_bc.replace('[valclt_haut]', '%70f' % all_data['T_RIV'].iloc[0])
-    lec_bc = lec_bc.replace('[valclt_gauche]', '%70f' % all_data['T_RG'].iloc[0])
-    lec_bc = lec_bc.replace('[valclt_droite]', '%70f' % all_data['T_RD'].iloc[0])
+    lec_bc = lec_bc.replace('[valcl_haut]', format_value(all_data['H_RIV'].iloc[0]))
+    lec_bc = lec_bc.replace('[valcl_gauche]', format_value(all_data['H_RG'].iloc[0]))
+    lec_bc = lec_bc.replace('[valcl_droite]', format_value(all_data['H_RD'].iloc[0]))
+    lec_bc = lec_bc.replace('[valclt_haut]', format_value(all_data['T_RIV'].iloc[0]))
+    lec_bc = lec_bc.replace('[valclt_gauche]', format_value(all_data['T_RG'].iloc[0]))
+    lec_bc = lec_bc.replace('[valclt_droite]', format_value(all_data['T_RD'].iloc[0]))
+    lec_bc = lec_bc.replace('[itlecture]', '%08.0f' % dt)
     # Écrire les modifications dans le fichier
     f_param_lec_new.write(lec_bc)
 
@@ -568,9 +589,46 @@ def boundary_conditions_perm_2D(all_data):
     f_param_lec.close()
 
 # 
+def boundary_conditions_perm_2D_tdirect():
+    """
+    Ensures the boundary condition file has 'iclchgt=0' (not 1) after writing.
+    Reads the boundary condition file, replaces any 'iclchgt=1' with 'iclchgt=0',
+    and writes the updated content back to the file.
+    """
+    # Read the file
+    with open("E_cdt_aux_limites.dat", "r") as f_param_lec:
+        lec_bc = f_param_lec.read()
 
+    # Replace all occurrences of 'iclchgt=1' with 'iclchgt=0'
+    lec_bc = lec_bc.replace("iclchgt=1", "iclchgt=0")
 
+    # Write back to the file
+    with open("E_cdt_aux_limites.dat", "w") as f_param_lec_new:
+        f_param_lec_new.write(lec_bc)
 
+    # Double-check: ensure 'iclchgt=0' is present and 'iclchgt=1' is not
+    with open("E_cdt_aux_limites.dat", "r") as f_check:
+        content = f_check.read()
+        if "iclchgt=1" in content:
+            content = content.replace("iclchgt=1", "iclchgt=0")
+            with open("E_cdt_aux_limites.dat", "w") as f_fix:
+                f_fix.write(content)
+
+def boundary_conditions_2D_tdirect():
+    """
+    Reads the boundary condition file, replaces 'iclectchgt=0' with 'iclectchgt=1',
+    and writes the updated content back to the file.
+    """
+    # Ouvrir le fichier existant en lecture
+    with open("E_cdt_aux_limites.dat", "r") as f_param_lec:
+        lec_bc = f_param_lec.read()
+
+    # Remplacer 'iclectchgt=0' par 'iclectchgt=1'
+    lec_bc = lec_bc.replace("iclchgt=0", "iclchgt=1")
+
+    # Écrire les modifications dans le fichier
+    with open("E_cdt_aux_limites.dat", "w") as f_param_lec_new:
+        f_param_lec_new.write(lec_bc)
    
 def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l, REF_r, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None):
     """
@@ -661,57 +719,44 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     f_paramZ_new.write(param_zone)
     f_paramZ_new.close()
 
-def zone_parameters_undef(nb_zone, parameters):
+import pandas as pd
+import numpy as np
+def generate_zone_parameters_undef(nb_zone, parameters, value_zone_parameter):
     """
-    Generate a file "E_zone_parameter_bck.dat" with the parameters of the zones.
+    Generate a file "E_zone_parameter.dat" with formatted zone parameter values.
 
     Parameters:
     - nb_zone: Number of zones.
-    - parameters: List of parameter names to be written in the file (e.g., ['k', 'n', 'l', 'cpm', 'r']).
+    - parameters: List of parameter names (e.g., ['k', 'n', 'l', 'cs', 'r']).
+    - value_zone_parameter: DataFrame containing parameter values for each zone.
     """
-    with open("E_zone_parameter_bck.dat", "w") as f:
-        for i in range(nb_zone):
-            line = f"{i+1}"
-            for param in parameters:
-                line += f"\t[{param}{i+1}]"
-            if i < nb_zone - 1:  # Avoid adding a newline at the end of the file
-                f.write(line + "\n")
-            else:
-                f.write(line)
+    # if E_zone_parameter.dat already exists, remove it
+    try:
+        os.remove("E_zone_parameter.dat")
+    except OSError:
+        print(">>> E_zone_parameter.dat n'existe pas, on le crée !")
 
-
-def generate_zone_parameters_undef(nb_zone,value_zone_parameter):
-    """
-    Writes the zone parameter file based on the number of zones and parameter values.
-
-    Parameters:
-    - nb_zone: 
-    - value_zone_parameter: dataframe of parameter values for each zone, dataframe: with the 
-    colum name are the same as parameters and each row is the value of the parameter for each zone.
-    """
-    f_param_zone=open("E_zone_parameter_bck.dat", "r")
-    f_param_zone_new=open("E_zone_parameter.dat", "w")
-    param_zone=f_param_zone.read()
-    # if the parameter k exist in the file replace by k=10**k value_zone_parameter is a dataframe
-
+    # If 'k' is in log10, convert to linear
     if 'k' in value_zone_parameter.columns:
+        value_zone_parameter['k'] = value_zone_parameter['k'].apply(
+            lambda x: 10**x if isinstance(x, (int, float, np.number)) and np.isfinite(x) else x
+        )
+
+
+    with open("E_zone_parameter.dat", "w") as f:
         for i in range(nb_zone):
-            # transform the value of k to 10**k
-            value_zone_parameter = value_zone_parameter.copy()
-            value_zone_parameter.loc[i, 'k'] = 10**value_zone_parameter.loc[i, 'k']
+            values = []
+            for param in parameters:
+                value = value_zone_parameter.iloc[i][param]
+                if pd.isna(value) or not np.isfinite(value):
+                    value = 0.0
+                formatted = "{:011.2e}".format(value).replace('e', 'd')
+                values.append(formatted)
+            line = f"{i+1}\t" + "\t".join(values) + "\n"
+            f.write(line)
+        f.write(" \n")
 
 
-    # remplacer les valeurs des paramètres
-    for i in range(nb_zone):
-        for j in range(len(value_zone_parameter.columns)):
-            param_zone = param_zone.replace('[' + value_zone_parameter.columns[j]
-                                             + str(i+1) + ']', '{:0=12.2e}'.format
-                                             (value_zone_parameter.iloc[i, j]).replace('e', 'd'))
-    # write in new file E_zone_parameter.dat
-    f_param_zone_new.write(param_zone)
-    f_param_zone.close()
-    f_param_zone_new.close()
-    #-----------------------------------------------------------------          
 
 
 
@@ -780,14 +825,62 @@ def run_direct_model_2D():
         - It reads the output temperature data from files and merges them into a single DataFrame.
         - The resulting DataFrame includes a 'dates' column calculated from the simulation start date and time.
     """
-
-
+    # --- Step 1: Set up initial conditions and boundary conditions for steady-state (permanent) simulation
+    with open("E_parametre.dat", "r") as f_param:
+        param = f_param.read()
+    param = param.replace("rp=1", "rp=0")
+    # Write the modified content back to the file
+    f_param_new = open("E_parametre.dat", "w")
+    f_param_new.write(param)
+    f_param_new.close()
+    f_param.close()
+    # Replace all occurrences of 'rpth=0' with 'rpth=1' in E_p_therm.dat
+    with open("E_p_therm.dat", "r") as f_param_therm:
+        param_therm = f_param_therm.read()
+    param_therm = param_therm.replace("rpth=1", "rpth=0")
+    # Write the modified content back to the file
+    f_param_therm_new = open("E_p_therm.dat", "w")
+    f_param_therm_new.write(param_therm)
+    f_param_therm_new.close()
+    f_param_therm.close()
+    initial_conditions_perm_2D()
+    boundary_conditions_perm_2D_tdirect()
+    # --- Step 2: Run Ginette in steady-state mode
+    subprocess.call(["./ginette"])
+    # --- Step 3: Set up initial conditions and boundary conditions for transient simulation
+    initial_conditions_2D()
+    boundary_conditions_2D_tdirect()
+    # --- Step 4: Update parameters for transient simulation
+    # Replace all occurrences of 'rp=0' with 'rp=1' in E_parametre.dat
+    with open("E_parametre.dat", "r") as f_param:
+        param = f_param.read()
+    param = param.replace("rp=0", "rp=1")
+    # Write the modified content back to the file
+    f_param_new = open("E_parametre.dat", "w")
+    f_param_new.write(param)
+    f_param_new.close()
+    f_param.close()
+    # Replace all occurrences of 'rpth=0' with 'rpth=1' in E_p_therm.dat
+    with open("E_p_therm.dat", "r") as f_param_therm:
+        param_therm = f_param_therm.read()
+    param_therm = param_therm.replace("rpth=0", "rpth=1")
+    # Write the modified content back to the file
+    f_param_therm_new = open("E_p_therm.dat", "w")
+    f_param_therm_new.write(param_therm)
+    f_param_therm_new.close()
+    f_param_therm.close()
 
     # run ginette
     subprocess.call(["./ginette"])
-    # Colonnes pour les températures
 
     return 
+
+
+
+
+
+            
+
 
 def remove_first_two_days(sim_temp, obs_temp):
     """
@@ -802,16 +895,23 @@ def remove_first_two_days(sim_temp, obs_temp):
     - obs_temp_filtered: Filtered obs_temp DataFrame.
     """
     # Filtrer sim_temp pour supprimer les deux premiers jours (86400 secondes par jour)
-    sim_temp_filtered = sim_temp[sim_temp['Time'] >= 86400 * 4  ]
+    sim_temp_filtered = sim_temp[sim_temp['Time'] >= 86400 * 2  ]
 
     # Convertir l'index de obs_temp en format datetime si ce n'est pas déjà fait
     obs_temp.index = pd.to_datetime(obs_temp.index)
 
     # Définir la date de début pour filtrer les deux premiers jours
-    start_date = obs_temp.index.min() + pd.Timedelta(days=4)
+    start_date = obs_temp.index.min() + pd.Timedelta(days=2)
 
     # Filtrer obs_temp pour supprimer les deux premiers jours
     obs_temp_filtered = obs_temp[obs_temp.index >= start_date]
+
+    # ensure que les deux DataFrames debute à la date max entre les deux
+    max_date = max(sim_temp_filtered['dates'].max(), obs_temp_filtered.index.max())
+    sim_temp_filtered = sim_temp_filtered[sim_temp_filtered['dates'] <= max_date]
+    obs_temp_filtered = obs_temp_filtered[obs_temp_filtered.index <= max_date]
+    obs_temp_filtered['dates'] = obs_temp_filtered.index
+    obs_temp_filtered = obs_temp_filtered.reset_index(drop=True)
 
     return sim_temp_filtered, obs_temp_filtered
 
@@ -828,37 +928,35 @@ def remove_first_days_sim(sim_temp, nb_delday):
     - sim_temp_filtered: Filtered sim_temp DataFrame.
     """
     # Filtrer sim_temp pour supprimer les deux premiers jours (86400 secondes par jour)
-    sim_temp_filtered = sim_temp[sim_temp['Time'] >= 86400 * 4  ]
+    sim_temp_filtered = sim_temp[sim_temp['Time'] >= 86400 * nb_delday]  
 
     return sim_temp_filtered
 
-def reuse_end_in_inital():
+def reuse_end_in_initial(source_file, destination_file):
     """
-    Copies the 5th column of data from the 'S_pression_charge_temperature.dat' file 
-    to the 'E_charge_initiale.dat' file.
-    This function reads the source file, extracts the 5th column (index 4) of data, 
-    and writes this column to the destination file.
+    Copies specific columns from the source file to the destination file.
+    Parameters:
+        source_file (str): Path to the source file containing the data.
+        destination_file (str): Path to the destination file where the data will be copied.
+    Returns:
+        None
     Raises:
         FileNotFoundError: If the source file does not exist.
-    Comments:
-        - Ensure that the source file exists before attempting to read it.
-        - The 5th column is extracted using zero-based indexing (index 4).
-        - The data is saved to the destination file in floating-point format.
+        ValueError: If the source file is empty or the destination file is invalid.
     """
-    
-    
-        # copy the colum 5 of the S_pression_charge_temperature.dat file in the E_charge_initiale.dat file
-    source_file = '/home/ariviere/Programmes/ginette/application/2024_TD_ENS/SYNTHETIC_CASES/S_pression_charge_temperature.dat'
-    destination_file = '/home/ariviere/Programmes/ginette/application/2024_TD_ENS/SYNTHETIC_CASES/E_charge_initiale.dat'
-
-    # Read the source file
-    source_data = np.loadtxt(source_file)
     if not os.path.exists(source_file):
         raise FileNotFoundError(f"{source_file} not found.")
 
-    # Extract the 5th column (index 4)
-    column_to_copy = source_data[:, 4]
+    source_data = np.loadtxt(source_file)
+    if source_data.size == 0:
+        raise ValueError(f"The source file {source_file} is empty.")
 
-    # Write the column to the destination file
+    column_index = {'E_pression_initiale.dat':3,'E_charge_initiale.dat': 4, 'E_temperature_initiale.dat': 5}.get(destination_file)
+    if column_index is None:
+        raise ValueError("Invalid destination file. Use 'E_pression_initiale.dat','E_charge_initiale.dat' or 'E_temperature_initiale.dat'.")
+
+    column_to_copy = source_data[:, column_index]
+    if column_to_copy.size == 0:
+        raise ValueError(f"The column to copy from {source_file} is empty.")
     np.savetxt(destination_file, column_to_copy, fmt='%f')
 

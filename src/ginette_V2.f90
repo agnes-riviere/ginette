@@ -392,7 +392,8 @@ program pression_ecoulement_transport_thermique
       icolone = 1
       imaille = 0
       itopo = 1
-      open (unit=32, file='E_zone.dat')
+
+      call open_file('E_zone.dat', An_Error, 32)
       open (unit=321, file='E_zone_parameter.dat')
       open (unit=222, file='E_BordRD.dat', iostat=iidRD)
       open (unit=223, file='E_BordRG.dat', iostat=iidRG)
@@ -456,7 +457,7 @@ program pression_ecoulement_transport_thermique
    end if
    if (ytest == "ZHZ") then
       call open_file('E_zone.dat', An_Error, 32)
-      open (unit=321, file='E_zone_parameter.dat')
+      call open_file('E_zone_parameter.dat', An_Error, 321)
       if (ios /= 0) then
          stop 'File E_zone.dat does not exist'
       end if
@@ -768,7 +769,7 @@ program pression_ecoulement_transport_thermique
 
       ligne = 0
       ligne1 = 0
-      ligne2 = 0
+
 
 !CC....lecture des données
 !ccc...boundaries wall
@@ -785,9 +786,9 @@ program pression_ecoulement_transport_thermique
       do j = 1, ligneCL
          read (228, *) chgRG(j)
          read (227, *, iostat=iCRD) chgRD(j)
-!      read(229,*)tempRD(j)
-!      read(230,*)tempRG(j)
-!      read(231,*)tempriver(j)
+         read(229,*)tempRD(j)
+         read(230,*)tempRG(j)
+         read(231,*)tempriver(j)
          read (232, *) chgriver(j)
       end do
 
@@ -851,6 +852,8 @@ program pression_ecoulement_transport_thermique
          read (2242, *, iostat=iidZH) id_ZH(j)
       end do
    end select
+
+
 
 !       ligne5=0
 !CC....TEST POUR MAQUETTE DECONNECTION
@@ -1478,7 +1481,7 @@ program pression_ecoulement_transport_thermique
    !                                                 C
    !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-    
+
    SELECT CASE (ytest)
 
    CASE ('ZNS')
@@ -1699,11 +1702,21 @@ program pression_ecoulement_transport_thermique
          nzone = max(nzone, izone(i))
 !CC...Calcul le nombre de zone
       end do
-      allocate(cpmzone(nzone))
 
+      allocate(cpmzone(nzone))
+      allocate(jzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(rhomzone(nzone))
+      allocate(alandazone(nzone))
+      iostat=0
       do j = 1, nzone
-         read (321, *) jzone(j), akzone(j), omzone(j), &
-             alandazone(j), cpmzone(j), rhomzone(j)
+         read (321, *,iostat=iostat) jzone(j), akzone(j), omzone(j),  &
+         alandazone(j), cpmzone(j), rhomzone(j)
+         if (iostat /= 0) then
+         print *, "Erreur de lecture E_zone_parameter.dat à la ligne", j
+         stop
+         end if
       end do
 
       do j = 1, nzone
@@ -2806,8 +2819,9 @@ program pression_ecoulement_transport_thermique
    do while (nitt*unitsim - paso > 0)
 !         print*,dt,paso
       it = it + 1
+
 !CC....Compteur iteration calcul PICARD
-      nk = 0
+     nk = 0
 !CC...Retour pas de temps initial impose par l utilisateur
       dt = dble(dta)
       dtreco = dble(dtrecord)
@@ -2945,16 +2959,58 @@ program pression_ecoulement_transport_thermique
             ntsortie = ligne2
          end select
 
+         if (.not.allocated(qpluie)) then
+            allocate(qpluie(1))
+         end if
+         if (.not.allocated(tempsurf)) then
+            allocate(tempsurf(1))
+         end if
+         if (.not.allocated(tempbot)) then
+            allocate(tempbot(1))
+         end if
+         if (.not.allocated(chgsurf)) then
+            allocate(chgsurf(1))
+         end if
+         if (.not.allocated(chgbot)) then
+            allocate(chgbot(1))
+         end if
+         if (.not.allocated(chgriver)) then
+            allocate(chgriver(1))
+         end if
+         if (.not.allocated(chgRD)) then
+            allocate(chgRD(1))
+         end if
+         if (.not.allocated(tempRD)) then
+            allocate(tempRD(1))
+         end if
+         if (.not.allocated(tempRG)) then
+            allocate(tempRG(1))
+         end if
+         if (.not.allocated(tempriver)) then
+            allocate(tempriver(1))
+         end if
+         if (.not.allocated(chgRG)) then
+            allocate(chgRG(ntsortie))
+         end if
+
+         if (.not.allocated(qbot)) then
+            allocate(qbot(1))
+         end if
+         if (.not.allocated(qsurf)) then
+            allocate(qsurf(1))
+         end if
+
+
          call variation_cdt_limites(nm, paso, itlecture, ytest, &
                                     ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
                                     icl, valcl, iclt, valclt, ivois, &
                                     z, g, ntsortie, bm, irptha, &
                                     rho, qpluie, chgriver, &
                                     chgRD, chgRG, tempRD, tempRG, &
+                                    tempriver, &
                                     id_RD, id_RG, id_river, id_rivert, tempsurf, &
                                     tempbot, chgsurf, chgbot, &
-                                    x, icol, nc, tempo, pro, &
-                                    qsurf, qbot)
+                                    x, qsurf, qbot)
 
 
       end if
@@ -2993,6 +3049,16 @@ program pression_ecoulement_transport_thermique
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          if (nk == iteration - 1 .or. pr(1) + 1 == pr(1) &
              .or. dt <= 1D-5) then
+               !EXPLICATION DE POURQUOI IL N Y A PAS DE CONVERGENCE
+               if ( nk == iteration -1 ) then
+               print*, 'NON CONVERGENCE CAR NK EGALE ITERATION -1'
+               else if ( pr(1) + 1 == pr(1) ) then
+               print*, 'NON CONVERGENCE CAR LA PRESSION A EXPLOSE'
+               else if (abs(dt) <= 1D-5) then
+               print*, 'NON CONVERGENCE CAR DT TROP PETIT'
+               print*, 'paso = ',paso ,"dt =", dt
+               stop
+               end if
             if (dtreco >= 0) then
                dtrecord = dble(dtreco) - dble(dt)
                irecord = 0
@@ -3075,9 +3141,10 @@ program pression_ecoulement_transport_thermique
                                     z, g, ntsortie, bm, irptha, &
                                     rho, qpluie, chgriver, &
                                     chgRD, chgRG, tempRD, tempRG, &
+                                    tempriver, &
                                     id_RD, id_RG, id_river, id_rivert, tempsurf, &
                                     tempbot, chgsurf, chgbot, &
-                                    x, icol, nc, tempo, pro, &
+                                    x,  &
                                     qsurf, qbot)
 
             end if
@@ -4020,7 +4087,7 @@ program pression_ecoulement_transport_thermique
          gxl = 2D0 - zl(1, 1)
          gxs = 2D0 - zs(1, 1)
       end if
-
+      
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !                                                 C
@@ -4360,12 +4427,13 @@ program pression_ecoulement_transport_thermique
       case ("R2D")
       
       if (irecord == 1) then
-         qflux = 0D+00
-         do j = 1, ligne7
-            qflux = vzm(id_ZH(j))*am(id_ZH(j)) + qflux
-         end do
+ !        qflux = 0D+00
+   !      do j = 1, ligne7
+    !        qflux = vzm(id_ZH(j))*am(id_ZH(j)) + qflux
+   !      end do
 !         write (181830, *) paso/unitsortie, qflux
-         print *, "out", paso/86400, paso,dt,am(id_ZH(1)), qflux,irecord
+         print *, "out", paso/86400, paso,dt,temp(1),pr(1)/rho1/g+z(1),valcl(1,2)
+
 !     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
 !     &zs(65,1),zs(217,1)
          if (ith == 1) then
@@ -4381,6 +4449,7 @@ program pression_ecoulement_transport_thermique
  !           end do              
 
       end if
+
 !CC....SORTIE ZH Karina
        case( "ZHR" ,"ZHZ")
     !           print*,paso,vzm(1),valclt(1,3),temp(nmaille1)
@@ -4718,9 +4787,9 @@ program pression_ecoulement_transport_thermique
    close (63)
    close (67)
    close (53)
-
+   close(321)
    close (6001)
-   close (74)
+   ! close (74)
    close (778)
    close (782)
    close (1000)
@@ -4832,6 +4901,7 @@ program pression_ecoulement_transport_thermique
    if (allocated(pr)) deallocate(pr)
    if (allocated(prk)) deallocate(prk)
    if (allocated(pro)) deallocate(pro)
+
    if (icycle == 1) then
       if (allocated(alph)) deallocate(alph)
       if (allocated(dl)) deallocate(dl)
@@ -7759,9 +7829,10 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
                                  z, g, ntsortie, bm, irptha, &
                                  rho, qpluie, chgriver, &
                                  chgRD, chgRG, tempRD, tempRG, &
+                                 tempriver, &
                                  id_RD, id_RG, id_river, id_rivert, tempsurf, &
                                  tempbottom, chgsurf, chgbottom, &
-                                 x, icol, nc, tempo, pro, &
+                                 x,&
                                  qsurf, qbottom)
 !     nc nb de colonnes
 !     nr nb de ligne
@@ -7789,22 +7860,94 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
    dimension ivois(nm, 4), valcl(nm, 4), icl(nm, 4)
    dimension valclt(nm, 4), iclt(nm, 4), z(nm)
    dimension rho(nm), bm(nm), x(nm)
-   dimension icol(nm)
    dimension chgbottom(ntsortie), chgsurf(ntsortie)
    dimension qbottom(ntsortie), qsurf(ntsortie)
-   dimension qpluie(ligne1), chgRD(ligne2)
-   dimension chgRG(ligne2), tempRD(ligne2)
+   dimension qpluie(ntsortie), chgRD(ntsortie)
+   dimension chgRG(ntsortie), tempRD(ntsortie)
+   dimension chgriver(ntsortie), tempriver(ntsortie)
    dimension id_RD(ligne3), id_RG(ligne4)
-   dimension id_river(ligne5), chgriver(ligne2)
-   dimension tempRG(ligne1), id_rivert(ligne6)
+   dimension id_river(ligne5)
+   dimension tempRG(ntsortie), id_rivert(ligne6)
    dimension tempsurf(ntsortie), tempbottom(ntsortie)
-   dimension pro(nm)
-   dimension tempo(nm)
    CHARACTER(3) :: ytest
+
    kimp = int(paso/itlecture)
-
+   if (kimp >= ntsortie) kimp = ntsortie
+   print*, "kimp", kimp
    select case (ytest)
+   case ("R2D") 
 
+
+
+      do i = 1, nm
+!ccc....CDT LIMITE SOL
+         if (ivois(i, 3) == -99) then
+
+            icl(i, 3) = -1
+            valcl(i, 3) = 0
+            valclt(i, 3) = 0
+           iclt(i, 3) = -1
+
+         end if
+
+!ccc....CDT LIMITE BOTTOM
+         if (ivois(i, 4) == -99) then
+            iclt(i, 4) = -1
+            icl(i, 4) = -1
+            valclt(i,4)=0
+            valcl(i,4)=0
+         end if
+
+!ccc....CDT LIMITE RD
+         do j = 1, ligne3  ! # E_BordRD.dat
+         if (i == id_RD(j)) then
+            icl(i, 1) = -2
+            valcl(i, 1) = (chgRD(kimp) - z(i))*rho(i)*g
+     iclt(i,1)=-2
+     valclt(i,1)=tempRD(kimp)
+         end if
+         end do
+
+!ccc....CDT LIMITE RG
+         do j = 1, ligne4 ! 223 = E_BordRG.dat
+            
+         if (i == id_RG(j)) then
+            icl(i, 2) = -2
+            valcl(i, 2) = (chgRG(kimp) - z(i))*rho(i)*g
+        iclt(i,2)=-2
+        valclt(i,2)=tempRG(kimp)
+!        print*,tempRG(kimp),kimp
+!     &-(tempRG(kimp)-tempsol(kheure))
+!     &/(76.83-79.81)*(76.83-z(i))
+         end if
+         end do
+!ccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
+         do j = 1, ligne5 ! 224 = E_Id_river.dat
+         if (i == id_river(j)) then
+            icl(i, 3) = -2
+            zhaut = z(i) + bm(i)/2
+            valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
+           iclt(i,3)=-2
+           valclt(i,3)=tempriver(kimp)
+
+         end if
+         end do
+
+!ccc....CDT LIMITE RIVER a tester
+         do j = 1, ligne6 ! 2244 = E_Id_river_max.dat
+
+         if (i == id_rivert(j)) then
+            if (z(i) + bm(i)/2 < chgriver(kimp)) then
+               icl(i, 3) = -2
+               zhaut = z(i) + bm(i)/2
+               valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
+              iclt(i,3)=-2
+               valclt(i,3)=tempriver(kimp)
+            end if
+         end if
+         end do
+
+      end do
    case ("WAR")
       if (kimp > ligne4) kimp = ligne4
       select case (icl(nm, 4))
@@ -8113,82 +8256,8 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
 
       end do
 
-   case ("R2D") 
 
-      if (kimp > ligne2) kimp = ligne2
-!ccc.... 1 heure
-      kheure = int(paso/3600) + 1
-      if (kheure > ligne) kheure = ligne
-!ccc.... 1 jour
-      kjour = int(paso/86400) + 1
-      if (kjour > ligne1) kjour = ligne1
-      do i = 1, nm
-!ccc....CDT LIMITE SOL
-         if (ivois(i, 3) == -99) then
-            iclt(i, 3) = -1
-            icl(i, 3) = -1
-            valcl(i, 3) = 0
-!     valclt(i,3)=tempsol(kheure)
-            valclt(i, 3) = 0
-         end if
-!ccc....CDT LIMITE BOTTOM
-         if (ivois(i, 4) == -99) then
-            iclt(i, 4) = -1
-            icl(i, 4) = -1
-     valclt(i,4)=0
-     valcl(i,4)=0
-         end if
-!ccc....CDT LIMITE RD
-         do j = 1, ligne3
-         if (i == id_RD(j)) then
-            if (kimp >= ligne2) kimp = ligne2
-            icl(i, 1) = -2
-            valcl(i, 1) = (chgRD(kimp) - z(i))*rho(i)*g
-     iclt(i,1)=-2
-     valclt(i,1)=tempRD(kimp)
-         end if
-         end do
-
-!ccc....CDT LIMITE RG
-         do j = 1, ligne4
-         if (i == id_RG(j)) then
-            if (kimp >= ligne2) kimp = ligne2
-            icl(i, 2) = -2
-            valcl(i, 2) = (chgRG(kimp) - z(i))*rho(i)*g
-!     print*,valcl(i,2),chgRG(kimp)
-        iclt(i,2)=-2
-        valclt(i,2)=tempRG(kimp)
-!     &-(tempRG(kimp)-tempsol(kheure))
-!     &/(76.83-79.81)*(76.83-z(i))
-         end if
-         end do
-!ccc....CDT LIMITE RIVER TOUJOURS SOUS L'eau
-         do j = 1, ligne5
-         if (i == id_river(j)) then
-            if (kimp >= ligne2) kimp = ligne2
-            icl(i, 3) = -2
-            zhaut = z(i) + bm(i)/2
-            valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
-           iclt(i,3)=-2
-           valclt(i,3)=tempriver(kimp)
-         end if
-         end do
-
-!ccc....CDT LIMITE RIVER a tester
-         do j = 1, ligne6
-         if (i == id_rivert(j)) then
-            if (kimp >= ligne2) kimp = ligne2
-            if (z(i) + bm(i)/2 < chgriver(kimp)) then
-               icl(i, 3) = -2
-               zhaut = z(i) + bm(i)/2
-               valcl(i, 3) = (chgriver(kimp) - zhaut)*rho(i)*g
-!     iclt(i,3)=-2
-!     valclt(i,3)=tempriver(kimp)
-            end if
-         end if
-         end do
-
-      end do
+                                              
    case ( "VAU") 
 !CC....ECOULEMENT VAUCLIN
       do i = 1, nm
