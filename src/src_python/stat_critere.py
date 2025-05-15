@@ -1,3 +1,28 @@
+# -*- coding: utf-8 -*-
+"""
+This module provides statistical criteria and metrics for comparing simulated and observed data,
+particularly for temperature sensors. It includes functions to compute RMSE, MSE, and a summary
+of metrics (RMSE, MAE, PBias, KGE) for multiple sensors.
+Functions:
+----------
+rmse(predictions, ref, sigma):
+    Computes the Root Mean Square Error (RMSE) between predictions and reference values,
+    normalized by sigma.
+mse(predictions, ref, sigma):
+    Computes the Mean Squared Error (MSE) between predictions and reference values,
+    normalized by sigma.
+calculate_metrics(data):
+    Calculates several statistical metrics (RMSE, MAE, PBias, KGE) for three temperature sensors
+    ('Temp1', 'Temp2', 'Temp3') based on simulated and observed data columns in the input DataFrame.
+Dependencies:
+-------------
+- numpy
+- pandas
+- collections.namedtuple
+- dataclasses.dataclass
+- random.uniform, random.gauss
+- typing
+"""
 import numpy as np
 import pandas as pd
 from collections import namedtuple

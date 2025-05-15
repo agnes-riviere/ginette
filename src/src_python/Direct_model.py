@@ -1,110 +1,73 @@
-# Direct_model.py
-''' This module contains functions for setting up and running the Ginette model, 
-as well as processing simulation results. The functions handle various tasks 
-such as setting up model parameters, initial conditions, boundary conditions, 
-and generating zone parameters. Additionally, the module includes utilities 
-for running the simulation and processing its output.
+# -*- coding: utf-8 -*-
+"""
+Direct_model.py
+
+This module provides functions for setting up, running, and processing results from the Ginette groundwater and heat transport model.
+
+It includes utilities for preparing model input files, initial and boundary conditions, zone parameterization, and post-processing simulation outputs.
+
 Functions:
-- setup_ginette_perm: Sets up the Ginette model parameters for steady-state simulations.
-- setup_ginette_perm_2D: Configures the Ginette model for 2D steady-state simulations.
-- setup_ginette: Sets up the Ginette model parameters for transient simulations.
-- initial_conditions_perm_2D: Configures initial conditions for 2D steady-state simulations.
-- initial_conditions: Sets up initial conditions for the Ginette model using input data.
-- format_value: Formats a floating-point value in the format 00000000d+00.
-- boundary_conditions_2D: Applies boundary conditions for 2D simulations and updates parameter files.
-- boundary_conditions: Applies boundary conditions for transient simulations and updates parameter files.
-- boundary_conditions_perm: Sets boundary conditions for permeability simulations.
-- generate_zone_parameters: Writes zone parameter files based on the number of zones and parameter values.
-- generate_zone_parameters_undef: Writes zone parameter files for undefined configurations.
-- run_direct_model: Runs the Ginette model simulation and processes the output temperature data.
-- remove_first_two_days: Removes the first four days from simulation and observation data.
-- remove_first_days_sim: Removes the first few days from simulation data.
-- reuse_end_in_inital: Copies the last simulation state to the initial condition file.
-- The module assumes the presence of specific input files in the working directory.
-- The functions rely on pandas and numpy for data manipulation and processing.
-- The Ginette model executable must be available in the working directory for simulations. '''
+- format_value(value):
+    Formats a floating-point value into the Fortran-style scientific notation (00000000d+00).
+- setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs):
+    Sets up Ginette model parameters for steady-state (permanent) simulations and writes them to input files.
+- setup_ginette_perm_2D(pt100_coord, nb_cell, nb_col, nb_row, nb_day=10, dt=900):
+    Sets up Ginette model parameters for 2D steady-state simulations using PT100 sensor coordinates.
+- setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs):
+    Sets up Ginette model parameters for transient simulations and writes them to input files.
+- initial_conditions_perm_2D():
+    Sets up initial conditions for a 2D model using a template file for steady-state simulations.
+- initial_conditions_2D():
+    Sets up initial conditions for the Ginette model in a 2D domain, including pressure and temperature.
+- initial_conditions(all_data, z_top, z_bottom, dz, z_obs):
+    Sets up initial conditions for the Ginette model using observed or provided data.
+- boundary_conditions_2D(all_data, dt):
+    Updates and writes 2D boundary condition parameters and files for the Ginette model.
+- boundary_conditions(all_data, dt):
+    Applies boundary conditions to the given data and updates parameter files for transient state.
+- boundary_conditions_perm_2D(all_data, dt):
+    Sets boundary conditions for permeability in 2D based on provided data and writes them to a file.
+- boundary_conditions_perm_2D_tdirect():
+    Ensures the boundary condition file has 'iclchgt=0' after writing for direct (permanent) simulation.
+- boundary_conditions_2D_tdirect():
+    Ensures the boundary condition file has 'iclchgt=1' after writing for transient simulation.
+- generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l, REF_r, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None):
+    Generates zone parameter files for the Ginette model.
+- generate_zone_parameters_undef(nb_zone, parameters, value_zone_parameter):
+    Generates a file "E_zone_parameter.dat" with formatted zone parameter values for undefined number of zones.
+- run_direct_model(date_simul_bg, z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l, REF_r, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None):
+    Runs the direct model simulation and processes the output temperature data.
+- run_direct_model_2D():
+    Runs the direct model simulation for 2D and processes the output temperature data.
+- remove_first_two_days(sim_temp, obs_temp):
+    Removes the first two days from both simulated and observed temperature DataFrames.
+- remove_first_days_sim(sim_temp, nb_delday):
+    Removes the first specified number of days from the simulated temperature DataFrame.
+- reuse_end_in_initial(source_file, destination_file):
+    Copies specific columns from the source file to the destination file for initial conditions.
+
+Notes:
+- Many functions assume the presence of specific template and data files in the working directory.
+- File operations are performed for preparing Ginette model input and output files.
+- The module is tailored for workflows involving the Ginette groundwater/thermal simulation software.
+"""
+
 import pandas as pd
 import numpy as np
 import subprocess
 import os
 from itertools import product
+import matplotlib.pyplot as plt
+import sys
+import math
+import fortranformat as ft
+
 
 def format_value(value):
     """
-    Formate une valeur flottante dans le format 00000000d+00.
+    Formats a floating-point value into Fortran-style scientific notation (00000000d+00).
     """
-    return "{:0=12.2e}".format(value).replace('e', 'd')
-
-def setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs):
-    """
-    Sets up the Ginette model parameters and writes them to the appropriate files in steady state.
-    Parameters:
-    dt (float): Time step for the simulation.
-    state (int): State of the simulation.
-    nb_day (float): Number of days for the simulation.
-    z_top (float): Top boundary of the model domain.
-    z_bottom (float): Bottom boundary of the model domain.
-    az (float): Total height of the model domain.
-    dz (float): Cell height in the model domain.
-    date_simul_bg (str): Start date of the simulation.
-    dz_obs (float): Observation depth interval.
-    Returns:
-    list: A list of observation depths.
-    """
-    
-    print("la simulation commence à", date_simul_bg)
-    # number of cell
-    # number of cell
-    nb_cell=az/dz
-    #-----------------------------------------------------------------
-    ## write the setup of the modeled domain
-    f_param_bck = open("E_parametre_bck.dat", "r")
-    f_param_new = open("E_parametre.dat", 'w')
-    setup_model = f_param_bck.read()
-    setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
-    setup_model = setup_model.replace('[state]', '%1i' % state)
-    setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)
-    setup_model = setup_model.replace('[z_top]', '%7.3e' % z_top)
-    setup_model = setup_model.replace('[z_bottom]', '%7.2e' % z_bottom)
-    setup_model = setup_model.replace('[az]', '%7.3e' % az)
-    setup_model = setup_model.replace('[dz]', '%6.2e' % dz)
-    setup_model = setup_model.replace('[nb_cell]', '%05.0f' % nb_cell)
-    setup_model= setup_model.replace('[itsortie]', '%08.0f' % dt)
-
-    # Observation positions x 0.50000
-    # Observation in meter
-    Obs1 = z_top - dz_obs
-    Obs2 = z_top - dz_obs * 2
-    Obs3 = z_top - dz_obs * 3
-    Obs4 = z_top - dz_obs * 4
-
-    # Create z_obs vector
-    z_obs = [Obs1, Obs2, Obs3, Obs4]
-    ## write the parameters
-    cell1 = abs(Obs1 / dz)
-    cell2 = abs(Obs2 / dz)
-    cell3 = abs(Obs3 / dz)
-    cell4 = abs(Obs4 / dz)
-    setup_model = setup_model.replace('[cell1]', '%05.0f' % cell1)
-    setup_model = setup_model.replace('[cell2]', '%05.0f' % cell2)
-    setup_model = setup_model.replace('[cell3]', '%05.0f' % cell3)
-    setup_model = setup_model.replace('[cell4]', '%05.0f' % cell4)
-    f_param_new.write(setup_model)
-    f_param_bck.close()
-    f_param_new.close()
-    
-    #-----------------------------------------------------------------
-    f_param_therm=open("E_p_therm_bck.dat", "r")
-    f_param_therm_new=open("E_p_therm.dat", "w")
-    therm=f_param_therm.read()
-    therm = therm.replace('[state]', '%1i' % state)
-    f_param_therm_new.write(therm)
-    f_param_therm_new.close()
-    f_param_therm.close()
-    
-
-    return z_obs
-    
+    return "{:0=12.2e}".format(value).replace('e', 'd')    
     #-----------------------------------------------------------------
 
 
@@ -742,18 +705,23 @@ def generate_zone_parameters_undef(nb_zone, parameters, value_zone_parameter):
             lambda x: 10**x if isinstance(x, (int, float, np.number)) and np.isfinite(x) else x
         )
 
+#use fortranformat
 
+    # Use fortranformat to format each parameter value
     with open("E_zone_parameter.dat", "w") as f:
+        # Build a Fortran format string for the number of parameters
+        fmt_str = "(I2," + ",".join(["1X,1PE11.2"] * len(parameters)) + ")"
+        writer = ft.FortranRecordWriter(fmt_str)
         for i in range(nb_zone):
             values = []
             for param in parameters:
                 value = value_zone_parameter.iloc[i][param]
                 if pd.isna(value) or not np.isfinite(value):
                     value = 0.0
-                formatted = "{:011.2e}".format(value).replace('e', 'd')
-                values.append(formatted)
-            line = f"{i+1}\t" + "\t".join(values) + "\n"
-            f.write(line)
+                values.append(value)
+            # Write zone index (starting from 1) and parameter values
+            line = writer.write([i + 1] + values)
+            f.write(line + "\n")
         f.write(" \n")
 
 
@@ -882,7 +850,7 @@ def run_direct_model_2D():
             
 
 
-def remove_first_two_days(sim_temp, obs_temp):
+def remove_first_two_days(sim_temp, obs_temp,date_begin):
     """
     Removes the first four days from the sim_temp and obs_temp DataFrames.
 
@@ -896,22 +864,22 @@ def remove_first_two_days(sim_temp, obs_temp):
     """
     # Filtrer sim_temp pour supprimer les deux premiers jours (86400 secondes par jour)
     sim_temp_filtered = sim_temp[sim_temp['Time'] >= 86400 * 2  ]
+    obs_temp_filtered = obs_temp.copy()
+    #calculate the time in seconds
+    obs_temp_filtered['Time'] = obs_temp_filtered['dates'].apply(lambda x: (x - date_begin).total_seconds())
+    obs_temp_filtered = obs_temp_filtered[obs_temp_filtered['Time'] >= 86400 * 2]  # Filtrer pour supprimer les deux premiers jours
 
-    # Convertir l'index de obs_temp en format datetime si ce n'est pas déjà fait
-    obs_temp.index = pd.to_datetime(obs_temp.index)
 
-    # Définir la date de début pour filtrer les deux premiers jours
-    start_date = obs_temp.index.min() + pd.Timedelta(days=2)
 
-    # Filtrer obs_temp pour supprimer les deux premiers jours
-    obs_temp_filtered = obs_temp[obs_temp.index >= start_date]
 
     # ensure que les deux DataFrames debute à la date max entre les deux
-    max_date = max(sim_temp_filtered['dates'].max(), obs_temp_filtered.index.max())
+    max_date = max(sim_temp_filtered['dates'].max(), obs_temp_filtered['dates'].max())
     sim_temp_filtered = sim_temp_filtered[sim_temp_filtered['dates'] <= max_date]
-    obs_temp_filtered = obs_temp_filtered[obs_temp_filtered.index <= max_date]
-    obs_temp_filtered['dates'] = obs_temp_filtered.index
-    obs_temp_filtered = obs_temp_filtered.reset_index(drop=True)
+    obs_temp_filtered = obs_temp_filtered[obs_temp_filtered['dates'] <= max_date]
+    min_date = min(sim_temp_filtered['dates'].min(), obs_temp_filtered['dates'].min())
+    sim_temp_filtered = sim_temp_filtered[sim_temp_filtered['dates'] >= min_date]
+    obs_temp_filtered = obs_temp_filtered[obs_temp_filtered['dates'] >= min_date]
+
 
     return sim_temp_filtered, obs_temp_filtered
 

@@ -1,5 +1,14 @@
-# Creation date: 2020-07-15
-#auteur: Agnes Riviere
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct 18 14:23:45 2023
+This module provides utility functions to prepare the working directories and compile the Ginette model.
+Functions:
+    prepare_ginette_directories(base_path, subdirectories=['SENSI', 'OUTPUT']):
+        Changes the working directory to the specified base path, creates necessary subdirectories
+        ('SENSI' and 'OUTPUT' by default), and cleans up any existing files in these directories.
+    compile_ginette():
+        Compiles the Ginette Fortran executable using gfortran if it does not already exist in the current directory.
+"""
 import subprocess
 import os
 import glob

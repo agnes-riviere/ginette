@@ -1,3 +1,50 @@
+# -*- coding: utf-8 -*-
+"""
+Plotting Utilities for Simulation and Observation Data
+
+Created on Wed Oct 18 14:23:45 2023
+
+This module provides a collection of utility functions for visualizing simulation results and observational data
+related to temperature, water velocity, and heat flux profiles. The functions are designed to facilitate the
+analysis and comparison of model outputs and field measurements in hydrological and thermal studies.
+
+Available Functions:
+
+- plot_obs(all_data):
+    Plot time series of observed delta pressure ('dp') and multiple temperature readings.
+
+- plot_obs_zoom(all_data, start_date, end_date):
+    Plot zoomed-in time series of observed 'dp' and temperature readings within a specified date range.
+
+- plot_domain(nb_zone, alt_thk, z_top, z_bottom):
+    Visualize the spatial domain, coloring cells based on altitude thresholds and zone configuration.
+
+- plot_compare_temperatures_obs_sim(sim_temp, obs_temp, temp_columns, fontsize=15):
+    Compare simulated and observed temperature time series for specified sensors.
+
+- plot_temperatures_sim(sim_temp, fontsize=15):
+    Plot simulated temperature time series for each sensor.
+
+- plot_temperatures_profiles(fontsize=15, interval=43200):
+    Visualize the evolution of temperature profiles over time at specified intervals.
+
+- plot_water_profiles_interpol(fontsize=15, date_simul_bg=None):
+    Plot interpolated water velocity profiles as a function of depth and time.
+
+- plot_temperature_profiles_interpol(fontsize=15, date_simul_bg=None):
+    Plot interpolated temperature profiles as a function of depth and time.
+
+- plot_heat_flux_profiles_interpolated(fontsize=15, date_simul_bg=None):
+    Plot interpolated profiles of conductive, advective, and total heat fluxes over depth and time.
+
+- plot_fluxes_timeseries(fontsize=15, date_simul_bg=None):
+    Plot time series of water velocity and heat fluxes at the maximum depth.
+
+- plot_obs_station(station, base_csv, start_date='2013-06-01', end_date='2016-09-01'):
+    Plot observed hydraulic head and temperature data from multiple sensors at a given station.
+
+Each function includes detailed docstrings describing its parameters and usage.
+"""
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -65,7 +112,7 @@ def plot_obs_zoom(all_data, start_date, end_date):
     None: This function does not return any value. It displays the plots.
     """
     
-    # Filtrer les données selon les dates spécifiées
+    # Filtrer les donnees selon les dates specifiees
     filtered_data = all_data[(all_data['dates'] > start_date) & (all_data['dates'] < end_date)]
     
     # Creating subplots for 'dp' and 'temp' graphs vertically
@@ -165,11 +212,9 @@ def plot_compare_temperatures_obs_sim(sim_temp, obs_temp, temp_columns, fontsize
 
     # Ensure sim_temp has datetime index
     if 'dates' in sim_temp.columns:
-        sim_temp['dates'] = pd.to_datetime(sim_temp['dates'])
         sim_temp = sim_temp.set_index('dates')
     # Ensure obs_temp has datetime index
     if 'dates' in obs_temp.columns:
-        obs_temp['dates'] = pd.to_datetime(obs_temp['dates'])
         obs_temp = obs_temp.set_index('dates')
 
 
@@ -215,11 +260,11 @@ def plot_temperatures_sim(sim_temp, fontsize=15):
     titleSize = fontsize + zoomSize
     fig, axes = plt.subplots(1, 3, figsize=(20, 5), sharey=True)
 
-    # Assurez-vous que les dates sont alignées
+    # Assurez-vous que les dates sont alignees
     sim_temp['dates'] = pd.to_datetime(sim_temp['dates'])
     sim_temp.set_index('dates', inplace=True)
 
-    # Colonnes de température (en supposant qu'elles soient nommées 'Temp1', 'Temp2', 'Temp3')
+    # Colonnes de temperature (en supposant qu'elles soient nommees 'Temp1', 'Temp2', 'Temp3')
     temp_columns = ['Temp1', 'Temp2', 'Temp3']
 
     axes[0].set_ylabel("Temperature in C", fontsize=fontsize)  # Label y-axis
@@ -244,17 +289,17 @@ def plot_temperatures_profiles(fontsize=15, interval=43200):
     - interval: Time interval in seconds for displaying the temperature profiles (default is 43200 seconds, or 12 hours).
     """
     sim_profile = 'Sim_temperature_profil_t.dat'
-    # Lire les profils de température
+    # Lire les profils de temperature
     sim_temp = pd.read_csv(sim_profile, sep='\s+', header=None, names=['Time', 'z', 'Temp'])
 
-    # Filtrer les données pour n'imprimer que toutes les 'interval' secondes
+    # Filtrer les donnees pour n'imprimer que toutes les 'interval' secondes
     filtered_sim_temp = sim_temp[sim_temp['Time'] % interval == 0]
 
-    # Plot de l'évolution du profil de température à chaque intervalle spécifié
+    # Plot de l'evolution du profil de temperature à chaque intervalle specifie
     fig, ax = plt.subplots(1, 1, figsize=(10, 5))
     for time in filtered_sim_temp['Time'].unique():
         temp_profile = filtered_sim_temp[filtered_sim_temp['Time'] == time]
-        if interval >= 86400:  # Si l'intervalle dépasse un jour
+        if interval >= 86400:  # Si l'intervalle depasse un jour
             ax.plot(temp_profile['Temp'], temp_profile['z'], label=f'Time = {time/86400:.1f} days')
         else:
             ax.plot(temp_profile['Temp'], temp_profile['z'], label=f'Time = {time/3600:.1f} h')
@@ -263,10 +308,10 @@ def plot_temperatures_profiles(fontsize=15, interval=43200):
     ax.set_xlabel("T (°C)", fontsize=fontsize)
     ax.grid()
     if interval >= 86400:
-        ax.set_title(f"Evolution du profil de température tous les {interval/86400:.1f} jours", fontsize=fontsize, pad=20)
+        ax.set_title(f"Evolution du profil de temperature tous les {interval/86400:.1f} jours", fontsize=fontsize, pad=20)
     else:
-        ax.set_title(f"Evolution du profil de température toutes les {interval/3600:.1f} heures", fontsize=fontsize, pad=20)
-    # Placer la légende à l'extérieur de la figure
+        ax.set_title(f"Evolution du profil de temperature toutes les {interval/3600:.1f} heures", fontsize=fontsize, pad=20)
+    # Placer la legende à l'exterieur de la figure
     ax.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=fontsize)
     plt.tight_layout()
     plt.show()
@@ -299,18 +344,18 @@ def plot_water_profiles_interpol(fontsize=15, date_simul_bg=None):
     # Supprimer les doublons
     sim_water_discharge = sim_water_discharge.drop_duplicates(subset=['q', 'z', 'Time'])
 
-    # Créer une grille pour l'interpolation
+    # Creer une grille pour l'interpolation
     z_new = np.linspace(sim_water_discharge['z'].min(), sim_water_discharge['z'].max(), num=500)
     t_new = np.linspace(sim_water_discharge['Time'].min(), sim_water_discharge['Time'].max(), num=500)
     z_grid, t_grid = np.meshgrid(z_new, t_new)
 
-    # Interpolation des données
+    # Interpolation des donnees
     points = np.array([sim_water_discharge['z'], sim_water_discharge['Time']]).T
     values = sim_water_discharge['q']
     q_interp = griddata(points, values, (z_grid, t_grid), method='cubic')
     # t_grid in datetime format
     t_new = pd.to_datetime(t_new, unit='s', origin=date_simul_bg)
-    # Tracer les profils interpolés
+    # Tracer les profils interpoles
     fig, ax = plt.subplots(1, 1, figsize=(15, 8))
     c = ax.contourf(t_new, z_new, q_interp.T, cmap='Spectral_r', levels=100)
     fig.colorbar(c, ax=ax, label='Water velocity (m/s)')
@@ -336,7 +381,7 @@ def plot_temperature_profiles_interpol(fontsize=15, date_simul_bg=None):
     - fontsize: Font size for the labels (default is 15).
     - date_simul_bg: Start date of the simulation.
     """
-    # Lire les profils de température
+    # Lire les profils de temperature
     sim_temp = pd.read_csv('Sim_temperature_profil_t.dat', sep='\s+', header=None, names=['Time', 'z', 'Temp'])
     # Supprimer les deux premiers jours de simulation
     sim_temp = sim_temp[sim_temp['Time'] > 86400 * 2]
@@ -345,19 +390,19 @@ def plot_temperature_profiles_interpol(fontsize=15, date_simul_bg=None):
     # Supprimer les doublons
     sim_temp = sim_temp.drop_duplicates(subset=['Temp', 'z', 'Time'])
 
-    # Créer une grille pour l'interpolation
+    # Creer une grille pour l'interpolation
     z_new = np.linspace(sim_temp['z'].min(), sim_temp['z'].max(), num=500)
     t_new = np.linspace(sim_temp['Time'].min(), sim_temp['Time'].max(), num=500)
     z_grid, t_grid = np.meshgrid(z_new, t_new)
 
-    # Interpolation des données
+    # Interpolation des donnees
     points = np.array([sim_temp['z'], sim_temp['Time']]).T
     values = sim_temp['Temp']
     temp_interp = griddata(points, values, (z_grid, t_grid), method='cubic')
     # Convertir t_new en format datetime
     t_new = pd.to_datetime(t_new, unit='s', origin=date_simul_bg)
     
-    # Tracer les profils interpolés
+    # Tracer les profils interpoles
     fig, ax = plt.subplots(1, 1, figsize=(15, 8))
     c = ax.contourf(t_new, z_new, temp_interp.T, cmap='Spectral_r', levels=100)
     fig.colorbar(c, ax=ax, label='Temperature (°C)')
@@ -365,7 +410,7 @@ def plot_temperature_profiles_interpol(fontsize=15, date_simul_bg=None):
     ax.set_ylabel("Depth (m)", fontsize=fontsize)
     ax.set_xlabel("Date", fontsize=fontsize)
     ax.grid()
-    ax.set_title("Profil de température", fontsize=fontsize, pad=20)
+    ax.set_title("Profil de temperature", fontsize=fontsize, pad=20)
     
     # Formater les dates sur l'axe des x
     ax.xaxis_date()
@@ -395,12 +440,12 @@ def plot_heat_flux_profiles_interpolated(fontsize=15, date_simul_bg=None):
     # Supprimer les doublons
     sim_flux = sim_flux.drop_duplicates(subset=['Conductive', 'Advective', 'Total', 'z', 'Time'])
 
-    # Créer une grille pour l'interpolation
+    # Creer une grille pour l'interpolation
     z_new = np.linspace(sim_flux['z'].min(), sim_flux['z'].max(), num=500)
     t_new = np.linspace(sim_flux['Time'].min(), sim_flux['Time'].max(), num=500)
     z_grid, t_grid = np.meshgrid(z_new, t_new)
 
-    # Interpolation des données pour chaque type de flux
+    # Interpolation des donnees pour chaque type de flux
     points = np.array([sim_flux['z'], sim_flux['Time']]).T
     
     conductive_interp = griddata(points, sim_flux['Conductive'], (z_grid, t_grid), method='cubic')
@@ -410,7 +455,7 @@ def plot_heat_flux_profiles_interpolated(fontsize=15, date_simul_bg=None):
     # Convertir t_new en format datetime
     t_new = pd.to_datetime(t_new, unit='s', origin=date_simul_bg)
     
-    # Tracer les profils interpolés pour chaque type de flux
+    # Tracer les profils interpoles pour chaque type de flux
     fig, axes = plt.subplots(3, 1, figsize=(15, 24), sharex=True)
     
     # Conductive flux
@@ -465,7 +510,7 @@ def plot_fluxes_timeseries(fontsize=15, date_simul_bg=None):
     # maximun value of z
     z_max=sim_water_discharge['z'].max()
 
-    # Filtrer pour les valeurs de z supérieures ou égales à z_max
+    # Filtrer pour les valeurs de z superieures ou egales à z_max
     sim_water_discharge = sim_water_discharge[sim_water_discharge['z'] >= z_max]
 
 
@@ -478,7 +523,7 @@ def plot_fluxes_timeseries(fontsize=15, date_simul_bg=None):
 
     # Supprimer les doublons
     sim_flux = sim_flux.drop_duplicates(subset=['Conductive', 'Advective', 'Total', 'z', 'Time'])
-        # Filtrer pour les valeurs de z supérieures ou égales à z_max
+        # Filtrer pour les valeurs de z superieures ou egales à z_max
     sim_flux = sim_flux[sim_flux['z'] >= z_max]
 
     # add 4 subplots (water velocity, conductive flux, advective flux, total flux)
@@ -548,8 +593,12 @@ def plot_obs_station(station,base_csv,start_date='2013-06-01',end_date='2016-09-
         if " Temperature [°C]" in df.columns:
             df.rename(columns={" Temperature [°C]": f"Temp_{nom_capteur}"}, inplace=True)
 
-    print("Capteurs chargés :", list(dataframes.keys()))
+    print("Capteurs charges :", list(dataframes.keys()))
 
+
+
+
+    # Concatener les DataFrames pour les capteurs de type 'pzps' et 'riv'
     dfs_concatenes = []
     for nom_capteur, df in dataframes.items():
         if nom_capteur.startswith(('pzps', 'riv')):
@@ -558,20 +607,32 @@ def plot_obs_station(station,base_csv,start_date='2013-06-01',end_date='2016-09-
 
     df_Diver = pd.concat(dfs_concatenes, axis=1)
     df_Diver.sort_index(inplace=True)
+
     for df in dataframes.values():
         df.sort_index(inplace=True)
 
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
     mask = (df_Diver.index >= start_date) & (df_Diver.index <= end_date)
-    df_Diver_filtré = df_Diver.loc[mask]
-
+    df_Diver_filtre = df_Diver.loc[mask]
+    # compter le nombre de donnees pour chaque capteur
+    for nom_capteur, df in dataframes.items():  
+        if nom_capteur.startswith(('pzps', 'riv')):
+            col = f"H_{nom_capteur}"
+            if col in df_Diver_filtre.columns:
+                print(f"Nombre de donnees pour {nom_capteur} : {df_Diver_filtre[col].count()}")
+    # for hobo
+    for nom_capteur, df in dataframes.items():
+        if nom_capteur.startswith('Hobo'):
+            mask = (df.index >= start_date) & (df.index <= end_date)
+            df_filtre = df.loc[mask]
+            print(f"Nombre de donnees pour {nom_capteur} : {df_filtre.count()}")
     fig, ax = plt.subplots(figsize=(12, 6))
     for nom_capteur in dataframes:
         if nom_capteur.startswith(('pzps', 'riv')):
             col = f"H_{nom_capteur}"
-            if col in df_Diver_filtré.columns:
-                ax.plot(df_Diver_filtré.index, df_Diver_filtré[col], label=f"H {nom_capteur}")
+            if col in df_Diver_filtre.columns:
+                ax.plot(df_Diver_filtre.index, df_Diver_filtre[col], label=f"H {nom_capteur}")
 
     ax.set_xlabel('Dates')
     ax.set_ylabel('Charge hydraulique [mNGF]')
@@ -585,19 +646,19 @@ def plot_obs_station(station,base_csv,start_date='2013-06-01',end_date='2016-09-
     for nom_capteur, df in dataframes.items():
         if nom_capteur.startswith('Hobo'):
             mask = (df.index >= start_date) & (df.index <= end_date)
-            df_filtré = df.loc[mask]
-            for col in df_filtré.columns:
+            df_filtre = df.loc[mask]
+            for col in df_filtre.columns:
                 if 'Temp' in col:
-                    ax.plot(df_filtré.index, df_filtré[col], label=f"{nom_capteur} - {col}")
+                    ax.plot(df_filtre.index, df_filtre[col], label=f"{nom_capteur} - {col}")
 
     for nom_capteur in dataframes:
         if nom_capteur.startswith(('pzps', 'riv')):
             col = f"Temp_{nom_capteur}"
-            if col in df_Diver_filtré.columns:
-                ax.plot(df_Diver_filtré.index, df_Diver_filtré[col], label=f"T {nom_capteur}")
+            if col in df_Diver_filtre.columns:
+                ax.plot(df_Diver_filtre.index, df_Diver_filtre[col], label=f"T {nom_capteur}")
 
     ax.set_xlabel('Dates')
-    ax.set_ylabel('Température [°C]')
+    ax.set_ylabel('Temperature [°C]')
     ax.grid(True)
     ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
     plt.xticks(rotation=45)

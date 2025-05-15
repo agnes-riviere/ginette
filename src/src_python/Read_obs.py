@@ -1,3 +1,24 @@
+# -*- coding: utf-8 -*-
+"""
+This module provides functions for reading, cleaning, merging, and interpolating observational data from CSV files,
+with a focus on handling multiple date formats and aligning data to regular time intervals.
+Functions:
+----------
+- read_csv_with_multiple_separators(file_path, separators=[',', ';', '\t']):
+    Attempts to read a CSV file using a list of possible separators, returning a DataFrame if successful.
+- convert_dates(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
+    Converts a specified column of string dates in a DataFrame to datetime objects, trying multiple common formats.
+- process_obs_data(Obs_data, date_simul_bg, coef, ost, nb_day):
+    Reads, merges, cleans, and interpolates observational data files (e.g., 'deltaP' and 'Temp'), aligns data to 15-minute intervals,
+    applies scaling and offset to 'deltaP', and ensures regular time steps.
+- process_obs_RIV2D(Station, Obs_data, date_simul_bg, nb_day, desc_station, pt100_coord):
+    Processes and merges observational data for a given station, aligns data to 15-minute intervals, renames columns based on sensor
+    mapping, and replaces temperature columns with indices from a provided mapping DataFrame.
+------
+- The module is designed to handle a variety of date formats and CSV file structures.
+- Data is interpolated to fill missing values and ensure regular time intervals.
+- Column renaming and mapping are performed to standardize sensor data across different files and stations.
+"""
 import pandas as pd
 import numpy as np
 import os

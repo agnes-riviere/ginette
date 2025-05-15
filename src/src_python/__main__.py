@@ -7,6 +7,7 @@ from .Plot import *
 from .Read_obs import *
 from .stat_critere import *
 from .Metro import *
+from .Grid_search import *
 
 # Add code to execute when the package is run
 if __name__ == "__main__":
