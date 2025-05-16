@@ -1,4 +1,4 @@
-rpth=[state]		           rpth=1 regime transitoire ; rpth=1 regime permanent  format : i1      Rgime
+rpth=[state]		           rpth=1 regime transitoire ; rpth=0 regime permanent  format : i1      Rgime
 crconvt=0001D-05	   Critere de convergence temperature   fromat :i1
 ithec=1			       =0 annule terme advectif en thermique, =1 avec terme advectif format i1
 idecouplage=0	       decouplage code  =1 utilisation des pression n-1 pour le terme adveectif format : i1
