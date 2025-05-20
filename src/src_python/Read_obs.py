@@ -238,6 +238,7 @@ def process_obs_data(Obs_data, date_simul_bg, coef, ost, nb_day):
         print("Les différences ne sont pas toutes de 900 secondes après interpolation. Voici les indices concernés :")
         print(indices_not_equal_900_sec_after_interp)
         print(all_data.loc[indices_not_equal_900_sec_after_interp])
+
     
     return all_data
 
@@ -361,6 +362,14 @@ def process_obs_RIV2D(Station, Obs_data, date_simul_bg, nb_day, desc_station, pt
                     # Rename the column with the corresponding index
                     all_data.rename(columns={column: f"Temp_{index_value}"}, inplace=True)
 
-
+    # If 'H_RD' or 'H_RG' do not exist in all_data, copy the value from the other if available
+    if 'H_RD' not in all_data.columns:
+        all_data['H_RD'] = all_data['H_RG']
+    if 'H_RG' not in all_data.columns:
+        all_data['H_RG'] = all_data['H_RD']
+    if 'T_RD' not in all_data.columns:
+        all_data['T_RD'] = all_data['T_RG']
+    if 'T_RG' not in all_data.columns:
+        all_data['T_RG'] = all_data['T_RD']
 
     return all_data, hmax,hmin,hqt95

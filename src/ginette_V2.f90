@@ -1709,15 +1709,18 @@ program pression_ecoulement_transport_thermique
       allocate(omzone(nzone))
       allocate(rhomzone(nzone))
       allocate(alandazone(nzone))
-      iostat=0
+      print *, "nzone=", nzone
       do j = 1, nzone
-         read (321, *,iostat=iostat) jzone(j), akzone(j), omzone(j),  &
-         alandazone(j), cpmzone(j), rhomzone(j)
-         if (iostat /= 0) then
-         print *, "Erreur de lecture E_zone_parameter.dat à la ligne", j
-         stop
+         read(321, *, iostat=ierr) jzone(j), akzone(j), omzone(j), &
+                                    alandazone(j), cpmzone(j), rhomzone(j)
+         if (ierr /= 0) then
+            print *, " Fichier trop court ou mal formé à la ligne ", j
+            exit
          end if
       end do
+
+      close(321)  ! ← garantit qu'on ne lira plus rien
+      
 
       do j = 1, nzone
             do i = 1, nm
@@ -4425,14 +4428,14 @@ program pression_ecoulement_transport_thermique
       end if
 
       case ("R2D")
-      
+         
       if (irecord == 1) then
  !        qflux = 0D+00
    !      do j = 1, ligne7
     !        qflux = vzm(id_ZH(j))*am(id_ZH(j)) + qflux
    !      end do
 !         write (181830, *) paso/unitsortie, qflux
-         print *, "out", paso/86400, paso,dt,temp(1),pr(1)/rho1/g+z(1),valcl(1,2)
+!        print *, "out", paso/86400, paso,dt,temp(1),pr(1)/rho1/g+z(1),valcl(1,2)
 
 !     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
 !     &zs(65,1),zs(217,1)
@@ -4667,7 +4670,7 @@ program pression_ecoulement_transport_thermique
 !       print*,it,' temps restant: ',trest/60.,dt,pr(1),paso
 !       endif
    end do
-
+      print *, "simu done"
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                      C
 !       FIN BOUCLE TEMPS          C
@@ -7873,7 +7876,7 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
 
    kimp = int(paso/itlecture)
    if (kimp >= ntsortie) kimp = ntsortie
-   print*, "kimp", kimp
+   
    select case (ytest)
    case ("R2D") 
 

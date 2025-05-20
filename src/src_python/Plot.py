@@ -218,12 +218,6 @@ def plot_compare_temperatures_obs_sim(sim_temp, obs_temp, temp_columns, fontsize
         obs_temp = obs_temp.set_index('dates')
 
 
-    # Merge and plot
-    # print dates of sim_temp and obs_temp
-    print("Simulated dates:")
-    print(sim_temp.index.values)
-    print("Observed dates:")    
-    print(obs_temp.index.values)
 
 
     merged_df = pd.merge(sim_temp, obs_temp, left_index=True, right_index=True, suffixes=('_sim', '_obs'))

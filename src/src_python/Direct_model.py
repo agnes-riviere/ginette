@@ -61,7 +61,10 @@ import matplotlib.pyplot as plt
 import sys
 import math
 import fortranformat as ft
-
+import time
+import pandas as pd
+import numpy as np
+import shutil
 
 def format_value(value):
     """
@@ -197,7 +200,7 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     #-----------------------------------------------------------------
     f_param_therm=open("E_p_therm_bck.dat", "r")
     f_param_therm_new=open("E_p_therm.dat", "w")
-    therm=f_param_therm.read()
+    therm=f_param_therm.read()     
     therm = therm.replace('[state]', '%1i' % state)
     f_param_therm_new.write(therm)
     f_param_therm_new.close()
@@ -682,8 +685,7 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     f_paramZ_new.write(param_zone)
     f_paramZ_new.close()
 
-import pandas as pd
-import numpy as np
+
 def generate_zone_parameters_undef(nb_zone, parameters, value_zone_parameter):
     """
     Generate a file "E_zone_parameter.dat" with formatted zone parameter values.
@@ -695,9 +697,9 @@ def generate_zone_parameters_undef(nb_zone, parameters, value_zone_parameter):
     """
     # if E_zone_parameter.dat already exists, remove it
     try:
-        os.remove("E_zone_parameter.dat")
+        os.remove("E_zone_parameter_bck.dat")
     except OSError:
-        print(">>> E_zone_parameter.dat n'existe pas, on le crée !")
+        print(">>> E_zone_parameter_bck.dat n'existe pas, on le crée !")
 
     # If 'k' is in log10, convert to linear
     if 'k' in value_zone_parameter.columns:
@@ -708,7 +710,7 @@ def generate_zone_parameters_undef(nb_zone, parameters, value_zone_parameter):
 #use fortranformat
 
     # Use fortranformat to format each parameter value
-    with open("E_zone_parameter.dat", "w") as f:
+    with open("E_zone_parameter_bck.dat", "w") as f:
         # Build a Fortran format string for the number of parameters
         fmt_str = "(I2," + ",".join(["1X,1PE11.2"] * len(parameters)) + ")"
         writer = ft.FortranRecordWriter(fmt_str)
@@ -723,6 +725,11 @@ def generate_zone_parameters_undef(nb_zone, parameters, value_zone_parameter):
             line = writer.write([i + 1] + values)
             f.write(line + "\n")
         f.write(" \n")
+    # Close the file
+    f.close()
+    # copy E_zone_parameter_bck.dat to E_zone_parameter.dat
+    # copy
+    shutil.copy("E_zone_parameter_bck.dat", "E_zone_parameter.dat")
 
 
 
@@ -780,7 +787,7 @@ def run_direct_model(date_simul_bg,z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n,
 
     return sim_temp
 
-def run_direct_model_2D():
+def run_direct_model_2D(dir_ginette):
     """
         Run the direct model simulation and process the output temperature data.
         Parameters:
@@ -794,6 +801,7 @@ def run_direct_model_2D():
         - The resulting DataFrame includes a 'dates' column calculated from the simulation start date and time.
     """
     # --- Step 1: Set up initial conditions and boundary conditions for steady-state (permanent) simulation
+    start_time = time.time() 
     with open("E_parametre.dat", "r") as f_param:
         param = f_param.read()
     param = param.replace("rp=1", "rp=0")
@@ -814,7 +822,17 @@ def run_direct_model_2D():
     initial_conditions_perm_2D()
     boundary_conditions_perm_2D_tdirect()
     # --- Step 2: Run Ginette in steady-state mode
-    subprocess.call(["./ginette"])
+    # add time of subprocess
+    # run ginette
+    print("Running Ginette (steady-state)...")
+    import subprocess
+    import os
+    t0 = time.time()
+    subprocess.run(['gfortran', '-g', '-fcheck=all', '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
+    subprocess.call(['./ginette'])
+    print(f"Step 2 (steady-state Ginette) executed in {time.time() - t0:.2f} seconds.")
+
+
     # --- Step 3: Set up initial conditions and boundary conditions for transient simulation
     initial_conditions_2D()
     boundary_conditions_2D_tdirect()
@@ -838,8 +856,17 @@ def run_direct_model_2D():
     f_param_therm_new.close()
     f_param_therm.close()
 
-    # run ginette
-    subprocess.call(["./ginette"])
+
+
+    # --- Step 5: Run Ginette in transient mode gfortran -g -fcheck=all
+    subprocess.run(['gfortran', '-g', '-fcheck=all', '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
+    print("Running Ginette (transient)...")
+    t1 = time.time()
+
+    subprocess.call(['./ginette'])
+    print(f"Step 4 (transient Ginette) executed in {time.time() - t1:.2f} seconds.")
+
+    print(f"Total run_direct_model_2D execution time: {time.time() - start_time:.2f} seconds.")
 
     return 
 

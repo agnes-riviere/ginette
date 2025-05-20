@@ -55,3 +55,20 @@ def compile_ginette():
         subprocess.run(['gfortran', '-o', 'ginette', '../../src/ginette_V2.f90'])
         if os.path.isfile('ginette'):
             print("ginette compiled")
+
+
+def compile_ginette_src(dir_ginette):
+    import shutil
+    import subprocess
+    """
+    Compile Ginette if the executable does not exist.
+    This function uses Meson for building the project.
+    """
+    if os.path.isfile('ginette'):
+        print("ginette exists")
+    else:
+        print("ginette does not exist")
+        subprocess.run(['gfortran', '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
+        if os.path.isfile('ginette'):
+            print("ginette compiled")
+

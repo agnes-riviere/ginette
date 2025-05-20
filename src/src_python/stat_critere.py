@@ -38,20 +38,90 @@ def rmse(predictions, ref,sigma):
     rmse_val = np.sqrt(mean_of_differences_squared)           #ROOT of ^
 
     return rmse_val
+#_____________________________________________________
+import numpy as np
+import pandas as pd
 
-def mse(predictions, ref,sigma):
-    #Calculation of the differences between predictions and reference
-    differences = ((predictions - ref)/sigma) 
-    #Squares of differences                
+def mse(predictions, ref, sigma):
+    """
+    Calcule la somme des carrés normalisés des erreurs (misfit),
+    souvent utilisée pour la vraisemblance sous hypothèse gaussienne.
+
+    Arguments :
+    - predictions : np.ndarray ou pd.Series des valeurs prédites
+    - ref : np.ndarray ou pd.Series des valeurs de référence (observées)
+    - sigma : float ou np.ndarray (écart type du bruit)
+
+    Retourne :
+    - float : somme des erreurs quadratiques normalisées
+    """
+    # Calcul des différences normalisées
+    differences = (predictions - ref) / sigma
+    # Carré des différences
     differences_squared = differences ** 2
-    #sum of the differences squared                  
-    sum_of_differences_squared = differences_squared.sum() 
-    # # The root square of the mean
-    # mse_val = np.sqrt(mean_of_differences_squared)   
-    # Misfit value         
+    # Somme des carrés
+    sum_of_differences_squared = differences_squared.sum()
     return sum_of_differences_squared
+#_____________________________________________________
+def normalize_total_mse(mse_table, total_col="Total_mse", normalized_col="Total_mse_normalized", nb_it_time=2688):
+    """
+    Ajoute une colonne à mse_table contenant la colonne total_col normalisée par divisor.
 
+    Arguments :
+    - mse_table : pd.DataFrame
+    - total_col : str, nom de la colonne à normaliser
+    - normalized_col : str, nom de la nouvelle colonne normalisée
+    - divisor : float, valeur de normalisation
 
+    Retourne :
+    - pd.DataFrame avec la nouvelle colonne ajoutée
+    """
+    mse_table[normalized_col] = mse_table[total_col] / nb_it_time
+    return mse_table
+#_____________________________________________________
+
+def likelihood(mse_table, col_name, add_column=True):
+    """
+    Calcule la vraisemblance sous l’hypothèse que chaque MSE suit une distribution normale.
+
+    Arguments :
+    - mse_table : pd.DataFrame contenant les MSE
+    - col_name : str, nom de la colonne contenant les MSE
+    - add_column : bool, si True ajoute une colonne avec les vraisemblances
+
+    Retourne :
+    - np.ndarray : tableau des vraisemblances
+    """
+    if col_name not in mse_table.columns:
+        raise KeyError(f"Column '{col_name}' not found in the DataFrame.")
+
+    name_col_likelihood = f"{col_name}_likelihood"
+    mse_values = mse_table[col_name].astype(np.float64)
+
+    # Vraisemblance gaussienne sous forme non normalisée (log-vraisemblance simplifiée)
+    likelihoods = np.exp(-0.5 * mse_values)
+
+    if add_column:
+        mse_table[name_col_likelihood] = likelihoods
+
+    return likelihoods
+#_____________________________________________________
+def log_likelihood(mse_table, col_name, add_column=True):
+    """
+    Calcule la log-vraisemblance à partir de MSE.
+    logL = -0.5 * MSE (forme simplifiée sans constante)
+    """
+    if col_name not in mse_table.columns:
+        raise KeyError(f"Column '{col_name}' not found in the DataFrame.")
+    
+    log_likes = -0.5 * mse_table[col_name].astype(np.float64)
+    
+    if add_column:
+        mse_table[f"{col_name}_log_likelihood"] = log_likes
+    
+    return log_likes
+
+#______________________________________________________
 def calculate_metrics(data):
     metrics = {}
 

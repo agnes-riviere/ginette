@@ -1563,6 +1563,7 @@ def coord_to_row_column(repertory):
 
 
 #Definition de la fontion
+#____________________________________________________________________
 from shapely.geometry import Point, Polygon
 # Definition of the function to create the E_zone.dat file
 def creation_E_zone(directory, polygons_by_zone, default_zone=1):
@@ -1582,31 +1583,45 @@ def creation_E_zone(directory, polygons_by_zone, default_zone=1):
     - Creates the E_zone.dat file in the specified directory.
     """
 
-    # List to store the zone of each mesh, which will be written to the E_zone.dat file
-    liste_zone = []
-
     # Load the coordinates from the E_coordonnee.dat file
     coord = pd.read_csv(
         os.path.join(directory, "E_coordonnee.dat"),
         sep="\s+", header=None, names=["x", "z"]
     )
+    # Generate the E_zone.dat file
+    # This file assigns a zone number to each mesh cell based on the defined polygons
 
-    # Iterate over all coordinate pairs (x, z)
-    for x, z in zip(coord['x'], coord['z']):
-        point = Point(x, z)
-        zone_found = False
+    # Start with default zone 1 for all mesh cells
+    zone_list = [1] * len(coord)
 
-        for zone, polygons in polygons_by_zone.items():
-            if any(poly.contains(point) for poly in polygons):
-                liste_zone.append(zone)
-                zone_found = True
-            break
+    # Get all zone numbers from polygons_by_zone, sorted by descending zone number (priority: higher zone number first)
+    priority_zones = sorted(polygons_by_zone.keys(), reverse=True)
 
-        if not zone_found:
-            liste_zone.append(default_zone)
+    # Check each mesh center against polygons for all defined zones (priority order)
+    for idx, row in coord.iterrows():
+        pt = Point(row['x'], row['z'])
+        assigned = False
+        for zone_num in priority_zones:
+            for poly in polygons_by_zone.get(zone_num, []):
+                if poly.contains(pt):
+                    zone_list[idx] = zone_num
+                    assigned = True
+                    break
+            if assigned:
+                break
 
+
+
+    # Test if all expected zones appear in the result
+    unique_zones = set(zone_list)
+    print("Zones present in E_zone.dat:", unique_zones)
+    expected_zones = set([1] + list(polygons_by_zone.keys()))
+    if not expected_zones.issubset(unique_zones):
+        print("Warning: Not all expected zones are present in E_zone.dat!")
+    else:
+        print("All expected zones are present in E_zone.dat.")
     # Save the zones to the E_zone.dat file
-    pd.DataFrame(liste_zone, columns=["zone"]).to_csv(
+    pd.DataFrame(zone_list, columns=["zone"]).to_csv(
         os.path.join(directory, "E_zone.dat"), sep=' ', header=False, index=False
     )
 
