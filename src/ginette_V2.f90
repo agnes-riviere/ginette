@@ -4435,7 +4435,7 @@ program pression_ecoulement_transport_thermique
     !        qflux = vzm(id_ZH(j))*am(id_ZH(j)) + qflux
    !      end do
 !         write (181830, *) paso/unitsortie, qflux
-!        print *, "out", paso/86400, paso,dt,temp(1),pr(1)/rho1/g+z(1),valcl(1,2)
+        print *, "out", paso/86400, paso,dt,temp(1),pr(1)/rho1/g+z(1),valcl(1,2)
 
 !     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
 !     &zs(65,1),zs(217,1)

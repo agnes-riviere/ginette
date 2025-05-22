@@ -644,7 +644,7 @@ def process_distance_altitude(file_path, Station, sim_dir, altitude_min, Rive_D=
 
 
 #Definition de la fontion
-def creation_E_zone(path_E_coor,path_E_zone,polygons_by_zone,default_zone = 1):
+def creation_E_zone(sim_dir,polygons_by_zone,default_zone = 1):
     '''
     Fonction qui permet de remplir le fichier E_zone.dat utile pour ginette. On a besoin pour cela du maillage (fichier E_coordonee.dat) et d'un dataframe comprenant
     les polygones rangés selon leur zone respectivent. La fonction test si le centre de chaque maille se trouve ou non dans un polygone. Une fois la zone de la maille
@@ -659,7 +659,9 @@ def creation_E_zone(path_E_coor,path_E_zone,polygons_by_zone,default_zone = 1):
 
     liste_zone = list() # Liste qui va contenir le zone de chaque maille qui va nous permettre d'écrire dans le fichier E_zone.dat
 
-    #Chargement des coordonées
+    #Chargement des coordonées E_coordonnee.dat in sim_dir
+    path_E_coor = sim_dir + "/E_coordonnees.dat"
+    path_E_zone = sim_dir + "/E_zone.dat"
     coord = np.loadtxt(path_E_coor)
     coord_x = coord[:,0]
     coord_z = coord[:,1]
