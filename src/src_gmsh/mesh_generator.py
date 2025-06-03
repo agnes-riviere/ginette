@@ -14,6 +14,24 @@ from matplotlib.ticker import AutoMinorLocator
 import matplotlib.patches as patches
 from shapely.geometry import Point, Polygon
 import gmshparser
+import os
+import sys
+import numpy as np
+import pandas as pd
+import pyvista as pv
+import matplotlib.pyplot as plt
+import math
+import meshio
+from matplotlib import cm
+from matplotlib.colors import Normalize
+from matplotlib.ticker import MaxNLocator
+from matplotlib import ticker
+from matplotlib.ticker import AutoMinorLocator
+import matplotlib.patches as patches
+from shapely.geometry import Point, Polygon
+import gmshparser
+
+
 
 
 #verify if gmsh is installed
@@ -36,12 +54,15 @@ def plot_gmsh_mesh(mesh_path):
         mesh = pv.read(mesh_path)
         plotter = pv.Plotter()
         plotter.add_mesh(mesh, show_edges=True, color="lightblue", label="Maillage Gmsh")
+
         points = mesh.points
 # add axis coordinates
         plotter.add_axes()
 #add grid
-        plotter.show_grid()
         plotter.add_legend()
+# plot point name from the mesh  mesh = pv.read(mesh_path)
+#        plotter.add_point_labels(points, [f"Point {i}" for i in range(len(points))], point_color='black', font_size=10, shape_opacity=0.5, shape_color='white')
+
 # add buttom zoom
         plotter.camera.zoom(1.5)
         plotter.show()
@@ -104,8 +125,8 @@ def process_distance_altitude(file_path, Station, sim_dir, altitude_min, Rive_D=
     z_coords = np.insert(z_coords, 0, altitude_min)
     instr = np.insert(instr, 0, "NA")  # Ajout d'un instrument fictif pour le début
     distances = np.append(distances, distances[-1])
-    z_coords = np.append(z_coords, altitude_min)
     z_coords = np.round(z_coords, 1)
+    z_coords = np.append(z_coords, altitude_min)
     instr = np.append(instr, "NA")  # Ajout d'un instrument fictif pour la fin
 
     # Création du DataFrame
@@ -965,7 +986,7 @@ def generate_mesh_8_region(distance_altitude_table, output_mesh_path,v_bot=103.8
         num_div_x_hobo1 = max(2, math.ceil(length_x_hobo1 / dx_hobo))
         length_x_hobo2 = x_droite_hobo2 - x_gauche_hobo2
         num_div_x_hobo2 = max(2, math.ceil(length_x_hobo2 / dx_hobo))
-        print('hobo',x_gauche_hobo2,x_droite_hobo1, dx_reel,x_gauche_hobo2-x_droite_hobo1 / dx_reel)
+        print('x_hobo_gauche_1',x_gauche_hobo1,'x_hobo_droite_1',x_droite_hobo1, dx_reel,(x_gauche_hobo1-x_droite_hobo1) / dx_reel)
 
         # Calcul des subdivisions en z pour les regions affecté par l'arrivé du hobo
         # on veut que le centre des mailles contiennes la coordonnes z_hobo1-dz_hobo1
@@ -1240,7 +1261,7 @@ def generate_mesh_8_region(distance_altitude_table, output_mesh_path,v_bot=103.8
     finally:
         gmsh.finalize()
 
-
+#______________________________________________________________________
 def remove_elements_above_curve_all_entities(table, mesh_path, ajout, retirer=''):
     gmsh.initialize()
     gmsh.open(mesh_path)
@@ -1262,7 +1283,7 @@ def remove_elements_above_curve_all_entities(table, mesh_path, ajout, retirer=''
 
     for entity in entity_tags: # Boucle pour chaque région du maillage
         tag = entity[1]
-        print(tag)
+       # print(tag)
 
     # Obtenir les éléments de cette entité
         elem_types, elem_tags, node_tags = gmsh.model.mesh.getElements(dim, tag)
@@ -1276,14 +1297,14 @@ def remove_elements_above_curve_all_entities(table, mesh_path, ajout, retirer=''
             center_x = np.mean([c[0] for c in coords])
             center_z = np.mean([c[2] for c in coords])
             z_curve = np.interp(center_x, d, z)
-            if center_z+0.05 > z_curve:
+            if center_z+0.01 > z_curve:
                 elements_to_remove.append(elem)
 
         if elements_to_remove:
             elements_to_remove = np.array(elements_to_remove, dtype=np.int32).flatten()
             gmsh.model.mesh.removeElements(dim, tag, elements_to_remove)
             gmsh.model.mesh.reclassifyNodes()
-            print(f" Éléments supprimés dans l'entité {tag}.")
+          #  print(f" Éléments supprimés dans l'entité {tag}.")
 
     # Sauvegarde du maillage modifié
     modified_mesh_path = mesh_path.replace(retirer+".msh", ajout+".msh")
@@ -1292,7 +1313,7 @@ def remove_elements_above_curve_all_entities(table, mesh_path, ajout, retirer=''
 
     gmsh.finalize()
 
-
+#______________________________________________________________________
 def readGmsh(fName, precision=None):
     """
     Lire un fichier Gmsh (.msh) et calculer les centres des éléments ainsi que c'est dimension en x et z
@@ -1341,8 +1362,8 @@ def readGmsh(fName, precision=None):
                 if not coords:
                     continue
                 # Calculate the center of the element
-                x = np.mean([c[0] for c in coords])
-                z = np.mean([c[2] for c in coords])  # Assuming 2D (x, z)
+                x = round(np.mean([c[0] for c in coords]),4)
+                z = round(np.mean([c[2] for c in coords]),4)  # Assuming 2D (x, z) np.mean([c[2] for c in coords])  # Assuming 2D (x, z)
                 am = max(round(c[0],4) for c in coords) - min(round(c[0],4) for c in coords)
                 bm = max(round(c[2],4) for c in coords) - min(round(c[2],4) for c in coords)
                 centers_dimension_elements.append((x, z, am, bm))
@@ -1366,7 +1387,7 @@ def readGmsh(fName, precision=None):
 
     return df_centers, nb_mesh, df_dimension
 
-
+#______________________________________________________________________
 def voisin_mesh(directory):
     """
     function to compute the neighbors of each mesh element from the file "E_coordonnee.dat",
@@ -1449,7 +1470,7 @@ def voisin_mesh(directory):
     print("Neighbors saved to E_voisins.dat.")
     
     return ivois
-    
+ #______________________________________________________________________   
 
 
 def maille_limite(directory):
@@ -1500,7 +1521,7 @@ def maille_limite(directory):
     return BordRG,BordRD
  
 
-
+#______________________________________________________________________
 def coord_to_row_column(repertory):
     """
     function to compute the index of row and column of each mesh element from the file "E_coordonnee.dat" x and z coordinates and E_voisins.dat,
@@ -1563,7 +1584,7 @@ def coord_to_row_column(repertory):
 
     return nb_col,nb_row
 
-
+#______________________________________________________________________
 #Definition de la fontion
 #____________________________________________________________________
 from shapely.geometry import Point, Polygon
@@ -1627,7 +1648,7 @@ def creation_E_zone(directory, polygons_by_zone, default_zone=1):
         os.path.join(directory, "E_zone.dat"), sep=' ', header=False, index=False
     )
 
-
+#______________________________________________________________________
 
 def id_mesh_river(directory,hmax,hmin,xRG,xRD):
     """
@@ -1672,7 +1693,7 @@ def id_mesh_river(directory,hmax,hmin,xRG,xRD):
     return id_river_min,id_river_max
 
 
-
+#______________________________________________________________________
 def am_bm_modif(fName, precision=None):
     """
     Lire un fichier Gmsh (.msh) et calculer les dimensions de chaques des éléments.
@@ -1739,3 +1760,686 @@ def am_bm_modif(fName, precision=None):
     # Step 6: Count the number of elements
     nb_mesh = len(df_centers)
 
+
+
+
+#verify if gmsh is installed
+try:
+    import gmsh 
+except ImportError:
+    print("GMSH is not installed. Please install it using 'pip install gmsh' or 'conda install gmsh'.")
+    sys.exit(1)
+#______________________________________________________________________
+class MeshPoint:
+    """Helper class to manage mesh points with coordinates"""
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.tag = None
+    
+    def add_to_gmsh(self):
+        """Add this point to GMSH and store the tag"""
+        if self.tag is None:
+            self.tag = gmsh.model.occ.addPoint(self.x, self.y, self.z)
+        return self.tag
+#______________________________________________________________________
+class MeshLine:
+    """Helper class to manage mesh lines"""
+    def __init__(self, point1, point2):
+        self.point1 = point1
+        self.point2 = point2
+        self.tag = None
+    
+    def add_to_gmsh(self):
+        """Add this line to GMSH and store the tag"""
+        if self.tag is None:
+            p1_tag = self.point1.add_to_gmsh()
+            p2_tag = self.point2.add_to_gmsh()
+            print(f"p1_tag: {p1_tag}, p2_tag: {p2_tag}")
+            print(f"Point 1 coordinates: x={self.point1.x}, y={self.point1.y}, z={self.point1.z}")
+            print(f"Point 2 coordinates: x={self.point2.x}, y={self.point2.y}, z={self.point2.z}")
+            print(f"Adding line between points {self.point1} and {self.point2}")
+            if p1_tag == p2_tag:
+                raise ValueError("Points are identical")
+            if math.isclose(self.point1.x, self.point2.x, abs_tol=1e-6) and math.isclose(self.point1.y, self.point2.y, abs_tol=1e-6) and math.isclose(self.point1.z, self.point2.z, abs_tol=1e-6):
+                raise ValueError("Points are too close together")
+            print(f"Adding line between points {self.point1} and {self.point2}")
+            try:
+                self.tag = gmsh.model.occ.addLine(p1_tag, p2_tag)
+            except Exception as e:
+                print(f"Error adding line: {e}")
+                raise
+        return self.tag
+    def is_defined(self):
+        return self.point1 is not None and self.point2 is not None
+    
+    def __repr__(self):
+        return f"MeshLine(point1={self.point1}, point2={self.point2}, tag={self.tag})"
+#_________________________________________________________________________________
+class MeshRegion:
+    """Helper class to manage mesh regions/surfaces"""
+    def __init__(self, name, lines, subdivisions_x, subdivisions_z):
+        self.name = name
+        self.lines = lines
+        self.subdivisions_x = subdivisions_x
+        self.subdivisions_z = subdivisions_z
+        self.surface_tag = None
+    
+    def create_surface(self):
+        """Create the surface from the lines"""
+        line_tags = [line.add_to_gmsh() for line in self.lines]
+        loop = gmsh.model.occ.addCurveLoop(line_tags)
+        self.surface_tag = gmsh.model.occ.addPlaneSurface([loop])
+        return self.surface_tag
+    
+    def apply_subdivisions(self):
+        """Apply transfinite subdivisions to the surface"""
+        if self.surface_tag is None:
+            raise ValueError(f"Surface for region {self.name} not created yet")
+        
+        gmsh.model.mesh.setTransfiniteSurface(self.surface_tag, "Left")
+        gmsh.model.mesh.setRecombine(2, self.surface_tag)
+        
+        # Apply subdivisions to lines based on their orientation
+        for i, line in enumerate(self.lines):
+            if i % 2 == 0:  # Horizontal lines
+                gmsh.model.mesh.setTransfiniteCurve(line.tag, self.subdivisions_x)
+            else:  # Vertical lines
+                gmsh.model.mesh.setTransfiniteCurve(line.tag, self.subdivisions_z)
+#___________________________________________________________
+def calculate_subdivisions(length, target_size):
+    """Calculate optimal integer number of subdivisions for a given length and target size"""
+    return max(2, (round(length / target_size)+1))
+
+
+
+#___________________________________________________________
+def calculate_hobo_parameters(x_hobo_1, x_hobo_2, x_RG, x_RD, num_div_x_centre, dx_hobo):
+    """
+    Calculate parameters for HOBO mesh refinement.
+    This function implements the same logic as the code block you provided.
+    Calculate mesh subdivision parameters for HOBO mesh refinement.
+    This function determines the subdivision of a mesh along a 1D domain, with special refinement
+    around two "HOBO" points (x_hobo_1 and x_hobo_2) between two reference points (x_RG and x_RD).
+    It computes the number of divisions and the positions of mesh cells to ensure finer mesh
+    near the HOBO points, according to the provided mesh size (dx_hobo) and total number of divisions
+    (num_div_x_centre).
+    Parameters
+    ----------
+    x_hobo_1 : float or None
+        The x-coordinate of the first HOBO point for mesh refinement. If None, no refinement is done at this point.
+    x_hobo_2 : float or None
+        The x-coordinate of the second HOBO point for mesh refinement. If None, no refinement is done at this point.
+    x_RG : float
+        The x-coordinate of the left reference point (start of the mesh region).
+    x_RD : float
+        The x-coordinate of the right reference point (end of the mesh region).
+    num_div_x_centre : int
+        The total number of mesh divisions between x_RG and x_RD.
+    dx_hobo : float
+        The desired mesh cell size near the HOBO points.
+    Returns
+    -------
+    dict
+        A dictionary containing:
+            - 'num_div_x_hobo': Number of divisions around the first HOBO point (or None).
+            - 'num_div_x_RG_hobo': Number of divisions from x_RG to the first HOBO point (or None).
+            - 'num_div_x_hobo1_hobo2': Number of divisions between the two HOBO points (or from first HOBO to x_RD if only one HOBO).
+            - 'num_div_x_hobo2_RD': Number of divisions from the second HOBO point to x_RD (or 0).
+            - 'num_div_x_hobo2': Number of divisions around the second HOBO point (or None).
+            - 'x_gauche_hobo': Left boundary of the first HOBO mesh region (or None).
+            - 'x_droite_hobo': Right boundary of the first HOBO mesh region (or None).
+            - 'x_gauche_hobo2': Left boundary of the second HOBO mesh region (or None).
+            - 'x_droite_hobo2': Right boundary of the second HOBO mesh region (or None).
+    Notes
+    -----
+    - The function ensures at least two divisions in each refined region.
+    - If a HOBO point is not specified (None), the corresponding outputs are set to None or 0.
+    - The function swaps x_RG and x_RD if they are provided in reverse order.
+    - The mesh is divided such that the HOBO points are located within their own refined mesh cells.
+
+    """
+    if(x_RD<x_RG):
+        # X_RD=x_RG and x_RG=x_RD
+        x_RG, x_RD = x_RD, x_RG
+    
+    dx_reel = abs(x_RD - x_RG) / num_div_x_centre
+    maille_hobo1 = 0
+    maille_hobo2 = 0
+    nb_case_a_ajouter1 = 1
+    nb_case_a_ajouter2 = 1
+
+    # Find the cell index for hobo1
+    if x_hobo_1 is not None:
+        for i in range(num_div_x_centre):
+            if (x_RG + dx_reel * (i + 1)) > x_hobo_1:
+                break
+            else:
+                maille_hobo1 += 1
+        if (x_RG + dx_reel * (maille_hobo1 + 1)) - x_hobo_1 < 0.005:
+            nb_case_a_ajouter1 = 2
+        x_gauche_hobo1 = x_RG + dx_reel * maille_hobo1
+        x_droite_hobo1 = x_RG + dx_reel * (maille_hobo1 + nb_case_a_ajouter1)
+        length_x_hobo1 = abs(x_droite_hobo1 - x_gauche_hobo1)
+        num_div_x_hobo1 = max(2, math.ceil(length_x_hobo1 / dx_hobo))
+        num_div_x_RG_hobo1 = maille_hobo1
+    else:
+        x_gauche_hobo1 = x_droite_hobo1 = length_x_hobo1 = num_div_x_hobo1 = num_div_x_RG_hobo1 = None
+
+    # Find the cell index for hobo2
+    if x_hobo_2 is not None:
+        for i in range(num_div_x_centre):
+            if (x_RG + dx_reel * (i + 1)) > x_hobo_2:
+                break
+            else:
+                maille_hobo2 += 1
+        if (x_RG + dx_reel * (maille_hobo2 + 1)) - x_hobo_2 < 0.005:
+            nb_case_a_ajouter2 = 2
+        x_gauche_hobo2 = x_RG + dx_reel * maille_hobo2 
+        x_droite_hobo2 = x_RG + dx_reel * (maille_hobo2 + nb_case_a_ajouter2)
+        length_x_hobo2 = abs(x_droite_hobo2 - x_gauche_hobo2)
+        num_div_x_hobo2 = max(2, math.ceil(length_x_hobo2 / dx_hobo))
+    else:
+        x_gauche_hobo2 = x_droite_hobo2 = length_x_hobo2 = num_div_x_hobo2 = None
+
+    # Subdivisions between hobo1 and hobo2, and after hobo2
+    if x_hobo_1 is not None and x_hobo_2 is not None:
+        num_div_x_hobo1_hobo2 = max(2, math.ceil((x_gauche_hobo2 - x_droite_hobo1) / dx_reel))
+        num_div_x_hobo2_RD = num_div_x_centre - (maille_hobo2 + nb_case_a_ajouter2)
+    elif x_hobo_1 is not None and x_hobo_2 is None:
+        num_div_x_hobo1_hobo2 = max(2, math.ceil((x_RD - x_droite_hobo1) / dx_reel))
+        num_div_x_hobo2_RD = 0
+    else:
+        num_div_x_hobo1_hobo2 = num_div_x_hobo2_RD = 0
+    print('dx_reel', dx_reel, dx_hobo)
+
+    return {
+        'num_div_x_hobo': num_div_x_hobo1 if x_hobo_1 is not None else None,
+        'num_div_x_RG_hobo': num_div_x_RG_hobo1 if x_hobo_1 is not None else None,
+        'num_div_x_hobo1_hobo2': num_div_x_hobo1_hobo2 if x_hobo_1 is not None  else None,
+        'num_div_x_hobo2_RD': num_div_x_hobo2_RD if x_hobo_2 is not None else None,
+        'num_div_x_hobo2': num_div_x_hobo2 if x_hobo_2 is not None else None,
+        'x_gauche_hobo': x_gauche_hobo1 if x_hobo_1 is not None else None,
+        'x_droite_hobo': x_droite_hobo1 if x_hobo_1 is not None else None,
+        'x_gauche_hobo2': x_gauche_hobo2 if x_hobo_2 is not None else None,
+        'x_droite_hobo2': x_droite_hobo2 if x_hobo_2 is not None else None,
+    }
+#___________________________________________________________
+# new funtion
+def generate_mesh_8_region_optimized(distance_altitude_table, output_mesh_path, v_bot=103.8, 
+                                   x_RG=5, x_RD=17, z_riv=106, 
+                                   dx_grossier=0.5, dx_precis=0.1, 
+                                   hobo_points=None, dx_hobo=0.01, 
+                                   dz_grossier=1.0, dz_precis=0.2, dz_hobo1=0.1, dz_hobo=0.15, 
+                                   mesh_dimension=2, verbose=True,
+                                   # Backward compatibility parameters
+                                   x_hobo_1=None, z_hobo_1=None, x_hobo_2=None, z_hobo_2=None):
+    """
+    Optimized version of generate_mesh_8_region function.
+    
+    This function creates a structured mesh with 8 regions using GMSH, with optimizations for:
+    - Better code organization using helper classes
+    - Reduced code duplication
+    - More efficient subdivision calculations
+    - Improved error handling
+    - Better memory management
+    
+    Parameters:
+    -----------
+    distance_altitude_table : DataFrame
+        Table containing topography data with columns "Distance (m)" and "Altitude (Z)"
+    output_mesh_path : str
+        Path where the mesh will be saved
+    v_bot : float, default=103.8
+        Z coordinate delimiting the boundary between regions 1-4, 2-5, and 3-6
+    x_RG : float, default=5
+        X coordinate of the left river bank
+    x_RD : float, default=17
+        X coordinate of the right river bank
+    z_riv : float, default=106
+        Z coordinate of the river level
+    dx_grossier : float, default=0.5
+        Coarse mesh size in X direction for regions 1, 3, 4, 6, 7, 8
+    dx_precis : float, default=0.1
+        Fine mesh size in X direction for regions 2 and 5
+    x_hobo_1, x_hobo_2 : float
+        X coordinates of HOBO measurement points requiring fine mesh
+    z_hobo_1, z_hobo_2 : float
+        Z coordinates of HOBO measurement points
+    dx_hobo : float, default=0.01
+        Very fine mesh size around HOBO points
+    dz_grossier : float, default=1.0
+        Coarse mesh size in Z direction for regions 1, 2, 3, 7, 8
+    dz_precis : float, default=0.2
+        Fine mesh size in Z direction for regions 4, 5, 6
+    mesh_dimension : int, default=2
+        Mesh dimension (2D)
+    verbose : bool, default=True
+        Whether to print progress information
+    
+    Returns:
+    --------
+    None
+        The mesh is saved to output_mesh_path
+
+
+    Scheme
+
+      z ↑
+  |
+  | p4---------p8------p17--p18------p12------p23--p24------p16   (z = max_z)
+  |  |         |        |    |        |         |    |        |
+  |  |         |        |    |        |         |    |        |
+  | p3        p7      p17  p18      p11       p23  p24      p15   (z = z_riv)
+  |  |         |        |    |        |         |    |        |
+  |  |         |        |    |        |         |    |        |
+  | p2        p6      p19  p20      p10       p25  p26      p14   (z = v_bot)
+  |  |         |        |    |        |         |    |        |
+  |  |         |        |    |        |         |    |        |
+  | p1        p5      p21  p22      p9        p27  p28      p13   (z = min_z)
+  +------------------------------------------------------------→ x
+    min_x    x_RG   x_g_hobo1 x_d_hobo1   x_RD-   x_g_hobo2 x_d_hobo2   max_x
+    
+    Légende :
+    - p1  = (min_x, 0, min_z)
+    - p2  = (min_x, 0, v_bot)
+    - p3  = (min_x, 0, z_riv)
+    - p4  = (min_x, 0, max_z)
+    - p5  = (x_RG, 0, min_z)
+    - p6  = (x_RG, 0, v_bot)
+    - p7  = (x_RG, 0, z_riv)
+    - p8  = (x_RG, 0, max_z)
+    - p9  = (x_RD, 0, min_z)
+    - p10 = (x_RD, 0, v_bot)
+    - p11 = (x_RD, 0, z_riv)
+    - p12 = (x_RD, 0, max_z)
+    - p13 = (max_x, 0, min_z)
+    - p14 = (max_x, 0, v_bot)
+    - p15 = (max_x, 0, z_riv)
+    - p16 = (max_x, 0, max_z)
+    
+    Si HOBO1 est défini :
+    - p17 = (x_gauche_hobo1, 0, z_riv)
+    - p18 = (x_droite_hobo1, 0, z_riv)
+    - p19 = (x_gauche_hobo1, 0, v_bot)
+    - p20 = (x_droite_hobo1, 0, v_bot)
+    - p21 = (x_gauche_hobo1, 0, min_z)
+    - p22 = (x_droite_hobo1, 0, min_z)
+    
+    Si HOBO2 est défini :
+    - p23 = (x_gauche_hobo2, 0, z_riv)
+    - p24 = (x_droite_hobo2, 0, z_riv)
+    - p25 = (x_gauche_hobo2, 0, v_bot)
+    - p26 = (x_droite_hobo2, 0, v_bot)
+    - p27 = (x_gauche_hobo2, 0, min_z)
+    - p28 = (x_droite_hobo2, 0, min_z)
+    
+    """
+    
+    try:
+        if verbose:
+            print("\n=== Generating optimized structured mesh with GMSH ===")
+        
+        # Initialize GMSH
+        gmsh.initialize()
+        gmsh.option.setNumber("General.Terminal", 1 if verbose else 0)
+        gmsh.model.add("OptimizedRectangularMesh")
+
+        # Extract coordinates from input data
+        distances = distance_altitude_table["Distance (m)"].to_numpy()
+        z_coords = distance_altitude_table["Altitude (Z)"].to_numpy()
+
+        # Calculate domain boundaries
+        min_z, max_z = min(z_coords), max(z_coords)
+        min_x, max_x = min(distances), max(distances)
+        
+        # Update z_riv to be the maximum of input z_riv and HOBO heights
+        if z_hobo_1 is None and z_hobo_2 is not None:
+            # z_hobo 1 = z_hobo_2  and z_hobo_2 = z_hobo_1 same with x
+            z_hobo_1, z_hobo_2 = z_hobo_2, z_hobo_1
+            x_hobo_1, x_hobo_2 = x_hobo_2, x_hobo_1
+            print("Only one temperature profile exist")
+
+
+        
+        if verbose:
+            print(f"Domain: X=[{min_x:.4f}, {max_x:.4f}], Z=[{min_z:.4f}, {max_z:.4f}]")
+            print(f"River level: {z_riv:.4f}, Riverbed Bottom level: {v_bot:.4f}")
+
+        # Calculate basic subdivisions
+        length_x_gauche = round(abs(x_RG - min_x),4)
+        length_x_droite = round(abs(max_x - x_RD),4)
+        length_x_centre = round(abs(x_RD - x_RG),4)
+        length_z_haut = round(abs(max_z - z_riv),4)
+        length_z_centre =round(abs(z_riv - v_bot),4)
+        length_z_bas = round(abs(v_bot - min_z),4)
+
+        
+        num_div_x_gauche = calculate_subdivisions(length_x_gauche, dx_grossier)
+        num_div_x_centre = calculate_subdivisions(length_x_centre, dx_precis)
+        num_div_x_droite = calculate_subdivisions(length_x_droite, dx_grossier)
+        
+        num_div_z_haut= calculate_subdivisions(length_z_haut, dz_grossier)
+        num_div_z_centre = calculate_subdivisions(length_z_centre, dz_precis)
+        num_div_z_bas = calculate_subdivisions(length_z_bas, dz_grossier)
+        if not isinstance(num_div_z_centre, int):
+            print(f"num_div_z_centre {num_div_z_centre} dz_precis {dz_precis}")
+            # error stop and ask to change v_bot and z_riv
+            raise ValueError("z_riv and v_bot")
+
+        print(f"num_div_z_centre {num_div_z_centre} dz_precis {dz_precis}")
+        #verif
+        dz_calcul= round(length_z_centre / (num_div_z_centre),4)
+
+        if dz_calcul != dz_precis:
+            print(f"Warning: Calculated dz {dz_calcul} does not match expected dz_precis {dz_precis}. Adjusting num_div_z_centre.")
+            print('ici',abs(round(z_riv - v_bot,4)))
+            print(f"num_div_z_centre {num_div_z_centre} dz_precis {dz_precis} dz_calcul {dz_calcul}")
+
+
+        # Calculate HOBO parameters
+        if x_hobo_1 is None and x_hobo_2 is None:
+            hobo_params = calculate_hobo_parameters(x_hobo_1, x_hobo_2, x_RG, x_RD, num_div_x_centre, dx_hobo)
+        elif x_hobo_1 is not None and x_hobo_2 is None:
+            hobo_params = calculate_hobo_parameters(x_hobo_1, None, x_RG, x_RD, num_div_x_centre, dx_hobo)
+        else:
+            hobo_params = None
+        print("hobo_params", hobo_params)    
+        
+        if x_hobo_1 is not None and z_hobo_1 is not None:
+            if x_hobo_2 is not None and z_hobo_2 is not None:
+                # Both HOBO points exist
+                num_div_x_RG_hobo1 = hobo_params['num_div_x_RG_hobo1']
+                num_div_x_hobo1_hobo2 = hobo_params['num_div_x_hobo1_hobo2']
+                num_div_x_hobo2_RD = hobo_params['num_div_x_hobo2_RD']
+            else:
+                # Only one HOBO point exists
+                num_div_x_RG_hobo1 = hobo_params['num_div_x_RG_hobo']
+                # if only one hobo discretisation adapt discretisation
+                num_div_x_hobo1_hobo2 = hobo_params['num_div_x_hobo1_hobo2']
+                num_div_x_hobo2_RD = 0
+
+        else:
+            # No HOBO points exist
+            hobo_params = None
+            num_div_x_RG_hobo1 = 0
+            num_div_x_hobo1_hobo2 = 0
+            num_div_x_hobo2_RD = 0
+
+        if verbose:
+            print(f"Subdivisions - Left: {num_div_x_gauche}, Center: {num_div_x_centre}, Right: {num_div_x_droite}")
+            print(f"Z subdivisions - Top: {num_div_z_haut}, Center: {num_div_z_centre}, Bottom: {num_div_z_bas}")
+
+        # Create all mesh points using the helper class
+        points = {}        
+        # Main corner points
+        points['p1'] = MeshPoint(min_x, 0, min_z)
+        points['p2'] = MeshPoint(min_x, 0, v_bot)
+        points['p3'] = MeshPoint(min_x, 0, z_riv)
+        points['p4'] = MeshPoint(min_x, 0, max_z)
+        
+        points['p5'] = MeshPoint(x_RG, 0, min_z)
+        points['p6'] = MeshPoint(x_RG, 0, v_bot)
+        points['p7'] = MeshPoint(x_RG, 0, z_riv)
+        points['p8'] = MeshPoint(x_RG, 0, max_z)
+        
+        points['p9'] = MeshPoint(x_RD, 0, min_z)
+        points['p10'] = MeshPoint(x_RD, 0, v_bot)
+        points['p11'] = MeshPoint(x_RD, 0, z_riv)
+        points['p12'] = MeshPoint(x_RD, 0, max_z)
+        
+        points['p13'] = MeshPoint(max_x, 0, min_z)
+        points['p14'] = MeshPoint(max_x, 0, v_bot)
+        points['p15'] = MeshPoint(max_x, 0, z_riv)
+        points['p16'] = MeshPoint(max_x, 0, max_z)
+        
+        if x_hobo_1 is not None:
+            points['p17'] = MeshPoint(hobo_params['x_gauche_hobo'], 0, z_riv)
+            points['p18'] = MeshPoint(hobo_params['x_droite_hobo'], 0, z_riv)
+            points['p19'] = MeshPoint(hobo_params['x_gauche_hobo'], 0, v_bot)
+            points['p20'] = MeshPoint(hobo_params['x_droite_hobo'], 0, v_bot)
+            points['p21'] = MeshPoint(hobo_params['x_gauche_hobo'], 0, min_z)
+            points['p22'] = MeshPoint(hobo_params['x_droite_hobo'], 0, min_z)
+
+        if x_hobo_2 is not None:
+            points['p23'] = MeshPoint(hobo_params['x_gauche_hobo'], 0, z_riv)
+            points['p24'] = MeshPoint(hobo_params['x_droite_hobo'], 0, z_riv)
+            points['p25'] = MeshPoint(hobo_params['x_gauche_hobo'], 0, v_bot)
+            points['p26'] = MeshPoint(hobo_params['x_droite_hobo'], 0, v_bot)
+            points['p27'] = MeshPoint(hobo_params['x_gauche_hobo'], 0, min_z)
+            points['p28'] = MeshPoint(hobo_params['x_droite_hobo'], 0, min_z)
+
+        
+        lines = {}
+
+        # Vertical lines
+        lines['l1'] = MeshLine(points['p1'], points['p2'])
+        lines['l2'] = MeshLine(points['p2'], points['p3'])
+        lines['l3'] = MeshLine(points['p3'], points['p4'])
+        lines['l4'] = MeshLine(points['p5'], points['p6'])
+        lines['l5'] = MeshLine(points['p6'], points['p7'])
+        lines['l6'] = MeshLine(points['p7'], points['p8'])
+        lines['l7'] = MeshLine(points['p9'], points['p10'])
+        lines['l8'] = MeshLine(points['p10'], points['p11'])
+        lines['l9'] = MeshLine(points['p11'], points['p12'])
+        lines['l10'] = MeshLine(points['p13'], points['p14'])
+        lines['l11'] = MeshLine(points['p14'], points['p15'])
+        lines['l12'] = MeshLine(points['p15'], points['p16'])
+
+        # HOBO vertical lines
+        if x_hobo_1 is not None:
+            lines['l13'] = MeshLine(points['p21'], points['p19'])
+            lines['l14'] = MeshLine(points['p19'], points['p17'])
+            lines['l15'] = MeshLine(points['p22'], points['p20'])
+            lines['l16'] = MeshLine(points['p20'], points['p18'])
+
+        if x_hobo_2 is not None:
+            lines['l17'] = MeshLine(points['p27'], points['p25'])
+            lines['l18'] = MeshLine(points['p25'], points['p23'])
+            lines['l19'] = MeshLine(points['p28'], points['p26'])
+            lines['l20'] = MeshLine(points['p26'], points['p24'])
+
+        # Horizontal lines
+        lines['l100'] = MeshLine(points['p1'], points['p5'])
+        lines['l101'] = MeshLine(points['p2'], points['p6'])
+        lines['l102'] = MeshLine(points['p3'], points['p7'])
+        lines['l103'] = MeshLine(points['p4'], points['p8'])
+        # Additional horizontal lines
+        lines['l112'] = MeshLine(points['p9'], points['p13'])
+        lines['l113'] = MeshLine(points['p10'], points['p14'])
+        lines['l114'] = MeshLine(points['p11'], points['p15'])
+        lines['l115'] = MeshLine(points['p12'], points['p16'])
+        # HOBO horizontal lines
+        if x_hobo_1 is not None:
+            lines['l104'] = MeshLine(points['p5'], points['p21'])
+            lines['l105'] = MeshLine(points['p6'], points['p19'])
+            lines['l106'] = MeshLine(points['p7'], points['p17'])
+            lines['l107'] = MeshLine(points['p21'], points['p22'])
+            lines['l108'] = MeshLine(points['p17'], points['p18'])
+            lines['l116'] = MeshLine(points['p19'], points['p20'])
+
+        if x_hobo_2 is not None:
+            lines['l109'] = MeshLine(points['p22'], points['p27'])
+            lines['l110'] = MeshLine(points['p20'], points['p25'])
+            lines['l111'] = MeshLine(points['p18'], points['p23'])
+            lines['l117'] = MeshLine(points['p27'], points['p28'])
+            lines['l118'] = MeshLine(points['p25'], points['p26'])
+            lines['l119'] = MeshLine(points['p23'], points['p24'])
+            lines['l120'] = MeshLine(points['p28'], points['p9'])
+            lines['l121'] = MeshLine(points['p26'], points['p10'])
+            lines['l122'] = MeshLine(points['p24'], points['p11'])
+        if x_hobo_2 is None and x_hobo_1 is None:
+            # ajouter missing lines
+            lines['104']=MeshLine(points['p5'],points['p9'])
+            lines['105']=MeshLine(points['p6'],points['p10'])
+            lines['106']=MeshLine(points['p7'],points['p11'])
+            lines['107']=MeshLine(points['p8'],points['p12'])
+        if x_hobo_2 is None and x_hobo_1 is not None:
+            # ajouter missing lines
+            lines['l109'] = MeshLine(points['p22'], points['p9'])
+            lines['l110'] = MeshLine(points['p20'], points['p10'])
+            lines['l111'] = MeshLine(points['p18'], points['p11'])
+            
+
+
+        # Create regions with their respective subdivisions
+        regions = []
+
+        # Define each region with its boundary lines and subdivisions
+        region_definitions = []
+
+        # Case 1: No HOBO points
+        if x_hobo_1 is None and x_hobo_2 is None:
+            print("No temperature profiles exist")
+            # Define regions for the case without HOBO mesh refinement
+            # Each region is defined by its boundary lines and the number of subdivisions in x and z
+            # Region1: Bottom left
+            # Region2: Bottom center/right
+            # Region3: Middle left
+            # Region4: Middle center/right
+            # Region5: Top left
+            # Region6: Top center/right
+
+            region_definitions = [
+            ("Region1", [lines['l101'], lines['l4'], lines['l100'], lines['l1']], num_div_x_gauche, num_div_z_bas),
+            ("Region2", [lines['l113'], lines['l10'], lines['l112'], lines['l4']], num_div_x_centre, num_div_z_bas),
+            ("Region3", [lines['l102'], lines['l5'], lines['l101'], lines['l2']], num_div_x_gauche, num_div_z_centre),
+            ("Region4", [lines['l114'], lines['l11'], lines['l113'], lines['l5']], num_div_x_centre, num_div_z_centre),
+            ("Region5", [lines['l103'], lines['l6'], lines['l102'], lines['l3']], num_div_x_gauche, num_div_z_haut),
+            ("Region6", [lines['l115'], lines['l12'], lines['l114'], lines['l6']], num_div_x_centre, num_div_z_haut),
+            ]
+        # Case 2: Only HOBO 1 exists
+        elif x_hobo_1 is not None and x_hobo_2 is None:
+            """
+            z ↑
+            |
+            | p4--l103---p8--------p17---------p18------------p12---l115-----p16   (z = max_z)
+            |  |         |         |           |              |              |            
+              l3 RG10    l6                                   l9     RG11      l12           
+            |  |         |         |           |              |              |
+            | p3--l102--p7--L106--p17---l108---p18---l111-----p11---l114----p15   (z = z_riv)
+            |  |         |         |           |              |              |            
+            |  |         |         |           |              |              |      
+            | L2   RG6   l5   RG7  l14   RG12   l16      RG8   l8     RG9     l11
+            |  |         |         |           |              |              |     
+            |  |         |         |           |              |              |
+            | p2--l101--p6--l105--p19---l116---p20---l110-----p10---l113-----p14   (z = v_bot)
+            |  |         |         |           |              |              |             
+            |  |         |         |           |              |              |           
+            | L1   RG1   l4  RG2   l13  RG3    l15     RG4    l7      RG5 l10
+            |  |         |         |           |              |              |             
+            |  |         |         |           |              |              |          
+            | p1--l100--p5--l104--p21---l107---p22---l109-----p9---l112------p13   (z = min_z)
+            +----------------- --------------------------------------------------------------------→ x
+                min_x    x_RG   x_g_hobo1     x_d_hobo1         x_RD   max_x   
+            
+            
+            """
+            print('Regions with one temperature profile')
+            # You can further split this block if you want to distinguish the three cases
+            region_definitions = [("Region1", [lines['l101'], lines['l4'], lines['l100'], lines['l1']], num_div_x_gauche, num_div_z_bas),
+            ("Region2", [lines['l105'], lines['l13'], lines['l104'], lines['l4']], num_div_x_RG_hobo1, num_div_z_bas),
+            ("Region3", [lines['l116'], lines['l15'], lines['l107'], lines['l13']], hobo_params['num_div_x_hobo'], num_div_z_bas),
+            ("Region4", [lines['l110'], lines['l7'], lines['l109'], lines['l15']],  num_div_x_hobo1_hobo2, num_div_z_bas),
+            ("Region5", [lines['l113'], lines['l10'], lines['l112'], lines['l7']], num_div_x_droite, num_div_z_bas),
+            ("Region6", [lines['l102'], lines['l5'], lines['l101'], lines['l2']], num_div_x_gauche, num_div_z_centre),
+            ("Region7", [lines['l106'], lines['l14'], lines['l105'], lines['l5']], num_div_x_RG_hobo1, num_div_z_centre),
+            ("Region8", [lines['l111'], lines['l8'], lines['l110'], lines['l16']], num_div_x_hobo1_hobo2, num_div_z_centre),
+            ("Region9", [lines['l114'], lines['l11'], lines['l113'], lines['l8']], num_div_x_droite, num_div_z_centre),
+            ("Region10", [lines['l103'], lines['l6'], lines['l102'], lines['l3']], num_div_x_gauche, num_div_z_haut),
+            ("Region11", [lines['l115'], lines['l12'], lines['l114'], lines['l9']], num_div_x_droite, num_div_z_haut),
+            ("Region12", [lines['l108'], lines['l16'], lines['l116'], lines['l14']], hobo_params['num_div_x_hobo'], num_div_z_centre)]
+
+            #for i, region in enumerate(region_definitions):
+             #   print(f"Region {i+1}: {region[0]}")
+              #  print(f"Lines: {region[1]}")
+              #  for j, line in enumerate(region[1]):
+               #     print(f"Line {j+1}: {line}")
+               # print()
+
+        
+        # Case 3: Both HOBO points exist
+        elif x_hobo_1 is not None and x_hobo_2 is not None:
+            print("2 temperature profiles exist")
+            # Three possible sub-cases for both HOBOs (example: left, middle, right)
+            # You can further split this block if you want to distinguish the three cases
+            region_definitions = [
+            ("Region1", [lines['l101'], lines['l4'], lines['l100'], lines['l1']], num_div_x_gauche, num_div_z_bas),
+            ("Region2", [lines['l105'], lines['l13'], lines['l104'], lines['l4']], num_div_x_RG_hobo1, num_div_z_bas),
+            ("Region3", [lines['l116'], lines['l15'], lines['l107'], lines['l13']], hobo_params['num_div_x_hobo'], num_div_z_bas),
+            ("Region4", [lines['l110'], lines['l17'], lines['l109'], lines['l15']], num_div_x_hobo1_hobo2, num_div_z_bas),
+            ("Region5", [lines['l113'], lines['l10'], lines['l112'], lines['l7']], num_div_x_droite, num_div_z_bas),
+            ("Region6", [lines['l102'], lines['l5'], lines['l101'], lines['l2']], num_div_x_gauche, num_div_z_centre),
+            ("Region7", [lines['l106'], lines['l14'], lines['l105'], lines['l5']], num_div_x_RG_hobo1, num_div_z_centre),
+            ("Region8", [lines['l111'], lines['l18'], lines['l110'], lines['l16']],num_div_x_hobo1_hobo2, num_div_z_centre),
+            ("Region9", [lines['l114'], lines['l11'], lines['l113'], lines['l8']], num_div_x_droite, num_div_z_centre),
+            ("Region10", [lines['l103'], lines['l6'], lines['l102'], lines['l3']], num_div_x_gauche, num_div_z_haut),
+            ("Region11", [lines['l115'], lines['l12'], lines['l114'], lines['l9']], num_div_x_droite, num_div_z_haut),
+            ("Region12", [lines['l108'], lines['l16'], lines['l116'], lines['l14']], hobo_params['num_div_x_hobo'], num_div_z_centre), 
+            ("Region13", [lines['l118'], lines['l19'], lines['l117'], lines['l17']], hobo_params['num_div_x_hobo'], num_div_z_bas),
+            ("Region14", [lines['l121'], lines['l7'], lines['l120'], lines['l19']], num_div_x_hobo2_RD, num_div_z_bas),
+            ("Region15", [lines['l119'], lines['l20'], lines['l118'], lines['l18']], hobo_params['num_div_x_hobo'], num_div_z_centre),
+            ("Region16", [lines['l122'], lines['l8'], lines['l121'], lines['l20']], num_div_x_hobo2_RD, num_div_z_centre)]
+
+        # how to check before creating regions
+        if verbose:
+            print(f"Creating {len(region_definitions)} mesh regions...")
+        # check if lines are defined
+        for line in lines.values():
+            if not line.is_defined():
+                raise ValueError(f"Line {line.name} is not defined. Please check the mesh lines.")
+        # check order
+        if verbose:
+            print("All lines are defined and in correct order.")
+
+        # Create regions
+        for region_definition in region_definitions:
+            region_name, boundary_lines, num_div_x, num_div_z = region_definition
+            regions.append(MeshRegion(region_name, boundary_lines, num_div_x, num_div_z))
+
+    # Generate the mesh
+        
+        # Create all regions
+        for name, region_lines, sub_x, sub_z in region_definitions:
+            region = MeshRegion(name, region_lines, sub_x, sub_z)
+            regions.append(region)
+
+        # Create all surfaces
+        for region in regions:
+            region.create_surface()
+
+        # Synchronize the model
+        gmsh.model.occ.synchronize()
+
+        # Apply subdivisions to all regions
+        for region in regions:
+            region.apply_subdivisions()
+
+        if verbose:
+            print("Generating mesh...")
+        
+        # Generate the mesh
+        gmsh.model.mesh.generate(mesh_dimension)
+        gmsh.write(output_mesh_path)
+        
+        if verbose:
+            print(f" Optimized esh saved to: {output_mesh_path}")
+            print(f"Total regions created: {len(regions)}")
+
+    except Exception as e:
+        print(f" Error during mesh generation: {e}")
+        raise
+    finally:
+        gmsh.finalize()
+
+#________________________________________________________________________________
+
+# Backward compatibility function
+def generate_mesh_8_region(distance_altitude_table, output_mesh_path, **kwargs):
+    """
+    Backward compatibility wrapper for the optimized function.
+    """
+    return generate_mesh_8_region_optimized(distance_altitude_table, output_mesh_path, **kwargs)
+
+#________________________________________________________________________________
