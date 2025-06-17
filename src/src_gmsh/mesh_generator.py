@@ -54,7 +54,7 @@ def plot_gmsh_mesh(mesh_path):
         mesh = pv.read(mesh_path)
         plotter = pv.Plotter()
         plotter.add_mesh(mesh, show_edges=True, color="lightblue", label="Maillage Gmsh")
-
+#
         points = mesh.points
 # add axis coordinates
         plotter.add_axes()
@@ -1956,7 +1956,7 @@ def calculate_hobo_parameters(x_hobo_1, x_hobo_2, x_RG, x_RD, num_div_x_centre, 
 
     return {
         'num_div_x_hobo': num_div_x_hobo1 if x_hobo_1 is not None else None,
-        'num_div_x_RG_hobo': num_div_x_RG_hobo1 if x_hobo_1 is not None else None,
+        'num_div_x_RG_hobo1': num_div_x_RG_hobo1 if x_hobo_1 is not None else None,
         'num_div_x_hobo1_hobo2': num_div_x_hobo1_hobo2 if x_hobo_1 is not None  else None,
         'num_div_x_hobo2_RD': num_div_x_hobo2_RD if x_hobo_2 is not None else None,
         'num_div_x_hobo2': num_div_x_hobo2 if x_hobo_2 is not None else None,
@@ -2139,7 +2139,7 @@ def generate_mesh_8_region_optimized(distance_altitude_table, output_mesh_path, 
 
 
         # Calculate HOBO parameters
-        if x_hobo_1 is None and x_hobo_2 is None:
+        if x_hobo_1 is not None and x_hobo_2 is not None:
             hobo_params = calculate_hobo_parameters(x_hobo_1, x_hobo_2, x_RG, x_RD, num_div_x_centre, dx_hobo)
         elif x_hobo_1 is not None and x_hobo_2 is None:
             hobo_params = calculate_hobo_parameters(x_hobo_1, None, x_RG, x_RD, num_div_x_centre, dx_hobo)
@@ -2155,7 +2155,7 @@ def generate_mesh_8_region_optimized(distance_altitude_table, output_mesh_path, 
                 num_div_x_hobo2_RD = hobo_params['num_div_x_hobo2_RD']
             else:
                 # Only one HOBO point exists
-                num_div_x_RG_hobo1 = hobo_params['num_div_x_RG_hobo']
+                num_div_x_RG_hobo1 = hobo_params['num_div_x_RG_hobo1']
                 # if only one hobo discretisation adapt discretisation
                 num_div_x_hobo1_hobo2 = hobo_params['num_div_x_hobo1_hobo2']
                 num_div_x_hobo2_RD = 0
@@ -2203,12 +2203,12 @@ def generate_mesh_8_region_optimized(distance_altitude_table, output_mesh_path, 
             points['p22'] = MeshPoint(hobo_params['x_droite_hobo'], 0, min_z)
 
         if x_hobo_2 is not None:
-            points['p23'] = MeshPoint(hobo_params['x_gauche_hobo'], 0, z_riv)
-            points['p24'] = MeshPoint(hobo_params['x_droite_hobo'], 0, z_riv)
-            points['p25'] = MeshPoint(hobo_params['x_gauche_hobo'], 0, v_bot)
-            points['p26'] = MeshPoint(hobo_params['x_droite_hobo'], 0, v_bot)
-            points['p27'] = MeshPoint(hobo_params['x_gauche_hobo'], 0, min_z)
-            points['p28'] = MeshPoint(hobo_params['x_droite_hobo'], 0, min_z)
+            points['p23'] = MeshPoint(hobo_params['x_gauche_hobo2'], 0, z_riv)
+            points['p24'] = MeshPoint(hobo_params['x_droite_hobo2'], 0, z_riv)
+            points['p25'] = MeshPoint(hobo_params['x_gauche_hobo2'], 0, v_bot)
+            points['p26'] = MeshPoint(hobo_params['x_droite_hobo2'], 0, v_bot)
+            points['p27'] = MeshPoint(hobo_params['x_gauche_hobo2'], 0, min_z)
+            points['p28'] = MeshPoint(hobo_params['x_droite_hobo2'], 0, min_z)
 
         
         lines = {}
@@ -2362,6 +2362,30 @@ def generate_mesh_8_region_optimized(distance_altitude_table, output_mesh_path, 
         # Case 3: Both HOBO points exist
         elif x_hobo_1 is not None and x_hobo_2 is not None:
             print("2 temperature profiles exist")
+            """
+            ↑
+            |
+            | p4--l103---p8--------p17---------p18----------p23---------p24----------p12---l115---p16   (z = max_z)
+            |  |         |         |           |            |           |             |           |
+                l3        l6                                                                      l12  
+            |  |         |         |           |            |           |             |           |
+            | p3--l102--p7--L106--p17---l108---p18---l111---p23---l119---p24---l122---p11---l114---p15   (z = z_riv)
+            |  |         |         |           |            |           |             |            |
+            |  |         |         |           |            |           |             |            |
+            | L2        l5        l14         l16           l18         l20           l8           l11
+            |  |         |         |           |            |           |             |            |
+            |  |         |         |           |            |           |             |            |
+            | p2--l101--p6--l105--p19---l116---p20---l110---p25---l118---p26---l121---p10---l113---p14   (z = v_bot)
+            |  |         |         |           |            |           |             |            |
+            |  |         |         |           |            |           |             |            |
+                L1        l4       l13          l15          l17         l19           l7           l10
+            |  |         |         |           |            |           |             |            |
+            |  |         |         |           |            |           |             |             |
+            | p1--l100--p5--l104--p21---l107---p22---l109---p27---l117---p28---l120---p9---l112---p13   (z = min_z)
+            +----------------- --------------------------------------------------------------------→ x
+             min_x    x_RG   x_g_hobo1      x_d_hobo1     x_g_hobo2     x_d_hobo2    x_RD   max_x  
+     
+    """
             # Three possible sub-cases for both HOBOs (example: left, middle, right)
             # You can further split this block if you want to distinguish the three cases
             region_definitions = [
@@ -2395,15 +2419,8 @@ def generate_mesh_8_region_optimized(distance_altitude_table, output_mesh_path, 
 
         # Create regions
         for region_definition in region_definitions:
-            region_name, boundary_lines, num_div_x, num_div_z = region_definition
-            regions.append(MeshRegion(region_name, boundary_lines, num_div_x, num_div_z))
-
-    # Generate the mesh
-        
-        # Create all regions
-        for name, region_lines, sub_x, sub_z in region_definitions:
-            region = MeshRegion(name, region_lines, sub_x, sub_z)
-            regions.append(region)
+            region_name, lines, num_div_x, num_div_z = region_definition
+            regions.append(MeshRegion(region_name, lines, num_div_x, num_div_z))
 
         # Create all surfaces
         for region in regions:
@@ -2421,12 +2438,17 @@ def generate_mesh_8_region_optimized(distance_altitude_table, output_mesh_path, 
         
         # Generate the mesh
         gmsh.model.mesh.generate(mesh_dimension)
+        # check if duplicated nodes
+        gmsh.model.mesh.removeDuplicateNodes()
+        # check if duplicated elements
+        gmsh.model.mesh.removeDuplicateElements()
+
         gmsh.write(output_mesh_path)
         
         if verbose:
             print(f" Optimized esh saved to: {output_mesh_path}")
             print(f"Total regions created: {len(regions)}")
-
+#
     except Exception as e:
         print(f" Error during mesh generation: {e}")
         raise
