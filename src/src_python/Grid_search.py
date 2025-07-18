@@ -324,7 +324,7 @@ def analysis_gridsearch_2D(Station,repertory,date_simul_bg,obs_temp,name_sensor,
     date_simul_bg = pd.to_datetime(date_simul_bg)
     sim_temp['dates'] = date_simul_bg + pd.to_timedelta(sim_temp['Time'], unit='s')
     obs_temp.reset_index(drop=True, inplace=True)
-
+    remove_first_days_sim(sim_temp, 2)
 
     for col in name_sensor: # ex name_sensor = ['Temp1', 'Temp2', 'Temp3']
         prediction = sim_temp[col]

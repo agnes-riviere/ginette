@@ -104,32 +104,6 @@ output_path = "SENSI_" + Station + "/S_mse_simul.dat"
 mse_table = pd.read_csv(output_path, sep=",", header=0)
 
 
-# Select parameter columns dynamically based on zones_to_invert and parameters_to_invert
-param_cols = [f"{param}{zone}" for zone in zones_to_invert for param in parameters_to_invert]
-params = mse_table[param_cols]
-# number of Total_mse rows
-nb_it_time = mse_table['Total_mse'].count()
-print(f"Nombre d'itérations de temps : {nb_it_time}")
-normalize_total_mse(mse_table, total_col="Total_mse", normalized_col="Total_mse_normalized",nb_it_time=nb_it_time)
-likelihoods=likelihood(mse_table,'Total_mse_normalized')
-#mse_table['likehoods']=likelihood
-posterior = likelihoods / likelihoods.sum()
-mse_table["posterior"] = posterior
-print(mse_table.head())
-
-
-for sensor in sensors:
-    mse_table[f"{sensor}_likelihood"] = likelihood(mse_table, sensor)
-    likelihood_sum = mse_table[f"{sensor}_likelihood"].sum()
-    if likelihood_sum == 0:
-        mse_table[f"{sensor}_posterior"] = 0
-    else:
-        mse_table[f"{sensor}_posterior"] = (
-            mse_table[f"{sensor}_likelihood"] / likelihood_sum
-        )
-
-output_path = "SENSI_" + Station + "/S_mse_simul_with_posteriors.csv"
-mse_table.to_csv("SENSI_" + Station + "/S_mse_simul_with_posteriors.csv", sep=",", index=False)
 #print(f"DataFrame enregistré dans : {output_path}")
 
 #Sortir meilleur model
@@ -155,7 +129,7 @@ for zone in zones_to_invert:
 for zone in zones_to_invert:
     param_cols = [f"{param}{zone}" for param in parameters_to_invert]
     for sensor in sensors:
-        post_col = f"{sensor}_posterior" # <- colonne des postérieurs
-        filename = f"{Station}_zone{zone}_{sensor}_ind_posterior.png" # <- nom du fichier
+        post_col = f"{sensor}_mse_posterior" # <- colonne des postérieurs
+        filename = f"{Station}_zone{zone}_{sensor}_mse_posterior.png" # <- nom du fichier
         plot_joint_posterior_by_sensor(df=mse_table,param_cols=param_cols,posterior_col=post_col,cmap="viridis",filename=filename,plot_title=f"Posterior joint - Zone {zone} - {sensor}")
 

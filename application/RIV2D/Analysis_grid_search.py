@@ -110,6 +110,8 @@ obs_temp['Time'] = pd.to_numeric(obs_temp['Time'], errors='coerce')
 # Convert the 'dates' column to datetime objects for time series analysis
 obs_temp['dates'] = pd.to_datetime(obs_temp['dates'], format='%Y-%m-%d %H:%M:%S')
 
+obs_temp=remove_first_two_days_obs( obs_temp,date_simul_bg)
+
 param_table['index_sim'] = param_table.index + 1
 # header 'index_sim'+ colname of parameter
 header_save_param = param_table.columns
@@ -147,26 +149,49 @@ mse_table = pd.read_csv("SENSI_" + Station + "/"+ "S_mse_simul.dat", sep=",", he
 # Select parameter columns dynamically based on zones_to_invert and parameters_to_invert
 param_cols = [f"{param}{zone}" for zone in zones_to_invert for param in parameters_to_invert]
 params = mse_table[param_cols]
-# number of Total_mse rows
-nb_it_time = mse_table['Total_mse'].count()
+# number of obs_temp rows
+nb_it_time= obs_temp['Time'].count()
 print(f"Nombre d'itérations de temps : {nb_it_time}")
-normalize_total_mse(mse_table, total_col="Total_mse", normalized_col="Total_mse_normalized")
-likelihoods=likelihood(mse_table,'Total_mse_normalized')
+normalize_total_mse(mse_table, total_col="Total_mse", normalized_col="Total_mse_normalized",nb_it_time=nb_it_time*8)
+#likelihoods=likelihood(mse_table,'Total_mse_normalized')
 #mse_table['likehoods']=likelihood
-posterior = likelihoods / likelihoods.sum()
-mse_table["posterior"] = posterior
-print(mse_table.head())
+#posterior = likelihoods / likelihoods.sum()
+#mse_table["posterior"] = posterior
+#print(mse_table.head())
 
 
 for sensor in sensors:
-    mse_table[f"{sensor}_likelihood"] = likelihood(mse_table, sensor)
-    likelihood_sum = mse_table[f"{sensor}_likelihood"].sum()
-    if likelihood_sum == 0:
-        mse_table[f"{sensor}_posterior"] = 0
-    else:
-        mse_table[f"{sensor}_posterior"] = (
-            mse_table[f"{sensor}_likelihood"] / likelihood_sum
-        )
+#    mse_table[f"{sensor}_likelihood"] = likelihood(mse_table, sensor)
+#    likelihood_sum = mse_table[f"{sensor}_likelihood"].sum()
+#    print(likelihood_sum)
+#    if likelihood_sum == 0:
+#        mse_table[f"{sensor}_posterior"] = 0
+#    else:
+#
+# 
+#         mse_table[f"{sensor}_posterior"] = (mse_table[f"{sensor}_likelihood"] / likelihood_sum)
+
+#    mse_table[f"{sensor}_likelihood"] = likelihood(mse_table, sensor)
+#    likelihood_sum = mse_table[f"{sensor}_likelihood"].sum()
+
+ #   print('like_sum',likelihood_sum)
+ #   if likelihood_sum == 0:
+ #       mse_table[f"{sensor}_posterior"] = 0
+ #   else:
+ #       mse_table[f"{sensor}_posterior"] = (
+ #           mse_table[f"{sensor}_likelihood"] / likelihood_sum
+ #       )
+    normalize_total_mse(mse_table, col=f"{sensor}", normalized_col=f"{sensor}_normalize_mse",nb_it_time=nb_it_time)
+
+
+
+# print mse_table
+print(mse_table.head())
+
+
+
+
+
 
 #output_path = "SENSI_" + Station + "/S_mse_simul_with_posteriors.csv"
 #mse_table.to_csv("SENSI_" + Station + "/S_mse_simul_with_posteriors.csv", sep=",", index=False)
@@ -177,19 +202,8 @@ best_row = mse_table.loc[mse_table['Total_mse'].idxmin()]
 # build params_of_interest with parameters_to_invert  zones_to_invert 
 
 params_of_interest = best_row[["k4", "n4", "l4", "k5", "n5", "l5", 'Total_mse']]
-print("Valeurs des paramètres pour le plus petit Total_mse :")
-print(params_of_interest)
-
-for zone in zones_to_invert:
-    param_cols = [f"{param}{zone}" for param in parameters_to_invert]
-    filename = f"{Station}_posterior_zone{zone}.png"
-    plot_joint_posterior(df=mse_table,param_cols=param_cols,cmap="viridis",filename=filename)
+#print("Valeurs des paramètres pour le plus petit Total_mse :")
+#print(params_of_interest)
 
 
-for zone in zones_to_invert:
-    param_cols = [f"{param}{zone}" for param in parameters_to_invert]
-    for sensor in sensors:
-        post_col = f"{sensor}_posterior" # <- colonne des postérieurs
-        filename = f"{Station}_zone{zone}_{sensor}_ind_posterior.png" # <- nom du fichier
-        plot_joint_posterior_by_sensor(df=mse_table,param_cols=param_cols,posterior_col=post_col,cmap="viridis",filename=filename,plot_title=f"Posterior joint - Zone {zone} - {sensor}")
 

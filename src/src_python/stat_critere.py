@@ -63,7 +63,7 @@ def mse(predictions, ref, sigma):
     sum_of_differences_squared = differences_squared.sum()
     return sum_of_differences_squared
 #_____________________________________________________
-def normalize_total_mse(mse_table, total_col="Total_mse", normalized_col="Total_mse_normalized", nb_it_time=2688):
+def normalize_total_mse(mse_table, col="Total_mse", normalized_col="Total_mse_normalized", nb_it_time=2688):
     """
     Ajoute une colonne à mse_table contenant la colonne total_col normalisée par divisor.
 
@@ -76,7 +76,7 @@ def normalize_total_mse(mse_table, total_col="Total_mse", normalized_col="Total_
     Retourne :
     - pd.DataFrame avec la nouvelle colonne ajoutée
     """
-    mse_table[normalized_col] = mse_table[total_col] / nb_it_time
+    mse_table[normalized_col] = mse_table[col] / nb_it_time
     return mse_table
 #_____________________________________________________
 

@@ -910,6 +910,27 @@ def remove_first_two_days(sim_temp, obs_temp,date_begin):
 
     return sim_temp_filtered, obs_temp_filtered
 
+    
+def remove_first_two_days_obs( obs_temp,date_begin):
+    """
+    Removes the first four days from the sim_temp and obs_temp DataFrames.
+
+    Parameters:
+
+    - obs_temp: DataFrame containing observed temperature data with a datetime index.
+
+    Returns:
+    - obs_temp_filtered: Filtered obs_temp DataFrame.
+    """
+    # Filtrer sim_temp pour supprimer les deux premiers jours (86400 secondes par jour)
+    obs_temp_filtered = obs_temp.copy()
+    #calculate the time in seconds
+    obs_temp_filtered['Time'] = obs_temp_filtered['dates'].apply(lambda x: (x - date_begin).total_seconds())
+    obs_temp_filtered = obs_temp_filtered[obs_temp_filtered['Time'] >= 86400 * 2]  # Filtrer pour supprimer les deux premiers jours
+
+
+
+    return obs_temp_filtered
 
 def remove_first_days_sim(sim_temp, nb_delday):
     """
