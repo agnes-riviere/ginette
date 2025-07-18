@@ -431,9 +431,9 @@ def plot_marginal_2D(df, param_x, param_y, param_units=None, cmap="viridis"):
 # - No colorbar is shown for the 2D plots to keep the figure clean.
 # - This is useful for quickly seeing how parameters interact and which values are most probable.
 
-def plot_joint_posterior(df, param_cols, param_units=None, cmap="viridis"):
+def plot_joint_posterior(df, param_cols, param_units=None, cmap="viridis", filename="posterior.png"):
     """
-    Create a grid of plots showing 1D and 2D marginal posteriors for a set of parameters, with optional units.
+     Create a grid of plots showing 1D and 2D marginal posteriors for a set of parameters, with optional units.
 
     Args:
         df (pd.DataFrame): DataFrame with parameter columns and a 'posterior' column.
@@ -464,7 +464,6 @@ def plot_joint_posterior(df, param_cols, param_units=None, cmap="viridis"):
                 ax.set_xlabel(xlabel)
             else:
                 pivot = df.pivot_table(index=param_cols[i], columns=param_cols[j], values='posterior', aggfunc='sum')
-                # Only draw colorbar once for all 2D plots
                 if not cbar_drawn:
                     sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=True, cbar_ax=cbar_ax)
                     cbar_drawn = True
@@ -478,3 +477,49 @@ def plot_joint_posterior(df, param_cols, param_units=None, cmap="viridis"):
     plt.tight_layout(rect=[0, 0, 0.9, 1])
     plt.show()
 
+
+
+
+def plot_joint_posterior_by_sensor(df, param_cols, posterior_col, param_units=None, cmap="viridis", filename="ind_posterior.png", plot_title=None):
+
+    n = len(param_cols)
+    fig, axes = plt.subplots(n, n, figsize=(3*n, 3*n), squeeze=False)
+    cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])  
+    cbar_drawn = False
+
+    for i in range(n):
+        for j in range(n):
+            ax = axes[i, j]
+            xlabel = param_cols[j]
+            ylabel = param_cols[i]
+
+            if param_units:
+                if param_cols[j] in param_units:
+                    xlabel = f"{param_cols[j]} [{param_units[param_cols[j]]}]"
+                if param_cols[i] in param_units:
+                    ylabel = f"{param_cols[i]} [{param_units[param_cols[i]]}]"
+
+            if i == j:
+                grouped = df.groupby(param_cols[i])[posterior_col].sum()
+                ax.plot(grouped.index, grouped.values, color="black")
+                ax.set_ylabel(f"P({ylabel})")
+                ax.set_xlabel(xlabel)
+            else:
+                pivot = df.pivot_table(index=param_cols[i], columns=param_cols[j], values=posterior_col, aggfunc='sum')
+                if not cbar_drawn:
+                    sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=True, cbar_ax=cbar_ax)
+                    cbar_drawn = True
+                else:
+                    sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=False)
+                ax.set_xlabel(xlabel)
+                ax.set_ylabel(ylabel)
+
+    if plot_title:
+        fig.suptitle(plot_title, fontsize=16)
+        plt.subplots_adjust(top=0.92)  # ajuster l'espace pour le titre
+
+    if cbar_drawn:
+        cbar_ax.set_ylabel("Posterior", rotation=270, labelpad=15)  # <- modifié ici
+    plt.tight_layout(rect=[0, 0, 0.9, 1])
+    plt.savefig(filename)
+    plt.show()

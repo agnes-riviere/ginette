@@ -145,3 +145,64 @@ def calculate_metrics(data):
         metrics[sensor] = {'RMSE': rmse, 'MAE': mae, 'PBias': bias, 'KGE': kge}
 
     return metrics
+
+
+def calcul_indicateurs(df, t_event, var_forcage, var_reponse, window='2D'):
+    """
+    Calcule des indicateurs de réactivité autour d'un événement
+    - df : dataframe avec index datetime
+    - t_event : timestamp de l'événement (pluie, canicule)
+    - var_forcage : ex. 'pluie' ou 'temp_air'
+    - var_reponse : ex. 'hauteur' ou 'temp_riviere'
+    - window : durée autour de l'événement à analyser
+    """
+    delta = pd.Timedelta(window)
+    subset = df.loc[t_event - delta : t_event + delta]
+
+    if subset.empty or subset[var_reponse].isna().all():
+        return None
+
+    # 1. Valeur initiale et pic de réponse
+    val_ini = subset.loc[:t_event, var_reponse].iloc[-1]
+    val_max = subset[var_reponse].max()
+    val_min = subset[var_reponse].min()
+    t_max = subset[var_reponse].idxmax()
+    t_min = subset[var_reponse].idxmin()
+
+    # 2. Délai de réponse
+    lag_max = (t_max - t_event).total_seconds() / 3600
+    lag_min = (t_min - t_event).total_seconds() / 3600
+
+    # 3. Amplitude
+    amp_max = val_max - val_ini
+    amp_min = val_min - val_ini
+
+    # 4. Temps de retour à ±10%
+    seuil_sup = val_ini + 0.1 * amp_max if amp_max > 0 else val_ini + 0.1 * amp_min
+    seuil_inf = val_ini - 0.1 * abs(amp_min)
+
+    retour = subset.loc[t_event:]
+    t_retour = retour[(retour[var_reponse] < seuil_sup) & (retour[var_reponse] > seuil_inf)]
+
+    if not t_retour.empty:
+        retour_time = (t_retour.index[0] - t_event).total_seconds() / 3600
+    else:
+        retour_time = np.nan
+
+    # 5. Taux de variation
+    duration_h = (subset.index[-1] - subset.index[0]).total_seconds() / 3600
+    slope = (subset[var_reponse].iloc[-1] - val_ini) / duration_h
+
+    # 6. Aire sous la courbe (effet cumulatif)
+    area = np.trapz(y=subset[var_reponse] - val_ini, x=(subset.index - subset.index[0]).total_seconds() / 3600)
+
+    return {
+        'event_time': t_event,
+        'lag_max_hr': lag_max,
+        'lag_min_hr': lag_min,
+        'amp_max': amp_max,
+        'amp_min': amp_min,
+        'retour_hr': retour_time,
+        'slope_hr': slope,
+        'area_integrated': area
+    }
