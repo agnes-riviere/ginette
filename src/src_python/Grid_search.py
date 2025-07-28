@@ -306,44 +306,120 @@ def analysis_gridsearch_2D(Station,repertory,date_simul_bg,obs_temp,name_sensor,
         - Assumes existence of helper functions: `modify_zone_parameters`, `run_direct_model_2D`, `remove_first_two_days`, and `mse`.
         - Requires `os`, `pandas as pd`, and other relevant imports.
     """
+    # Initialize dictionary to store MSE values for each sensor
     mse_values = {}
-    # Select the row corresponding to id_sim
-    # Calculer le MSE pour chaque capteur sur les 8 premières valeurs et stocker dans une DataFrame
-    mse_df=pd.DataFrame(columns=name_sensor)
+    
+    # Create empty DataFrame to store MSE results with sensor names as columns
+    # This will hold the calculated MSE for each temperature sensor
+    mse_df = pd.DataFrame(columns=name_sensor)
+    
+    # STEP 1: Extract simulation parameters for the current simulation ID
+    # Find the row in param_table that corresponds to our simulation ID
     row = param_table.loc[param_table['index_sim'] == id_sim]
+    
+    # Create a copy of the parameters for this simulation
     param_table_simul = row.copy()
+    
+    # Extract parameter values as a Series for easy access
     value_parameter = row.iloc[0].copy()
-    # add "Time" tp name_sensor vector
-    col_name= ["Time"] + name_sensor
+    
+    # STEP 2: Define column names for the simulated temperature file
+    # The simulation output file has Time column + 8 temperature sensors (Temp_1 to Temp_8)
+    col_name = ["Time"] + [f"Temp_{i}" for i in range(1, 9)]
+    
+    # STEP 3: Construct the path to the simulation output file
+    # Build the path to the OUTPUT folder for this station
     path_output_tempsim = os.path.join(repertory, f"OUTPUT_{Station}")
+    
+    # The simulation file is named with the simulation ID as prefix
     file_name = f"{id_sim}_S_temp_PT100_t.dat"
-    # save in the folder OUTPUT path_output_tempsim
+    
+    # Complete file path to the simulation results
     file_path = os.path.join(path_output_tempsim, file_name)
-    sim_temp = pd.read_csv(file_path, sep='\s+', header=0,names=col_name)
-      # Ajouter une colonne de dates en utilisant la date de début de simulation
+    
+    # STEP 4: Read the simulated temperature data
+    # Load the simulation results file with space-separated values
+    sim_temp = pd.read_csv(file_path, sep='\s+', header=0, names=col_name)
+    
+    # STEP 5: Add datetime column to simulation data
+    # Convert the start date string to datetime object
     date_simul_bg = pd.to_datetime(date_simul_bg)
+    
+    # Create a 'dates' column by adding simulation time (in seconds) to start date
+    # This allows us to align simulated and observed data by timestamp
     sim_temp['dates'] = date_simul_bg + pd.to_timedelta(sim_temp['Time'], unit='s')
+    
+    # STEP 6: Prepare observed data for comparison
+    # Reset the index of observed temperature data to ensure clean indexing
     obs_temp.reset_index(drop=True, inplace=True)
-    remove_first_days_sim(sim_temp, 2)
+    
+    # Remove the first 2 days from simulation data to allow model stabilization
+    # This is common practice to avoid initialization artifacts in numerical simulations
+    sim_temp = remove_first_days_sim(sim_temp, 2)
 
-    for col in name_sensor: # ex name_sensor = ['Temp1', 'Temp2', 'Temp3']
+    # Check size  of simulated data and obs data
+    # Check if both datasets have the same number of rows
+    if len(sim_temp) != len(obs_temp):
+        print(f"Warning: Size mismatch - Simulated data: {len(sim_temp)} rows, Observed data: {len(obs_temp)} rows")
+        
+        # Find common dates between simulated and observed data
+        # Convert observed data index to datetime if it's not already
+        if not isinstance(obs_temp.index, pd.DatetimeIndex):
+            obs_temp_dates = pd.to_datetime(obs_temp.index)
+        else:
+            obs_temp_dates = obs_temp.index
+        
+        # Find intersection of dates
+        common_dates = obs_temp_dates.intersection(sim_temp['dates'])
+        print(f"Found {len(common_dates)} common dates")
+        
+        if len(common_dates) > 0:
+            # Filter both datasets to common dates
+            sim_temp = sim_temp[sim_temp['dates'].isin(common_dates)]
+            obs_temp = obs_temp[obs_temp_dates.isin(common_dates)]
+            print(f"Both datasets filtered to {len(common_dates)} common dates")
+        else:
+            print("No common dates found, trimming to minimum length")
+            min_length = min(len(sim_temp), len(obs_temp))
+            sim_temp = sim_temp.iloc[:min_length]
+            obs_temp = obs_temp.iloc[:min_length]
+            print(f"Both datasets trimmed to {min_length} rows for consistency")
+    else:
+        print(f"Data sizes match: {len(sim_temp)} rows in both datasets")
+
+
+
+
+    # STEP 7: Calculate MSE for each sensor
+    # Loop through each temperature sensor to compute Mean Squared Error
+    for col in name_sensor:  # Example: name_sensor = ['Temp1', 'Temp2', 'Temp3']
+        
+        # Extract simulated temperatures for this sensor
         prediction = sim_temp[col]
+        
+        # Extract observed temperatures for this sensor
         observation = obs_temp[col]
+        
+        # Calculate MSE between simulated and observed temperatures
+        # The sigma parameter is used for normalization in the MSE calculation
         mse_val = mse(prediction, observation, sigma=sigma)
+        
+        # Store the MSE value in the results DataFrame
         mse_df.at[0, col] = mse_val
-        print(f"Sensor {col}: MSE = {mse_val}")
+        
+        # Optional: Print MSE for debugging (currently commented out)
+        # print(f"Sensor {col}: MSE = {mse_val}")
 
-
-    # mse_df=pd.dataframe with headers are name_sensor ex ['Temp1', 'Temp2', 'Temp3']
-    # add the sum of the mse values of each sensor total mse has the colum 
+    # STEP 8: Calculate total MSE across all sensors
+    # Sum MSE values across all sensors to get overall model performance
+    # This gives us a single metric to evaluate how well the model fits all observations
     mse_df['Total_mse'] = mse_df.sum(axis=1)
 
-    # Rename and save the simulation output file with the simulation ID as a prefix for traceability
-    # Construct the new file name
-    
-
-
-    return mse_df,param_table_simul
+    # STEP 9: Return results
+    # Return both the MSE DataFrame and the simulation parameters
+    # mse_df contains MSE for each sensor plus total MSE
+    # param_table_simul contains the parameters used for this simulation
+    return mse_df, param_table_simul
 
 
 #______________________________________________________________________________________
@@ -382,73 +458,73 @@ def plot_marginal_1D(df, param_name, param_units=None):
 
 #______________________________________________________________________________________
 # function plot_marginal_2D
-
-def plot_marginal_2D(df, param_x, param_y, param_units=None, cmap="viridis"):
-    """
-    Plot the 2D marginal distribution P(param_x, param_y) with optional unit labels.
-
-    Args:
-        df (pd.DataFrame): DataFrame with columns 'posterior', param_x, and param_y.
-        param_x (str): Name of the parameter for the x-axis (e.g., "k4").
-        param_y (str): Name of the parameter for the y-axis (e.g., "k5").
-        param_units (dict, optional): Dictionary of units, e.g., {"k4": "m/s", "k5": "m/s"}.
-        cmap (str): Name of the matplotlib/seaborn colormap to use.
-    """
-    # Create a 2D table where rows are param_y values, columns are param_x values,
-    # and the cell values are the sum of 'posterior' for each (param_x, param_y) pair.
-    pivot = df.pivot_table(index=param_y, columns=param_x, values='posterior', aggfunc='sum')
-    
-    plt.figure(figsize=(8, 6))
-    # Draw a heatmap of the 2D marginal distribution
-    ax = sns.heatmap(pivot, cmap=cmap, annot=False)
-    # Prepare axis labels, adding units if provided
-    xlabel = param_x
-    ylabel = param_y
-    if param_units:
-        if param_x in param_units:
-            xlabel = f"{param_x} [{param_units[param_x]}]"
-        if param_y in param_units:
-            ylabel = f"{param_y} [{param_units[param_y]}]"
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(f"2D Marginal: P({param_x}, {param_y})")
-    # Add a colorbar label for clarity
-    cbar = ax.collections[0].colorbar
-    cbar.set_label("Posterior")
-    plt.tight_layout()
-    plt.show()
-
-#______________________________________________________________________________________
-# Joint Posterior Plot Function
-# This function creates a grid of plots to visualize the joint posterior distribution of several parameters.
-# - The diagonal plots show the 1D marginal posterior for each parameter (how likely each value is, ignoring the others).
-# - The off-diagonal plots show the 2D marginal posterior (how likely each pair of parameter values is).
-# - Uses seaborn for 2D heatmaps and matplotlib for 1D line plots.
-# - The input DataFrame must have a 'posterior' column and columns for each parameter you want to plot.
-# - param_cols is a list of the parameter column names (strings).
-# - cmap lets you pick the color scheme for the heatmaps.
-# - The function works for any number of parameters (makes an n x n grid).
-# - No colorbar is shown for the 2D plots to keep the figure clean.
-# - This is useful for quickly seeing how parameters interact and which values are most probable.
-
 def plot_joint_posterior(df, param_cols, param_units=None, cmap="viridis", filename="posterior.png"):
     """
      Create a grid of plots showing 1D and 2D marginal posteriors for a set of parameters, with optional units.
+     Also shows the best model and confidence intervals (68% and 95%).
 
     Args:
         df (pd.DataFrame): DataFrame with parameter columns and a 'posterior' column.
         param_cols (list of str): Names of the parameter columns to plot.
         param_units (dict, optional): Dictionary mapping parameter names to their units (e.g., {"k4": "m/s"}).
         cmap (str): Name of the matplotlib/seaborn colormap for 2D heatmaps.
+        filename (str): Filename to save the plot.
     """
+    # Create a grid of subplots: n x n matrix where n is the number of parameters
     n = len(param_cols)
     fig, axes = plt.subplots(n, n, figsize=(3*n, 3*n), squeeze=False)
+    
+    # Create a separate axis for the colorbar on the right side of the figure
     cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])  # [left, bottom, width, height]
-    cbar_drawn = False
+    cbar_drawn = False  # Flag to ensure colorbar is drawn only once
 
+    # STEP 1: Find the best model (the one with the highest posterior probability)
+    best_idx = df['posterior'].idxmax()  # Index of maximum posterior value
+    best_model = df.loc[best_idx]        # Extract the corresponding parameter values
+    
+    # STEP 2: Calculate confidence intervals (68% and 95%) for each parameter
+    # These intervals show the uncertainty in parameter estimation
+    quantiles_68 = {}  # Dictionary to store 68% confidence intervals
+    quantiles_95 = {}  # Dictionary to store 95% confidence intervals
+    
+    for param in param_cols:
+        # For each parameter, we need to calculate weighted quantiles
+        # where the weights are the posterior probabilities
+        weighted_values = []
+        weights = []
+        
+        # Collect all parameter values and their corresponding posterior weights
+        for _, row in df.iterrows():
+            weighted_values.append(row[param])
+            weights.append(row['posterior'])
+        
+        # Sort values and weights together to calculate quantiles
+        sorted_indices = np.argsort(weighted_values)
+        sorted_weights = np.array(weights)[sorted_indices]
+        sorted_values = np.array(weighted_values)[sorted_indices]
+        
+        # Calculate cumulative weights (like a cumulative distribution function)
+        cumsum_weights = np.cumsum(sorted_weights)
+        total_weight = cumsum_weights[-1]
+        
+        # Find quantiles using interpolation
+        # 68% confidence interval: 16th to 84th percentile
+        q16 = np.interp(0.16 * total_weight, cumsum_weights, sorted_values)
+        q84 = np.interp(0.84 * total_weight, cumsum_weights, sorted_values)
+        # 95% confidence interval: 2.5th to 97.5th percentile
+        q025 = np.interp(0.025 * total_weight, cumsum_weights, sorted_values)
+        q975 = np.interp(0.975 * total_weight, cumsum_weights, sorted_values)
+        
+        # Store the confidence intervals
+        quantiles_68[param] = (q16, q84)
+        quantiles_95[param] = (q025, q975)
+
+    # STEP 3: Create the plots
+    # Loop through each position in the n x n grid
     for i in range(n):
         for j in range(n):
-            ax = axes[i, j]
+            ax = axes[i, j]  # Current subplot
+            
             # Prepare axis labels with units if provided
             xlabel = param_cols[j]
             ylabel = param_cols[i]
@@ -457,28 +533,83 @@ def plot_joint_posterior(df, param_cols, param_units=None, cmap="viridis", filen
                     xlabel = f"{param_cols[j]} [{param_units[param_cols[j]]}]"
                 if param_cols[i] in param_units:
                     ylabel = f"{param_cols[i]} [{param_units[param_cols[i]]}]"
+            
             if i == j:
+                # DIAGONAL PLOTS: 1D marginal distributions
+                # These show the probability distribution for a single parameter
+                
+                # Group by parameter value and sum posterior probabilities
                 grouped = df.groupby(param_cols[i])["posterior"].sum()
                 ax.plot(grouped.index, grouped.values, color="black")
-                ax.set_ylabel(f"P({ylabel})")
+                
+                # Add vertical line showing the best model value
+                ax.axvline(best_model[param_cols[i]], color='red', linestyle='--', 
+                          linewidth=2, label='Best model')
+                
+                # Add shaded regions showing confidence intervals
+                q68 = quantiles_68[param_cols[i]]
+                q95 = quantiles_95[param_cols[i]]
+                # 68% confidence interval (darker blue)
+                ax.axvspan(q68[0], q68[1], alpha=0.3, color='blue', label='68% CI')
+                # 95% confidence interval (lighter green)
+                ax.axvspan(q95[0], q95[1], alpha=0.2, color='green', label='95% CI')
+                
+                ax.set_ylabel(f"P({ylabel})")  # Probability density
                 ax.set_xlabel(xlabel)
+                
+                # Add legend only to the first diagonal plot to avoid clutter
+                if i == 0:
+                    ax.legend(fontsize=8)
+                    
             else:
-                pivot = df.pivot_table(index=param_cols[i], columns=param_cols[j], values='posterior', aggfunc='sum')
+                # OFF-DIAGONAL PLOTS: 2D marginal distributions (heatmaps)
+                # These show the joint probability distribution for pairs of parameters
+                
+                # Create a pivot table: rows=param_i, columns=param_j, values=posterior
+                pivot = df.pivot_table(index=param_cols[i], columns=param_cols[j], 
+                                     values='posterior', aggfunc='sum')
+                
+                # Create heatmap with colorbar (only for the first heatmap)
                 if not cbar_drawn:
                     sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=True, cbar_ax=cbar_ax)
                     cbar_drawn = True
                 else:
+                    # Subsequent heatmaps without colorbar
                     sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=False)
+                
+                # Add a red X marking the best model in parameter space
+                ax.scatter(best_model[param_cols[j]], best_model[param_cols[i]], 
+                          color='red', s=100, marker='x', linewidth=3, label='Best model')
+                
                 ax.set_xlabel(xlabel)
                 ax.set_ylabel(ylabel)
 
+    # STEP 4: Final plot formatting
     if cbar_drawn:
+        # Label the colorbar
         cbar_ax.set_ylabel("Posterior", rotation=270, labelpad=15)
-    plt.tight_layout(rect=[0, 0, 0.9, 1])
+    
+    # Add a title showing information about the best model
+    best_info = f"Best model: posterior = {best_model['posterior']:.4e}"
+    fig.suptitle(best_info, fontsize=12, y=0.98)
+    
+    # Adjust layout to prevent overlapping and save the figure
+    plt.tight_layout(rect=[0, 0, 0.9, 0.96])  # Leave space for colorbar and title
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
-
-
-
+    
+    # STEP 5: Print summary statistics to console
+    print("\n=== SUMMARY STATISTICS ===")
+    print(f"Best model (highest posterior):")
+    for param in param_cols:
+        print(f"  {param}: {best_model[param]:.4f}")
+    print(f"  Posterior: {best_model['posterior']:.4e}")
+    
+    print(f"\nConfidence intervals:")
+    for param in param_cols:
+        q68 = quantiles_68[param]
+        q95 = quantiles_95[param]
+        print(f"  {param}: 68% CI = [{q68[0]:.4f}, {q68[1]:.4f}], 95% CI = [{q95[0]:.4f}, {q95[1]:.4f}]")
 
 def plot_joint_posterior_by_sensor(df, param_cols, posterior_col, param_units=None, cmap="viridis", filename="ind_posterior.png", plot_title=None):
 
