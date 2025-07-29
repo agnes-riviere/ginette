@@ -455,171 +455,210 @@ def plot_marginal_1D(df, param_name, param_units=None):
     plt.tight_layout()
     plt.show()
 
-
-#______________________________________________________________________________________
-# function plot_marginal_2D
-def plot_joint_posterior(df, param_cols, param_units=None, cmap="viridis", filename="posterior.png"):
+#_______________________
+def plot_joint_posterior(df, param_cols, filename="grid_mse.png", param_units=None, cmap="viridis_r", sigma=None):
     """
-     Create a grid of plots showing 1D and 2D marginal posteriors for a set of parameters, with optional units.
-     Also shows the best model and confidence intervals (68% and 95%).
-
+    Plot 1D and 2D marginal MSE distributions from a grid search optimized for parameter sensitivity analysis.
+    Specifically designed for permeability, porosity, and thermal conductivity sensitivity analysis.
+    
     Args:
-        df (pd.DataFrame): DataFrame with parameter columns and a 'posterior' column.
-        param_cols (list of str): Names of the parameter columns to plot.
-        param_units (dict, optional): Dictionary mapping parameter names to their units (e.g., {"k4": "m/s"}).
-        cmap (str): Name of the matplotlib/seaborn colormap for 2D heatmaps.
-        filename (str): Filename to save the plot.
+        df (DataFrame): DataFrame containing param_cols + 'Total_mse' columns
+        param_cols (list): List of parameter column names to visualize
+        filename (str): Output filename
+        param_units (dict): Parameter units (e.g., {'k': 'm²', 'n': '-', 'l': 'W/m/K'})
+        cmap (str): Colormap for heatmaps (viridis_r so low MSE appears yellow)
+        sigma (float): Temperature uncertainty used in MSE calculation (for interpretation)
+    
+    Returns:
+        dict: Dictionary containing best model parameters, sensitivity metrics, and statistics
     """
-    # Create a grid of subplots: n x n matrix where n is the number of parameters
+    # Initialize results dictionary
+    results = {}
+
+    # Find best model (minimum MSE)
+    best_idx = df['Total_mse'].idxmin()
+    best_model = df.loc[best_idx]
+    results['best_model'] = best_model.to_dict()
+    results['best_mse'] = best_model['Total_mse']
+
+    # Calculate variance and standard deviation of Total_mse
+    total_mse_values = df['Total_mse']
+    mse_mean = total_mse_values.mean()
+    mse_variance = total_mse_values.var()
+    mse_std = total_mse_values.std()
+    mse_sum= total_mse_values.sum()
+
+    results['mse_statistics'] = {
+        'mean': mse_mean,
+        'variance': mse_variance,
+        'std': mse_std,
+        'sum' : mse_sum,
+        'min': total_mse_values.min(),
+        'max': total_mse_values.max()
+    }
+
+    # Calculate confidence intervals
+    confidence_1sigma = mse_mean + mse_std
+    confidence_2sigma = mse_mean + 2*mse_std
+    models_within_1sigma = df[df['Total_mse'] <= confidence_1sigma]
+    models_within_2sigma = df[df['Total_mse'] <= confidence_2sigma]
+    # Seuils d'acceptabilité (modèles dans les X% meilleurs)
+    threshold_10_percent = np.percentile(total_mse_values, 10)
+    threshold_5_percent = np.percentile(total_mse_values, 5)
+    models_within_10p = df[df['Total_mse'] <= threshold_10_percent]
+    models_within_5p = df[df['Total_mse'] <= threshold_5_percent]
+
+    print(f"Best model MSE: {results['best_mse']:.4f}")
+    print(f"MSE variance: {mse_variance:.4f}")
+    print(f"1σ confidence level: {confidence_1sigma:.4f}")
+    print(f"2σ confidence level: {confidence_2sigma:.4f}")
+    print(f"Seuil 10% meilleurs: {threshold_10_percent:.0f}")
+    print(f"Seuil 5% meilleurs: {threshold_5_percent:.0f}")
+    print(f"Models within 5p: {len(models_within_5p)}")
+
+
+    # Create subplot grid
     n = len(param_cols)
-    fig, axes = plt.subplots(n, n, figsize=(3*n, 3*n), squeeze=False)
-    
-    # Create a separate axis for the colorbar on the right side of the figure
-    cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])  # [left, bottom, width, height]
-    cbar_drawn = False  # Flag to ensure colorbar is drawn only once
+    fig, axes = plt.subplots(n, n, figsize=(4*n, 4*n), squeeze=False)
 
-    # STEP 1: Find the best model (the one with the highest posterior probability)
-    best_idx = df['posterior'].idxmax()  # Index of maximum posterior value
-    best_model = df.loc[best_idx]        # Extract the corresponding parameter values
-    
-    # STEP 2: Calculate confidence intervals (68% and 95%) for each parameter
-    # These intervals show the uncertainty in parameter estimation
-    quantiles_68 = {}  # Dictionary to store 68% confidence intervals
-    quantiles_95 = {}  # Dictionary to store 95% confidence intervals
-    
-    for param in param_cols:
-        # For each parameter, we need to calculate weighted quantiles
-        # where the weights are the posterior probabilities
-        weighted_values = []
-        weights = []
-        
-        # Collect all parameter values and their corresponding posterior weights
-        for _, row in df.iterrows():
-            weighted_values.append(row[param])
-            weights.append(row['posterior'])
-        
-        # Sort values and weights together to calculate quantiles
-        sorted_indices = np.argsort(weighted_values)
-        sorted_weights = np.array(weights)[sorted_indices]
-        sorted_values = np.array(weighted_values)[sorted_indices]
-        
-        # Calculate cumulative weights (like a cumulative distribution function)
-        cumsum_weights = np.cumsum(sorted_weights)
-        total_weight = cumsum_weights[-1]
-        
-        # Find quantiles using interpolation
-        # 68% confidence interval: 16th to 84th percentile
-        q16 = np.interp(0.16 * total_weight, cumsum_weights, sorted_values)
-        q84 = np.interp(0.84 * total_weight, cumsum_weights, sorted_values)
-        # 95% confidence interval: 2.5th to 97.5th percentile
-        q025 = np.interp(0.025 * total_weight, cumsum_weights, sorted_values)
-        q975 = np.interp(0.975 * total_weight, cumsum_weights, sorted_values)
-        
-        # Store the confidence intervals
-        quantiles_68[param] = (q16, q84)
-        quantiles_95[param] = (q025, q975)
+    # Add colorbar axis
+    cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
+    cbar_drawn = False
 
-    # STEP 3: Create the plots
-    # Loop through each position in the n x n grid
     for i in range(n):
         for j in range(n):
-            ax = axes[i, j]  # Current subplot
+            ax = axes[i, j]
+            param_x = param_cols[j]
+            param_y = param_cols[i]
             
             # Prepare axis labels with units if provided
-            xlabel = param_cols[j]
-            ylabel = param_cols[i]
+            xlabel = param_x
+            ylabel = param_y
             if param_units:
-                if param_cols[j] in param_units:
-                    xlabel = f"{param_cols[j]} [{param_units[param_cols[j]]}]"
-                if param_cols[i] in param_units:
-                    ylabel = f"{param_cols[i]} [{param_units[param_cols[i]]}]"
+                if param_x in param_units:
+                    xlabel = f"{param_x} [{param_units[param_x]}]"
+                if param_y in param_units:
+                    ylabel = f"{param_y} [{param_units[param_y]}]"
             
-            if i == j:
-                # DIAGONAL PLOTS: 1D marginal distributions
-                # These show the probability distribution for a single parameter
+            if i == j:  # Diagonal: 1D marginal plots
+                # Group by parameter and sum MSE (inverse for probability-like visualization)
+             # MODIFICATION : Grouper par paramètre et calculer statistiques Total_mse
+                grouped_stats = df.groupby(param_x)['Total_mse'].agg(['sum', 'mean', 'min', 'std', 'count'])
+
+
+                # Plot MSE curve
+                ax.plot(grouped_stats.index, grouped_stats['sum'], 'b-', linewidth=2, label='MSE (sum)')
+                # ERREUR : Vous ajoutez 5% au minimum au lieu de prendre 5% de plus que le minimum
+                # Plage symétrique : minimum ± X%
+                margin_5_percent = 0.05 * grouped_stats['sum'].min()
+                margin_1_percent = 0.01 * grouped_stats['sum'].min()
+
+                within_5_percent_lower = grouped_stats['sum'].min() - margin_5_percent
+                within_5_percent_upper = grouped_stats['sum'].min() + margin_5_percent
+
+                within_1_percent_lower = grouped_stats['sum'].min() - margin_1_percent
+                within_1_percent_upper = grouped_stats['sum'].min() + margin_1_percent
+
+                # Indices dans les plages symétriques
+                idx_5 = (grouped_stats['sum'] >= within_5_percent_lower) & (grouped_stats['sum'] <= within_5_percent_upper)
+                idx_1 = (grouped_stats['sum'] >= within_1_percent_lower) & (grouped_stats['sum'] <= within_1_percent_upper)
+                                # Plot the acceptable region
+                acceptable_params = grouped_stats.index[idx_5]
+                acceptable_mse = grouped_stats['sum'][idx_5]
+                ax.fill_between(acceptable_params, acceptable_mse, alpha=0.3, color='orange', 
+                               label='Within 5% of best')
+                # Plot the acceptable region
+                acceptable_params = grouped_stats.index[idx_1]
+                acceptable_mse = grouped_stats['sum'][idx_1]
+                ax.fill_between(acceptable_params, acceptable_mse, alpha=0.3, color='green', 
+                               label='Within 1% of best')
+
+
+                # Mark best model
+                best_param_val = best_model[param_x]
+                best_mse_val = grouped_stats.loc[best_param_val, 'sum']
+                ax.plot(best_param_val, best_mse_val, 'ro', markersize=8, label='Best model')
                 
-                # Group by parameter value and sum posterior probabilities
-                grouped = df.groupby(param_cols[i])["posterior"].sum()
-                ax.plot(grouped.index, grouped.values, color="black")
-                
-                # Add vertical line showing the best model value
-                ax.axvline(best_model[param_cols[i]], color='red', linestyle='--', 
-                          linewidth=2, label='Best model')
-                
-                # Add shaded regions showing confidence intervals
-                q68 = quantiles_68[param_cols[i]]
-                q95 = quantiles_95[param_cols[i]]
-                # 68% confidence interval (darker blue)
-                ax.axvspan(q68[0], q68[1], alpha=0.3, color='blue', label='68% CI')
-                # 95% confidence interval (lighter green)
-                ax.axvspan(q95[0], q95[1], alpha=0.2, color='green', label='95% CI')
-                
-                ax.set_ylabel(f"P({ylabel})")  # Probability density
+
                 ax.set_xlabel(xlabel)
+                ax.set_ylabel('MSE')
+                ax.grid(True, alpha=0.3)
+                ax.legend(fontsize=8)
                 
-                # Add legend only to the first diagonal plot to avoid clutter
-                if i == 0:
-                    ax.legend(fontsize=8)
-                    
-            else:
-                # OFF-DIAGONAL PLOTS: 2D marginal distributions (heatmaps)
-                # These show the joint probability distribution for pairs of parameters
+            else:  # Off-diagonal: 2D marginal plots
+                # Create pivot table for heatmap
+                pivot = df.pivot_table(index=param_y, columns=param_x, values='Total_mse', aggfunc='sum')
                 
-                # Create a pivot table: rows=param_i, columns=param_j, values=posterior
-                pivot = df.pivot_table(index=param_cols[i], columns=param_cols[j], 
-                                     values='posterior', aggfunc='sum')
-                
-                # Create heatmap with colorbar (only for the first heatmap)
+                # Create heatmap
                 if not cbar_drawn:
-                    sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=True, cbar_ax=cbar_ax)
+                    im = sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=True, cbar_ax=cbar_ax, 
+                                   cbar_kws={'label': 'MSE'})
                     cbar_drawn = True
                 else:
-                    # Subsequent heatmaps without colorbar
                     sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=False)
                 
-                # Add a red X marking the best model in parameter space
-                ax.scatter(best_model[param_cols[j]], best_model[param_cols[i]], 
-                          color='red', s=100, marker='x', linewidth=3, label='Best model')
+                # Mark best model point
+                best_x_val = best_model[param_x]
+                best_y_val = best_model[param_y]
+                
+                # Find position in heatmap coordinates
+                x_pos = list(pivot.columns).index(best_x_val) + 0.5
+                y_pos = list(pivot.index).index(best_y_val) + 0.5
+                
+                ax.plot(x_pos, y_pos, 'ro', markersize=10, markeredgecolor='white', 
+                       markeredgewidth=2, label='Best model')
                 
                 ax.set_xlabel(xlabel)
                 ax.set_ylabel(ylabel)
 
-    # STEP 4: Final plot formatting
-    if cbar_drawn:
-        # Label the colorbar
-        cbar_ax.set_ylabel("Posterior", rotation=270, labelpad=15)
-    
-    # Add a title showing information about the best model
-    best_info = f"Best model: posterior = {best_model['posterior']:.4e}"
-    fig.suptitle(best_info, fontsize=12, y=0.98)
-    
-    # Adjust layout to prevent overlapping and save the figure
-    plt.tight_layout(rect=[0, 0, 0.9, 0.96])  # Leave space for colorbar and title
+
+
+    plt.tight_layout(rect=[0, 0, 0.9, 0.92])
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
-    
-    # STEP 5: Print summary statistics to console
-    print("\n=== SUMMARY STATISTICS ===")
-    print(f"Best model (highest posterior):")
-    for param in param_cols:
-        print(f"  {param}: {best_model[param]:.4f}")
-    print(f"  Posterior: {best_model['posterior']:.4e}")
-    
-    print(f"\nConfidence intervals:")
-    for param in param_cols:
-        q68 = quantiles_68[param]
-        q95 = quantiles_95[param]
-        print(f"  {param}: 68% CI = [{q68[0]:.4f}, {q68[1]:.4f}], 95% CI = [{q95[0]:.4f}, {q95[1]:.4f}]")
 
-def plot_joint_posterior_by_sensor(df, param_cols, posterior_col, param_units=None, cmap="viridis", filename="ind_posterior.png", plot_title=None):
+    # Print detailed best model parameters
+    print("\n" + "="*50)
+    print("BEST MODEL PARAMETERS:")
+    print("="*50)
+    for param in param_cols:
+        value = best_model[param]
+        unit = param_units.get(param, '') if param_units else ''
+        unit_str = f" [{unit}]" if unit else ""
+        print(f"{param}: {value:.4f}{unit_str}")
+
+    results['sensitivity_analysis'] = {}
+    for param in param_cols:
+        param_values = df[param].unique()
+        param_mse_range = df.groupby(param)['Total_mse'].min().max() - df.groupby(param)['Total_mse'].min().min()
+        results['sensitivity_analysis'][param] = {
+            'range': param_mse_range,
+            'normalized_sensitivity': param_mse_range / mse_std
+        }
+
+    print("\n" + "="*50)
+    print("PARAMETER SENSITIVITY ANALYSIS:")
+    print("="*50)
+    for param, metrics in results['sensitivity_analysis'].items():
+        print(f"{param}: MSE range = {metrics['range']:.4f}, Normalized sensitivity = {metrics['normalized_sensitivity']:.2f}")
+    return results
+
+
+# Plot joint posterior by sensor
+def plot_joint_posterior_by_sensor(df, param_cols, col, param_units=None, cmap="viridis", filename="ind_posterior.png", plot_title=None):
 
     n = len(param_cols)
+    # Find best model (minimum MSE)
+    best_idx = df[col].idxmin()
+    best_model = df.loc[best_idx]
     fig, axes = plt.subplots(n, n, figsize=(3*n, 3*n), squeeze=False)
     cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])  
     cbar_drawn = False
 
     for i in range(n):
         for j in range(n):
+            param_x = param_cols[j]
+            param_y = param_cols[i]
             ax = axes[i, j]
             xlabel = param_cols[j]
             ylabel = param_cols[i]
@@ -631,26 +670,60 @@ def plot_joint_posterior_by_sensor(df, param_cols, posterior_col, param_units=No
                     ylabel = f"{param_cols[i]} [{param_units[param_cols[i]]}]"
 
             if i == j:
-                grouped = df.groupby(param_cols[i])[posterior_col].sum()
+                grouped = df.groupby(param_cols[i])[col].sum()
+                                # Plage symétrique : minimum ± X%
+                margin_5_percent = 0.05 * grouped.min()
+                margin_1_percent = 0.01 * grouped.min()
+
+                within_5_percent_lower = grouped.min() - margin_5_percent
+                within_5_percent_upper = grouped.min() + margin_5_percent
+
+                within_1_percent_lower = grouped.min() - margin_1_percent
+                within_1_percent_upper = grouped.min() + margin_1_percent
+
+                # Indices dans les plages symétriques
+                idx_5 = (grouped >= within_5_percent_lower) & (grouped <= within_5_percent_upper)
+                idx_1 = (grouped >= within_1_percent_lower) & (grouped <= within_1_percent_upper)
+                                # Plot the acceptable region
+                acceptable_params = grouped.index[idx_5]
+                acceptable_mse = grouped[idx_5]
+                ax.fill_between(acceptable_params, acceptable_mse, alpha=0.3, color='orange', 
+                               label='Within 5% of best')
+                # Plot the acceptable region
+                acceptable_params = grouped.index[idx_1]
+                acceptable_mse = grouped[idx_1]
+                ax.fill_between(acceptable_params, acceptable_mse, alpha=0.3, color='green', 
+                               label='Within 1% of best')
+                # Mark best model
+                best_param_val = best_model[param_x]
+                best_mse_val = grouped.loc[best_param_val]
+                ax.plot(best_param_val, best_mse_val, 'ro', markersize=8, label='Best model')
+                
                 ax.plot(grouped.index, grouped.values, color="black")
-                ax.set_ylabel(f"P({ylabel})")
+                ax.set_ylabel(f"MSE (sum) ({ylabel})")
                 ax.set_xlabel(xlabel)
             else:
-                pivot = df.pivot_table(index=param_cols[i], columns=param_cols[j], values=posterior_col, aggfunc='sum')
+                pivot = df.pivot_table(index=param_cols[i], columns=param_cols[j], values=col, aggfunc='sum')
                 if not cbar_drawn:
                     sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=True, cbar_ax=cbar_ax)
                     cbar_drawn = True
                 else:
                     sns.heatmap(pivot, ax=ax, cmap=cmap, cbar=False)
+                # Mark best model point
+                best_x_val = best_model[param_x]
+                best_y_val = best_model[param_y]
+                
+                # Find position in heatmap coordinates
+                x_pos = list(pivot.columns).index(best_x_val) + 0.5
+                y_pos = list(pivot.index).index(best_y_val) + 0.5
                 ax.set_xlabel(xlabel)
                 ax.set_ylabel(ylabel)
 
     if plot_title:
-        fig.suptitle(plot_title, fontsize=16)
         plt.subplots_adjust(top=0.92)  # ajuster l'espace pour le titre
 
     if cbar_drawn:
-        cbar_ax.set_ylabel("Posterior", rotation=270, labelpad=15)  # <- modifié ici
+        cbar_ax.set_ylabel("MSE (sum)", rotation=270, labelpad=15) 
     plt.tight_layout(rect=[0, 0, 0.9, 1])
     plt.savefig(filename)
     plt.show()
