@@ -2784,7 +2784,7 @@ program pression_ecoulement_transport_thermique
          end if
 !         OPEN (942, FILE='S_temperature_t.dat')
 !         OPEN (943, FILE='S_pression_t.dat')                     
-!         open (181830, FILE='S_flux_ZH_aq.dat')
+         open (181830, FILE='S_flux_ZH_aq.dat')
 
 !CC...DTS
       case ("DTS") 
@@ -4430,11 +4430,11 @@ program pression_ecoulement_transport_thermique
       case ("R2D")
          
       if (irecord == 1) then
- !        qflux = 0D+00
-   !      do j = 1, ligne7
-    !        qflux = vzm(id_ZH(j))*am(id_ZH(j)) + qflux
-   !      end do
-!         write (181830, *) paso/unitsortie, qflux
+         qflux = 0D+00
+         do j = 1, ligne6
+            qflux = vzm(id_river(j))*am(id_river(j)) + qflux
+         end do
+        write (181830, *) paso/unitsortie, qflux
         print *, "out", paso/86400, paso,dt,temp(1),pr(1)/rho1/g+z(1),valcl(1,2)
 
 !     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
