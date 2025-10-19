@@ -373,7 +373,7 @@ def boundary_conditions_perm(all_data):
     f_param_lec_new.close()
     f_param_lec.close()
 
-# 
+#-----------------------------------------------------------------
 
 
    
@@ -438,7 +438,7 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     if nb_zone == 1:
         k1= 10**REF_k
         # Lire le fichier de sauvegarde des paramètres de zone
-        with open("E_zone_parameter_backup.dat", "r") as f_paramZ_bck:
+        with open("E_zone_parameter_bck.dat", "r") as f_paramZ_bck:
             param_zone = f_paramZ_bck.read()
         # Remplacer les valeurs des paramètres
         param_zone = param_zone.replace('[k1]', '%8.2e' % k1)
@@ -447,7 +447,7 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
         param_zone = param_zone.replace('[r1]', '%6.2f' % REF_r)
     elif nb_zone == 2:
         # Lire le fichier de sauvegarde des paramètres de zone pour 2 zones
-        with open("E_zone_parameter_backup_2zones.dat", "r") as f_paramZ_bck:
+        with open("E_zone_parameter_bck_2zones.dat", "r") as f_paramZ_bck:
             param_zone = f_paramZ_bck.read()
         k1= 10**REF_k
         k2= 10**REF_k2

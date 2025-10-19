@@ -3,7 +3,7 @@ import numpy as np
 import os
 from pathlib import Path
 
-def read_csv_with_multiple_separators(file_path, separators=[',', ';', '\t']):
+def read_csv_with_multiple_separators(file_path, separators=[';', ',', '\t']):
     """
     Try reading a CSV file with multiple separators until one works.
     
@@ -17,14 +17,12 @@ def read_csv_with_multiple_separators(file_path, separators=[',', ';', '\t']):
     for sep in separators:
         try:
             df = pd.read_csv(file_path, sep=sep)
-            if df.shape[1] > 2:  # If more than one column, return the DataFrame
+            # Check if we have more than 1 column (not just everything in one column)
+            if df.shape[1] > 1:  
                 return df
-        except pd.errors.ParserError:
+        except (pd.errors.ParserError, UnicodeDecodeError):
             continue
     raise ValueError(f"Cannot read the file {file_path} with the provided separators.")
-
-import pandas as pd
-import numpy as np
 
 def convert_dates(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     """
@@ -55,15 +53,53 @@ def convert_dates(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     if df is None or date_column not in df.columns:
         raise ValueError(f"DataFrame is None or column '{date_column}' does not exist.")
     
-    # Extensive list of date formats
-    formats = [
+    # Debug: Print detailed information about the dates
+    print(f"Sample dates to convert: {df[date_column].head().tolist()}")
+    print(f"Date column dtype: {df[date_column].dtype}")
+    
+    # Check for any null values
+    null_count = df[date_column].isnull().sum()
+    if null_count > 0:
+        print(f"Warning: Found {null_count} null values in date column")
+    
+    # Try the mixed format approach first (handles inconsistent formats within same column)
+    try:
+        df[date_column] = pd.to_datetime(df[date_column], format='mixed', dayfirst=True)
+        print("✓ Successfully converted dates using format='mixed' with dayfirst=True")
+        return df
+    except (ValueError, TypeError) as e:
+        print(f"Mixed format conversion failed: {e}")
+    
+    # Try the generic method with dayfirst=True
+    try:
+        df[date_column] = pd.to_datetime(df[date_column], errors='raise', dayfirst=True)
+        print("✓ Successfully converted dates using generic pd.to_datetime with dayfirst=True")
+        return df
+    except (ValueError, TypeError) as e:
+        print(f"Generic conversion failed: {e}")
+
+    # If mixed and generic methods fail, try specific formats
+    priority_formats = ["%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y"]
+    
+    for fmt in priority_formats:
+        try:
+            print(f"Trying format: {fmt}")
+            df[date_column] = pd.to_datetime(df[date_column], format=fmt, errors='raise')
+            print(f"✓ Successfully converted dates using format: {fmt}")
+            return df
+        except (ValueError, TypeError) as e:
+            print(f"Format {fmt} failed: {e}")
+            continue
+
+    # If priority formats fail, try all other formats
+    other_formats = [
         # Common formats
-        "%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y", "%Y/%m/%d",
-        "%Y-%m-%d %H:%M:%S", "%d/%m/%Y %H:%M:%S", "%m/%d/%Y %H:%M:%S",
-        "%Y/%m/%d %H:%M:%S", "%Y-%m-%d %H:%M", "%d/%m/%Y %H:%M", "%m/%d/%Y %H:%M", 
+        "%Y-%m-%d", "%m/%d/%Y", "%Y/%m/%d",
+        "%Y-%m-%d %H:%M:%S", "%m/%d/%Y %H:%M:%S",
+        "%Y/%m/%d %H:%M:%S", "%Y-%m-%d %H:%M", "%m/%d/%Y %H:%M", 
         "%Y/%m/%d %H:%M", "%Y-%m-%d %I:%M:%S %p", "%d/%m/%Y %I:%M:%S %p", "%m/%d/%Y %I:%M:%S %p",
         "%Y/%m/%d %I:%M:%S %p", "%Y-%m-%d %I:%M %p", "%d/%m/%Y %I:%M %p", "%m/%d/%Y %I:%M %p",
-        "%Y/%m/%d %I:%M %p", "%d-%m-%Y", "%m-%d-%Y", "%Y.%m.%d", "%d.%m.%Y", "%m.%d.%Y", "%Y/%m/%d",
+        "%Y/%m/%d %I:%M %p",
         
         # Year-month formats
         "%Y-%m", "%Y/%m", "%m/%Y", "%m-%Y", "%Y.%m",
@@ -99,29 +135,40 @@ def convert_dates(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
         "%Y/%m/%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"
     ]
     
-    # Try the generic method first (handles most common formats)
-    try:
-        df[date_column] = pd.to_datetime(df[date_column], errors='raise')
-        return df
-    except (ValueError, TypeError):
-        pass  # If this fails, continue to try specific formats below
-
-    # Iterate through the predefined formats
-    for fmt in formats:
+    for fmt in other_formats:
         try:
             df[date_column] = pd.to_datetime(df[date_column], format=fmt, errors='raise')
-            return df  # Success, exit the function
+            print(f"✓ Successfully converted dates using format: {fmt}")
+            return df
         except (ValueError, TypeError):
-            continue  # Try the next format
+            continue
     
-    # If no format works, raise a descriptive error
-    raise ValueError(f"Failed to convert '{date_column}' to datetime with known formats.")
+    # If no format works, raise a descriptive error with more information
+    sample_dates = df[date_column].head().tolist()
+    raise ValueError(f"Failed to convert '{date_column}' to datetime with known formats. Sample dates: {sample_dates}")
 
-import os
-from pathlib import Path
-import pandas as pd
-
-def process_obs_data(Obs_data, date_simul_bg, coef, ost, nb_day):
+def process_obs_data(Obs_data, date_simul_bg, coef, offset, nb_day):  # Fixed parameter name: ost -> offset
+    """
+    Traite les données d'observation spécifiques au Point1Touques
+    
+    Parameters:
+    -----------
+    Obs_data : str
+        Répertoire contenant les fichiers CSV
+    date_simul_bg : pd.Timestamp  # Fixed parameter name
+        Date de début de la simulation
+    coef : float
+        Coefficient multiplicateur pour la pression
+    offset : float  # Fixed parameter name
+        Décalage pour la pression
+    nb_day : int  # Fixed parameter name
+        Durée de simulation en jours
+    
+    Returns:
+    --------
+    pd.DataFrame
+        DataFrame avec index temporel et colonnes Temp1, Temp2, Temp3, Pressure
+    """
     all_data, temp_data = None, None
     
     # Reading the files and populating the dataframes
@@ -130,35 +177,74 @@ def process_obs_data(Obs_data, date_simul_bg, coef, ost, nb_day):
         try:
             if 'deltaP' in fichier:
                 all_data = read_csv_with_multiple_separators(file_path)
+                print(f"Processing file: {file_path}")
+                print(all_data.head())
+                # Clean up the deltaP data - remove the first column if it contains row numbers
+                if all_data.columns[0] in ['#', 'Unnamed: 0'] or all_data.iloc[0, 0] == '1':
+                    all_data = all_data.drop(all_data.columns[0], axis=1)
+                # Rename columns to standard names
+                expected_cols = ['dates', 'deltaP', 'T']
+                if len(all_data.columns) >= len(expected_cols):
+                    all_data.columns = expected_cols[:len(all_data.columns)]
+                
             elif 'Temp' in fichier:
                 temp_data = read_csv_with_multiple_separators(file_path)
+                print(f"Processing file: {file_path}")
+                print(temp_data.head())
+                # Clean up the temperature data - remove the first column if it contains row numbers
+                if temp_data.columns[0] in ['ST2', 'Unnamed: 0'] or temp_data.iloc[0, 0] == '1':
+                    temp_data = temp_data.drop(temp_data.columns[0], axis=1)
+                # Rename columns to standard names
+                expected_cols = ['dates', 'T1', 'T2', 'T3', 'T4']
+                if len(temp_data.columns) >= len(expected_cols):
+                    temp_data.columns = expected_cols[:len(temp_data.columns)]
+                    
         except ValueError as e:
             print(f"Error processing file {fichier}: {e}")
-    
+    all_data=convert_dates(all_data, 'dates')
+    temp_data=convert_dates(temp_data, 'dates')
     if all_data is None:
         raise ValueError("No 'deltaP' data could be read from the provided files.")
     
     if temp_data is not None:
         all_data = pd.merge(all_data, temp_data, on='dates', how='outer')
     
-    # Drop unnecessary columns if they exist
-    all_data = all_data.drop(columns=[col for col in ['#', 'ST2'] if col in all_data.columns], errors='ignore')
+    # Print column names for debugging
+    print("Noms des colonnes après lecture des fichiers:", list(all_data.columns))
+    
+    # Debug: Show sample of merged data before date conversion
+    print("Sample of merged data before date conversion:")
+    print(all_data[['dates']].head())
     
     # Convert 'dates' column to datetime
     all_data = convert_dates(all_data, 'dates')
     all_data = all_data[all_data['dates'] > date_simul_bg]
 
-    # Ensure correct column names
-    all_data.columns = ['dates', 'deltaP', 'TempMolo', 'Temp1', 'Temp2', 'Temp3', 'Temp4']
+    # Ensure correct column names based on what we actually have
+    if 'T1' in all_data.columns:
+        # We have temperature data merged
+        all_data = all_data.rename(columns={
+            'T': 'TempMolo',
+            'T1': 'Temp1', 
+            'T2': 'Temp2', 
+            'T3': 'Temp3', 
+            'T4': 'Temp4'
+        })
+    else:
+        # Only pressure data, rename T column
+        all_data = all_data.rename(columns={'T': 'TempMolo'})
+        # Add missing temperature columns with NaN
+        for col in ['Temp1', 'Temp2', 'Temp3', 'Temp4']:
+            if col not in all_data.columns:
+                all_data[col] = np.nan
 
     # Reset index and process 'deltaP' values
     all_data.reset_index(drop=True, inplace=True)
-    all_data['deltaP'] = all_data['deltaP'] * coef + ost
+    all_data['deltaP'] = all_data['deltaP'] * coef + offset  # Fixed variable name: ost -> offset
 
     # Define start and end dates
     date_begin = all_data['dates'].iloc[0]
-    date_end = pd.to_datetime(date_begin) + pd.to_timedelta(nb_day, unit='d')
-    print('Start date:', date_begin, 'End date:', date_end)
+    date_end = pd.to_datetime(date_begin) + pd.to_timedelta(nb_day, unit='d')  # Fixed variable name
 
     # Time difference calculation
     time_diff = all_data['dates'].diff().dropna()

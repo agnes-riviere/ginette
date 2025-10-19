@@ -90,15 +90,17 @@ def plot_obs_zoom(all_data, start_date, end_date):
 
     plt.show()
 
-def plot_domain(nb_zone, alt_thk, z_top, z_bottom):
+def plot_domain(nb_zone, alt_thk, z_top, z_bottom, z_obs=None):
     """
     Plot cells based on coordinates x and z, and color the cells based on the condition alt_thk > z.
+    Optionally displays temperature sensor positions.
 
     Parameters:
     - nb_zone (int): Number of zones. If nb_zone=1, the porous medium is homogeneous.
     - alt_thk (float): Altitude threshold for coloring the cells.
     - z_top (float): Top z-coordinate for the plot.
     - z_bottom (float): Bottom z-coordinate for the plot.
+    - z_obs (list or array, optional): Observation depths where temperature sensors are located.
     """
     # Read coordinates with z_top and z_bottom
     coord = pd.read_csv('E_coordonnee.dat', sep='\s+', header=None, names=['x', 'z'])
@@ -117,9 +119,8 @@ def plot_domain(nb_zone, alt_thk, z_top, z_bottom):
     cell_width = np.diff(x_unique).mean() if len(x_unique) > 1 else 1.0  # Use 1.0 by default if only one value
 
     # Create a grid of cells centered on the points (x, z)
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(12, 8))
     # Plot cells with colors based on the condition alt_thk > z or alt_thk >= z
-
 
     # Plot cells with colors based on the condition alt_thk > z
     for xi, zi in zip(x, z):
@@ -135,19 +136,65 @@ def plot_domain(nb_zone, alt_thk, z_top, z_bottom):
 
     # Add labels to the points
     for i, (xi, zi) in enumerate(zip(x, z)):
-        ax.text(xi, zi, str(i), ha='center', va='center', color='white')
+        ax.text(xi, zi, str(i), ha='center', va='center', color='white', fontsize=8)
+
+    # Plot temperature sensor positions if provided
+    if z_obs is not None:
+        # Convert z_obs to numpy array if it isn't already
+        z_obs = np.array(z_obs)
+        
+        # Use the middle x-coordinate for sensor positions
+        x_sensor = np.mean(x_unique) if len(x_unique) > 1 else x_unique[0]
+        
+        # Plot sensor positions
+        for i, z_sensor in enumerate(z_obs):
+            ax.scatter(x_sensor, z_sensor, s=200, c='yellow', marker='o', 
+                      edgecolor='black', linewidth=2, zorder=10)
+            ax.text(x_sensor + cell_width/3, z_sensor, f'T{i+1}', 
+                   ha='left', va='center', fontsize=12, fontweight='bold',
+                   bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.8))
 
     # Configure axes
-    ax.set_xlabel('x')
-    ax.set_ylabel('z')
-    ax.set_title('Domain')
+    ax.set_xlabel('x (m)', fontsize=12)
+    ax.set_ylabel('z (m)', fontsize=12)
+    
+    # Set appropriate title based on zone configuration
+    if nb_zone == 1:
+        title = 'Model Domain - Homogeneous Medium with Temperature Sensors'
+    else:
+        title = 'Model Domain with Geological Zones and Temperature Sensors'
+    ax.set_title(title, fontsize=14)
+    
     ax.set_aspect(10)  # Adjust aspect ratio so that z scale is 10 times x scale
     ax.set_ylim(z_bottom, z_top)  # Adjust y-axis to go from z_bottom to z_top
-    plt.grid(True)
+    
+    # Add legend for geological zones (placed outside the plot)
+    if nb_zone == 1:
+        # For homogeneous medium, add text box outside plot area
+        ax.text(1.02, 0.98, 'Homogeneous medium', transform=ax.transAxes, 
+                bbox=dict(boxstyle='round', facecolor='blue', alpha=0.7),
+                verticalalignment='top', fontsize=10)
+    else:
+        # For heterogeneous medium, create proper legend outside plot
+        legend_elements = [
+            plt.Rectangle((0, 0), 1, 1, facecolor='red', alpha=0.7, label=f'Zone 1 (z ≥ {alt_thk} m)'),
+            plt.Rectangle((0, 0), 1, 1, facecolor='green', alpha=0.7, label=f'Zone 2 (z < {alt_thk} m)')
+        ]
+        ax.legend(handles=legend_elements, loc='center left', bbox_to_anchor=(1, 0.5))
+    
+    # Add sensor legend if sensors are plotted (placed outside the plot)
+    if z_obs is not None:
+        ax.text(1.02, 0.02, f'Temperature sensors: T1-T{len(z_obs)}', 
+                transform=ax.transAxes, 
+                bbox=dict(boxstyle='round', facecolor='yellow', alpha=0.7),
+                verticalalignment='bottom', fontsize=10)
+    
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
     plt.show()
 
 
-def plot_compare_temperatures_obs_sim(sim_temp, obs_temp,fontsize=15):
+def plot_compare_temperatures_obs_sim(sim_temp, obs_temp, fontsize=15):
     """
     Plots and compares observed and simulated temperatures for each sensor.
 
@@ -156,6 +203,8 @@ def plot_compare_temperatures_obs_sim(sim_temp, obs_temp,fontsize=15):
     - obs_temp: DataFrame containing the observed temperatures. Must contain a 'dates' column and temperature columns named 'Temp1', 'Temp2', 'Temp3', etc.
     - fontsize: Font size for the labels (default is 15).
     """
+    import matplotlib.dates as mdates
+    
     zoomSize = 2
     titleSize = fontsize + zoomSize
     fig, axes = plt.subplots(1, 3, figsize=(20, 5), sharey=True)
@@ -175,13 +224,26 @@ def plot_compare_temperatures_obs_sim(sim_temp, obs_temp,fontsize=15):
     axes[0].set_ylabel("Temperature in C", fontsize=fontsize)  # Label y-axis
 
     for i, col in enumerate(temp_columns):
-        axes[i].set_xlabel("Date", fontsize=fontsize)
-        axes[i].plot(merged_df.index, merged_df[f'{col}_sim'], label="Simulated")
-        axes[i].plot(merged_df.index, merged_df[f'{col}_obs'], label="Observed")
-        axes[i].legend()
-        axes[i].set_title(f"Sensor {i+1}")
+        axes[i].plot(merged_df.index, merged_df[f'{col}_sim'], label="Simulated", linewidth=2)
+        axes[i].plot(merged_df.index, merged_df[f'{col}_obs'], label="Observed", linewidth=2)
+        axes[i].legend(fontsize=fontsize-2)
+        axes[i].set_title(f"Sensor {i+1}", fontsize=fontsize)
+        axes[i].grid(True, alpha=0.3)
+        
+        # Improve date formatting to prevent overlap
+        axes[i].xaxis.set_major_locator(mdates.DayLocator(interval=2))  # Show every 2 days
+        axes[i].xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))  # Format as MM/DD
+        axes[i].xaxis.set_minor_locator(mdates.DayLocator())  # Minor ticks every day
+        
+        # Rotate x-axis labels to prevent overlap
+        for tick in axes[i].get_xticklabels():
+            tick.set_rotation(45)
+            tick.set_fontsize(fontsize-3)
 
-    plt.subplots_adjust(wspace=0.05)
+    # Only add x-axis label to the middle subplot
+    axes[1].set_xlabel("Date", fontsize=fontsize)
+
+    plt.subplots_adjust(wspace=0.05, bottom=0.15)  # Add bottom margin for rotated labels
     plt.tight_layout()
     plt.show()
 
@@ -189,16 +251,23 @@ def plot_temperatures_sim(sim_temp, fontsize=15):
     """
     Plots the simulated temperatures for each sensor.
     Parameters:
-    - sim_temp: DataFrame containing the simulated temperatures with a 'Date' column.
+    - sim_temp: DataFrame containing the simulated temperatures with a 'dates' column or datetime index.
     - fontsize: Font size for the labels (default is 15).
     """
+    import matplotlib.dates as mdates
+    
     zoomSize = 2
     titleSize = fontsize + zoomSize
     fig, axes = plt.subplots(1, 3, figsize=(20, 5), sharey=True)
 
-    # Assurez-vous que les dates sont alignées
-    sim_temp['dates'] = pd.to_datetime(sim_temp['dates'])
-    sim_temp.set_index('dates', inplace=True)
+    # Handle different data structures - check if 'dates' column exists or if index is datetime
+    if 'dates' in sim_temp.columns:
+        sim_temp['dates'] = pd.to_datetime(sim_temp['dates'])
+        sim_temp.set_index('dates', inplace=True)
+    elif not isinstance(sim_temp.index, pd.DatetimeIndex):
+        # If no dates column and index is not datetime, we have a problem
+        print("Error: No date information found in sim_temp")
+        return
 
     # Colonnes de température (en supposant qu'elles soient nommées 'Temp1', 'Temp2', 'Temp3')
     temp_columns = ['Temp1', 'Temp2', 'Temp3']
@@ -206,12 +275,26 @@ def plot_temperatures_sim(sim_temp, fontsize=15):
     axes[0].set_ylabel("Temperature in C", fontsize=fontsize)  # Label y-axis
 
     for i, col in enumerate(temp_columns):
-        axes[i].set_xlabel("Date", fontsize=fontsize)
-        axes[i].plot(sim_temp.index, sim_temp[f'{col}'], label="Simulated")
-        axes[i].legend()
-        axes[i].set_title(f"Sensor {i+1}")
+        if col in sim_temp.columns:
+            axes[i].plot(sim_temp.index, sim_temp[col], label="Simulated", linewidth=2)
+            axes[i].legend(fontsize=fontsize-2)
+            axes[i].set_title(f"Sensor {i+1}", fontsize=fontsize)
+            axes[i].grid(True, alpha=0.3)
+            
+            # Improve date formatting to prevent overlap
+            axes[i].xaxis.set_major_locator(mdates.DayLocator(interval=2))
+            axes[i].xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
+            axes[i].xaxis.set_minor_locator(mdates.DayLocator())
+            
+            # Rotate x-axis labels to prevent overlap
+            for tick in axes[i].get_xticklabels():
+                tick.set_rotation(45)
+                tick.set_fontsize(fontsize-3)
 
-    plt.subplots_adjust(wspace=0.05)
+    # Only add x-axis label to the middle subplot
+    axes[1].set_xlabel("Date", fontsize=fontsize)
+
+    plt.subplots_adjust(wspace=0.05, bottom=0.15)
     plt.tight_layout()
     plt.show()
 
@@ -490,3 +573,65 @@ def plot_fluxes_timeseries(fontsize=15, date_simul_bg=None):
     fig.autofmt_xdate()
     plt.tight_layout()
     plt.show()
+
+def plot_initial_conditions(fontsize=15):
+    """
+    Plots the initial temperature and pressure conditions from Ginette input files.
+    
+    This function reads the initial condition files generated by the initial_conditions()
+    function and creates visualization plots to show:
+    1. Initial temperature profile vs depth
+    2. Initial pressure (hydraulic head) profile vs depth
+    
+    Parameters:
+    - fontsize (int): Font size for labels and titles (default is 15)
+    
+    Returns:
+    None: Displays the plots directly
+    """
+    try:
+        # Read initial temperature profile
+        temp_init = pd.read_csv('E_temperature_initiale.dat', sep='\s+', header=None, names=['temp'])
+        
+        # Read initial pressure (charge) profile  
+        charge_init = pd.read_csv('E_charge_initiale.dat', sep='\s+', header=None, names=['charge'])
+        
+        # Read coordinates to get depth information
+        coord = pd.read_csv('E_coordonnee.dat', sep='\s+', header=None, names=['x', 'z'])
+        
+        # Create subplots side by side
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+        
+        # Plot initial temperature profile
+        ax1.plot(temp_init['temp'], coord['z'], 'bo-', linewidth=2, markersize=6)
+        ax1.set_xlabel('Temperature (°C)', fontsize=fontsize)
+        ax1.set_ylabel('Depth (m)', fontsize=fontsize)
+        ax1.set_title('Initial Temperature Profile', fontsize=fontsize)
+        ax1.grid(True, alpha=0.3)
+        # Set y-axis limits explicitly to ensure proper orientation (0 at top, -0.4 at bottom)
+        ax1.set_ylim(coord['z'].min(), coord['z'].max())
+        
+        # Plot initial pressure profile
+        ax2.plot(charge_init['charge'], coord['z'], 'ro-', linewidth=2, markersize=6)
+        ax2.set_xlabel('Hydraulic Head (m)', fontsize=fontsize)
+        ax2.set_ylabel('Depth (m)', fontsize=fontsize)
+        ax2.set_title('Initial Pressure (Head) Profile', fontsize=fontsize)
+        ax2.grid(True, alpha=0.3)
+        # Set y-axis limits explicitly to ensure proper orientation (0 at top, -0.4 at bottom)
+        ax2.set_ylim(coord['z'].min(), coord['z'].max())
+        
+        plt.tight_layout()
+        plt.show()
+        
+        # Print summary statistics
+        print("Initial Conditions Summary:")
+        print(f"- Temperature range: {temp_init['temp'].min():.2f} to {temp_init['temp'].max():.2f} °C")
+        print(f"- Hydraulic head range: {charge_init['charge'].min():.4f} to {charge_init['charge'].max():.4f} m")
+        print(f"- Depth range: {coord['z'].min():.2f} to {coord['z'].max():.2f} m")
+        print(f"- Number of grid cells: {len(coord)}")
+        
+    except FileNotFoundError as e:
+        print(f"Error: Could not find initial condition files. Please run initial_conditions() first.")
+        print(f"Missing file: {e.filename}")
+    except Exception as e:
+        print(f"Error reading initial conditions: {e}")
