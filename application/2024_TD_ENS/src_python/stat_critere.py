@@ -7,6 +7,7 @@ from numpy import inf, nansum, log, size, var, mean, isclose, sqrt, zeros, all
 from typing import Callable, Tuple, Sequence
 from scipy import stats
 from Direct_model import setup_ginette, generate_zone_parameters, initial_conditions, boundary_conditions, run_direct_model, remove_first_two_days
+import seaborn as sns  
 
 # =============================================================================
 # STATISTICAL CRITERIA FUNCTIONS
@@ -415,6 +416,10 @@ class Prior:
         self.sigma = sigma
         self.density = density
 
+    def sample(self) -> float:
+        """Sample a value from the prior distribution."""
+        return uniform(self.range[0], self.range[1])
+
     def perturb(self, val: float) -> float:
         """Perturbs a parameter value, adding random noise while staying within bounds."""
         new_val = val + gauss(0, self.sigma)
@@ -423,7 +428,6 @@ class Prior:
         while new_val < self.range[0]:
             new_val = val + gauss(0, self.sigma)
         return new_val
-
 # --- Model Execution ---
 @dataclass
 class SimulationResult:
@@ -1307,7 +1311,12 @@ def plot_parameter_effects_on_metrics(results: pd.DataFrame, metrics: list = Non
     - results: DataFrame with simulation results
     - metrics: List of metrics to analyze (default=None analyzes all)
     """
-    import matplotlib.pyplot as plt
+    try:
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+    except ImportError as e:
+        print(f"Required plotting libraries not available: {e}")
+        return
     
     if metrics is None:
         metrics = ['nse', 'r_squared', 'kge', 'pbias']
@@ -1318,41 +1327,17 @@ def plot_parameter_effects_on_metrics(results: pd.DataFrame, metrics: list = Non
     
     for i, metric in enumerate(metrics, 1):
         plt.subplot(2, 2, i)
-        sns.boxplot(x=results[metric].apply(lambda x: x if isinstance(x, (int, float)) else np.nan), 
-                                             y=results['k'], 
-                                             palette='coolwarm')
-        plt.title(f'Effect of Parameter K on {metric.upper()}')
-        plt.xlabel(metric.upper())
-        plt.ylabel('Parameter K')
+        metric_data = results[metric].apply(lambda x: x if isinstance(x, (int, float)) else np.nan)
+        # Create boxplot data properly
+        plt.boxplot([metric_data.dropna()], patch_artist=True, 
+                   boxprops=dict(facecolor='skyblue', color='black'),
+                   medianprops=dict(color='red'))
+        plt.title(f'Distribution of {metric.upper()}')
+        plt.ylabel(metric.upper())
         plt.grid(axis='y', alpha=0.75)
     
     plt.tight_layout()
     plt.show()
-
-def plot_simulation_error_analysis(results: pd.DataFrame, obs: np.ndarray):
-    """
-    Plot an analysis of simulation errors (residuals) for all simulations.
-    
-    Parameters:
-    - results: DataFrame with simulation results
-    - obs: Observed data for comparison
-    """
-    import matplotlib.pyplot as plt
-    
-    # Calculate residuals for all simulations
-    results['residuals'] = results.apply(lambda row: row['output'] - obs, axis=1)
-    
-    plt.figure(figsize=(10, 6))
-    plt.hist(results['residuals'].apply(lambda x: x if isinstance(x, (int, float)) else np.nan), 
-                                         bins=30, 
-                                         color='skyblue', 
-                                         edgecolor='black')
-    plt.title('Distribution of Simulation Residuals')
-    plt.xlabel('Residual')
-    plt.ylabel('Frequency')
-    plt.grid(axis='y', alpha=0.75)
-    plt.show()
-
 def plot_metric_boxplots_by_parameter(results: pd.DataFrame, metrics: list = None):
     """
     Plot boxplots of metrics for simulations grouped by parameter values.
@@ -1701,7 +1686,9 @@ def mcmc_step(layers: Sequence[Layer], observed_data: pd.DataFrame, sigma2: floa
 
 
 # --- Running MCMC ---
-def run_mcmc(num_iterations: int, layers: Sequence[Layer], observed_data: pd.DataFrame, sigma2: float, burn_in: int, priors: ParamsPriors):
+def run_mcmc(num_iterations: int, layers: Sequence[Layer], observed_data: pd.DataFrame, 
+             sigma2: float, burn_in: int, priors: ParamsPriors, 
+             date_simul_bg, z_bottom, dz, nb_zone, alt_thk):
     """
     Runs the MCMC process for a number of iterations to sample the parameter space.
     
@@ -1711,6 +1698,11 @@ def run_mcmc(num_iterations: int, layers: Sequence[Layer], observed_data: pd.Dat
     :param sigma2: The variance of the observed temperature data
     :param burn_in: The number of burn-in iterations
     :param priors: ParamPriors object containing the priors for model parameters
+    :param date_simul_bg: Background date or time for the simulation
+    :param z_bottom: Bottom depth for the simulation
+    :param dz: Depth step for discretizing the model
+    :param nb_zone: Number of zones or layers in the simulation
+    :param alt_thk: Altered thickness for the model zones
     :return: The sampled parameter values from the MCMC process
     """
     accepted_parameters = []
@@ -1719,7 +1711,8 @@ def run_mcmc(num_iterations: int, layers: Sequence[Layer], observed_data: pd.Dat
         print(f"Iteration {iteration + 1}/{num_iterations}")
 
         # Perform MCMC step
-        layers, accepted = mcmc_step(layers, observed_data, sigma2, burn_in, priors, date_simul_bg, z_bottom, dz, nb_zone, alt_thk)
+        layers, accepted = mcmc_step(layers, observed_data, sigma2, burn_in, priors, 
+                                   date_simul_bg, z_bottom, dz, nb_zone, alt_thk)
         
         # Store accepted parameters
         if accepted:
@@ -1872,6 +1865,10 @@ def print_performance_summary(all_metrics, use_stat_critere=False):
     print(f"{'Sensor':<8} {'Depth':<8} {'RMSE':<6} {'R²':<6} {'NSE':<6} {'PBIAS':<7} {'KGE':<6}")
     print("-" * 80)
     
+    # Calculate overall statistics
+    overall_stats = {}
+    metrics_list = ['RMSE', 'R²', 'NSE', 'PBIAS', 'KGE']
+    
     for sensor, metrics in all_metrics.items():
         depth = depth_map.get(sensor, 'Unknown')
         rmse_val = metrics.get('RMSE', 0)
@@ -1882,4 +1879,189 @@ def print_performance_summary(all_metrics, use_stat_critere=False):
         
         print(f"{sensor:<8} {depth:<8} {rmse_val:.3f}  "
               f"{r2_val:.3f}  {nse_val:.3f}  "
-              f"{pbias_val:+6.1f}% {kge_val:.3f
+              f"{pbias_val:+6.1f}% {kge_val:.3f}")
+    
+    print("-" * 80)
+    
+    # Calculate mean values for overall statistics
+    for metric in metrics_list:
+        values = []
+        for sensor_metrics in all_metrics.values():
+            if metric == 'R²':
+                val = sensor_metrics.get('R_squared', sensor_metrics.get('R²', np.nan))
+            else:
+                val = sensor_metrics.get(metric, np.nan)
+            
+            if not np.isnan(val) and not np.isinf(val):
+                values.append(val)
+        
+        if values:
+            overall_stats[f'mean_{metric}'] = np.mean(values)
+            overall_stats[f'std_{metric}'] = np.std(values)
+            overall_stats[f'min_{metric}'] = np.min(values)
+            overall_stats[f'max_{metric}'] = np.max(values)
+    
+    # Print overall statistics
+    if overall_stats:
+        print(f"{'MEAN':<8} {'Overall':<8} {overall_stats.get('mean_RMSE', 0):.3f}  "
+              f"{overall_stats.get('mean_R²', 0):.3f}  {overall_stats.get('mean_NSE', 0):.3f}  "
+              f"{overall_stats.get('mean_PBIAS', 0):+6.1f}% {overall_stats.get('mean_KGE', 0):.3f}")
+        
+        print("="*80)
+        
+        # Performance assessment
+        mean_nse = overall_stats.get('mean_NSE', -np.inf)
+        mean_r2 = overall_stats.get('mean_R²', 0)
+        mean_kge = overall_stats.get('mean_KGE', -np.inf)
+        
+        performance_category = categorize_performance(mean_nse, mean_r2, mean_kge)
+        overall_stats['performance_category'] = performance_category
+        
+        print(f"OVERALL MODEL PERFORMANCE: {performance_category}")
+        print(f"Number of sensors evaluated: {len(all_metrics)}")
+        
+        # Performance criteria interpretation
+        print("\nPERFORMANCE CRITERIA INTERPRETATION:")
+        print("-" * 40)
+        
+        thresholds = get_performance_thresholds()
+        for metric in ['NSE', 'R²', 'KGE']:
+            mean_val = overall_stats.get(f'mean_{metric}', 0)
+            if mean_val > 0.75:
+                category = "Excellent"
+            elif mean_val > 0.65:
+                category = "Very Good"
+            elif mean_val > 0.50:
+                category = "Good"
+            elif mean_val > 0.40:
+                category = "Satisfactory"
+            else:
+                category = "Unsatisfactory"
+            
+            print(f"{metric:<4}: {mean_val:.3f} ({category})")
+        
+        # PBIAS interpretation
+        mean_pbias = abs(overall_stats.get('mean_PBIAS', 100))
+        if mean_pbias < 10:
+            pbias_category = "Excellent"
+        elif mean_pbias < 15:
+            pbias_category = "Very Good"
+        elif mean_pbias < 25:
+            pbias_category = "Good"
+        elif mean_pbias < 40:
+            pbias_category = "Satisfactory"
+        else:
+            pbias_category = "Unsatisfactory"
+        
+        print(f"PBIAS: {overall_stats.get('mean_PBIAS', 0):+.1f}% ({pbias_category})")
+        print("="*80)
+    
+    return overall_stats
+
+#________________________________________________________________
+def prepare_data_for_analysis(sim_temp, obs_temp):
+    """
+    Prépare les données pour l'analyse en fusionnant les ensembles de données.
+
+    Parameters:
+    - sim_temp: DataFrame ou dict-like, simulatiion des températures (colonnes: Temp1, Temp2, ...)
+    - obs_temp: DataFrame ou dict-like, observations des températures (colonnes: Temp1, Temp2, ...)
+
+    Returns:
+    - merged_data: DataFrame fusionnée avec colonnes TempX_sim et TempX_obs
+    - available_sensors: Liste des capteurs disponibles (Temp1, Temp2, ...)
+    """
+    print("Preparing data for analysis...")
+
+    # Convertir en DataFrame si nécessaire
+    if not isinstance(sim_temp, pd.DataFrame):
+        sim_df = pd.DataFrame(sim_temp)
+    else:
+        sim_df = sim_temp.copy()
+        
+    if not isinstance(obs_temp, pd.DataFrame):
+        obs_df = pd.DataFrame(obs_temp)
+    else:
+        obs_df = obs_temp.copy()
+
+    # Trouver les capteurs communs
+    sim_sensors = [col for col in sim_df.columns if col.startswith("Temp")]
+    obs_sensors = [col for col in obs_df.columns if col.startswith("Temp")]
+    available_sensors = sorted(list(set(sim_sensors) & set(obs_sensors)))
+
+    if not available_sensors:
+        print("No common sensors found between simulation and observation.")
+        return pd.DataFrame(), []
+
+    # Fusionner les données sur l'index (supposé être le temps)
+    merged_data = pd.DataFrame(index=sim_df.index.union(obs_df.index))
+    for sensor in available_sensors:
+        merged_data[f"{sensor}_sim"] = sim_df[sensor]
+        merged_data[f"{sensor}_obs"] = obs_df[sensor]
+
+    # Nettoyer les lignes où il n'y a aucune donnée
+    merged_data = merged_data.dropna(how="all")
+
+    return merged_data, available_sensors
+
+#________________________________________________________________
+def evaluate_model_performance_complete(sim_temp, obs_temp):
+    """
+    Évalue la performance du modèle en utilisant des critères statistiques complets.
+    
+    Returns:
+    - performance_results: Dictionary containing comprehensive performance analysis
+    """
+    try:
+        # Préparer les données
+        merged_data, available_sensors = prepare_data_for_analysis(sim_temp, obs_temp)
+
+        if merged_data.empty:
+            print("No data available for performance evaluation.")
+            return {}
+        
+        # Calculer les métriques détaillées pour chaque capteur
+        all_metrics = evaluate_detailed_performance(merged_data, available_sensors)
+        
+        # Imprimer le résumé des performances
+        print_performance_summary(all_metrics, use_stat_critere=True)
+        
+        # Calculer les statistiques globales
+        overall_stats = {}
+        if all_metrics:
+            # Moyennes des métriques sur tous les capteurs
+            metrics_list = ['RMSE', 'R²', 'NSE', 'PBIAS', 'KGE']
+            for metric in metrics_list:
+                values = [sensor_metrics.get(metric, np.nan) for sensor_metrics in all_metrics.values()]
+                valid_values = [v for v in values if not np.isnan(v) and not np.isinf(v)]
+                if valid_values:
+                    overall_stats[f'mean_{metric}'] = np.mean(valid_values)
+                    overall_stats[f'std_{metric}'] = np.std(valid_values)
+        
+        # Évaluation qualitative globale
+        if overall_stats:
+            mean_nse = overall_stats.get('mean_NSE', -np.inf)
+            mean_r2 = overall_stats.get('mean_R²', 0)
+            mean_kge = overall_stats.get('mean_KGE', -np.inf)
+            
+            performance_category = categorize_performance(mean_nse, mean_r2, mean_kge)
+            overall_stats['performance_category'] = performance_category
+            
+            print(f"\nOVERALL MODEL PERFORMANCE: {performance_category}")
+            print(f"Mean NSE: {mean_nse:.3f}")
+            print(f"Mean R²: {mean_r2:.3f}")
+            print(f"Mean KGE: {mean_kge:.3f}")
+        
+        return {
+            'sensor_metrics': all_metrics,
+            'overall_stats': overall_stats,
+            'available_sensors': available_sensors
+        }
+        
+    except Exception as e:
+        print(f"Error during performance evaluation: {str(e)}")
+        return {}
+
+
+
+#________________________________________________________________
