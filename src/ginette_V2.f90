@@ -1788,20 +1788,13 @@ program pression_ecoulement_transport_thermique
          nzone = max(nzone, izone(i))
    !CC...Calcul le nombre de zone
       end do
-      
-      allocate(alandazone(nzone))
-      allocate(rhomzone(nzone))
-      allocate(akzone(nzone))
-      allocate(omzone(nzone))
-      allocate(aspzone(nzone))
-      allocate(jzone(nzone))
-      nzone = 0
-      do i = 1, nm
-         read (32, *) izone(i)
-         nzone = max(nzone, izone(i))
-   !CC...Calcul le nombre de zone
-      end do
-      
+      if (allocated(alandazone)) deallocate(alandazone)
+      if (allocated(rhomzone)) deallocate(rhomzone)
+      if (allocated(akzone)) deallocate(akzone) 
+      if (allocated(omzone)) deallocate(omzone)
+      if (allocated(aspzone)) deallocate(aspzone)
+      if (allocated(jzone)) deallocate(jzone)
+
       allocate(alandazone(nzone))
       allocate(rhomzone(nzone))
       allocate(akzone(nzone))
@@ -4435,8 +4428,8 @@ program pression_ecoulement_transport_thermique
             qflux = vzm(id_river(j))*am(id_river(j)) + qflux
          end do
         write (181830, *) paso/unitsortie, qflux
-        print *, "out", paso/86400, paso,dt,temp(1),pr(1)/rho1/g+z(1),valcl(1,2)
-
+        print *, "out", paso/86400, temp(nmaille1),temp(1),vzm(100),vzp(100)
+!        write (18181, *) paso/unitsortie, x(i),z(i), vzm(i),vzp(i)
 !     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
 !     &zs(65,1),zs(217,1)
          if (ith == 1) then
@@ -4446,6 +4439,8 @@ program pression_ecoulement_transport_thermique
             write (56, *) paso/unitsortie, temp(nmaille1), temp(nmaille2), temp(nmaille3), &
             temp(nmaille4), temp(nmaille5), temp(nmaille6), temp(nmaille7), &
             temp(nmaille8)
+            write (57, *) paso/unitsortie, pr(nmaille4)/rho1/g+z(nmaille4), &
+            pr(nmaille8)/rho1/g+z(nmaille8)
          end if
  !           do i=1,nm
  !           write (943, *) paso/unitsortie,x(i), z(i), pr(i)
@@ -4680,9 +4675,9 @@ program pression_ecoulement_transport_thermique
 !...FICHIERS FIN DE SIMULATION
 !ccc....Dernier pas de temps ou regime permanant
    do i = 1, nm
-      write (74, FMT='(i6,BN,F14.2,F14.2,F14.3,F14.3,F14.2)') &
+      write (74, FMT='(i6,BN,F14.2,F14.2,F14.3,F14.3,F14.2,E14.2,E14.2,E14.2,E14.2)') &
          i, x(i), z(i), pr(i), &
-         pr(i)/(rho1*g) + z(i), temp(i)
+         pr(i)/(rho1*g) + z(i), temp(i),vxm(i), vzm(i),vxp(i),vzp(i)
    end do
 
    if (ytest == "AVA") then
