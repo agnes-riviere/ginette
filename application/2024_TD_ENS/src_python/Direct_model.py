@@ -103,7 +103,7 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     nb_cell=az/dz
     #-----------------------------------------------------------------
     ## write the setup of the modeled domain
-    f_param_bck = open("E_parametre_backup.dat", "r")
+    f_param_bck = open("E_parametre_bck.dat", "r")
     f_param_new = open("E_parametre.dat", 'w')
     setup_model = f_param_bck.read()
     setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
