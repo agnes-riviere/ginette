@@ -11,11 +11,12 @@ program pression_ecoulement_transport_thermique
    implicit double precision(a - h, o - x, z), integer(I - N)
    implicit CHARACTER*5(y)
    double precision dx, dz, dt, al, az, reptop, repbot, rho1
-   double precision g, amu, akrx, akx, akrz, akz, omp, sss, ans, asp
+   double precision g, amu, akrx, akx, akrz, akz, omp, sss, ans, asp,swo
    double precision swres, allg, alt, qre, hbot, xberg, unitsortie
    double precision rug, pent, qriva, hriv, aklit, aklitv, unitsim, sum
    double precision tempriv, elit, akdrain, edrain, crconvp, crconvc
    double precision pas
+   integer :: compteur_div
    integer nc, nr, n, iec, irp, ith, nitt, ixy, ii
    integer imaille, itopo, ibuilt, icolone
    integer nci, nri, nclog, ilog, irho
@@ -202,6 +203,8 @@ program pression_ecoulement_transport_thermique
 !CC....igel=2 degel
 !CC....igel=1 gel
 !CC....igel=0 pas de variation de temperature
+!CC....swo : old staturation time n-1
+!CC....compteur_div option debug pour compter les iteration de temps pendant la convergence
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
@@ -487,7 +490,9 @@ program pression_ecoulement_transport_thermique
          stop 'File E_zone.dat does not exist'
       end if
    end if
-
+   if (ytest == "ZNS" .and. ith == 1) then
+      open (unit=6868, file='E_temp_t.dat', iostat=ios)
+   end if
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !      LECTURE FICHIER ZNS 1D ou warrick          C
@@ -600,6 +605,19 @@ program pression_ecoulement_transport_thermique
 !CC....ZNS 1D ou Warrick
    case ("ZNS", "WAR")
 
+!CCCC... ajout nicolas Radic
+      ligne_temp_t = 0
+      if (ith ==1) then
+         call count_file(6868, ios, ligne_temp_t)
+
+         allocate(tempbot(ligne_temp_t))
+         allocate(tempsurf(ligne_temp_t))
+         rewind (6868)
+         do j = 1, ligne_temp_t
+            read (6868, *, iostat=ios) tempsurf(j), tempbot(j)
+         end do
+      end if
+!CCCC... fin ajout nicolas Radic
       if (iclchgt == 1) then
          ligne4 = 0
 !CC....lecture des données
@@ -887,7 +905,9 @@ program pression_ecoulement_transport_thermique
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
    dtrecord = 0
+   dtrecord_mem = 0
    irecord = 0
+   compteur_div = 0
 
 ! Regime Permanent
 !       if(irp == 0) then
@@ -1052,8 +1072,18 @@ program pression_ecoulement_transport_thermique
 !CC....NOUVEAU NUMERO de MAILLE
             inum(kr) = ii
             inum2(ii) = kr
+!CC...ajout nicolas radic
+            select case (ivois(ii,3))
+            case(-99)
+            case default
             if (i > 1 .and. z(ivois(ii, 3)) > topo(j)) ivois(ii, 3) = -99
+            end select
+            select case (ivois(ii,4))
+            case(-99)
+            case default               
             if (i < nr .and. z(ivois(ii, 4)) < bot(j)) ivois(ii, 4) = -99
+            end select
+!CC...fin ajout nicolas radic
          end if
       end do
       end do
@@ -2635,7 +2665,12 @@ program pression_ecoulement_transport_thermique
          open (1818, file='S_hydraulic_conductivities_profil_t.dat')
          open (18181, file='S_saturation_profil_t.dat')
          open (18182, file='S_pressure_profil_t.dat')
-
+!CC...ajout nicolas radic
+         open (942, FILE='S_temperature_t.dat')
+         open (9455, file='S_pressure_flux__last_maille.dat')
+         open (944944, file='S_bilan.dat')
+         open (9456, file='S_vitesse_profil.dat')
+!CC...fin ajout nicolas radic
 
       case ("ZND") 
          open (1818, file='S_hydraulic_conductivities_profil_t.dat')
@@ -2821,6 +2856,7 @@ program pression_ecoulement_transport_thermique
 !CC...Retour pas de temps initial impose par l utilisateur
       dt = dble(dta)
       dtreco = dble(dtrecord)
+      !print*, "on recommence dans la boucle while avec dt =", int(dt),"paso=",int(paso), "et dtreco =", dtreco!, "et irecord =", irecord
 !CC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
 !ccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
 !ccc....dt record = temps ecoulé depuis le dernier enregistrement
@@ -2839,7 +2875,9 @@ program pression_ecoulement_transport_thermique
          irecord = 1
          dtrecord = 0
          dtreco = 0
+         !print *, '1 On est passé par la donc dt = ',dt
       end if
+      !print*, "ici dtreco = ", dtreco, "et dtrecord =", dtrecord
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
@@ -2873,7 +2911,7 @@ program pression_ecoulement_transport_thermique
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       do i = 1, nm
-         if (pr(i) + 1 .ne. pr(i)) pro(i) = pr(i)
+         if (pr(i) + 1 .ne. pr(i)) pro(i) = pr(i) ! Dans le cas où la pression n'a pas convergé on reprend la pression du temps précédent
          rhold(i) = rho(i)
       end do
 
@@ -2954,10 +2992,16 @@ program pression_ecoulement_transport_thermique
          case default
             ntsortie = ligne2
          end select
-
-         if (.not.allocated(qpluie)) then
-            allocate(qpluie(1))
+!CC...ajout nicolas radic
+         iecriture_pluie = 0
+         ! print*, "Avant calcule vitesse maille n 203 :", vzm(203)
+         ! print*, "icl(nm,4)=", icl(nm,4)
+         if (it .ne. 1) then
+            swo = sw(1)
+         else 
+            swo = 0
          end if
+!CC...fin ajout nicolas radic
          if (.not.allocated(tempsurf)) then
             allocate(tempsurf(1))
          end if
@@ -3006,11 +3050,11 @@ program pression_ecoulement_transport_thermique
                                     tempriver, &
                                     id_RD, id_RG, id_river, id_rivert, tempsurf, &
                                     tempbot, chgsurf, chgbot, &
-                                    x, qsurf, qbot)
+                                    x, qsurf, qbot,iecriture_pluie,ak(nm),akr(nm),akr(1),ak(1),vzm(nm-1),swo,pro)
 
 
       end if
-
+      !print*, "Rentrer dans la boucle de picard"
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                          C
 !       BOUCLE DE PICARD               C
@@ -3043,18 +3087,19 @@ program pression_ecoulement_transport_thermique
 !         pas de temps adaptatif           C
 !                          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+            !print*,sw(1),akv(1),akrv(1),pr(1)/rho1/g+z(1),pr(200)/rho1/g+z(200)
          if (nk == iteration - 1 .or. pr(1) + 1 == pr(1) &
              .or. dt <= 1D-5) then
-               !EXPLICATION DE POURQUOI IL N Y A PAS DE CONVERGENCE
-               if ( nk == iteration -1 ) then
-               print*, 'NON CONVERGENCE CAR NK EGALE ITERATION -1'
-               else if ( pr(1) + 1 == pr(1) ) then
-               print*, 'NON CONVERGENCE CAR LA PRESSION A EXPLOSE'
-               else if (abs(dt) <= 1D-5) then
-               print*, 'NON CONVERGENCE CAR DT TROP PETIT'
-               print*, 'paso = ',paso ,"dt =", dt
-               stop
-               end if
+            !EXPLICATION DE POURQUOI IL N Y A PAS DE CONVERGENCE
+            ! if ( nk == iteration -1 ) then
+            !    print*, 'NON CONVERGENCE CAR NK EGALE ITERATION -1'
+            ! else if ( pr(1) + 1 == pr(1) ) then
+            !    print*, 'NON CONVERGENCE CAR LA PRESSION A EXPLOSE'
+            ! else if (abs(dt) <= 1D-5) then
+            !    print*, 'NON CONVERGENCE CAR DT TROP PETIT'
+            !    print*, 'paso = ',paso ,"dt =", dt, "valcl(1,3) =", valcl(1,3)
+            !    stop
+            ! end if
             if (dtreco >= 0) then
                dtrecord = dble(dtreco) - dble(dt)
                irecord = 0
@@ -3067,9 +3112,22 @@ program pression_ecoulement_transport_thermique
 
             dto = dble(dt)
             dt = dble(dto)/2
-
+            compteur_div=compteur_div+1
             if (dt > dta) dt = dta
- !           if (modulo(dta, dt) .ne. 0) dt = dble(dta)/10
+
+            
+            !print *, 'ici on a dt ==========',dt,'et dta =============',dta
+            !print*,"dans la boucle picard ===================================", modulo(dta, dt) .ne. 0
+            ! print*, 'et compteur div =', compteur_div
+            if (dt>=1) then
+               if (modulo(dta, dt) .ne. 0) dt = dble(dta)/10
+            else 
+               if (modulo(dta/10**CEILING(log10(dta)),dt) > 1.0d-15) then
+                  
+                  dt = dble(dta)/10 ! Ajout de ce if car sinon ginette tourne dans le vide quand dt<1
+               end if
+                  ! print *, "On est dans le cas ou dt<1 avec dt =", dt
+            end if
             it = int(it - 1)
 !CC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
 !ccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
@@ -3088,7 +3146,8 @@ program pression_ecoulement_transport_thermique
                dtrecord = 0
                dtreco = 0
             end if
-
+            !print *, "On change de dt passant de", dto, dt
+            !print*, "ici dtreco = ", dtreco, "et dtrecord =", dtrecord
             it = it + 1
             nk = 1
 
@@ -3141,7 +3200,7 @@ program pression_ecoulement_transport_thermique
                                     id_RD, id_RG, id_river, id_rivert, tempsurf, &
                                     tempbot, chgsurf, chgbot, &
                                     x,  &
-                                    qsurf, qbot)
+                                    qsurf, qbot,iecriture_pluie,ak(nm),akr(nm),akr(1),ak(1),vzm(nm-1),swo,pro)
 
             end if
 
@@ -3888,9 +3947,23 @@ program pression_ecoulement_transport_thermique
 
 !CC....CATTENTION ENDDO A NE SURTOUT PAS VIRER BOUCLE DE PICARD TEST DE CONVERGENCE
 15       continue
-
+!cccc debug print
+ !        if ( amaxp <= crconvp .and. pr(1) + 1 .ne. pr(1) &
+ !        .and. amaxt <= crconvt .and. temp(1) + 1 .ne. temp(1) &
+  !       .and. temp(1) - temp(1) == 0 &
+  !       .and. pr(1) - pr(1) == 0 .and. nk .ne. iteration - 1 ) then
+         ! print*,"IL Y A EU CONVERGENCE et dt =", dt
+         !print*, 'et dtrecord = ', dtrecord, "et paso = ",paso
+   !   end if
       end do
-
+      if (irecord == 1) then
+         compteur_div = 0
+         dtrecord_mem = 0
+      else 
+         dtrecord_mem = dtrecord_mem + dtrecord
+         dtrecord = dtrecord_mem
+         !dtrecord = dtrecord * compteur_div
+      end if
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !              VERIF           C
@@ -4124,18 +4197,30 @@ program pression_ecoulement_transport_thermique
 
 !CC....SORTIE ZNS 1D
       case ("ZNS") 
-         print *, "time", paso, "dt", dt, pr(100)/rho1/g + z(100), &
+         print *, "out", paso/86400,"time", paso, "dt", dt,'prnm', pr(nm)/rho1/g + z(nm), &
             valcl(1, 3), sw(1), sw(50), sw(2), akr(1)
-         if (modulo(int(paso), itsortie) == 0) then
+         if (modulo(paso, itsortie*1.0) == 0) then
             irecord = 1
+         else
+            print *, "############################### PAS D ECRITURE DE FICHIER##############################################"
          end if
-
+!.... option debug
          if (irp == 1 .and. irecord == 1) then
+                     ! if (modulo(int(paso), itsortie) .ne. 0) then
+                     !       print*,"PAS DE PAS REGULIER"
+                     ! end if
+         ! print *, "writing Output TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+         teneur_bilan_sable = 0 ! A Enlever pour le commit
          do i = 1, nm
             write (1818, *) paso/unitsortie, z(i), akr(i)*ak(i)
-            write (18181, *) paso/unitsortie, z(i), sw(i)
-            write (18182, *) paso/unitsortie, z(i), pr(i), pr(i)/rho1/g + z(i)
+            write (18181, *) int(paso/unitsortie), z(i), sw(i)
+            write (18182, *) int(paso/unitsortie), z(i), pr(i), pr(i)/rho1/g + z(i)
+            write(942, *) int(paso/unitsortie), z(i), temp(i)
+            write (9456, *) int(paso/unitsortie), z(i), vzm(i)
+            teneur_bilan_sable = teneur_bilan_sable + sw(i)*0.43
          end do
+         write (9455, *) int(paso/unitsortie), z(nm), pr(nm), vzm(nm)
+         write (944944, *) int(paso/unitsortie), vzp(1), vzm(nm)*900, teneur_bilan_sable ! A Enlever pour le commit
          end if
 
 
@@ -4344,6 +4429,11 @@ program pression_ecoulement_transport_thermique
          end do
          write (181830, *) paso/unitsortie, qflux
          print *, "out", paso/86400, paso,dt,am(id_ZH(1)), qflux,irecord
+         print *, modulo(int(paso), itsortie) == 0
+         if (modulo(int(paso), itsortie) .ne. 0) then
+            print*,"PAS DE PAS REGULIER"
+            stop
+         end if
 !     &pr(2706)/rho(2706)/g+z(2706),pr(2858)/rho1/g+z(2858),
 !     &zs(65,1),zs(217,1)
          if (ith == 1) then
@@ -7831,7 +7921,7 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
                                  id_RD, id_RG, id_river, id_rivert, tempsurf, &
                                  tempbottom, chgsurf, chgbottom, &
                                  x,&
-                                 qsurf, qbottom)
+                                 qsurf, qbottom,iecriture_pluie,akr_bottom,ak_bottom,akr_surf,ak_surf,vzm_nm1,swo,pro)
 !     nc nb de colonnes
 !     nr nb de ligne
 !       qre debit pluie
@@ -7852,11 +7942,13 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
 !       ICLT(ik,1)=-1, -2 ou 1 ik=1,...4: face droite,gauche,haute et BASSE
 !       akr(i)=permeabilite relative
 !       ak(i)=permeabilite intrinseque
+!MODIF 18/03/2025 nradic Pour gerer la pluie lorsque que le sol est saturé.
 
    implicit double precision(a - h, o - z)
    implicit integer(i - n)
    dimension ivois(nm, 4), valcl(nm, 4), icl(nm, 4)
    dimension valclt(nm, 4), iclt(nm, 4), z(nm)
+   dimension pro(nm)
    dimension rho(nm), bm(nm), x(nm)
    dimension chgbottom(ntsortie), chgsurf(ntsortie)
    dimension qbottom(ntsortie), qsurf(ntsortie)
@@ -7962,6 +8054,8 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
       end select
    case ("ZNS")
 
+      kheure = int(paso/3600) + 1 ! Modif test
+      if (kheure > ligne4) kheure = ligne4
       if (kimp > ligne4) kimp = ligne4
       select case (icl(nm, 4))
       case (-2)
@@ -7970,6 +8064,14 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
          valcl(nm, 4) = (rho(nm)*g*(chgbottom(ligne4) - zbas))
       case (-1)
          valcl(nm, 4) = qbottom(kimp)
+!....option debug
+!         print *, vzm_nm1,valcl(nm, 4), qbottom(kimp), akr_bottom, ak_bottom,'bottom'
+
+
+      case (-4) !cas où l'on prends la vitesse de la maille précédente pour calculer le débit
+         valcl(nm, 4) = pro(nm-1)-rho(nm)*g*(z(nm-1)-z(nm)) ! Le flux sortant correspond au à la vitesse  de la face du bas de l'avant dernière maille
+         print *, valcl(nm, 4), akr_bottom, ak_bottom,'bottom'
+
       end select
 
       if (ivois(1, 3) == -99) then
@@ -7979,8 +8081,30 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
             if (abs(zhaut) < 1e-6) zhaut = 0D+00
             valcl(1, 3) = rho(1)*g*(chgsurf(kimp) - zhaut)
          case (-1)
+            !Ajouter le ruisselement
+            !ccc.....MODIF AVEC PLUIE nicolas radic
+            qpossible = akr_surf*1000*9.81/0.001            !akr_surf*ak_surf*1000*9.81/0.001 ! Calcul du flux max possible à l'aide de la permeabilité relative.
+            if (qpossible <= qsurf(kimp)) then ! Le débit de pluie est plus grand que le debit max possible dans le sol
+                 valcl(1,3) = qpossible ! L'infiltration est plafonné par la permeabilté relative
+                 print *, "ON A DIMINUE LE FLUX EN SURFACE en passant de ", qsurf(kimp), qpossible, akr_surf
+                 print *, 'HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH'
+                 print *, paso 
+               !   stop
+            else ! Dans le cas ou la pluie est plus faible que la permabilité relative 
             valcl(1, 3) = qsurf(kimp)
+            end if 
+            if (swo .gt. 0.985) then
+               valcl(1,3) = 0
+               print *, "Profil saturée le flux d'infiltration en surface est nul. 100% ruisselement valcl(1, 3) = 0"
+               ! stop
+            end if
+            !ccc....END MODIF
+            !valcl(1, 3) = qsurf(kimp)
          end select
+      end if
+      if (irptha == 1 ) then
+      valclt(1, 3) = tempsurf(kimp)
+      valclt(nm, 4) = tempbottom(kimp)
       end if
 
    case ("ZND")
