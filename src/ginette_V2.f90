@@ -356,8 +356,8 @@ program pression_ecoulement_transport_thermique
       icolone = 1
       imaille = 0
       itopo = 1
-      open (unit=32, file='E_zone.dat')
-      open (unit=321, file='E_zone_parameter.dat')
+      call open_file('E_zone.dat', An_Error, 32)
+      call open_file('E_zone_parameter.dat', An_Error, 321)
       open (unit=222, file='E_BordRD.dat', iostat=iidRD)
       open (unit=223, file='E_BordRG.dat', iostat=iidRG)
       open (unit=224, file='E_Id_river.dat', iostat=iidrv)
@@ -373,8 +373,8 @@ program pression_ecoulement_transport_thermique
       icolone = 1
       imaille = 0
       itopo = 1
-      open (unit=32, file='E_zone.dat')
-      open (unit=321, file='E_zone_parameter.dat')
+      call open_file('E_zone.dat', An_Error, 32)
+      call open_file('E_zone_parameter.dat', An_Error, 321)
       open (unit=222, file='E_BordRD.dat', iostat=iidRD)
       open (unit=223, file='E_BordRG.dat', iostat=iidRG)
       open (unit=2242, file='E_bottomZH.dat', iostat=iidZH)
@@ -397,7 +397,7 @@ program pression_ecoulement_transport_thermique
       itopo = 1
 
       call open_file('E_zone.dat', An_Error, 32)
-      open (unit=321, file='E_zone_parameter.dat')
+      call open_file('E_zone_parameter.dat', An_Error, 321)
       open (unit=222, file='E_BordRD.dat', iostat=iidRD)
       open (unit=223, file='E_BordRG.dat', iostat=iidRG)
       open (unit=2242, file='E_bottomZH.dat', iostat=iidZH)
@@ -473,10 +473,7 @@ program pression_ecoulement_transport_thermique
          stop 'File E_temp_t.dat does not exist'
       end if
       call open_file('E_zone.dat', An_Error, 32)
-      open (unit=321, file='E_zone_parameter.dat')
-      if (ios /= 0) then
-         stop 'File E_zone.dat does not exist'
-      end if
+      call open_file('E_zone_parameter.dat', An_Error, 321)
    end if
 
    if (ytest == "1DJ" .or. ytest == "ZND") then
@@ -484,11 +481,8 @@ program pression_ecoulement_transport_thermique
    end if
 
    if (ytest == "ZNS" .or. ytest == "1DJ" .or. ytest == "ZND") then
-      open (unit=32, file='E_zone.dat')
-      open (unit=321, file='E_zone_parameter.dat')
-      if (ios /= 0) then
-         stop 'File E_zone.dat does not exist'
-      end if
+      call open_file('E_zone.dat', An_Error, 32)
+      call open_file('E_zone_parameter.dat', An_Error, 321)
    end if
    if (ytest == "ZNS" .and. ith == 1) then
       open (unit=6868, file='E_temp_t.dat', iostat=ios)
@@ -1539,7 +1533,7 @@ program pression_ecoulement_transport_thermique
             swreszone(j)
 
       end do
-
+      close(321)  ! ← garantit qu'on ne lira plus rien
       do i = 1, nm
       do j = 1, nzone
       if (izone(i) == jzone(j)) then
@@ -1579,7 +1573,7 @@ program pression_ecoulement_transport_thermique
             swreszone(j)
 
       end do
-
+      close(321)  ! ← garantit qu'on ne lira plus rien
       do i = 1, nm
       do j = 1, nzone
       if (izone(i) == jzone(j)) then
@@ -1630,7 +1624,7 @@ program pression_ecoulement_transport_thermique
          read (321, *) jzone(j), akzone(j), omzone(j), anszone(j), aspzone(j), &
             swreszone(j), alandazone(j), cpmzone(j), rhomzone(j)
       end do
-
+      close(321)  ! ← garantit qu'on ne lira plus rien
       do i = 1, nm
       do j = 1, nzone
       if (izone(i) == jzone(j)) then
@@ -1672,7 +1666,7 @@ program pression_ecoulement_transport_thermique
             swreszone(j)
 
       end do
-
+      close(321)  ! ← garantit qu'on ne lira plus rien
       do i = 1, nm
 
          do j = 1, nzone
@@ -1705,7 +1699,7 @@ program pression_ecoulement_transport_thermique
          read (321, *) jzone(j), akzone(j), omzone(j), anszone(j), aspzone(j), &
             swreszone(j), alandazone(j), cpmzone(j), rhomzone(j)
       end do
-
+      close(321)  ! ← garantit qu'on ne lira plus rien
       do j = 1, nzone
             do i = 1, nm
       if (izone(i) == jzone(j)) then
@@ -1789,7 +1783,7 @@ program pression_ecoulement_transport_thermique
             alandazone(j), rhomzone(j)
 
       end do
-
+      close(321)  ! ← garantit qu'on ne lira plus rien
       do i = 1, nm
       do j = 1, nzone
       if (izone(i) == jzone(j)) then
@@ -1837,7 +1831,7 @@ program pression_ecoulement_transport_thermique
          read (321, *) jzone(j), akzone(j), omzone(j), &
             alandazone(j), rhomzone(j)
       end do
-
+      close(321)  ! ← garantit qu'on ne lira plus rien
       do i = 1, nm
       do j = 1, nzone
       if (izone(i) == jzone(j)) then
