@@ -9,16 +9,23 @@ Created on 08-12-2025
 
 
 # IMPORT:
+
+import sys
+from pathlib import Path
+# Add project root to path
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 import importlib
 import os
-import sys
 import numpy as np
 import pandas as pd
 from time import time
 import shutil
 import multiprocessing as mp
-from pathlib import Path
+
 import glob
+
 from src.src_python import Read_obs
 
 
