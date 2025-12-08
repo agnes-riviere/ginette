@@ -18,7 +18,7 @@ from pathlib import Path
 
 # %% PARAMETERS:
 # Define ranges for test parameters in the grid search:
-N = 2  # number of test by parameter (nb)
+N = 3  # number of test by parameter (nb)
 NB_parameters = 4  # number of parameters to test (nb)
 Name_parameters = ["log_k", "lam", "poro","cap"]  # names of parameters to test (list of str)
 # check NB_parameters and Name_parameters consistency
@@ -32,10 +32,10 @@ lam = 2.5  # thermal conductivity (W/m.°C)
 """
 
 # Parameters ranges [min, max]:
-log_k = [-15, -14]  # log of intrinsec permeability (k in m^2)
-lam = [1, 1]  # thermal conductivity (W/m.°C)
-poro=[0.25, 0.25]  # porosity (-)
-cap=[1.2e3, 1.2e3]  # volumetric heat capacity (J/m^3.°C)
+log_k = [-15, -12]  # log of intrinsec permeability (k in m^2)
+lam = [1, 3]  # thermal conductivity (W/m.°C)
+poro=[0.1, 0.5]  # porosity (-)
+cap=[1.2e3, 3.2e3]  # volumetric heat capacity (J/m^3.°C)
 
 # Check all parameter intervals are all defined and exist 
 # i.e all name_parameters are defined in a vector for example log_k, lam, poro, cap

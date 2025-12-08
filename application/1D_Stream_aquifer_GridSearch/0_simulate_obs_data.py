@@ -26,6 +26,16 @@ import shutil
 import multiprocessing as mp
 from pathlib import Path
 
+
+    # Moded parameters:
+nb_zone = 1
+alt_thk = 0
+n = 0.25
+c= 3500
+k=-12.5
+lam=2.5
+
+
 # Find project-relative src and application directories (no absolute paths)
 def find_project_paths(start_file=__file__):
     p = Path(start_file).resolve().parent
@@ -87,7 +97,7 @@ try:
                                smooth_square_wave)
 except Exception:
      # fallback to legacy module name if present
-    from direct_model_ginette import (setup_ginette2,
+    from direct_model import (setup_ginette2,
                                        initial_conditions,
                                        boundary_conditions,
                                        run_direct_model,
@@ -117,7 +127,7 @@ except Exception:
         shutil.copy(src, os.path.join(dst_dir, os.path.basename(src)))
 
 
-def run_ginette(ID, k, lam):
+def run_ginette(ID, k, n,lam,c):
     # Temp dir:
     temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
     os.makedirs(temp_dir, exist_ok=True)
@@ -177,11 +187,7 @@ def run_ginette(ID, k, lam):
     print("Setup ginette model...")
     z_obs = setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz,
                            date_simul_bg, dz_obs)
-    # Moded parameters:
-    nb_zone = 1
-    alt_thk = 0
-    REF_n = 0.05
-    REF_r = 3500
+
 
     # 1) PREPARE BOUNDARY CONDITIONS:
     # Define data table:
@@ -245,9 +251,9 @@ def run_ginette(ID, k, lam):
                                 nb_zone,
                                 alt_thk,
                                 k,
-                                REF_n,
+                                n,
                                 lam,
-                                REF_r,
+                                c,
                                 REF_k2=None,
                                 REF_n2=None,
                                 REF_l2=None,
@@ -261,7 +267,7 @@ def run_ginette(ID, k, lam):
     shutil.rmtree(temp_dir)
     return
 
-run_ginette(-1, -12, 2.5)
+run_ginette(-1, k,n,lam,c)
 
 # %% PLOT OBSERVED DATA:
 data = pd.read_csv(os.path.join(RESULTS_DIR, "sim_temp_-1.txt"), delimiter=" ",

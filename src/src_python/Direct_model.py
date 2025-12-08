@@ -487,6 +487,10 @@ def boundary_conditions_2D(all_data,dt):
     f_param_lec_new.write(lec_bc)
     return
 
+def smooth_square_wave(x, period):
+    return 2 / (1 + np.exp(-5 * np.sin(2*np.pi * x / period))) - 1
+
+
 def boundary_conditions(all_data,dt):
 
     """
