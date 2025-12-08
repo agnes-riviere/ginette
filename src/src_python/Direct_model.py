@@ -157,7 +157,9 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     list: A list of observation depths.
     """
     print("la simulation commence à", date_simul_bg)
-    
+    # repertoire
+
+    print(os.getcwd())
     # number of cell
     nb_cell=az/dz
     #-----------------------------------------------------------------

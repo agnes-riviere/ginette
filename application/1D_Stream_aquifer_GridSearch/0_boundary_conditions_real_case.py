@@ -9,6 +9,7 @@ Created on 08-12-2025
 
 
 # IMPORT:
+import importlib
 import os
 import sys
 import numpy as np
@@ -17,13 +18,12 @@ from time import time
 import shutil
 import multiprocessing as mp
 from pathlib import Path
+import glob
+from src.src_python import Read_obs
 
 
 
 # Set up directories and data paths
-# This path contains the observational data (temperature sensors, pressure measurements)
-Obs_data = '../OBS_point/Point3_540_SOULTZ/'
-
 
 # Get current script directory
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -31,24 +31,119 @@ BASE_DIR = str(SCRIPT_DIR)
 
 # Navigate to sibling directories
 GINETTE_SENSI = os.path.join(BASE_DIR, "GINETTE_SENSI")
-SYNTHETIC_CASES = os.path.join(BASE_DIR, "SYNTHETIC_CASES")
 RESULTS_DIR = os.path.join(BASE_DIR, "results")
+# This path contains the observational data (temperature sensors, pressure measurements)
+Obs_data = os.path.join(BASE_DIR,'OBS_point/Point3_540_SOULTZ/')
+# =============================================================================
+# SIMULATION SETUP: Define temporal parameters and read observational data
+# =============================================================================
+importlib.reload(Read_obs)
+# Start date and time for the simulation
+# This corresponds to when field measurements began
+date_simul_bg = pd.to_datetime("2025/09/26 12:00:00")
 
-# Go up to repo root if needed
-REPO_ROOT = SCRIPT_DIR.parents[2]
-z_top = 0
-z_bottom = -5
-n_depths = 250
-dz_obs = 0.1
-# Time parameters:
-start_date = "2025/09/26 12:00:00"
+# Simulation state configuration:
+# 0 = steady state (time-independent, equilibrium conditions)
+# 1 = transient state (time-dependent, dynamic evolution)
+# We use transient state to capture temporal variations in temperature and flow
+state = 1
+
+# Data processing coefficients
+coef = 1    # Scaling coefficient for pressure measurements
+offset = 0  # Offset for pressure measurements (baseline correction)
+# Simulation duration in days
+# 30 days provides sufficient time to observe seasonal patterns and model spin-up
 nb_day = 30
-dt = 3*3600
-state = 1  # 1 for transcient
+# =============================================================================
+# MODEL GEOMETRY AND DISCRETIZATION SETUP
+# =============================================================================
 
-# This creates OUTPUT and SENSI folders and compiles the Fortran code
-ginette_sensi_path = os.path.join(BASE_DIR, "GINETTE_SENSI")
-prepare_ginette_directories(ginette_sensi_path)
+# TEMPORAL DISCRETIZATION
+# Time step in seconds (900s = 15 minutes)
+# This matches the measurement frequency and ensures numerical stability
+dt = 900
+
+# SPATIAL DOMAIN DEFINITION (1D vertical column)
+z_top = 0.0      # Surface elevation (stream bed) [m]
+z_bottom = -0.4  # Bottom of model domain [m] (40 cm below streambed)
+az = abs(z_top - z_bottom)  # Total column height [m]
+
+# GRID DISCRETIZATION
+dz = 0.01        # Vertical cell size [m] (1 cm resolution)
+                 # Fine discretization needed to capture thermal gradients
+
+# OBSERVATION DEPTHS
+dz_obs = 0.1     # Spacing between temperature sensors [m] (10 cm)
+                 # Sensors at -10, -20, -30, -40 cm depths
+
+# =============================================================================
+# HYDROGEOLOGICAL PARAMETER DEFINITION
+# =============================================================================
+
+# GEOLOGICAL HETEROGENEITY
+# Number of geological facies (material zones) in the column
+# nb_zone = 1: Homogeneous porous medium
+# nb_zone = 2: Two-layer system (typical for streambed environments)
+nb_zone = 1
+
+# Boundary between geological zones [m]
+# Negative value indicates depth below streambed surface
+alt_thk = -0.32  # Interface at 32 cm depth
+
+# =============================================================================
+# ZONE 1 PARAMETERS (Upper layer: 0 to -32 cm)
+# Typically represents looser, more permeable streambed sediments
+# =============================================================================
+
+# POROSITY (φ) - Fraction of void space available for fluid flow
+REF_n = 0.8  # High porosity typical of loose gravel/sand
+
+# INTRINSIC PERMEABILITY (k) - Measure of medium's ability to transmit fluid
+# Relationship: k = K·μ/(ρ·g) where:
+# - K: hydraulic conductivity [m/s]
+# - μ: dynamic viscosity [Pa·s]
+# - ρ: fluid density [kg/m³]
+# - g: gravitational acceleration [m/s²]
+REF_k = -15  # Log₁₀(permeability in m²)
+               # k = 10^(-13.5) ≈ 3.16×10^(-14) m²
+               # Corresponds to coarse sand/fine gravel
+
+# THERMAL CONDUCTIVITY (λ) - Heat conduction efficiency [W/m·K]
+REF_l = 2.0    # Typical for water-saturated sediments
+
+# SOLID GRAIN DENSITY (ρₛ) - Density of mineral grains [kg/m³]
+REF_r = 3500   # Typical for quartz-rich sediments
+
+# HEAT CAPACITY CALCULATION (handled internally by Ginette):
+# c_pm = c_w·ρ_w·n·S + c_s·ρ_s·(1-n) + c_a·ρ_a·n·(1-S)
+# where:
+# - c_w = 4185 J/kg·°C (specific heat of water)
+# - c_s = variable J/kg·°C (specific heat of solid)
+# - S = saturation ratio
+# - Fixed ρ_m = 1000 kg/m³ (imposed by Ginette)
+
+# =============================================================================
+# ZONE 2 PARAMETERS (Lower layer: -32 to -40 cm)
+# Typically represents more compact, less permeable substrate
+# =============================================================================
+
+if nb_zone == 2:
+    REF_n2 = 0.3    # Lower porosity (more compact sediment)
+    REF_k2 = -13     # Higher permeability: k = 10^(-13) m²
+    REF_l2 = 2.65    # Higher thermal conductivity (more mineral content)
+    REF_r2 = 3500    # Same grain density (similar mineral composition)
+
+print(f"Geological configuration:")
+print(f"- Number of zones: {nb_zone}")
+if nb_zone == 2:
+    print(f"- Zone interface at: {alt_thk} m")
+    print(f"- Zone 1 (upper): n={REF_n}, k=10^{REF_k} m², λ={REF_l} W/m·K")
+    print(f"- Zone 2 (lower): n={REF_n2}, k=10^{REF_k2} m², λ={REF_l2} W/m·K")
+else:
+    print(f"- Homogeneous medium: n={REF_n}, k=10^{REF_k} m², λ={REF_l} W/m·K")
+
+
+
 
 # Find project-relative src and application directories (no absolute paths)
 def find_project_paths(start_file=__file__):
@@ -104,14 +199,16 @@ if os.path.isdir(SRC_PY):
 # Import project modules from src_python (robust to module name/case)
 try:
     # preferred: modules as they appear in src/src_python
-    from Direct_model import (setup_ginette2,
+    from Direct_model import (setup_ginette2,setup_ginette,
                                initial_conditions,
                                boundary_conditions,
                                run_direct_model,
                                smooth_square_wave)
+    from Read_obs import (process_obs_data, convert_dates,read_csv_with_multiple_separators)
+    from Plot import plot_initial_conditions
 except Exception:
      # fallback to legacy module name if present
-    from direct_model_ginette import (setup_ginette2,
+    from Direct_model import (setup_ginette2,
                                        initial_conditions,
                                        boundary_conditions,
                                        run_direct_model,
@@ -141,164 +238,90 @@ except Exception:
         shutil.copy(src, os.path.join(dst_dir, os.path.basename(src)))
 
 
-def run_ginette(ID, k, lam):
-    # Temp dir:
-    temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
-    os.makedirs(temp_dir, exist_ok=True)
-    prepare_ginette_directories(temp_dir)
-
-    def _copy_from_app(name):
-        candidates = [
-            os.path.join(BASE_APP_DIR, "GINETTE_SENSI", name),
-            os.path.join(BASE_APP_DIR, name),
-            os.path.join(REPO_ROOT, "application", "1D_Stream_aquifer_GridSearch", "GINETTE_SENSI", name),
-            os.path.join(REPO_ROOT, "application", "1D_Stream_aquifer_GridSearch", name),
-        ]
-        for src in candidates:
-            if os.path.exists(src):
-                copy_file(src, temp_dir)
-                return
-        raise FileNotFoundError(f"Template '{name}' not found. Looked in: {candidates}")
-
-    # Copy required template files from the application folder (tries multiple locations)
-    for fname in [
-        "E_parametre_bck.dat",
-        "E_p_therm_bck.dat",
-        "E_cdt_aux_limites_bck.dat",
-        "E_zone_parameter_bck.dat",
-        "ginette",
-        "Sim_temperature_maille1_t.dat",
-        "Sim_temperature_maille2_t.dat",
-        "Sim_temperature_maille3_t.dat",
-        "E_cdt_initiale.dat",
-    ]:
-        _copy_from_app(fname)
-
-    # rename backup parameter file if present
-    src_param = os.path.join(temp_dir, "E_parametre_bck.dat")
-    if os.path.exists(src_param):
-        os.rename(src_param, os.path.join(temp_dir, "E_parametre_backup.dat"))
-
-    # run inside the temp directory (use absolute path)
-    os.chdir(temp_dir)
-    print("Current working directory:", os.getcwd())
-
-
-
- 
- 
-    az = abs(z_top - z_bottom)
-    dz = az / n_depths
-
- 
-    date_simul_bg = pd.to_datetime(start_date)
-
-    print("Setup ginette model...")
-    z_obs = setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz,
-                           date_simul_bg, dz_obs)
-
-    # 1) PREPARE BOUNDARY CONDITIONS:
-    # Define data table:
-    seconds_per_day = 86400
-    seconds_per_week = 604800
-    t_final = nb_day * seconds_per_day
-    df_BC = pd.DataFrame()
-    df_BC["times"] = np.arange(0, t_final, dt)
-    df_BC["days"] = df_BC["times"]/seconds_per_day
-
-    # Calculate boundaries temperature:
-    deg_per_day = 0.3
-    df_BC["T_top"] = (5*np.sin(2*np.pi*df_BC["times"]/seconds_per_day) +
-                      deg_per_day*df_BC["days"] +
-                      3*np.sin(2*np.pi*df_BC["times"] / seconds_per_week) + 17)
-    df_BC["T_bottom"] = 10 * np.ones_like(df_BC["times"])
-
-    # Calculate hydraulic head at top and bottom boundaries:
-    reduced_period = 3 * seconds_per_week
-    base_head = 5.0
-    head_amplitude = 0.2
-    df_BC["h_top"] = (head_amplitude * smooth_square_wave(
-        df_BC["times"], reduced_period) + base_head)
-    df_BC["h_bottom"] = base_head * np.ones_like(df_BC["times"])
-    df_BC["head_gradient"] = (df_BC["h_top"] - df_BC["h_bottom"]) / az
-
-    # 2) CREATE MEASUREMENT TABLE:
-    obs_temp = pd.DataFrame({
-        "dates": date_simul_bg + pd.to_timedelta(df_BC["times"], unit="s"),
-        "h_top": df_BC["h_top"],
-        "h_bottom": df_BC["h_bottom"],
-        "T_top": df_BC["T_top"],
-        "T_bottom": df_BC["T_bottom"]})
-
-    # 3) SET INITIAL ANd BOUNDARIES CONDITIONS:
-    # Set initial conditions:
-    z_obs = [-5]
-    initial_conditions(obs_temp, z_top, z_bottom, dz, z_obs)
-
-    # Set boundary conditions in temperature:
-    boundary_conditions(obs_temp, dt)
-
-    # Save initial and boundary conditions file in /home/ariviere/Programmes/ginette/application/1D_Stream_aquifer_GridSearch/SYNTHETIC_CASES:
-    # E_charge_initiale.dat, E_charge_t.dat, E_temp_t.dat, E_temperature_initiale.dat
-    for fname in [ 
-        "E_charge_t.dat",
-        "E_temp_t.dat"
-    ]:
-        src = os.path.join(temp_dir, fname)
-        dst_dir = os.path.join(BASE_APP_DIR, "SYNTHETIC_CASES")
-        if os.path.exists(src):
-            copy_file(src, dst_dir)
-        else:
-            print(f"Warning: {fname} not found in {temp_dir}")
-        
-
-    # 4) RUN SIMULATION
-    sim_temp = run_direct_model(date_simul_bg,
-                                z_bottom,
-                                dz,
-                                nb_zone,
-                                alt_thk,
-                                k,
-                                REF_n,
-                                lam,
-                                REF_r,
-                                REF_k2=None,
-                                REF_n2=None,
-                                REF_l2=None,
-                                REF_r2=None)
-
-    # Save results:
-    sim_temp.to_csv(os.path.join(RESULTS_DIR,
-                                 f"sim_temp_{ID}.txt"), sep=" ")
-
-    # Del temp
-    shutil.rmtree(temp_dir)
-    return
-
-run_ginette(-1, -12, 2.5)
-
-# %% PLOT OBSERVED DATA:
-data = pd.read_csv(os.path.join(RESULTS_DIR, "sim_temp_-1.txt"), delimiter=" ",
-                   index_col=[0])
-data.to_csv(os.path.join(RESULTS_DIR, "observed_data.txt"), sep=" ")
 
 
 
 
-import matplotlib.pyplot as plt
-plt.rcParams["font.size"] = 16
 
-fig, ax = plt.subplots(figsize=(16, 9), dpi=100)
-ax.plot(data.Time, data.Temp1, ls="-", lw=2, color="red",
-        label="Temperature 1 (-10 cm)")
-ax.plot(data.Time, data.Temp2, ls="-", lw=2, color="green",
-        label="Temperature 2 (-20 cm")
-ax.plot(data.Time, data.Temp3, ls="-", lw=2, color="blue",
-        label="Temperature 3 (-30 cm)")
-ax.set_xlabel("Time (s)")
-ax.set_ylabel("Temperature (°C)")
-ax.grid()
-ax.legend(loc="upper right")
-ax.set_title("Observed data", loc="left")
+# List available CSV files in the observational data directory
+print("CSV files in observational data directory:")
+for file in glob.glob(os.path.join(Obs_data, '*.csv')):
+    print(f"- {file}")
 
-# %%
+# Process observational data using the corrected function:
+# - Reads temperature and pressure time series from CSV files with proper semicolon parsing
+# - Interpolates to 15-minute intervals (matching model time step)
+# - Applies quality control and filtering
+# - Returns DataFrame with synchronized measurements
+obs_temp = process_obs_data(Obs_data, date_simul_bg, coef, offset, nb_day)
+# modifier pour le pas de simulation soit variable et pas 900 secondes
+print(f"\nObservational data loaded successfully:")
+print(f"- Time period: {obs_temp.index.min()} to {obs_temp.index.max()}")
+print(f"- Number of time steps: {len(obs_temp)}")
+print(f"- Available measurements: {list(obs_temp.columns)}")
+print(f"- Data shape: {obs_temp.shape}")
+
+
+# GO in  BASE_DIR
+os.chdir(GINETTE_SENSI)
+# Initialize Ginette model files and return observation depths
+# This function creates all necessary input files for the Ginette model:
+# - Parameter files (E_parametre.dat)
+# - Thermal parameter files (E_p_therm.dat)
+# - Grid coordinates and observation points
+z_obs = setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs)
+
+print(f"Model domain setup:")
+print(f"- Vertical extent: {z_top} to {z_bottom} m")
+print(f"- Cell size: {dz} m")
+print(f"- Number of cells: {int(az/dz)}")
+print(f"- Time step: {dt} s ({dt/60} minutes)")
+print(f"- Observation depths: {z_obs} m")
+
+
+
+# =============================================================================
+# INITIAL AND BOUNDARY CONDITIONS SETUP
+# =============================================================================
+
+# INITIAL CONDITIONS: Set starting temperature and pressure fields
+# These represent the system state at t=0 (simulation start)
+initial_conditions(obs_temp, z_top, z_bottom, dz, z_obs)
+# This function:
+# 1. Interpolates measured temperatures to all grid cells
+# 2. Creates initial pressure profile from surface pressure measurements
+# 3. Writes E_temperature_initiale.dat and E_charge_initiale.dat
+
+# BOUNDARY CONDITIONS: Define time-varying surface and bottom conditions
+# Critical for realistic simulation of stream-aquifer interactions
+boundary_conditions(obs_temp, dt)
+# This function:
+# 1. Sets surface temperature from stream measurements (time-varying)
+# 2. Sets bottom temperature from deep sensor (less variable)
+# 3. Sets surface pressure from differential pressure measurements
+# 4. Sets bottom pressure boundary (typically fixed or gradient)
+# 5. Writes E_cdt_aux_limites.dat, E_charge_t.dat, E_temp_t.dat
+
+print("Initial and boundary conditions applied:")
+print("- Initial temperature profile interpolated from observations")
+print("- Initial pressure profile derived from surface measurements")
+print("- Time-varying surface conditions from observational data")
+
+
+# =============================================================================
+# PLOT INITIAL CONDITIONS
+# =============================================================================
+
+
+
+# Plot the initial temperature and pressure profiles
+# This visualization helps verify that the initial conditions are realistic
+# and properly interpolated from the observational data
+plot_initial_conditions()
+
+# The plots show:
+# 1. Initial temperature profile: Interpolated from sensor measurements
+# 2. Initial pressure profile: Derived from surface pressure measurements
+# 
+# These initial conditions serve as the starting point (t=0) for the simulation
+# and should represent a reasonable approximation of the actual field conditions
