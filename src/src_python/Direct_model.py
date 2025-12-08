@@ -211,42 +211,83 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     return z_obs
     
     #-----------------------------------------------------------------
-def initial_conditions_perm_2D():
-    """
-    Sets up the initial conditions for a 2D model by reading a template file,
-    replacing placeholders with specific values, and writing the modified
-    content to a new file.
-    This function performs the following steps:
-    1. Opens a template file named "E_cdt_initiale_bck.dat" in read mode.
-    2. Reads the content of the template file.
-    3. Replaces placeholders '[chg_i]' and '[temp_i]' in the content with
-       specific integer values (0 in this case).
-    4. Writes the modified content to a new file named "E_cdt_initiale.dat".
-    5. Closes both the input and output files.
-    Note:
-    - The placeholders '[chg_i]' and '[temp_i]' in the template file must
-      exist for the replacement to work correctly.
-    - The function assumes that the files are located in the current working
-      directory.
-    Raises:
-    - FileNotFoundError: If the template file "E_cdt_initiale_bck.dat" does
-      not exist.
-    - IOError: If there are issues reading from or writing to the files.
-    """
 
+def setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_obs, verbose=False):
+    """
+    Sets up the Ginette model parameters and writes them to the appropriate files in transient state.
+    Parameters:
+    dt (float): Time step for the simulation.
+    state (int): State of the simulation.
+    nb_day (float): Number of days for the simulation.
+    z_top (float): Top boundary of the model domain.
+    z_bottom (float): Bottom boundary of the model domain.
+    az (float): Total height of the model domain.
+    dz (float): Cell height in the model domain.
+    date_simul_bg (str): Start date of the simulation.
+    dz_obs (float): Observation depth interval.
+    Returns:
+    list: A list of observation depths.
+    """
+    if verbose:
+        print("la simulation commence à", date_simul_bg)
+    
+    # number of cell
+    nb_cell=az/dz
+    #-----------------------------------------------------------------
     ## write the setup of the modeled domain
-    f_IC_bck = open("E_cdt_initiale_bck.dat", "r")
-    f_IC_new = open("E_cdt_initiale.dat", 'w')
-    setup_IC=f_IC_bck.read()
-    ichg_i=0
-    itemp_i=0
-    setup_IC = setup_IC.replace('[chg_i]', '%1i' % ichg_i)
-    setup_IC = setup_IC.replace('[temp_i]', '%1i' % itemp_i)
-    f_IC_new.write(setup_IC)
-    f_IC_bck.close()
-    f_IC_new.close()   
+    # f_param_bck = open("E_parametre_bck.dat", "r")
+    f_param_bck = open("E_parametre_backup.dat", "r")
+    f_param_new = open("E_parametre.dat", 'w')
+    setup_model = f_param_bck.read()
+    setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
+    setup_model = setup_model.replace('[state]', '%1i' % state)
+    setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)
+    setup_model = setup_model.replace('[z_top]', '%7.3e' % z_top)
+    setup_model = setup_model.replace('[z_bottom]', '%7.2e' % z_bottom)
+    setup_model = setup_model.replace('[az]', '%7.3e' % az)
+    setup_model = setup_model.replace('[dz]', '%6.2e' % dz)
+    setup_model = setup_model.replace('[nb_cell]', '%05.0f' % nb_cell)
+    setup_model= setup_model.replace('[itsortie]', '%08.0f' % dt)
+
+    # Observation positions x 0.50000
+    # Observation in meter
+    Obs1 = z_top - dz_obs
+    Obs2 = z_top - dz_obs * 2
+    Obs3 = z_top - dz_obs * 3
+    Obs4 = z_top - dz_obs * 4
+
+    # Create z_obs vector
+    z_obs = [Obs1, Obs2, Obs3, Obs4]
+    ## write the parameters
+    cell1 = abs(Obs1 / dz)
+    cell2 = abs(Obs2 / dz)
+    cell3 = abs(Obs3 / dz)
+    cell4 = abs(Obs4 / dz)
+    setup_model = setup_model.replace('[cell1]', '%05.0f' % cell1)
+    setup_model = setup_model.replace('[cell2]', '%05.0f' % cell2)
+    setup_model = setup_model.replace('[cell3]', '%05.0f' % cell3)
+    setup_model = setup_model.replace('[cell4]', '%05.0f' % cell4)
+    f_param_new.write(setup_model)
+    f_param_bck.close()
+    f_param_new.close()
+    
+    #-----------------------------------------------------------------
+    f_param_therm=open("E_p_therm_bck.dat", "r")
+    f_param_therm_new=open("E_p_therm.dat", "w")
+    therm=f_param_therm.read()
+    therm = therm.replace('[state]', '%1i' % state)
+    f_param_therm_new.write(therm)
+    f_param_therm_new.close()
+    f_param_therm.close()
+    
+    #-----------------------------------------------------------------
 
 
+    return z_obs
+
+
+
+#______________________________________________________________________________________
 
 def initial_conditions_2D():
     """
@@ -364,6 +405,13 @@ def initial_conditions(all_data, z_top, z_bottom, dz, z_obs):
         interpolated_chg_sorted = interpolated_chg.sort_values(by='z', ascending=False)
 
         interpolated_chg_sorted['chg'].to_csv(f_chg_IC, index=False, sep='\n', header=False)
+
+
+def format_value(value):
+    """
+    Formate une valeur flottante dans le format 00000000d+00.
+    """
+    return "{:0=+12.2e}".format(value).replace('e', 'd')
 
 
 
@@ -508,7 +556,7 @@ def boundary_conditions(all_data,dt):
 #-----------------------------------------------------------------
 
 
-def boundary_conditions_perm_2D(all_data,dt):
+def boundary_conditions_perm_2D(all_data,dt,filename="E_cdt_aux_limites_bck.dat"):
     """
     Sets boundary conditions for permeability based on the provided data and writes them to a file.
     Parameters:
@@ -534,7 +582,7 @@ def boundary_conditions_perm_2D(all_data,dt):
     None
     """   
         #-----------------------------------------------------------------
-    f_param_lec=open("E_cdt_aux_limites_bck.dat", "r")
+    f_param_lec=open(filename, "r")
     f_param_lec_new=open("E_cdt_aux_limites.dat", "w")
     lec_bc=f_param_lec.read()
 
@@ -976,3 +1024,10 @@ def reuse_end_in_initial(source_file, destination_file):
         raise ValueError(f"The column to copy from {source_file} is empty.")
     np.savetxt(destination_file, column_to_copy, fmt='%f')
 
+
+def smooth_square_wave(x, period):
+    return 2 / (1 + np.exp(-5 * np.sin(2*np.pi * x / period))) - 1
+
+
+def copy_file(source, destination):
+    shutil.copy2(source, destination)

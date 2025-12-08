@@ -461,9 +461,6 @@ program pression_ecoulement_transport_thermique
    if (ytest == "ZHZ") then
       call open_file('E_zone.dat', An_Error, 32)
       call open_file('E_zone_parameter.dat', An_Error, 321)
-      if (ios /= 0) then
-         stop 'File E_zone.dat does not exist'
-      end if
    end if
 
    if (ytest == "1DS") then
