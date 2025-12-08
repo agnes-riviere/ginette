@@ -172,10 +172,7 @@ def run_ginette(ID, k, n,lam,c):
     ]:
         _copy_from_app(fname)
 
-    # rename backup parameter file if present
-    src_param = os.path.join(temp_dir, "E_parametre_bck.dat")
-    if os.path.exists(src_param):
-        os.rename(src_param, os.path.join(temp_dir, "E_parametre_backup.dat"))
+
 
     # run inside the temp directory (use absolute path)
     os.chdir(temp_dir)
