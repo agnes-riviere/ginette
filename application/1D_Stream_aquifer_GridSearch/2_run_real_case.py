@@ -3,54 +3,86 @@
 """
 Created on Tue Nov 18 09:51:06 2025
 
-@author: Maxime Gautier, Agnes Rivière, Samuel Larance
+@author: Maxime Gautier
 """
 
 
 # IMPORT:
 import os
 import sys
+
 import numpy as np
 import pandas as pd
 from time import time
 import shutil
 import multiprocessing as mp
 from pathlib import Path
-Delete_sim="True"
+# Add project root to path
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
+
+from src.src_python.Direct_model import setup_ginette
+from src.src_python.Init_folders import compile_ginette
+# =============================================================================
+# MODEL GEOMETRY AND DISCRETIZATION SETUP
+# =============================================================================
+# Set up directories and data paths
+# This path contains the observational data (temperature sensors, pressure measurements)
+Obs_data = '../OBS_point/Point1Touques/'
+# Start date and time for the simulation
+# This corresponds to when field measurements began
+date_simul_bg = pd.to_datetime("2022/04/21 14:00:00")
 
 
-def delete_sim_temp(my_dir,temp):
-    """
-    Delete files in my_dir whose name starts with 'sim_temp'.
-    Deletes temp_ repertory in temp if exists.
-    -----------
-    my_dir : str
-        Directory path where to delete files.
-    -----------
-    Returns
-    None
-    ----------- 
-    """
-    p = Path(my_dir)
-    if not p.exists():
-        return
-    if not p.is_dir():
-        raise NotADirectoryError(f"Not a directory: {my_dir}")
-    for f in p.glob("sim_temp*"):
-        try:
-            if f.is_file():
-                f.unlink()
-        except Exception as e:
-            print(f"Failed to remove {f}: {e}")
-    # delete temp_ repertory in temp if exists
-    temp_p = Path(temp)
-    if temp_p.exists() and temp_p.is_dir():
-        for sub in temp_p.glob("temp_*"):
-            try:
-                if sub.is_dir():
-                    shutil.rmtree(sub)
-            except Exception as e:
-                print(f"Failed to remove directory {sub}: {e}")
+# TEMPORAL DISCRETIZATION
+# Time step in seconds (900s = 15 minutes)
+# This matches the measurement frequency and ensures numerical stability
+dt = 900
+# Simulation state configuration:
+# 0 = steady state (time-independent, equilibrium conditions)
+# 1 = transient state (time-dependent, dynamic evolution)
+# We use transient state to capture temporal variations in temperature and flow
+state = 1
+# SPATIAL DOMAIN DEFINITION (1D vertical column)
+z_top = 0.0      # Surface elevation (stream bed) [m]
+z_bottom = -0.4  # Bottom of model domain [m] (40 cm below streambed)
+az = abs(z_top - z_bottom)  # Total column height [m]
+
+# GRID DISCRETIZATION
+dz = 0.01        # Vertical cell size [m] (1 cm resolution)
+                 # Fine discretization needed to capture thermal gradients
+
+# OBSERVATION DEPTHS
+dz_obs = 0.1     # Spacing between temperature sensors [m] (10 cm)
+                 # Sensors at -10, -20, -30, -40 cm depths
+
+
+nb_day = 30      # Simulation duration
+# =============================================================================
+# HYDROGEOLOGICAL PARAMETER DEFINITION
+# =============================================================================
+
+# GEOLOGICAL HETEROGENEITY
+# Number of geological facies (material zones) in the column
+# nb_zone = 1: Homogeneous porous medium
+# nb_zone = 2: Two-layer system (typical for streambed environments)
+nb_zone = 1
+
+# Boundary between geological zones [m]
+# Negative value indicates depth below streambed surface
+alt_thk = -0.32  # Interface at 32 cm depth
+
+# Initialize Ginette model files and return observation depths
+# This function creates all necessary input files for the Ginette model:
+# - Parameter files (E_parametre.dat)
+# - Thermal parameter files (E_p_therm.dat)
+
+print(f"Model domain setup:")
+print(f"- Vertical extent: {z_top} to {z_bottom} m")
+print(f"- Cell size: {dz} m")
+print(f"- Number of cells: {int(az/dz)}")
+print(f"- Time step: {dt} s ({dt/60} minutes)")
+print(f"- Observation depths: {dz_obs} m")
 
 
 
@@ -286,33 +318,29 @@ def run_ginette(ID, k, lam):
     return
 
 
+
+
 if __name__ == "__main__":
 
-    # result is ginette/application/1D_Stream_aquifer_GridSearch/results/
-    # temp is ginette/application/1D_Stream_aquifer_GridSearch/temp/
-    # verify repertory temp and results exist
-    os.makedirs(os.path.join(BASE_APP_DIR, "temp"), exist_ok=True)
-    os.makedirs(os.path.join(BASE_APP_DIR, "results"), exist_ok=True)
-    if (Delete_sim=="True"):
-        delete_sim_temp(os.path.join(BASE_APP_DIR, "results"),os.path.join(BASE_APP_DIR, "temp"))
-    # grid search in results/grid_search.csv
-    grid = pd.read_csv(os.path.join(BASE_APP_DIR, "results", "grid_search.csv"), delimiter=";")
+    grid = pd.read_csv(os.path.join("grid_search.csv"), delimiter=";")
+    os.makedirs("results", exist_ok=True)
+    os.makedirs("temp", exist_ok=True)
+    compile_ginette()
+    
+    # - Grid coordinates and observation points
+    z_obs = setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs)
 
-    # find which simulations are already done
-    # if file sim_temp_ID.txt exists in results/, consider it done
-    if (Delete_sim!="True"):
-        done = sorted([int(f.split("_")[-1].split(".")[0])
-                   for f in os.listdir(os.path.join(BASE_APP_DIR, "results"))])[1:]
-        remains = [i for i in grid.ID if i not in done]
-    else:
-        remains = grid.ID.tolist()
+    
+#    done = sorted([int(f.split("_")[-1].split(".")[0])
+#                   for f in os.listdir(os.path.join("results"))])[1:]
+#    remains = [i for i in grid.ID if i not in done]
 
-    params = [[r.ID, r.log_k, r.lam] for r in grid.itertuples()
-              if r.ID in remains]
-    to = time()
-    with mp.Pool(processes=mp.cpu_count()-2) as pool:
-        result = pool.starmap_async(run_ginette, params)
-        pool.close()
-        pool.join()
-    tf = time()
-    print(f"Run time for {len(params)} simulations: {round(tf-to, 2)} s")
+#    params = [[r.ID, np.log10(r.log_k), r.lam] for r in grid.itertuples()
+#              if r.ID in remains]
+#    to = time()
+#    with mp.Pool(processes=mp.cpu_count()-2) as pool:
+#        result = pool.starmap_async(run_ginette, params)
+#        pool.close()
+#        pool.join()
+ #   tf = time()
+ #   print(f"Run time for {len(params)} simulations: {round(tf-to, 2)} s")

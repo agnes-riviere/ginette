@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 18 09:51:06 2025
+Created on 08-12-2025
 
-@author: Maxime Gautier, Agnes Rivière, Samuel Larance
+
+@author: Agnès Rivière, Samuel Larance
 """
 
 
@@ -16,43 +17,38 @@ from time import time
 import shutil
 import multiprocessing as mp
 from pathlib import Path
-Delete_sim="True"
 
 
-def delete_sim_temp(my_dir,temp):
-    """
-    Delete files in my_dir whose name starts with 'sim_temp'.
-    Deletes temp_ repertory in temp if exists.
-    -----------
-    my_dir : str
-        Directory path where to delete files.
-    -----------
-    Returns
-    None
-    ----------- 
-    """
-    p = Path(my_dir)
-    if not p.exists():
-        return
-    if not p.is_dir():
-        raise NotADirectoryError(f"Not a directory: {my_dir}")
-    for f in p.glob("sim_temp*"):
-        try:
-            if f.is_file():
-                f.unlink()
-        except Exception as e:
-            print(f"Failed to remove {f}: {e}")
-    # delete temp_ repertory in temp if exists
-    temp_p = Path(temp)
-    if temp_p.exists() and temp_p.is_dir():
-        for sub in temp_p.glob("temp_*"):
-            try:
-                if sub.is_dir():
-                    shutil.rmtree(sub)
-            except Exception as e:
-                print(f"Failed to remove directory {sub}: {e}")
+
+# Set up directories and data paths
+# This path contains the observational data (temperature sensors, pressure measurements)
+Obs_data = '../OBS_point/Point3_540_SOULTZ/'
 
 
+# Get current script directory
+SCRIPT_DIR = Path(__file__).resolve().parent
+BASE_DIR = str(SCRIPT_DIR)
+
+# Navigate to sibling directories
+GINETTE_SENSI = os.path.join(BASE_DIR, "GINETTE_SENSI")
+SYNTHETIC_CASES = os.path.join(BASE_DIR, "SYNTHETIC_CASES")
+RESULTS_DIR = os.path.join(BASE_DIR, "results")
+
+# Go up to repo root if needed
+REPO_ROOT = SCRIPT_DIR.parents[2]
+z_top = 0
+z_bottom = -5
+n_depths = 250
+dz_obs = 0.1
+# Time parameters:
+start_date = "2025/09/26 12:00:00"
+nb_day = 30
+dt = 3*3600
+state = 1  # 1 for transcient
+
+# This creates OUTPUT and SENSI folders and compiles the Fortran code
+ginette_sensi_path = os.path.join(BASE_DIR, "GINETTE_SENSI")
+prepare_ginette_directories(ginette_sensi_path)
 
 # Find project-relative src and application directories (no absolute paths)
 def find_project_paths(start_file=__file__):
@@ -144,8 +140,8 @@ except Exception:
             raise FileNotFoundError(f"Source not found: {src}")
         shutil.copy(src, os.path.join(dst_dir, os.path.basename(src)))
 
+
 def run_ginette(ID, k, lam):
-    # Temp dir:
     # Temp dir:
     temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
     os.makedirs(temp_dir, exist_ok=True)
@@ -175,14 +171,6 @@ def run_ginette(ID, k, lam):
         "Sim_temperature_maille2_t.dat",
         "Sim_temperature_maille3_t.dat",
         "E_cdt_initiale.dat",
-        "E_cdt_aux_limites.dat",
-        "E_charge_t.dat",
-        "E_temp_t.dat",
-        "E_colonne.dat", 
-        "E_coordonnee.dat",
-          "E_def_maille.dat",
-          "E_temperature_initiale.dat",
-            "E_zone.dat"
     ]:
         _copy_from_app(fname)
 
@@ -195,31 +183,19 @@ def run_ginette(ID, k, lam):
     os.chdir(temp_dir)
     print("Current working directory:", os.getcwd())
 
-    # Domain paramters:
-    z_top = 0
-    z_bottom = -5
-    n_depths = 250
-    dz_obs = 0.1
+
+
+ 
+ 
     az = abs(z_top - z_bottom)
     dz = az / n_depths
 
-    # Time parameters:
-    nb_day = 30
-    dt = 600
-    state = 1  # 1 for transcient
-    start_date = "2022/04/21 14:00:00"
+ 
     date_simul_bg = pd.to_datetime(start_date)
 
-    os.chdir(os.path.join(os.getcwd(), temp_dir))
-    print(os.getcwd())
+    print("Setup ginette model...")
     z_obs = setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz,
                            date_simul_bg, dz_obs)
-    # Model parameters:
-    nb_zone = 1
-    alt_thk = 0
-    REF_n = 0.05
-    REF_r = 3500
-
 
     # 1) PREPARE BOUNDARY CONDITIONS:
     # Define data table:
@@ -253,12 +229,28 @@ def run_ginette(ID, k, lam):
         "h_bottom": df_BC["h_bottom"],
         "T_top": df_BC["T_top"],
         "T_bottom": df_BC["T_bottom"]})
-    
+
     # 3) SET INITIAL ANd BOUNDARIES CONDITIONS:
     # Set initial conditions:
     z_obs = [-5]
-
     initial_conditions(obs_temp, z_top, z_bottom, dz, z_obs)
+
+    # Set boundary conditions in temperature:
+    boundary_conditions(obs_temp, dt)
+
+    # Save initial and boundary conditions file in /home/ariviere/Programmes/ginette/application/1D_Stream_aquifer_GridSearch/SYNTHETIC_CASES:
+    # E_charge_initiale.dat, E_charge_t.dat, E_temp_t.dat, E_temperature_initiale.dat
+    for fname in [ 
+        "E_charge_t.dat",
+        "E_temp_t.dat"
+    ]:
+        src = os.path.join(temp_dir, fname)
+        dst_dir = os.path.join(BASE_APP_DIR, "SYNTHETIC_CASES")
+        if os.path.exists(src):
+            copy_file(src, dst_dir)
+        else:
+            print(f"Warning: {fname} not found in {temp_dir}")
+        
 
     # 4) RUN SIMULATION
     sim_temp = run_direct_model(date_simul_bg,
@@ -276,43 +268,37 @@ def run_ginette(ID, k, lam):
                                 REF_r2=None)
 
     # Save results:
-    os.chdir(os.path.join("..", ".."))
-
-    sim_temp.to_csv(os.path.join("results",
+    sim_temp.to_csv(os.path.join(RESULTS_DIR,
                                  f"sim_temp_{ID}.txt"), sep=" ")
 
     # Del temp
     shutil.rmtree(temp_dir)
     return
 
+run_ginette(-1, -12, 2.5)
 
-if __name__ == "__main__":
+# %% PLOT OBSERVED DATA:
+data = pd.read_csv(os.path.join(RESULTS_DIR, "sim_temp_-1.txt"), delimiter=" ",
+                   index_col=[0])
+data.to_csv(os.path.join(RESULTS_DIR, "observed_data.txt"), sep=" ")
 
-    # result is ginette/application/1D_Stream_aquifer_GridSearch/results/
-    # temp is ginette/application/1D_Stream_aquifer_GridSearch/temp/
-    # verify repertory temp and results exist
-    os.makedirs(os.path.join(BASE_APP_DIR, "temp"), exist_ok=True)
-    os.makedirs(os.path.join(BASE_APP_DIR, "results"), exist_ok=True)
-    if (Delete_sim=="True"):
-        delete_sim_temp(os.path.join(BASE_APP_DIR, "results"),os.path.join(BASE_APP_DIR, "temp"))
-    # grid search in results/grid_search.csv
-    grid = pd.read_csv(os.path.join(BASE_APP_DIR, "results", "grid_search.csv"), delimiter=";")
 
-    # find which simulations are already done
-    # if file sim_temp_ID.txt exists in results/, consider it done
-    if (Delete_sim!="True"):
-        done = sorted([int(f.split("_")[-1].split(".")[0])
-                   for f in os.listdir(os.path.join(BASE_APP_DIR, "results"))])[1:]
-        remains = [i for i in grid.ID if i not in done]
-    else:
-        remains = grid.ID.tolist()
 
-    params = [[r.ID, r.log_k, r.lam] for r in grid.itertuples()
-              if r.ID in remains]
-    to = time()
-    with mp.Pool(processes=mp.cpu_count()-2) as pool:
-        result = pool.starmap_async(run_ginette, params)
-        pool.close()
-        pool.join()
-    tf = time()
-    print(f"Run time for {len(params)} simulations: {round(tf-to, 2)} s")
+
+import matplotlib.pyplot as plt
+plt.rcParams["font.size"] = 16
+
+fig, ax = plt.subplots(figsize=(16, 9), dpi=100)
+ax.plot(data.Time, data.Temp1, ls="-", lw=2, color="red",
+        label="Temperature 1 (-10 cm)")
+ax.plot(data.Time, data.Temp2, ls="-", lw=2, color="green",
+        label="Temperature 2 (-20 cm")
+ax.plot(data.Time, data.Temp3, ls="-", lw=2, color="blue",
+        label="Temperature 3 (-30 cm)")
+ax.set_xlabel("Time (s)")
+ax.set_ylabel("Temperature (°C)")
+ax.grid()
+ax.legend(loc="upper right")
+ax.set_title("Observed data", loc="left")
+
+# %%
