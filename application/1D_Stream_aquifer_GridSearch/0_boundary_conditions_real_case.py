@@ -25,6 +25,8 @@ import shutil
 import multiprocessing as mp
 
 import glob
+# Import your modules directly from src_python
+sys.path.insert(0, str(project_root / "src" / "src_python"))
 
 from src.src_python import Read_obs
 
