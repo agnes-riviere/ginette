@@ -8,14 +8,23 @@ Created on Tue Nov 18 09:51:06 2025
 
 
 # IMPORT:
-import os
 import sys
+from pathlib import Path
+# Add project root to path
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+import os
 import numpy as np
 import pandas as pd
 from time import time
 import shutil
 import multiprocessing as mp
-from pathlib import Path
+# Import your modules directly from src_python
+sys.path.insert(0, str(project_root / "src" / "src_python"))
+
+
+
 Delete_sim="True"
 
 
@@ -185,11 +194,6 @@ def run_ginette(ID, k, lam):
             "E_zone.dat"
     ]:
         _copy_from_app(fname)
-
-    # rename backup parameter file if present
-    src_param = os.path.join(temp_dir, "E_parametre_bck.dat")
-    if os.path.exists(src_param):
-        os.rename(src_param, os.path.join(temp_dir, "E_parametre_backup.dat"))
 
     # run inside the temp directory (use absolute path)
     os.chdir(temp_dir)

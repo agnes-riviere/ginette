@@ -8,19 +8,24 @@ Created on Tue Nov 18 09:51:06 2025
 
 
 # IMPORT:
-import os
 import sys
+from pathlib import Path
+# Add project root to path
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+import os
 
 import numpy as np
 import pandas as pd
 from time import time
 import shutil
 import multiprocessing as mp
-from pathlib import Path
 # Add project root to path
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
-
+# Import your modules directly from src_python
+sys.path.insert(0, str(project_root / "src" / "src_python"))
 from src.src_python.Direct_model import setup_ginette
 from src.src_python.Init_folders import compile_ginette
 # Get current script directory
@@ -41,6 +46,7 @@ date_simul_bg = pd.to_datetime("2022/04/21 14:00:00")
 # Time step in seconds (900s = 15 minutes)
 # This matches the measurement frequency and ensures numerical stability
 dt = 900
+nb_day = 30      # Simulation duration in days
 # Simulation state configuration:
 # 0 = steady state (time-independent, equilibrium conditions)
 # 1 = transient state (time-dependent, dynamic evolution)
@@ -60,14 +66,9 @@ dz_obs = 0.1     # Spacing between temperature sensors [m] (10 cm)
                  # Sensors at -10, -20, -30, -40 cm depths
 
 
-nb_day = 30      # Simulation duration
 
-z_top = 0
-z_bottom = -5
-n_depths = 250
-dz_obs = 0.1
-az = abs(z_top - z_bottom)
-dz = az / n_depths
+
+
 
 # =============================================================================
 # HYDROGEOLOGICAL PARAMETER DEFINITION
@@ -187,7 +188,7 @@ except Exception:
             raise FileNotFoundError(f"Source not found: {src}")
         shutil.copy(src, os.path.join(dst_dir, os.path.basename(src)))
 
-def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, date_simul_bg  ):
+def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, date_simul_bg,nb_zone,alt_thk):
     # Temp dir:
     temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
     os.makedirs(temp_dir, exist_ok=True)
@@ -217,6 +218,7 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
         "Sim_temperature_maille2_t.dat",
         "Sim_temperature_maille3_t.dat",
         "E_cdt_initiale.dat",
+        "E_charge_initiale.dat",
         "E_cdt_aux_limites.dat",
         "E_charge_t.dat",
         "E_temp_t.dat",
@@ -238,57 +240,14 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
     print("Current working directory:", os.getcwd())
 
 
-    date_simul_bg = pd.to_datetime(start_date)
-
     os.chdir(os.path.join(os.getcwd(), temp_dir))
     print(os.getcwd())
     z_obs = setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz,
                            date_simul_bg, dz_obs)
-    # Model parameters:
-    nb_zone = 1
-    alt_thk = 0
-    REF_n = 0.05
-    REF_r = 3500
 
 
-    # 1) PREPARE BOUNDARY CONDITIONS:
-    # Define data table:
-    seconds_per_day = 86400
-    seconds_per_week = 604800
-    t_final = nb_day * seconds_per_day
-    df_BC = pd.DataFrame()
-    df_BC["times"] = np.arange(0, t_final, dt)
-    df_BC["days"] = df_BC["times"]/seconds_per_day
-
-    # Calculate boundaries temperature:
-    deg_per_day = 0.3
-    df_BC["T_top"] = (5*np.sin(2*np.pi*df_BC["times"]/seconds_per_day) +
-                      deg_per_day*df_BC["days"] +
-                      3*np.sin(2*np.pi*df_BC["times"] / seconds_per_week) + 17)
-    df_BC["T_bottom"] = 10 * np.ones_like(df_BC["times"])
-
-    # Calculate hydraulic head at top and bottom boundaries:
-    reduced_period = 3 * seconds_per_week
-    base_head = 5.0
-    head_amplitude = 0.2
-    df_BC["h_top"] = (head_amplitude * smooth_square_wave(
-        df_BC["times"], reduced_period) + base_head)
-    df_BC["h_bottom"] = base_head * np.ones_like(df_BC["times"])
-    df_BC["head_gradient"] = (df_BC["h_top"] - df_BC["h_bottom"]) / az
-
-    # 2) CREATE MEASUREMENT TABLE:
-    obs_temp = pd.DataFrame({
-        "dates": date_simul_bg + pd.to_timedelta(df_BC["times"], unit="s"),
-        "h_top": df_BC["h_top"],
-        "h_bottom": df_BC["h_bottom"],
-        "T_top": df_BC["T_top"],
-        "T_bottom": df_BC["T_bottom"]})
     
-    # 3) SET INITIAL ANd BOUNDARIES CONDITIONS:
-    # Set initial conditions:
-    z_obs = [-5]
 
-    initial_conditions(obs_temp, z_top, z_bottom, dz, z_obs)
 
     # 4) RUN SIMULATION
     sim_temp = run_direct_model(date_simul_bg,

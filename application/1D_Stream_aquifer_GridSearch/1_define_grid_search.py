@@ -8,15 +8,81 @@ Created on Mon Dec  9 20:19:17 2024
 
 
 # %% IMPORTS:
-import os
-import itertools
-import numpy as np
-import pandas as pd
+
 import sys
 from pathlib import Path
+# Add project root to path
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+import os
+import itertools
+import importlib
+import os
+import numpy as np
+import pandas as pd
+from time import time
+import shutil
+import multiprocessing as mp
+
+import glob
+# Import your modules directly from src_python
+sys.path.insert(0, str(project_root / "src" / "src_python"))
 
 
 # %% PARAMETERS:
+
+# GEOLOGICAL HETEROGENEITY
+# Number of geological facies (material zones) in the column
+# nb_zone = 1: Homogeneous porous medium
+# nb_zone = 2: Two-layer system (typical for streambed environments)
+
+# Boundary between geological zones [m]
+# Negative value indicates depth below streambed surface
+#alt_thk = -0.32  # Interface at 32 cm depth
+
+# =============================================================================
+# ZONE 1 PARAMETERS (Upper layer: 0 to -32 cm)
+# Typically represents looser, more permeable streambed sediments
+# =============================================================================
+
+# POROSITY (φ) - Fraction of void space available for fluid flow
+# High porosity typical of loose gravel/sand
+
+# INTRINSIC PERMEABILITY (k) - Measure of medium's ability to transmit fluid
+# Relationship: k = K·μ/(ρ·g) where:
+# - K: hydraulic conductivity [m/s]
+# - μ: dynamic viscosity [Pa·s]
+# - ρ: fluid density [kg/m³]
+# - g: gravitational acceleration [m/s²]
+# Log₁₀(permeability in m²)
+               # k = 10^(-13.5) ≈ 3.16×10^(-14) m²
+               # Corresponds to coarse sand/fine gravel
+
+# THERMAL CONDUCTIVITY (λ) - Heat conduction efficiency [W/m·K]
+2.0    # Typical for water-saturated sediments
+
+# SOLID GRAIN DENSITY (ρₛ) - Density of mineral grains [kg/m³]
+# Typical for quartz-rich sediments
+
+# HEAT CAPACITY CALCULATION (handled internally by Ginette):
+# c_pm = c_w·ρ_w·n·S + c_s·ρ_s·(1-n) + c_a·ρ_a·n·(1-S)
+# where:
+# - c_w = 4185 J/kg·°C (specific heat of water)
+# - c_s = variable J/kg·°C (specific heat of solid)
+# - S = saturation ratio
+# - Fixed ρ_m = 1000 kg/m³ (imposed by Ginette)
+
+# =============================================================================
+# ZONE 2 PARAMETERS (Lower layer: -32 to -40 cm)
+# Typically represents more compact, less permeable substrate
+# =============================================================================
+
+#if nb_zone == 2:
+#    REF_n2 = 0.3    # Lower porosity (more compact sediment)
+#    REF_k2 = -13     # Higher permeability: k = 10^(-13) m²
+#    REF_l2 = 2.65    # Higher thermal conductivity (more mineral content)
+#    REF_r2 = 3500    # Same grain density (similar mineral composition)
 # Define ranges for test parameters in the grid search:
 N = 3  # number of test by parameter (nb)
 NB_parameters = 4  # number of parameters to test (nb)
