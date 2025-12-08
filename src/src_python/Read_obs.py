@@ -171,6 +171,9 @@ def process_obs_data(Obs_data, date_simul_bg, coef, ost, nb_day):
                 all_data = read_csv_with_multiple_separators(file_path)
             elif 'Temp' in fichier:
                 temp_data = read_csv_with_multiple_separators(file_path)
+            elif 'Point' in fichier:
+                all_data = read_csv_with_multiple_separators(file_path)
+                print(f"Reading Point file: {fichier}")
         except ValueError as e:
             print(f"Error processing file {fichier}: {e}")
     

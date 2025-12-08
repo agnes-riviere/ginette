@@ -76,73 +76,8 @@ dz = 0.01        # Vertical cell size [m] (1 cm resolution)
 dz_obs = 0.1     # Spacing between temperature sensors [m] (10 cm)
                  # Sensors at -10, -20, -30, -40 cm depths
 
-# =============================================================================
-# HYDROGEOLOGICAL PARAMETER DEFINITION
-# =============================================================================
-
-# GEOLOGICAL HETEROGENEITY
-# Number of geological facies (material zones) in the column
-# nb_zone = 1: Homogeneous porous medium
-# nb_zone = 2: Two-layer system (typical for streambed environments)
-nb_zone = 1
-
-# Boundary between geological zones [m]
-# Negative value indicates depth below streambed surface
-alt_thk = -0.32  # Interface at 32 cm depth
 
 # =============================================================================
-# ZONE 1 PARAMETERS (Upper layer: 0 to -32 cm)
-# Typically represents looser, more permeable streambed sediments
-# =============================================================================
-
-# POROSITY (φ) - Fraction of void space available for fluid flow
-REF_n = 0.8  # High porosity typical of loose gravel/sand
-
-# INTRINSIC PERMEABILITY (k) - Measure of medium's ability to transmit fluid
-# Relationship: k = K·μ/(ρ·g) where:
-# - K: hydraulic conductivity [m/s]
-# - μ: dynamic viscosity [Pa·s]
-# - ρ: fluid density [kg/m³]
-# - g: gravitational acceleration [m/s²]
-REF_k = -15  # Log₁₀(permeability in m²)
-               # k = 10^(-13.5) ≈ 3.16×10^(-14) m²
-               # Corresponds to coarse sand/fine gravel
-
-# THERMAL CONDUCTIVITY (λ) - Heat conduction efficiency [W/m·K]
-REF_l = 2.0    # Typical for water-saturated sediments
-
-# SOLID GRAIN DENSITY (ρₛ) - Density of mineral grains [kg/m³]
-REF_r = 3500   # Typical for quartz-rich sediments
-
-# HEAT CAPACITY CALCULATION (handled internally by Ginette):
-# c_pm = c_w·ρ_w·n·S + c_s·ρ_s·(1-n) + c_a·ρ_a·n·(1-S)
-# where:
-# - c_w = 4185 J/kg·°C (specific heat of water)
-# - c_s = variable J/kg·°C (specific heat of solid)
-# - S = saturation ratio
-# - Fixed ρ_m = 1000 kg/m³ (imposed by Ginette)
-
-# =============================================================================
-# ZONE 2 PARAMETERS (Lower layer: -32 to -40 cm)
-# Typically represents more compact, less permeable substrate
-# =============================================================================
-
-if nb_zone == 2:
-    REF_n2 = 0.3    # Lower porosity (more compact sediment)
-    REF_k2 = -13     # Higher permeability: k = 10^(-13) m²
-    REF_l2 = 2.65    # Higher thermal conductivity (more mineral content)
-    REF_r2 = 3500    # Same grain density (similar mineral composition)
-
-print(f"Geological configuration:")
-print(f"- Number of zones: {nb_zone}")
-if nb_zone == 2:
-    print(f"- Zone interface at: {alt_thk} m")
-    print(f"- Zone 1 (upper): n={REF_n}, k=10^{REF_k} m², λ={REF_l} W/m·K")
-    print(f"- Zone 2 (lower): n={REF_n2}, k=10^{REF_k2} m², λ={REF_l2} W/m·K")
-else:
-    print(f"- Homogeneous medium: n={REF_n}, k=10^{REF_k} m², λ={REF_l} W/m·K")
-
-
 
 
 # Find project-relative src and application directories (no absolute paths)

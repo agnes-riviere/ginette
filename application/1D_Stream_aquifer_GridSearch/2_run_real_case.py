@@ -23,12 +23,15 @@ sys.path.insert(0, str(project_root))
 
 from src.src_python.Direct_model import setup_ginette
 from src.src_python.Init_folders import compile_ginette
+# Get current script directory
+SCRIPT_DIR = Path(__file__).resolve().parent
+BASE_DIR = str(SCRIPT_DIR)
 # =============================================================================
 # MODEL GEOMETRY AND DISCRETIZATION SETUP
 # =============================================================================
 # Set up directories and data paths
 # This path contains the observational data (temperature sensors, pressure measurements)
-Obs_data = '../OBS_point/Point1Touques/'
+Obs_data = os.path.join(BASE_DIR,'OBS_point/Point3_540_SOULTZ/')
 # Start date and time for the simulation
 # This corresponds to when field measurements began
 date_simul_bg = pd.to_datetime("2022/04/21 14:00:00")
@@ -58,6 +61,14 @@ dz_obs = 0.1     # Spacing between temperature sensors [m] (10 cm)
 
 
 nb_day = 30      # Simulation duration
+
+z_top = 0
+z_bottom = -5
+n_depths = 250
+dz_obs = 0.1
+az = abs(z_top - z_bottom)
+dz = az / n_depths
+
 # =============================================================================
 # HYDROGEOLOGICAL PARAMETER DEFINITION
 # =============================================================================
@@ -176,8 +187,7 @@ except Exception:
             raise FileNotFoundError(f"Source not found: {src}")
         shutil.copy(src, os.path.join(dst_dir, os.path.basename(src)))
 
-def run_ginette(ID, k, lam):
-    # Temp dir:
+def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, date_simul_bg  ):
     # Temp dir:
     temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
     os.makedirs(temp_dir, exist_ok=True)
@@ -227,19 +237,7 @@ def run_ginette(ID, k, lam):
     os.chdir(temp_dir)
     print("Current working directory:", os.getcwd())
 
-    # Domain paramters:
-    z_top = 0
-    z_bottom = -5
-    n_depths = 250
-    dz_obs = 0.1
-    az = abs(z_top - z_bottom)
-    dz = az / n_depths
 
-    # Time parameters:
-    nb_day = 30
-    dt = 600
-    state = 1  # 1 for transcient
-    start_date = "2022/04/21 14:00:00"
     date_simul_bg = pd.to_datetime(start_date)
 
     os.chdir(os.path.join(os.getcwd(), temp_dir))
