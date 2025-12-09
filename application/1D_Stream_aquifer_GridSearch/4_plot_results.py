@@ -31,11 +31,11 @@ Name_parameters = ["log_k", "lam", "poro","cap"]  # names of parameters to test 
 # check NB_parameters and Name_parameters consistency
 if NB_parameters != len(Name_parameters):
     raise ValueError("NB_parameters and Name_parameters length mismatch.")
-n = 0.05
+n = 0.25
 c= 3500
 k=-12.5
 lam=2.5
-
+REF=[k,lam,n,c]  # reference values for the parameters (list of float)
 # Find project-relative src and application directories (no absolute paths)
 def find_project_paths(start_file=__file__):
     p = Path(start_file).resolve().parent
@@ -156,52 +156,79 @@ for param in Name_parameters:
 print(f"With total misfit: {results.loc[best, assess_var]}")    
 
 # %% PLOT: adapt for 4 parameters
-# For 4 parameters, we can plot 2 marginals 1D and 1 2D plot
-# plus the temperature time series for the best model   
+# %% PLOT: Create a figure for each pair of parameters
 
-# %% PLOT: Adaptive for any number of parameters (NB_parameters, Name_parameters)
+from itertools import combinations
 
+# Get all pairs of parameters
 
-# Determine grid layout based on number of parameters
-if NB_parameters <= 2:
+if NB_parameters == 2:
     grid_rows, grid_cols = 2, 2
-elif NB_parameters <= 4:
-    grid_rows, grid_cols = 2, 2
+elif NB_parameters ==3:
+    grid_rows, grid_cols = 3, 3
 else:
-    grid_rows, grid_cols = 3, 2
+    grid_rows, grid_cols = 4,4 
 
-fig = plt.figure(figsize=(16, 9 * (grid_rows / 2)), dpi=100)
+fig = plt.figure(figsize=(16, 9), dpi=100)
 gs = gridspec.GridSpec(grid_rows, grid_cols, figure=fig)
 
-# Plot marginals (one per subplot, left column)
-axes_list = []
-for idx, param in enumerate(Name_parameters):
-    if idx < grid_rows:
-        ax = fig.add_subplot(gs[idx, 0])
-        ax.plot(marginals[param].index, marginals[param].values, lw=2, ls="-",
-                color="black", label="Marginal 1D")
-        ax.axvline(results.loc[best, param], lw=3, ls="--", color="gold",
-                   label="Best value")
-        ax.set_xlabel(param)
-        ax.set_ylabel(assess_var)
-        ax.grid()
-        ax.legend(loc="upper left", fontsize=10)
-        axes_list.append(ax)
+axa = fig.add_subplot(gs[1, 1])  # marginals 1D k
+axb = fig.add_subplot(gs[0, 1]) # 2D plot k-lam
+axc = fig.add_subplot(gs[1, 0]) # time series
+axd = fig.add_subplot(gs[0, 0]) # marginals 1D lam
+if NB_parameters==3 :
+    axe = fig.add_subplot(gs[3, 3]) # marginals 1D poro
+    axf = fig.add_subplot(gs[2, 1])  # 2D plot k-poro
+    axg = fig.add_subplot(gs[2, 2])  # 2D plot lam-poro
+elif NB_parameters==4:
+    axg = fig.add_subplot(gs[3, 0])
+    axh = fig.add_subplot(gs[3, 1])
 
-# Plot 2D scatter (first two parameters, right column, top)
-param1, param2 = Name_parameters[0], Name_parameters[1]
-axb = fig.add_subplot(gs[0, 1])
-gci = axb.scatter(results[param1], results[param2], c=results.misfit_tot, cmap=cmap, s=50)
-fig.colorbar(gci, ax=axb, label=assess_var)
-axb.set_xlabel(param1)
-axb.set_ylabel(param2)
+# Afficher l'index d'une marginal spécifique
+for param in Name_parameters:
+    print(f"Index for {param}:")
+    print(marginals[param].index)
+    print()
+axa.plot(marginals[Name_parameters[0]].index, marginals[Name_parameters[0]].values, lw=2, ls="-",color="black", label="Marginal 1D")
+axa.axvline(REF[0], lw=4, ls="--", color="lime", label="True value")
+axa.axvline(results.loc[best, Name_parameters[0]], lw=3, ls="--", color="gold",
+            label="Best value")
+axa.legend(loc="upper left")
+# Name of parameter on x axis
+axa.set_xlabel(Name_parameters[0])
+axa.set_ylabel(r"$\Phi{}_{tot.}$")
+axa.grid()
+
+axd.plot(marginals[Name_parameters[1]].index, marginals[Name_parameters[1]].values, lw=2, ls="-",
+         color="black", label="Marginal 1D")
+axd.axvline(REF[1], lw=4, ls="--", color="lime", label="True value")
+axd.axvline(results.loc[best, Name_parameters[1]], lw=3, ls="--", color="gold",
+            label="Best value")
+axd.legend(loc="upper left")
+axd.set_xlabel(Name_parameters[1])
+axd.set_ylabel(r"$\Phi{}_{tot.}$")
+axd.grid()
+
+
+
+# Plot 2D:
+gci = axb.scatter(results.log_k, results.lam, c=results.misfit_tot,
+                  cmap=cmap)
+fig.colorbar(gci, ax=axb, label=r"$\Phi{}_{tot.}$")
+axb.set_xlabel(r"$log_{10}(k)$")
+axb.set_ylabel(r"$\lambda\;(W/m°C)$")
 axb.grid()
-axb.scatter(results.loc[best, param1], results.loc[best, param2],
-            marker="*", edgecolors="black", facecolors="gold", s=200, lw=1, label="Best")
+axb.set_xlim(results.log_k.min(), results.log_k.max())
+axb.set_ylim(results.lam.min(), results.lam.max())
+
+axb.scatter(k, lam, marker="o", edgecolors="lime", facecolors="None", s=100,
+            lw=5, label="True values")
+axb.scatter(results.loc[best, "log_k"],
+            results.loc[best, "lam"], marker="*", edgecolors="black",
+            facecolors="gold", s=80, lw=1, label="Best")
 axb.legend(loc="upper left")
 
-# Plot temperatures (right column, bottom)
-axc = fig.add_subplot(gs[1, 1])
+# Plot temperatures:
 axc.plot(obs_data.Time, obs_data.Temp1, ls="-", lw=4, color="red",
          label="Temperature 1 (-10 cm)")
 axc.plot(obs_data.Time, obs_data.Temp2, ls="-", lw=4, color="green",
@@ -217,83 +244,12 @@ axc.plot(sim_data.Time, sim_data.Temp3, ls="--", lw=2, color="dodgerblue",
 axc.set_xlabel("Time (s)")
 axc.set_ylabel("Temperature (°C)")
 axc.grid()
-axc.legend(loc="lower right", fontsize=9)
+axc.legend(loc="lower right")
 
-plt.tight_layout()
-plt.savefig(os.path.join(RESULTS_DIR, "grid_search_results.png"), dpi=150, bbox_inches="tight")
 plt.show()
 
 
 
 
-# %% PLOT: Create a figure for each pair of parameters
 
-from itertools import combinations
 
-# Get all pairs of parameters
-param_pairs = list(combinations(Name_parameters, 2))
-
-for pair_idx, (param1, param2) in enumerate(param_pairs):
-    # Determine grid layout based on number of parameters
-    if NB_parameters <= 2:
-        grid_rows, grid_cols = 2, 2
-    elif NB_parameters <= 4:
-        grid_rows, grid_cols = 2, 2
-    else:
-        grid_rows, grid_cols = 3, 2
-
-    fig = plt.figure(figsize=(16, 9 * (grid_rows / 2)), dpi=100)
-    gs = gridspec.GridSpec(grid_rows, grid_cols, figure=fig)
-
-    # Plot marginals for all parameters (left column)
-    axes_list = []
-    for idx, param in enumerate(Name_parameters):
-        if idx < grid_rows:
-            ax = fig.add_subplot(gs[idx, 0])
-            ax.plot(marginals[param].index, marginals[param].values, lw=2, ls="-",
-                    color="black", label="Marginal 1D")
-            ax.axvline(results.loc[best, param], lw=3, ls="--", color="gold",
-                       label="Best value")
-            ax.set_xlabel(param)
-            ax.set_ylabel(assess_var)
-            ax.grid()
-            ax.legend(loc="upper left", fontsize=10)
-            axes_list.append(ax)
-
-    # Plot 2D scatter for current pair (right column, top)
-    axb = fig.add_subplot(gs[0, 1])
-    gci = axb.scatter(results[param1], results[param2], c=results.misfit_tot, cmap=cmap, s=50)
-    fig.colorbar(gci, ax=axb, label=assess_var)
-    axb.set_xlabel(param1)
-    axb.set_ylabel(param2)
-    axb.grid()
-    axb.scatter(results.loc[best, param1], results.loc[best, param2],
-                marker="*", edgecolors="black", facecolors="gold", s=200, lw=1, label="Best")
-    axb.legend(loc="upper left")
-    axb.set_title(f"2D: {param1} vs {param2}")
-
-    # Plot temperatures (right column, bottom)
-    axc = fig.add_subplot(gs[1, 1])
-    axc.plot(obs_data.Time, obs_data.Temp1, ls="-", lw=4, color="red",
-             label="Temperature 1 (-10 cm)")
-    axc.plot(obs_data.Time, obs_data.Temp2, ls="-", lw=4, color="green",
-             label="Temperature 2 (-20 cm)")
-    axc.plot(obs_data.Time, obs_data.Temp3, ls="-", lw=4, color="blue",
-             label="Temperature 3 (-30 cm)")
-    axc.plot(sim_data.Time, sim_data.Temp1, ls="--", lw=2, color="orange",
-             label="Sim. temp. 1")
-    axc.plot(sim_data.Time, sim_data.Temp2, ls="--", lw=2, color="lime",
-             label="Sim. temp. 2")
-    axc.plot(sim_data.Time, sim_data.Temp3, ls="--", lw=2, color="dodgerblue",
-             label="Sim. temp. 3")
-    axc.set_xlabel("Time (s)")
-    axc.set_ylabel("Temperature (°C)")
-    axc.grid()
-    axc.legend(loc="lower right", fontsize=9)
-
-    plt.tight_layout()
-    # Save with pair name in filename
-    filename = f"grid_search_results_{param1}_vs_{param2}.png"
-    plt.savefig(os.path.join(RESULTS_DIR, filename), dpi=150, bbox_inches="tight")
-    print(f"Saved: {filename}")
-    plt.show()
