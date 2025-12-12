@@ -202,14 +202,14 @@ try:
                                initial_conditions,
                                boundary_conditions,
                                run_direct_model,
-                               smooth_square_wave)
+                               smooth_square_wave,setup_ginette_perm,generate_zone_parameters )
 except Exception:
      # fallback to legacy module name if present
     from direct_model_ginette import (setup_ginette2,
                                        initial_conditions,
                                        boundary_conditions,
                                        run_direct_model,
-                                       smooth_square_wave)
+                                       smooth_square_wave,setup_ginette_perm,generate_zone_parameters )
 
 
 try:
@@ -234,11 +234,11 @@ except Exception:
             raise FileNotFoundError(f"Source not found: {src}")
         shutil.copy(src, os.path.join(dst_dir, os.path.basename(src)))
 
-def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, date_simul_bg,nb_zone,alt_thk):
+def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az ,dz ,dz_obs  ,nb_zone ,alt_thk):
     # Temp dir:
     temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
     os.makedirs(temp_dir, exist_ok=True)
-    prepare_ginette_directories(temp_dir)
+
 
     def _copy_from_app(name):
         candidates = [
@@ -284,63 +284,51 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
 
     os.chdir(os.path.join(os.getcwd(), temp_dir))
     print(os.getcwd())
-    z_obs = setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz,
-                           date_simul_bg, dz_obs)
-
-
-    
-
-
-    # 4) RUN SIMULATION
-   # generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, k, n, lam, REF_r, None, None, None, None)
-    sim_temp = run_direct_model(date_simul_bg,
-                                z_bottom,
-                                dz,
-                                nb_zone,
-                                alt_thk,
-                                k,
-                                n,
-                                lam,
-                                c,
-                                REF_k2=None,
-                                REF_n2=None,
-                                REF_l2=None,
-                                REF_r2=None)
-
-    # Save results:
-    os.chdir(os.path.join("..", ".."))
-
-    sim_temp.to_csv(os.path.join("results",
-                                 f"sim_temp_{ID}.txt"), sep=" ")
+    setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs)
+    run_direct_model(date_simul_bg,z_bottom, dz, nb_zone, alt_thk, k,n, lam,c, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None)
+   REUSE A AJOUTER POUR CONDITION INITIALE DE PRESSION ET TEMPERATURE DU TRANSIENT
+  #  z_obs = setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz,
+   #                        date_simul_bg, dz_obs)
 
     # Del temp
-    shutil.rmtree(temp_dir)
+    #  shutil.rmtree(temp_dir)
     return
 
 
 
 
 if __name__ == "__main__":
-
+    import os 
     grid = pd.read_csv(os.path.join(RESULTS_DIR,"grid_search.csv"), delimiter=";")
-    os.makedirs("results", exist_ok=True)
-    os.makedirs("temp", exist_ok=True)
-    compile_ginette()
-    
-    # - Grid coordinates and observation points
-    z_obs = setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs)
+ #   os.makedirs("results", exist_ok=True)
+ #   os.makedirs("temp", exist_ok=True)
 
     
-#    done = sorted([int(f.split("_")[-1].split(".")[0])
-#                   for f in os.listdir(os.path.join("results"))])[1:]
-#    remains = [i for i in grid.ID if i not in done]
+    os.makedirs(os.path.join(BASE_APP_DIR, "temp"), exist_ok=True)
+    os.makedirs(os.path.join(BASE_APP_DIR, "results"), exist_ok=True)
+    if (Delete_sim=="True"):
+        delete_sim_temp(os.path.join(BASE_APP_DIR, "results"),os.path.join(BASE_APP_DIR, "temp"))
+    # grid search in results/grid_search.csv
+    grid = pd.read_csv(os.path.join(BASE_APP_DIR, "results", "grid_search.csv"), delimiter=";")
 
-#    params = [[r.ID, np.log10(r.log_k), r.lam] for r in grid.itertuples()
-#              if r.ID in remains]
-#    to = time()
-#    with mp.Pool(processes=mp.cpu_count()-2) as pool:
-#        result = pool.starmap_async(run_ginette, params)
-#        pool.close()
-#        pool.join()
- #   tf = time()
- #   print(f"Run time for {len(params)} simulations: {round(tf-to, 2)} s")
+    # find which simulations are already done
+    # if file sim_temp_ID.txt exists in results/, consider it done
+    if (Delete_sim!="True"):
+        done = sorted([int(f.split("_")[-1].split(".")[0])
+                   for f in os.listdir(os.path.join(BASE_APP_DIR, "results"))])[1:]
+        remains = [i for i in grid.ID if i not in done]
+    else:
+        remains = grid.ID.tolist()
+
+    params = [[r.ID, r.log_k,r.poro, r.lam,r.cap] for r in grid.itertuples()
+              if r.ID in remains]
+    params_setup=[date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az ,dz ,dz_obs  ,nb_zone ,alt_thk] 
+    params=[p + params_setup for p in params]
+    print(params)
+    to = time()
+    with mp.Pool(processes=mp.cpu_count()-2) as pool:
+        result = pool.starmap_async(run_ginette, params)
+        pool.close()
+        pool.join()
+    tf = time()
+    print(f"Run time for {len(params)} simulations: {round(tf-to, 2)} s")
