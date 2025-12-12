@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 18 15:21:53 2025
-
-@author: Maxime GAUTIER, Agnes Rivière, Samuel Larance
+Created on Tue Nov 18 09:51:06 2025
+For the SYNTHETIC_CASES defined in the application folder,
+@author: Agnes Rivière, Samuel Larance, Sacha Rivière
 """
 
 
@@ -35,6 +35,7 @@ n = 0.25
 c= 3500
 k=-12.5
 lam=2.5
+
 REF=[k,lam,n,c]  # reference values for the parameters (list of float)
 # Find project-relative src and application directories (no absolute paths)
 def find_project_paths(start_file=__file__):
@@ -165,24 +166,34 @@ from itertools import combinations
 if NB_parameters == 2:
     grid_rows, grid_cols = 2, 2
 elif NB_parameters ==3:
-    grid_rows, grid_cols = 3, 3
+    grid_rows, grid_cols = 4, 
 else:
-    grid_rows, grid_cols = 4,4 
+    grid_rows, grid_cols = 7, 6
+# Nouvelle figure BEAUCOUP plus grande
+fig = plt.figure(figsize=(28, 22), dpi=120)
 
-fig = plt.figure(figsize=(16, 9), dpi=100)
-gs = gridspec.GridSpec(grid_rows, grid_cols, figure=fig)
+# Grille compacte 3 × 4
+gs = gridspec.GridSpec(4, 4, figure=fig, wspace=0.2, hspace=0.25)
 
-axa = fig.add_subplot(gs[1, 1])  # marginals 1D k
-axb = fig.add_subplot(gs[0, 1]) # 2D plot k-lam
-axc = fig.add_subplot(gs[1, 0]) # time series
-axd = fig.add_subplot(gs[0, 0]) # marginals 1D lam
-if NB_parameters==3 :
-    axe = fig.add_subplot(gs[3, 3]) # marginals 1D poro
-    axf = fig.add_subplot(gs[2, 1])  # 2D plot k-poro
-    axg = fig.add_subplot(gs[2, 2])  # 2D plot lam-poro
-elif NB_parameters==4:
-    axg = fig.add_subplot(gs[3, 0])
-    axh = fig.add_subplot(gs[3, 1])
+axa= fig.add_subplot(gs[2, 1])# marginals 1D k
+
+
+
+# Rangée 0
+axd = fig.add_subplot(gs[0, 0])   # log_k marginal
+axb = fig.add_subplot(gs[0, 1])   # k-lam 2D
+axg = fig.add_subplot(gs[0, 2])   # poro marginal
+axh = fig.add_subplot(gs[0, 3])   # cap marginal
+
+# Rangée 1
+axc = fig.add_subplot(gs[1, 0])   # time series
+axf = fig.add_subplot(gs[1, 1])   # k-poro
+axi = fig.add_subplot(gs[1, 2])   # lam-poro
+axe = fig.add_subplot(gs[1, 3])   # cap-poro
+
+# Rangée 2
+axj = fig.add_subplot(gs[2, 0])   # k-cap
+
 
 # Afficher l'index d'une marginal spécifique
 for param in Name_parameters:
@@ -193,7 +204,7 @@ axa.plot(marginals[Name_parameters[0]].index, marginals[Name_parameters[0]].valu
 axa.axvline(REF[0], lw=4, ls="--", color="lime", label="True value")
 axa.axvline(results.loc[best, Name_parameters[0]], lw=3, ls="--", color="gold",
             label="Best value")
-axa.legend(loc="upper left")
+
 # Name of parameter on x axis
 axa.set_xlabel(Name_parameters[0])
 axa.set_ylabel(r"$\Phi{}_{tot.}$")
@@ -204,17 +215,37 @@ axd.plot(marginals[Name_parameters[1]].index, marginals[Name_parameters[1]].valu
 axd.axvline(REF[1], lw=4, ls="--", color="lime", label="True value")
 axd.axvline(results.loc[best, Name_parameters[1]], lw=3, ls="--", color="gold",
             label="Best value")
-axd.legend(loc="upper left")
+
+ #Name of parameter on x axis
 axd.set_xlabel(Name_parameters[1])
 axd.set_ylabel(r"$\Phi{}_{tot.}$")
 axd.grid()
 
+axh.plot(marginals[Name_parameters[3]].index, marginals[Name_parameters[3]].values, lw=2, ls="-",
+          color="black", label="Marginal 1D")
+axh.axvline(REF[3], lw=4, ls="--", color="lime", label="True value")
+axh.axvline(results.loc[best, Name_parameters[3]], lw=3, ls="--", color="gold",
+            label="Best value")
 
+#Name of parameter on x axis
+axh.set_xlabel(Name_parameters[1])
+axh.set_ylabel(r"$\Phi{}_{tot.}$")
+axh.grid()
+
+axg.plot(marginals[Name_parameters[2]].index, marginals[Name_parameters[2]].values, lw=2, ls="-",color="black", label="Marginal 1D")
+axg.axvline(REF[2], lw=4, ls="--", color="lime", label="True value")
+axg.axvline(results.loc[best, Name_parameters[2]], lw=3, ls="--", color="gold",
+            label="Best value")
+
+# Name of parameter on x axis
+axg.set_xlabel(Name_parameters[2])
+axg.set_ylabel(r"$\Phi{}_{tot.}$")
+axg.grid()
 
 # Plot 2D:
 gci = axb.scatter(results.log_k, results.lam, c=results.misfit_tot,
                   cmap=cmap)
-fig.colorbar(gci, ax=axb, label=r"$\Phi{}_{tot.}$")
+fig.colorbar(gci, ax=axb,  label=r"$\Phi{}_{tot.}$")
 axb.set_xlabel(r"$log_{10}(k)$")
 axb.set_ylabel(r"$\lambda\;(W/m°C)$")
 axb.grid()
@@ -226,7 +257,72 @@ axb.scatter(k, lam, marker="o", edgecolors="lime", facecolors="None", s=100,
 axb.scatter(results.loc[best, "log_k"],
             results.loc[best, "lam"], marker="*", edgecolors="black",
             facecolors="gold", s=80, lw=1, label="Best")
-axb.legend(loc="upper left")
+
+
+gci = axf.scatter(results.log_k, results.poro, c=results.misfit_tot,
+                  cmap=cmap)
+fig.colorbar(gci, ax=axf,  label=r"$\Phi{}_{tot.}$")
+axf.set_xlabel(r"$log_{10}(k)$")
+axf.set_ylabel(r"$poro(p)$")
+axf.grid()
+axf.set_xlim(results.log_k.min(), results.log_k.max())
+axf.set_ylim(results.poro.min(), results.poro.max())
+
+axf.scatter(k, n, marker="o", edgecolors="lime", facecolors="None", s=100,
+            lw=5, label="True values")
+axf.scatter(results.loc[best, "log_k"],
+            results.loc[best, "poro"], marker="*", edgecolors="black",
+            facecolors="gold", s=80, lw=1, label="Best")
+
+
+gci = axe.scatter(results.cap, results.poro, c=results.misfit_tot,
+                  cmap=cmap)
+fig.colorbar(gci, ax=axe,  label=r"$\Phi{}_{tot.}$")
+axe.set_xlabel(r"$cap(c)$")
+axe.set_ylabel(r"$poro(p)$")
+axe.grid()
+axe.set_xlim(results.cap.min(), results.cap.max())
+axe.set_ylim(results.poro.min(), results.poro.max())
+
+axe.scatter(n, lam, marker="o", edgecolors="lime", facecolors="None", s=100,
+            lw=5, label="True values")
+axe.scatter(results.loc[best, "cap"],
+            results.loc[best, "poro"], marker="*", edgecolors="black",
+            facecolors="gold", s=80, lw=1, label="Best")
+
+
+gci = axi.scatter(results.lam, results.poro, c=results.misfit_tot,
+                  cmap=cmap)
+fig.colorbar(gci, ax=axi,  label=r"$\Phi{}_{tot.}$")
+axi.set_xlabel(r"$lam(l)$")
+axi.set_ylabel(r"$poro(p)$")
+axi.grid()
+axi.set_xlim(results.lam.min(), results.lam.max())
+axi.set_ylim(results.poro.min(), results.poro.max())
+
+axi.scatter(k, c, marker="o", edgecolors="lime", facecolors="None", s=100,
+            lw=5, label="True values")
+axi.scatter(results.loc[best, "lam"],
+            results.loc[best, "poro"], marker="*", edgecolors="black",
+            facecolors="gold", s=80, lw=1, label="Best")
+
+
+
+gci = axj.scatter(results.log_k, results.cap, c=results.misfit_tot,
+                  cmap=cmap)
+fig.colorbar(gci, ax=axj,  label=r"$\Phi{}_{tot.}$")
+axj.set_xlabel(r"$log_{10}(k)$")
+axj.set_ylabel(r"$C$")
+axj.grid()
+axj.set_xlim(results.log_k.min(), results.log_k.max())
+axj.set_ylim(results.cap.min(), results.cap.max())
+
+axj.scatter(k, c, marker="o", edgecolors="lime", facecolors="None", s=100,
+            lw=5, label="True values")
+axi.scatter(results.loc[best, "log_k"],
+            results.loc[best, "cap"], marker="*", edgecolors="black",
+            facecolors="gold", s=80, lw=1, label="Best")
+
 
 # Plot temperatures:
 axc.plot(obs_data.Time, obs_data.Temp1, ls="-", lw=4, color="red",
@@ -244,12 +340,37 @@ axc.plot(sim_data.Time, sim_data.Temp3, ls="--", lw=2, color="dodgerblue",
 axc.set_xlabel("Time (s)")
 axc.set_ylabel("Temperature (°C)")
 axc.grid()
-axc.legend(loc="lower right")
+
+
+
+
+ax_leg = fig.add_subplot(gs[3, 3])
+ax_leg.axis("off")  # pas d'axes
+
+# Collecter handles/labels comme avant (ou juste ceux que tu veux afficher)
+axes = [axa, axd, axg, axh, axb, axf, axe, axi, axj, axc]
+handles, labels = [], []
+for ax in axes:
+    h, l = ax.get_legend_handles_labels()
+    for hh, ll in zip(h, l):
+        if ll not in labels:
+            handles.append(hh)
+            labels.append(ll)
+
+# Créer la légende dans cette case
+ax_leg.legend(
+    handles, labels,
+    loc="center",
+    frameon=True,
+    title="Légende",
+    fontsize=11
+)
+
+
+
+# Espacement propre
+plt.subplots_adjust(wspace=10, hspace=0.5)
+
 
 plt.show()
-
-
-
-
-
 
