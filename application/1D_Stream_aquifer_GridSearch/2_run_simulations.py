@@ -132,7 +132,7 @@ except Exception:
 
 
 try:
-    from Init_folders import prepare_ginette_directories
+    from Init_folders import prepare_ginette_directories,compile_ginette_src
 except Exception:
     # fallback if an alternative utils module exists
     try:
@@ -153,11 +153,11 @@ except Exception:
             raise FileNotFoundError(f"Source not found: {src}")
         shutil.copy(src, os.path.join(dst_dir, os.path.basename(src)))
 
-def run_ginette(ID, k, n, lam, c):
-    # Temp dir:
+def run_ginette(ID, k, n,lam,c):
     # Temp dir:
     temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
     os.makedirs(temp_dir, exist_ok=True)
+
 
     def _copy_from_app(name):
         candidates = [
@@ -179,22 +179,14 @@ def run_ginette(ID, k, n, lam, c):
         "E_cdt_aux_limites_bck.dat",
         "E_zone_parameter_bck.dat",
         "ginette",
-        "Sim_temperature_maille1_t.dat",
-        "Sim_temperature_maille2_t.dat",
-        "Sim_temperature_maille3_t.dat",
         "E_cdt_initiale.dat",
-        "E_cdt_aux_limites.dat",
-        "E_charge_t.dat",
-        "E_temp_t.dat",
-        "E_colonne.dat", 
-        "E_coordonnee.dat",
-          "E_def_maille.dat",
-          "E_temperature_initiale.dat",
-            "E_zone.dat"
     ]:
         _copy_from_app(fname)
 
+
+
     # run inside the temp directory (use absolute path)
+    os.chdir(temp_dir)
     print("Current working directory:", os.getcwd())
 
     # Domain paramters:
@@ -202,12 +194,10 @@ def run_ginette(ID, k, n, lam, c):
     z_bottom = -5
     n_depths = 250
     dz_obs = 0.1
-    nb_zone = 1
-    alt_thk=0
-
     az = abs(z_top - z_bottom)
     dz = az / n_depths
-
+    nb_zone=1
+    alt_thk=0
     # Time parameters:
     nb_day = 30
     dt = 600
@@ -215,11 +205,9 @@ def run_ginette(ID, k, n, lam, c):
     start_date = "2022/04/21 14:00:00"
     date_simul_bg = pd.to_datetime(start_date)
 
-    os.chdir(os.path.join(os.getcwd(), temp_dir))
-    print(os.getcwd())
+    print("Setup ginette model...")
     z_obs = setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz,
                            date_simul_bg, dz_obs)
-
 
 
     # 1) PREPARE BOUNDARY CONDITIONS:
@@ -254,16 +242,32 @@ def run_ginette(ID, k, n, lam, c):
         "h_bottom": df_BC["h_bottom"],
         "T_top": df_BC["T_top"],
         "T_bottom": df_BC["T_bottom"]})
-    
+
     # 3) SET INITIAL ANd BOUNDARIES CONDITIONS:
     # Set initial conditions:
     z_obs = [-5]
-
+    #compile ginette fortran source code from GINETTE src folder
+    compile_ginette_src(REPO_ROOT)
     initial_conditions(obs_temp, z_top, z_bottom, dz, z_obs)
+
     # Set boundary conditions in temperature:
     boundary_conditions(obs_temp, dt)
+
+    # Save initial and boundary conditions file in /home/ariviere/Programmes/ginette/application/1D_Stream_aquifer_GridSearch/SYNTHETIC_CASES:
+    # E_charge_initiale.dat, E_charge_t.dat, E_temp_t.dat, E_temperature_initiale.dat
+    for fname in [ 
+        "E_charge_t.dat",
+        "E_temp_t.dat"
+    ]:
+        src = os.path.join(temp_dir, fname)
+        dst_dir = os.path.join(BASE_APP_DIR, "SYNTHETIC_CASES")
+        if os.path.exists(src):
+            copy_file(src, dst_dir)
+        else:
+            print(f"Warning: {fname} not found in {temp_dir}")
+        
+
     # 4) RUN SIMULATION
-   # generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, k, n, lam, REF_r, None, None, None, None)
     sim_temp = run_direct_model(date_simul_bg,
                                 z_bottom,
                                 dz,
@@ -278,6 +282,8 @@ def run_ginette(ID, k, n, lam, c):
                                 REF_l2=None,
                                 REF_r2=None)
 
+
+
     # Save results:
     os.chdir(os.path.join("..", ".."))
     print('on est ici',os.getcwd())
@@ -285,7 +291,7 @@ def run_ginette(ID, k, n, lam, c):
                                  f"sim_temp_{ID}.txt"), sep=" ")
 
     # Del temp
-    shutil.rmtree(temp_dir)
+     #    shutil.rmtree(temp_dir)
     return
 
 

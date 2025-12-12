@@ -262,9 +262,6 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
         "E_cdt_aux_limites_bck.dat",
         "E_zone_parameter_bck.dat",
         "ginette",
-        "Sim_temperature_maille1_t.dat",
-        "Sim_temperature_maille2_t.dat",
-        "Sim_temperature_maille3_t.dat",
         "E_cdt_initiale.dat",
         "E_charge_initiale.dat",
         "E_cdt_aux_limites.dat",
@@ -295,6 +292,7 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
 
 
     # 4) RUN SIMULATION
+   # generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, k, n, lam, REF_r, None, None, None, None)
     sim_temp = run_direct_model(date_simul_bg,
                                 z_bottom,
                                 dz,
