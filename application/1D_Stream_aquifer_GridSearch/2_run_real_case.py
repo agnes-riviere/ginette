@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 18 09:51:06 2025
-
-@author: Maxime Gautier
+Created on Today's date: 2025-12-11
+@author: Agnès Riviere
+Run a set of Ginette simulations for a real case of 1D stream-aquifer interaction
+Repertory of simulation setup and results: application/1D_Stream_aquifer_GridSearch/GINETTE_SENSI
 """
 
 
@@ -31,6 +32,13 @@ from src.src_python.Init_folders import compile_ginette
 # Get current script directory
 SCRIPT_DIR = Path(__file__).resolve().parent
 BASE_DIR = str(SCRIPT_DIR)
+
+
+#==============================================================================
+# SIMULATION SETTINGS
+#==============================================================================
+# Delete temp folder after simulation   
+Delete_sim="True"
 # =============================================================================
 # MODEL GEOMETRY AND DISCRETIZATION SETUP
 # =============================================================================
@@ -95,6 +103,44 @@ print(f"- Cell size: {dz} m")
 print(f"- Number of cells: {int(az/dz)}")
 print(f"- Time step: {dt} s ({dt/60} minutes)")
 print(f"- Observation depths: {dz_obs} m")
+
+
+
+
+
+
+def delete_sim_temp(my_dir,temp):
+    """
+    Delete files in my_dir whose name starts with 'sim_temp'.
+    Deletes temp_ repertory in temp if exists.
+    -----------
+    my_dir : str
+        Directory path where to delete files.
+    -----------
+    Returns
+    None
+    ----------- 
+    """
+    p = Path(my_dir)
+    if not p.exists():
+        return
+    if not p.is_dir():
+        raise NotADirectoryError(f"Not a directory: {my_dir}")
+    for f in p.glob("sim_temp*"):
+        try:
+            if f.is_file():
+                f.unlink()
+        except Exception as e:
+            print(f"Failed to remove {f}: {e}")
+    # delete temp_ repertory in temp if exists
+    temp_p = Path(temp)
+    if temp_p.exists() and temp_p.is_dir():
+        for sub in temp_p.glob("temp_*"):
+            try:
+                if sub.is_dir():
+                    shutil.rmtree(sub)
+            except Exception as e:
+                print(f"Failed to remove directory {sub}: {e}")
 
 
 
@@ -210,6 +256,8 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
     # Copy required template files from the application folder (tries multiple locations)
     for fname in [
         "E_parametre_bck.dat",
+        "E_cdt_aux_limites_bck.dat",
+        "E_cdt_aux_limites_perm_bck.dat",
         "E_p_therm_bck.dat",
         "E_cdt_aux_limites_bck.dat",
         "E_zone_parameter_bck.dat",
@@ -221,6 +269,7 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
         "E_charge_initiale.dat",
         "E_cdt_aux_limites.dat",
         "E_charge_t.dat",
+        "E_pression_initiale.dat",
         "E_temp_t.dat",
         "E_colonne.dat", 
         "E_coordonnee.dat",
@@ -230,10 +279,6 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
     ]:
         _copy_from_app(fname)
 
-    # rename backup parameter file if present
-    src_param = os.path.join(temp_dir, "E_parametre_bck.dat")
-    if os.path.exists(src_param):
-        os.rename(src_param, os.path.join(temp_dir, "E_parametre_backup.dat"))
 
     # run inside the temp directory (use absolute path)
     os.chdir(temp_dir)
@@ -256,9 +301,9 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
                                 nb_zone,
                                 alt_thk,
                                 k,
-                                REF_n,
+                                n,
                                 lam,
-                                REF_r,
+                                c,
                                 REF_k2=None,
                                 REF_n2=None,
                                 REF_l2=None,
@@ -279,7 +324,7 @@ def run_ginette(ID, k, n,lam,c,z_top, z_bottom, dz, dt, state, nb_day, dz_obs, d
 
 if __name__ == "__main__":
 
-    grid = pd.read_csv(os.path.join("grid_search.csv"), delimiter=";")
+    grid = pd.read_csv(os.path.join(RESULTS_DIR,"grid_search.csv"), delimiter=";")
     os.makedirs("results", exist_ok=True)
     os.makedirs("temp", exist_ok=True)
     compile_ginette()

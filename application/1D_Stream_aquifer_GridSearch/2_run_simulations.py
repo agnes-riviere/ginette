@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Nov 18 09:51:06 2025
-
+For the SYNTHETIC_CASES defined in the application folder,
 @author: Maxime Gautier, Agnes Rivière, Samuel Larance
 """
 
@@ -121,7 +121,7 @@ try:
                                initial_conditions,
                                boundary_conditions,
                                run_direct_model,
-                               smooth_square_wave)
+                               smooth_square_wave,generate_zone_parameters)
 except Exception:
      # fallback to legacy module name if present
     from direct_model_ginette import (setup_ginette2,
@@ -153,18 +153,17 @@ except Exception:
             raise FileNotFoundError(f"Source not found: {src}")
         shutil.copy(src, os.path.join(dst_dir, os.path.basename(src)))
 
-def run_ginette(ID, k, lam):
+def run_ginette(ID, k, n, lam, c):
     # Temp dir:
     # Temp dir:
     temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
     os.makedirs(temp_dir, exist_ok=True)
-    prepare_ginette_directories(temp_dir)
 
     def _copy_from_app(name):
         candidates = [
-            os.path.join(BASE_APP_DIR, "GINETTE_SENSI", name),
+            os.path.join(BASE_APP_DIR, "SYNTHETIC_CASES", name),
             os.path.join(BASE_APP_DIR, name),
-            os.path.join(REPO_ROOT, "application", "1D_Stream_aquifer_GridSearch", "GINETTE_SENSI", name),
+            os.path.join(REPO_ROOT, "application", "1D_Stream_aquifer_GridSearch", "SYNTHETIC_CASES", name),
             os.path.join(REPO_ROOT, "application", "1D_Stream_aquifer_GridSearch", name),
         ]
         for src in candidates:
@@ -196,7 +195,6 @@ def run_ginette(ID, k, lam):
         _copy_from_app(fname)
 
     # run inside the temp directory (use absolute path)
-    os.chdir(temp_dir)
     print("Current working directory:", os.getcwd())
 
     # Domain paramters:
@@ -204,6 +202,9 @@ def run_ginette(ID, k, lam):
     z_bottom = -5
     n_depths = 250
     dz_obs = 0.1
+    nb_zone = 1
+    alt_thk=0
+
     az = abs(z_top - z_bottom)
     dz = az / n_depths
 
@@ -218,11 +219,7 @@ def run_ginette(ID, k, lam):
     print(os.getcwd())
     z_obs = setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz,
                            date_simul_bg, dz_obs)
-    # Model parameters:
-    nb_zone = 1
-    alt_thk = 0
-    REF_n = 0.05
-    REF_r = 3500
+
 
 
     # 1) PREPARE BOUNDARY CONDITIONS:
@@ -263,17 +260,19 @@ def run_ginette(ID, k, lam):
     z_obs = [-5]
 
     initial_conditions(obs_temp, z_top, z_bottom, dz, z_obs)
-
+    # Set boundary conditions in temperature:
+    boundary_conditions(obs_temp, dt)
     # 4) RUN SIMULATION
+   # generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, k, n, lam, REF_r, None, None, None, None)
     sim_temp = run_direct_model(date_simul_bg,
                                 z_bottom,
                                 dz,
                                 nb_zone,
                                 alt_thk,
                                 k,
-                                REF_n,
+                                n,
                                 lam,
-                                REF_r,
+                                c,
                                 REF_k2=None,
                                 REF_n2=None,
                                 REF_l2=None,
@@ -281,8 +280,8 @@ def run_ginette(ID, k, lam):
 
     # Save results:
     os.chdir(os.path.join("..", ".."))
-
-    sim_temp.to_csv(os.path.join("results",
+    print('on est ici',os.getcwd())
+    sim_temp.to_csv(os.path.join(RESULTS_DIR,
                                  f"sim_temp_{ID}.txt"), sep=" ")
 
     # Del temp
@@ -311,7 +310,7 @@ if __name__ == "__main__":
     else:
         remains = grid.ID.tolist()
 
-    params = [[r.ID, r.log_k, r.lam] for r in grid.itertuples()
+    params = [[r.ID, r.log_k,r.poro, r.lam,r.cap] for r in grid.itertuples()
               if r.ID in remains]
     to = time()
     with mp.Pool(processes=mp.cpu_count()-2) as pool:

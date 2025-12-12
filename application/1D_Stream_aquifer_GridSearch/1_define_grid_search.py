@@ -84,7 +84,7 @@ sys.path.insert(0, str(project_root / "src" / "src_python"))
 #    REF_l2 = 2.65    # Higher thermal conductivity (more mineral content)
 #    REF_r2 = 3500    # Same grain density (similar mineral composition)
 # Define ranges for test parameters in the grid search:
-N = 3  # number of test by parameter (nb)
+N = 4  # number of test by parameter (nb)
 NB_parameters = 4  # number of parameters to test (nb)
 Name_parameters = ["log_k", "lam", "poro","cap"]  # names of parameters to test (list of str)
 # check NB_parameters and Name_parameters consistency

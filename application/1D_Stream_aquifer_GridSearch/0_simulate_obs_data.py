@@ -1,18 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 18 13:43:32 2025
-
-@author: mgautier
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
 Created on Tue Nov 18 09:51:06 2025
-
-@author: Maxime Gautier
-@modif: Agnès Rivière, Samuel Larance
+For the SYNTHETIC_CASES defined in the application folder,
+@author: Maxime Gautier, Agnès Rivière, Samuel Larance
 """
 
 
@@ -143,13 +134,13 @@ def run_ginette(ID, k, n,lam,c):
     # Temp dir:
     temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
     os.makedirs(temp_dir, exist_ok=True)
-    prepare_ginette_directories(temp_dir)
+
 
     def _copy_from_app(name):
         candidates = [
-            os.path.join(BASE_APP_DIR, "GINETTE_SENSI", name),
+            os.path.join(BASE_APP_DIR, "SYNTHETIC_CASES", name),
             os.path.join(BASE_APP_DIR, name),
-            os.path.join(REPO_ROOT, "application", "1D_Stream_aquifer_GridSearch", "GINETTE_SENSI", name),
+            os.path.join(REPO_ROOT, "application", "1D_Stream_aquifer_GridSearch", "SYNTHETIC_CASES", name),
             os.path.join(REPO_ROOT, "application", "1D_Stream_aquifer_GridSearch", name),
         ]
         for src in candidates:
