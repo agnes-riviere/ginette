@@ -156,9 +156,6 @@ def run_ginette(ID, k, n,lam,c):
         "E_cdt_aux_limites_bck.dat",
         "E_zone_parameter_bck.dat",
         "ginette",
-        "Sim_temperature_maille1_t.dat",
-        "Sim_temperature_maille2_t.dat",
-        "Sim_temperature_maille3_t.dat",
         "E_cdt_initiale.dat",
     ]:
         _copy_from_app(fname)
@@ -266,7 +263,7 @@ def run_ginette(ID, k, n,lam,c):
                                  f"sim_temp_{ID}.txt"), sep=" ")
 
     # Del temp
-  #  shutil.rmtree(temp_dir)
+    shutil.rmtree(temp_dir)
     return
 
 run_ginette(-1, k,n,lam,c)
