@@ -108,7 +108,7 @@ except Exception:
 
 
 try:
-    from Init_folders import prepare_ginette_directories
+    from Init_folders import prepare_ginette_directories, compile_ginette_src
 except Exception:
     # fallback if an alternative utils module exists
     try:
@@ -225,6 +225,8 @@ def run_ginette(ID, k, n,lam,c):
     # 3) SET INITIAL ANd BOUNDARIES CONDITIONS:
     # Set initial conditions:
     z_obs = [-5]
+    #compile ginette fortran source code from GINETTE src folder
+    compile_ginette_src(REPO_ROOT)
     initial_conditions(obs_temp, z_top, z_bottom, dz, z_obs)
 
     # Set boundary conditions in temperature:
@@ -264,7 +266,7 @@ def run_ginette(ID, k, n,lam,c):
                                  f"sim_temp_{ID}.txt"), sep=" ")
 
     # Del temp
-    shutil.rmtree(temp_dir)
+  #  shutil.rmtree(temp_dir)
     return
 
 run_ginette(-1, k,n,lam,c)
