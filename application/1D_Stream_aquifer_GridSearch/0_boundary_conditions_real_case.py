@@ -5,6 +5,10 @@ Created on 08-12-2025
 
 
 @author: Agnès Rivière, Samuel Larance
+It modifies the initial and boundary conditions for real cases in GINETTE_SENSI directory
+All these files will be used in the 2_run_real_case.py script to run the simulation of the grid search.add()
+The OBS_point directory contains the observational data (temperature sensors, pressure measurements)
+You have to indicate the path of this directory in the Obs_data variable below.
 """
 
 
