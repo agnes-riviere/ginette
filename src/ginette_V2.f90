@@ -4756,7 +4756,7 @@ program pression_ecoulement_transport_thermique
 !...FICHIERS FIN DE SIMULATION
 !ccc....Dernier pas de temps ou regime permanant
    do i = 1, nm
-      write (74, FMT='(i6,BN,F14.2,F14.2,F14.3,F14.3,F14.2,E14.2,E14.2,E14.2,E14.2)') &
+      write (74, FMT='(i6,BN,F14.2,F14.2,F14.3,F15.5,F14.2,E14.4,E14.4,E14.4,E14.4)') &
          i, x(i), z(i), pr(i), &
          pr(i)/(rho1*g) + z(i), temp(i),vxm(i), vzm(i),vxp(i),vzp(i)
    end do

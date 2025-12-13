@@ -73,6 +73,79 @@ def format_value(value):
     return "{:0=12.2e}".format(value).replace('e', 'd')    
     #-----------------------------------------------------------------
 
+def setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs):
+    """
+    Sets up the Ginette model parameters and writes them to the appropriate files in steady state.
+    Parameters:
+    dt (float): Time step for the simulation.
+        state (int): State of the simulation.
+        nb_day (float): Number of days for the simulation.
+        z_top (float): Top boundary of the model domain.
+        z_bottom (float): Bottom boundary of the model domain.
+        az (float): Total height of the model domain.
+        dz (float): Cell height in the model domain.
+        date_simul_bg (str): Start date of the simulation.
+        dz_obs (float): Observation depth interval.
+        Returns:
+        list: A list of observation depths.
+    """
+    
+
+    
+    # number of cell
+    nb_cell=az/dz
+    state=0
+    #-----------------------------------------------------------------
+    ## write the setup of the modeled domain
+    f_param_bck = open("E_parametre_bck.dat", "r")
+    f_param_new = open("E_parametre.dat", 'w')
+    setup_model = f_param_bck.read()
+    setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
+    setup_model = setup_model.replace('[state]', '%1i' % state)
+    setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)
+    setup_model = setup_model.replace('[z_top]', '%7.3e' % z_top)
+    setup_model = setup_model.replace('[z_bottom]', '%7.2e' % z_bottom)
+    setup_model = setup_model.replace('[az]', '%7.3e' % az)
+    setup_model = setup_model.replace('[dz]', '%6.2e' % dz)
+    setup_model = setup_model.replace('[nb_cell]', '%05.0f' % nb_cell)
+    setup_model= setup_model.replace('[itsortie]', '%08.0f' % dt)
+
+    # Observation positions x 0.50000
+    # Observation in meter
+    Obs1 = z_top - dz_obs
+    Obs2 = z_top - dz_obs * 2
+    Obs3 = z_top - dz_obs * 3
+    Obs4 = z_top - dz_obs * 4
+
+    # Create z_obs vector
+    z_obs = [Obs1, Obs2, Obs3, Obs4]
+    ## write the parameters
+    cell1 = abs(Obs1 / dz)
+    cell2 = abs(Obs2 / dz)
+    cell3 = abs(Obs3 / dz)
+    cell4 = abs(Obs4 / dz)
+    setup_model = setup_model.replace('[cell1]', '%05.0f' % cell1)
+    setup_model = setup_model.replace('[cell2]', '%05.0f' % cell2)
+    setup_model = setup_model.replace('[cell3]', '%05.0f' % cell3)
+    setup_model = setup_model.replace('[cell4]', '%05.0f' % cell4)
+    f_param_new.write(setup_model)
+    f_param_bck.close()
+    f_param_new.close()
+    
+    #-----------------------------------------------------------------
+    f_param_therm=open("E_p_therm_bck.dat", "r")
+    f_param_therm_new=open("E_p_therm.dat", "w")
+    therm=f_param_therm.read()
+    therm = therm.replace('[state]', '%1i' % state)
+    f_param_therm_new.write(therm)
+    f_param_therm_new.close()
+    f_param_therm.close()
+    
+
+    return z_obs
+
+
+
 
 def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row,nb_day=10,dt=900):
     """
@@ -140,7 +213,7 @@ def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row,nb_day=10,dt=900):
      
 
 
-def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_obs):
+def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_obs,verbose=False):
     """
     Sets up the Ginette model parameters and writes them to the appropriate files in transient state.
     Parameters:
@@ -156,10 +229,10 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     Returns:
     list: A list of observation depths.
     """
-    print("la simulation commence à", date_simul_bg)
-    # repertoire
-
-    print(os.getcwd())
+    if verbose:
+        print("la simulation commence à", date_simul_bg)
+    # repertoire courant
+        print(os.getcwd())
     # number of cell
     nb_cell=az/dz
     #-----------------------------------------------------------------
@@ -232,7 +305,7 @@ def setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_
     """
     if verbose:
         print("la simulation commence à", date_simul_bg)
-    
+    print("Running simulacccccccccccccccccccccccccccccction state:",state)    
     # number of cell
     nb_cell=az/dz
     #-----------------------------------------------------------------
@@ -873,7 +946,7 @@ def run_direct_model_2D(dir_ginette):
     f_param_therm_new.write(param_therm)
     f_param_therm_new.close()
     f_param_therm.close()
-    initial_conditions_perm_2D()
+    initial_conditions_2D()
     boundary_conditions_perm_2D_tdirect()
     # --- Step 2: Run Ginette in steady-state mode
     # add time of subprocess
@@ -964,6 +1037,49 @@ def remove_first_two_days(sim_temp, obs_temp,date_begin):
 
     return sim_temp_filtered, obs_temp_filtered
 
+
+
+
+
+
+
+def remove_first_two_days_time_based(sim_temp, obs_temp, date_begin=None, days=2):
+    cutoff = days * 86400  # secondes
+
+    sim = sim_temp.copy()
+    obs = obs_temp.copy()
+
+    # Assurer obs['Time'] :
+    if 'Time' not in obs.columns:
+        # Inférer date_begin si non fourni
+        if date_begin is None:
+            # Prend la première date valide dans obs['dates']
+            date_begin = pd.to_datetime(obs['dates'], errors='coerce').dropna().iloc[0]
+        # Construire Time depuis dates
+        obs['Time'] = (pd.to_datetime(obs['dates'], errors='coerce') - date_begin).dt.total_seconds()
+
+    # Filtrer les N premiers jours
+    sim = sim[sim['Time'] >= cutoff]
+    obs = obs[obs['Time'] >= cutoff]
+
+    if sim.empty or obs.empty:
+        return sim, obs
+
+    # Chevauchement commun en secondes
+    left  = max(sim['Time'].min(), obs['Time'].min())
+    right = min(sim['Time'].max(), obs['Time'].max())
+
+    if left > right:
+        return sim.iloc[0:0], obs.iloc[0:0]
+
+    sim = sim[(sim['Time'] >= left) & (sim['Time'] <= right)]
+    obs    obs = obs[(obs['Time'] >= left) & (obs['Time'] <= right)]
+
+
+
+    return sim, obs
+
+
     
 def remove_first_two_days_obs( obs_temp,date_begin):
     """
@@ -1002,33 +1118,104 @@ def remove_first_days_sim(sim_temp, nb_delday):
 
     return sim_temp_filtered
 
+
+import os
+from pathlib import Path
+import numpy as np
+
 def reuse_end_in_initial(source_file, destination_file):
     """
-    Copies specific columns from the source file to the destination file.
-    Parameters:
-        source_file (str): Path to the source file containing the data.
-        destination_file (str): Path to the destination file where the data will be copied.
-    Returns:
-        None
-    Raises:
-        FileNotFoundError: If the source file does not exist.
-        ValueError: If the source file is empty or the destination file is invalid.
+    Copie une colonne spécifique du fichier source vers le fichier destination.
+
+    Parameter:
+        source_file (str): Chemin du fichier source contenant les données (numériques).
+        destination_file (str): Chemin du fichier destination (doit être l'un des fichiers attendus).
+
+    Comportement:
+        - Sélectionne la colonne selon le nom du fichier destination:
+            E_pression_initiale.dat    -> colonne index 3 (4e colonne)
+            E_charge_initiale.dat      -> colonne index 4 (5e colonne)
+            E_temperature_initiale.dat -> colonne index 5 (6e colonne)
+        - Écrit la colonne sous forme de vecteur colonne (n,1) dans destination_file.
+
+    Exceptions:
+        FileNotFoundError: si le fichier source n'existe pas.
+        ValueError: si le fichier source est vide ou mal formé, ou si le fichier destination est invalide.
     """
+
+    # Vérifications d'existence
     if not os.path.exists(source_file):
         raise FileNotFoundError(f"{source_file} not found.")
 
-    source_data = np.loadtxt(source_file)
-    if source_data.size == 0:
-        raise ValueError(f"The source file {source_file} is empty.")
+    # Chargement robuste (genfromtxt gère mieux les trous/NaN)
+    try:
+        source_data = np.genfromtxt(
+            source_file,
+            dtype=float,
+            comments="#",
+            delimiter=None,  # laisse numpy deviner espaces/tab
+            filling_values=np.nan
+        )
+    except Exception as e:
+        raise ValueError(f"Erreur de lecture du fichier source '{source_file}': {e}")
 
-    column_index = {'E_pression_initiale.dat':3,'E_charge_initiale.dat': 4, 'E_temperature_initiale.dat': 5}.get(destination_file)
+    # Gestion des cas "fichier vide" ou "une seule valeur"
+    if source_data is None:
+        raise ValueError(f"Le fichier source '{source_file}' ne contient aucune donnée lisible.")
+
+    # Normaliser en 2D
+    source_data = np.atleast_2d(source_data)
+
+    # Si une seule colonne a été lue, la forme peut être (1, n) ou (n, 1)
+    # On veut (n, m) avec n = lignes, m = colonnes
+    if source_data.shape[0] == 1 and source_data.shape[1] > 1:
+        # Probablement une seule ligne: transposer si nécessaire
+        # On transposer seulement si cela ressemble à une série horizontale
+        # Cela dépend du format du fichier. On garde tel quel par défaut.
+        pass
+
+    n_rows, n_cols = source_data.shape
+    if n_rows == 0 or n_cols == 0 or np.all(np.isnan(source_data)):
+        raise ValueError(f"Le fichier source '{source_file}' est vide ou non numérique.")
+
+    # Déterminer l'index de colonne en fonction du nom de fichier destination (basename)
+    dest_name = Path(destination_file).name
+    column_map = {
+        'E_pression_initiale.dat': 3,
+        'E_charge_initiale.dat': 4,
+        'E_temperature_initiale.dat': 5
+    }
+    column_index = column_map.get(dest_name)
+
     if column_index is None:
-        raise ValueError("Invalid destination file. Use 'E_pression_initiale.dat','E_charge_initiale.dat' or 'E_temperature_initiale.dat'.")
+        raise ValueError("Destination invalide. Utilisez "
+                         "'E_pression_initiale.dat', 'E_charge_initiale.dat' ou 'E_temperature_initiale.dat'.")
 
+    # Vérifier qu'on dispose d'assez de colonnes
+    if column_index >= n_cols:
+        raise ValueError(
+            f"Le fichier source '{source_file}' ne contient pas la colonne index {column_index} "
+            f"(colonnes disponibles: 0..{n_cols-1})."
+        )
+
+    # Extraire la colonne désirée
     column_to_copy = source_data[:, column_index]
-    if column_to_copy.size == 0:
-        raise ValueError(f"The column to copy from {source_file} is empty.")
-    np.savetxt(destination_file, column_to_copy, fmt='%f')
+    # Vérifier contenu non vide/non NaN
+    if column_to_copy.size == 0 or np.all(np.isnan(column_to_copy)):
+        raise ValueError(f"La colonne {column_index} dans '{source_file}' est vide ou non numérique.")
+
+
+    # Sauvegarde sous forme de vecteur colonne (n,1)
+    out_array = column_to_copy.reshape(-1, 1)
+
+    # Écriture
+    try:
+        np.savetxt(destination_file, out_array, fmt='%.6f')
+    except Exception as e:
+        raise ValueError(f"Erreur à l'écriture du fichier destination '{destination_file}': {e}")
+
+
+    
 
 
 def smooth_square_wave(x, period):
