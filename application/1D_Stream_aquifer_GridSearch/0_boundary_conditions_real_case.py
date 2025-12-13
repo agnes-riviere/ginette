@@ -209,6 +209,18 @@ print(f"- Number of time steps: {len(obs_temp)}")
 print(f"- Available measurements: {list(obs_temp.columns)}")
 print(f"- Data shape: {obs_temp.shape}")
 
+# Calculate Time vector in seconds since simulation start
+time_vector = (obs_temp.index - date_simul_bg).total_seconds().to_numpy() # Convert to seconds
+obs_temp.insert(0, 'Time', time_vector)
+# data with Time Temp1 Temp2 Temp3 and dates
+data=pd.DataFrame()
+data['Time']=time_vector
+data['Temp1']=obs_temp['Temp1'].to_numpy()
+data['Temp2']=obs_temp['Temp2'].to_numpy()
+data['Temp3']=obs_temp['Temp3'].to_numpy()
+data['dates']=obs_temp['dates'].to_numpy()
+# Save processed observational data to results directory
+data.to_csv(os.path.join(RESULTS_DIR, "observed_data.txt"), sep=" ")
 
 # GO in  BASE_DIR
 os.chdir(GINETTE_SENSI)

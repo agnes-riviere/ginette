@@ -21,14 +21,15 @@ import numpy as np
 import pandas as pd
 from time import time
 import shutil
+import subprocess
 import multiprocessing as mp
 # Add project root to path
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 # Import your modules directly from src_python
 sys.path.insert(0, str(project_root / "src" / "src_python"))
-from src.src_python.Direct_model import setup_ginette
-from src.src_python.Init_folders import compile_ginette
+from src.src_python.Direct_model import setup_ginette,run_direct_model,setup_ginette2,generate_zone_parameters,reuse_end_in_initial,setup_ginette_perm
+from src.src_python.Init_folders import compile_ginette,prepare_ginette_directories
 # Get current script directory
 SCRIPT_DIR = Path(__file__).resolve().parent
 BASE_DIR = str(SCRIPT_DIR)
@@ -195,33 +196,26 @@ if os.path.isdir(SRC_PY):
     except Exception:
         pass
 
-# Import project modules from src_python (robust to module name/case)
+# Import project modules from src_python
 try:
     # preferred: modules as they appear in src/src_python
-    from Direct_model import (setup_ginette2,
+    from src.src_python.Direct_model import (setup_ginette2,
                                initial_conditions,
                                boundary_conditions,
                                run_direct_model,
-                               smooth_square_wave,setup_ginette_perm,generate_zone_parameters )
+                               smooth_square_wave,
+                               setup_ginette_perm,
+                               generate_zone_parameters,
+                               reuse_end_in_initial,
+                               setup_ginette)
 except Exception:
-     # fallback to legacy module name if present
-    from direct_model_ginette import (setup_ginette2,
-                                       initial_conditions,
-                                       boundary_conditions,
-                                       run_direct_model,
-                                       smooth_square_wave,setup_ginette_perm,generate_zone_parameters )
+                print(f"import error in Direct_model from {SRC_PY} ")
 
 
 try:
-    from Init_folders import prepare_ginette_directories
+    from src.src_python.Init_folders import prepare_ginette_directories
 except Exception:
-    # fallback if an alternative utils module exists
-    try:
-        from utils_ginette import prepare_ginette_directories
-    except Exception:
-        # minimal fallback: create directory helper
-        def prepare_ginette_directories(path):
-            os.makedirs(path, exist_ok=True)
+    print(f"import error in Init_folders from {SRC_PY} ")
 
 # provide a portable copy_file helper if the project does not expose one
 try:
@@ -279,19 +273,47 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
 
     # run inside the temp directory (use absolute path)
     os.chdir(temp_dir)
-    print("Current working directory:", os.getcwd())
 
-
-    os.chdir(os.path.join(os.getcwd(), temp_dir))
-    print(os.getcwd())
+    state=0
     setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs)
-    run_direct_model(date_simul_bg,z_bottom, dz, nb_zone, alt_thk, k,n, lam,c, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None)
-   REUSE A AJOUTER POUR CONDITION INITIALE DE PRESSION ET TEMPERATURE DU TRANSIENT
-  #  z_obs = setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz,
-   #                        date_simul_bg, dz_obs)
+    generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, k, n, lam, c, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None)
+    subprocess.call(["./ginette"])
+    # reuse end of steady state in initial conditions for transient
+    source_file="S_pression_charge_temperature.dat"
+    destination_file="E_charge_initiale.dat"
+    reuse_end_in_initial(source_file, destination_file)
+    destination_file="E_temperature_initiale.dat"
+    reuse_end_in_initial(source_file, destination_file)
+    state=1
+    z_obs=setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz,
+                 date_simul_bg, dz_obs)
+    # 4) RUN SIMULATION
+    sim_temp = run_direct_model(date_simul_bg,
+                                z_bottom,
+                                dz,
+                                nb_zone,
+                                alt_thk,
+                                k,
+                                n,
+                                lam,
+                                c,
+                                REF_k2=None,
+                                REF_n2=None,
+                                REF_l2=None,
+                                REF_r2=None)
+    os.chdir(os.path.join(os.getcwd(), temp_dir))
+
+
+
+
+
+    # Save results:
+    os.chdir(os.path.join("..", ".."))
+    sim_temp.to_csv(os.path.join(RESULTS_DIR,
+                                 f"sim_temp_{ID}.txt"), sep=" ")
 
     # Del temp
-    #  shutil.rmtree(temp_dir)
+     #    shutil.rmtree(temp_dir)
     return
 
 
@@ -324,7 +346,6 @@ if __name__ == "__main__":
               if r.ID in remains]
     params_setup=[date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az ,dz ,dz_obs  ,nb_zone ,alt_thk] 
     params=[p + params_setup for p in params]
-    print(params)
     to = time()
     with mp.Pool(processes=mp.cpu_count()-2) as pool:
         result = pool.starmap_async(run_ginette, params)
@@ -332,3 +353,4 @@ if __name__ == "__main__":
         pool.join()
     tf = time()
     print(f"Run time for {len(params)} simulations: {round(tf-to, 2)} s")
+

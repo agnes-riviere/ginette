@@ -252,21 +252,7 @@ def run_ginette(ID, k, n,lam,c):
 
     # Set boundary conditions in temperature:
     boundary_conditions(obs_temp, dt)
-
-    # Save initial and boundary conditions file in /home/ariviere/Programmes/ginette/application/1D_Stream_aquifer_GridSearch/SYNTHETIC_CASES:
-    # E_charge_initiale.dat, E_charge_t.dat, E_temp_t.dat, E_temperature_initiale.dat
-    for fname in [ 
-        "E_charge_t.dat",
-        "E_temp_t.dat"
-    ]:
-        src = os.path.join(temp_dir, fname)
-        dst_dir = os.path.join(BASE_APP_DIR, "SYNTHETIC_CASES")
-        if os.path.exists(src):
-            copy_file(src, dst_dir)
-        else:
-            print(f"Warning: {fname} not found in {temp_dir}")
-        
-
+     
     # 4) RUN SIMULATION
     sim_temp = run_direct_model(date_simul_bg,
                                 z_bottom,
@@ -286,7 +272,6 @@ def run_ginette(ID, k, n,lam,c):
 
     # Save results:
     os.chdir(os.path.join("..", ".."))
-    print('on est ici',os.getcwd())
     sim_temp.to_csv(os.path.join(RESULTS_DIR,
                                  f"sim_temp_{ID}.txt"), sep=" ")
 
