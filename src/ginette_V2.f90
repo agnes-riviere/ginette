@@ -8,6 +8,7 @@
 ! Toute vente commerciale en temps que service ou logiciel doit obtenir l'accord des auteurs         C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 program pression_ecoulement_transport_thermique
+   use, intrinsic :: ieee_exceptions
    implicit double precision(a - h, o - x, z), integer(I - N)
    implicit CHARACTER*5(y)
    double precision dx, dz, dt, al, az, reptop, repbot, rho1
@@ -82,6 +83,8 @@ program pression_ecoulement_transport_thermique
    double precision, dimension(:), allocatable::qad, qcondu
    integer           :: nm
    LOGICAL           :: An_Error
+   logical :: halted(5) = .false.
+   type(ieee_flag_type) :: invalid_flag, denormal_flag
 
 !     integer(4) :: deg_max_gc
 !     integer(4) :: sw_int(12)
@@ -91,6 +94,7 @@ program pression_ecoulement_transport_thermique
 !     common /entsor/ lec,imp
 !     lec = 5
 !     imp = 6
+
 
 !     call GC_set_dump ('solgc',0)
 
@@ -1906,7 +1910,12 @@ program pression_ecoulement_transport_thermique
       end do
    CASE ("GEOME")
       do ik = 1, nm
-         alanda(ik) = (alandae**(om(ik))*alandas(ik)**(1 - om(ik)))
+         if (alandae > 0.0d0 .and. alandas(ik) > 0.0d0) then
+            alanda(ik) = (alandae**(om(ik))*alandas(ik)**(1 - om(ik)))
+         else
+            ! Fallback to arithmetic mean if geometric mean would fail
+            alanda(ik) = (alandae*(om(ik)) + alandas(ik)*(1 - om(ik)))
+         end if
       end do
    CASE ("ARITH")
       do ik = 1, nm
@@ -1919,6 +1928,7 @@ program pression_ecoulement_transport_thermique
    CASE ("NEUMA")
       do ik = 1, nm
          alanda(ik) = 2.619D+00
+         alanda(ik) = 1.839D+00
       end do
    END SELECT
 
@@ -2458,8 +2468,14 @@ program pression_ecoulement_transport_thermique
                           sqrt(alandas(i))*(1D+00 - om(i)) + &
                           sqrt(alandag)*om(i)*(1D+00 - sw(i)))**2
       else if (ymoycondtherm == "GEOME") then
-         alanda(i) = DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1 - om(i))* &
-                          alandag**(om(i)*(1D+00 - sw(i))))
+         if (alandae > 0.0d0 .and. alandas(i) > 0.0d0 .and. alandag > 0.0d0) then
+            alanda(i) = DBLE(alandae**(om(i)*sw(i))*alandas(i)**(1 - om(i))* &
+                             alandag**(om(i)*(1D+00 - sw(i))))
+         else
+            ! Fallback to arithmetic mean if geometric mean would fail
+            alanda(i) = DBLE(alandae*(om(i)*sw(i)) + alandas(i)*(1 - om(i)) &
+                             + alandag*(om(i)*(1D+00 - sw(i))))
+         end if
       else if (ymoycondtherm == "ARITH") then
          alanda(i) = DBLE(alandae*(om(i)*sw(i)) + alandas(i)*(1 - om(i)) &
                           + alandag*(om(i)*(1D+00 - sw(i))))
@@ -2661,6 +2677,7 @@ program pression_ecoulement_transport_thermique
          open (9455, file='S_pressure_flux__last_maille.dat')
          open (944944, file='S_bilan.dat')
          open (9456, file='S_vitesse_profil.dat')
+         OPEN(94,FILE='S_permeabilite_t.dat')
 !CC...fin ajout nicolas radic
 
       case ("ZND") 
@@ -2841,13 +2858,13 @@ program pression_ecoulement_transport_thermique
    do while (nitt*unitsim - paso > 0)
 !         print*,dt,paso
       it = it + 1
-
 !CC....Compteur iteration calcul PICARD
      nk = 0
 !CC...Retour pas de temps initial impose par l utilisateur
       dt = dble(dta)
       dtreco = dble(dtrecord)
-      !print*, "on recommence dans la boucle while avec dt =", int(dt),"paso=",int(paso), "et dtreco =", dtreco!, "et irecord =", irecord
+    
+!      print*, "on recommence dans la boucle while avec dt =", int(dt),"paso=",int(paso), "et dtreco =", dtreco!, "et irecord =", irecord
 !CC....ENREGISTREMENT A DES PAS DE TEMPS CONSTANT
 !ccc....Changement du pas de temps pour enregistrer au pas de temps constant itsortie*unitsortie
 !ccc....dt record = temps ecoulé depuis le dernier enregistrement
@@ -2863,12 +2880,15 @@ program pression_ecoulement_transport_thermique
          dtreco = 0
       elseif (dtreco + dt > itsortie*unitsortie) then
          dt = dble(itsortie)*dble(unitsortie) - dble(dtreco)
+         if (dt < 0) then
+            dt=dta/100
+         end if
          irecord = 1
          dtrecord = 0
          dtreco = 0
          !print *, '1 On est passé par la donc dt = ',dt
       end if
-      !print*, "ici dtreco = ", dtreco, "et dtrecord =", dtrecord
+!      print*, "ici dtreco = ", dtreco, "et dtrecord =", dtrecord,"dt=",dt
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
@@ -2894,7 +2914,9 @@ program pression_ecoulement_transport_thermique
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       if (irp == 0 .and. irptha == 0 .and. it > 3) paso = nitt*unitsim
+      if(paso<0) stop
       if (irptha == 1 .or. irp == 1) paso = dble(dt) + dble(paso)
+
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
@@ -3051,7 +3073,7 @@ program pression_ecoulement_transport_thermique
 !       BOUCLE DE PICARD               C
 !                          C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      do while (amaxp > crconvp .or. pr(1) + 1 == pr(1) &
+      do while (amaxp > crconvp .or. amaxt > crconvt .or. pr(1) + 1 == pr(1) &
                 .or. amaxt > crconvt .or. temp(1) + 1 == temp(1) &
                 .or. temp(1) - temp(1) .ne. 0 &
                 .or. pr(1) - pr(1) .ne. 0 .or. nk == iteration - 1)
@@ -3091,31 +3113,39 @@ program pression_ecoulement_transport_thermique
             !    print*, 'paso = ',paso ,"dt =", dt, "valcl(1,3) =", valcl(1,3)
             !    stop
             ! end if
-            if (dtreco >= 0) then
+            if (dtreco >= dt) then
                dtrecord = dble(dtreco) - dble(dt)
                irecord = 0
             end if
 
-            if (dtreco <= 0) then
+            if (dtreco < 0) then
                dtrecord = 0
                irecord = 0
             end if
+            if (dt<=0) then
+            dt=dta/100
+            endif
 
-            dto = dble(dt)
-            dt = dble(dto)/2
-            compteur_div=compteur_div+1
+  
             if (dt > dta) dt = dta
 
+            dto = dble(dt)
+            dt = dble(dto)/10
+            compteur_div=compteur_div+1
             
-            !print *, 'ici on a dt ==========',dt,'et dta =============',dta
-            !print*,"dans la boucle picard ===================================", modulo(dta, dt) .ne. 0
-            ! print*, 'et compteur div =', compteur_div
+!            print *, 'ici on a dt ==========',dt,'et dta =============',dta
+!            print*,"dans la boucle picard ===================================", modulo(dta, dt) .ne. 0
+!            print*, 'et compteur div =', compteur_div
             if (dt>=1) then
                if (modulo(dta, dt) .ne. 0) dt = dble(dta)/10
             else 
-               if (modulo(dta/10**CEILING(log10(dta)),dt) > 1.0d-15) then
-                  
-                  dt = dble(dta)/10 ! Ajout de ce if car sinon ginette tourne dans le vide quand dt<1
+               if (dta > 0.0d0 .and. dta > 1.0d-15) then
+                  if (modulo(dta/10**CEILING(log10(dta)),dt) > 1.0d-15) then
+                     
+                     dt = dble(dta)/10 ! Ajout de ce if car sinon ginette tourne dans le vide quand dt<1
+                  end if
+               else
+                  dt = dble(dta)/10
                end if
                   ! print *, "On est dans le cas ou dt<1 avec dt =", dt
             end if
@@ -3141,9 +3171,9 @@ program pression_ecoulement_transport_thermique
             !print*, "ici dtreco = ", dtreco, "et dtrecord =", dtrecord
             it = it + 1
             nk = 1
-
+            if (paso>dto) then
             paso = dble(dt) + dble(paso) - dble(dto)
-
+            endif
             if (irp == 0 .and. irptha == 0 .and. it > 3) paso = nitt*unitsim
 
             if (iclchgt == 1) then
@@ -3179,7 +3209,6 @@ program pression_ecoulement_transport_thermique
                if (ligne4 == 0) ligne4 = 1
                if (ligne5 == 0) ligne5 = 1
                if (ligne6 == 0) ligne6 = 1
-
 !ccc....recalcul car chgt pas temps
                call variation_cdt_limites(nm, paso, itlecture, ytest, &
                                     ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
@@ -3588,6 +3617,8 @@ program pression_ecoulement_transport_thermique
 !     amaxp=0D00
 !     endif
 
+
+
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
 !         Calcul de vitesse           C
@@ -3652,7 +3683,7 @@ program pression_ecoulement_transport_thermique
                   if (icl(i, 3) == -2) then
                      vzp(i) = dble(vzm(i))
                   end if
-                  if (icl(i, 4) == -2) then
+                  if (icl(i, 4) == -2 .or. icl(i, 4) == -4) then
                      vzm(i) = dble(vzp(i))
                   end if
 !ccc....cacul vitesse avec FLUX IMPOSE
@@ -3665,10 +3696,12 @@ program pression_ecoulement_transport_thermique
                   if (icl(i, 3) == -1) then
                      vzp(i) = dble(-valcl(i, 3))
                      vzm(i) = vzp(i)
+                     vzp(ivois(i,4))=vzp(i)
                   end if
                   if (icl(i, 4) == -1) then
                      vzm(i) = dble(valcl(i, 4))
                      vzp(i) = vzm(i)
+                     vzm(ivois(i,3))=vzp(i)
                   end if
                end if
 
@@ -3752,10 +3785,10 @@ program pression_ecoulement_transport_thermique
                   end if
                end if
 !CC....VITESSE NULLE
-               if (abs(vxp(i)) < 1D-17) vxp(i) = 0D+00
-               if (abs(vxm(i)) < 1D-17) vxm(i) = 0D+00
-               if (abs(vzm(i)) < 1D-17) vzm(i) = 0D+00
-               if (abs(vzp(i)) < 1D-17) vzp(i) = 0D+00
+               if (abs(vxp(i)) < 1D-30) vxp(i) = 0D+00
+               if (abs(vxm(i)) < 1D-30) vxm(i) = 0D+00
+               if (abs(vzm(i)) < 1D-30) vzm(i) = 0D+00
+               if (abs(vzp(i)) < 1D-30) vzp(i) = 0D+00
             end do
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !          Fin alcul de vitesse           C
@@ -3837,6 +3870,7 @@ program pression_ecoulement_transport_thermique
             nth = nm
             nmaxth = nmax
             nmaxthh = nmax1
+!            print*,'DEBUG: icycle before matt =',icycle
 
             call matt(val, icol_ind, irow_ptr, x, b, am, ivois, tempo, &
                       rho, dt, iclt, valclt, om, nm, bll, blt, &
@@ -3847,16 +3881,23 @@ program pression_ecoulement_transport_thermique
                       vxp, vxm, vzp, vzm, &
                       ymoycondtherm, dsidtemp, ytest, ysolv)
 !CC....resolution
+!            print*,'DEBUG: temp(1) BEFORE solving =',temp(1)
+!            print*,'DEBUG: b(1) =',b(1)
+!            print*,'DEBUG: ysolv =',ysolv
             n1 = nm
             nmaxz = nmax
             nmaxzz = nmax1
             if (ysolv == "BIC") then
+!               print*,'DEBUG: Using BIC solver'
                call bicg(temp, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
+!               print*,'DEBUG: BIC solver completed'
             end if
             if (ysolv == "CGS") then
+!               print*,'DEBUG: Using CGS solver'
                call cgs(temp, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
+!               print*,'DEBUG: CGS solver completed'
             end if
-
+!            print*,'DEBUG: temp(1) AFTER solving =',temp(1)
 !     if (ysolv == "LIB") then
 !       do i=1,nm+1
 !       irow_ptr(i)=irow_ptr(i)-1
@@ -4207,11 +4248,14 @@ program pression_ecoulement_transport_thermique
             write (18181, *) int(paso/unitsortie), z(i), sw(i)
             write (18182, *) int(paso/unitsortie), z(i), pr(i), pr(i)/rho1/g + z(i)
             write(942, *) int(paso/unitsortie), z(i), temp(i)
-            write (9456, *) int(paso/unitsortie), z(i), vzm(i)
-            teneur_bilan_sable = teneur_bilan_sable + sw(i)*0.43
+            write (9456, *) int(paso/unitsortie), z(i), vzm(i),vzp(i)
+            write (94, *) paso/unitsortie,x(i), z(i), akv(i)*akrv(i)*rho(i)*g/amu
          end do
          write (9455, *) int(paso/unitsortie), z(nm), pr(nm), vzm(nm)
-         write (944944, *) int(paso/unitsortie), vzp(1), vzm(nm)*900, teneur_bilan_sable ! A Enlever pour le commit
+         write (944944, *) int(paso/unitsortie), vzp(1), vzm(nm)
+
+
+
          end if
 
 
@@ -4603,7 +4647,7 @@ program pression_ecoulement_transport_thermique
 
 !CC....SORTIES TEST LUNARDINI
       case( "THL") 
-         print *, "OUT", dt, paso
+         print *, "CONVERGE", dt, paso
          if (irecord == 1) then
             print *, "OUT", paso/unitsortie, pr(nm)/rho(1)/g + z(nm), &
                temp(nmaille1), valclt(nm, 4), temp(1), pr(1), akr(1)
@@ -4682,22 +4726,22 @@ program pression_ecoulement_transport_thermique
 !CC....sortie tests performances
 !CC...TEST NEUMAN
       case ( "TH1") 
-         print *, "OUT", paso/unitsortie, irecord
+         print *, "OUT", paso/unitsortie, irecord,igel,temp(1),valclt_haut
          if (irecord == 1) then
 
             write (18, *) paso/unitsortie, zs(1, 1), zs(1, 2), zl(1, 1), zl(1, 2)
-            write (53, *) paso/unitsortie, temp(400)
+            write (53, *) paso/unitsortie, temp(1),temp(400)
             write (1818, *) paso/unitsortie, qtherm(1)
             write (181818) real(paso/unitsortie), real(gxl), real(gxs)
             call flush (181818)
-            open (74, file='S_pts', position='rewind', &
+            open (75, file='S_pts', position='rewind', &
                   form='unformatted')
-            write (74) real(paso/unitsortie)
+            write (75) real(paso/unitsortie)
             do i = 1, nm
-               write (74) real(pr(i)), real(temp(i)), real(sw(i))
-               call flush (74)
+               write (75) real(pr(i)), real(temp(i)), real(sw(i))
+               call flush (75)
             end do
-            rewind (unit=74)
+            rewind (unit=75)
          end if
 
 !CC....TEST TH2
@@ -4706,12 +4750,12 @@ program pression_ecoulement_transport_thermique
          write (181818) real(paso/unitsortie), real(tempmin), &
             real(swtotal), real(PF2)
          call flush (181818)
-         open (74, file='S_pts', position='rewind', &
+         open (75, file='S_pts', position='rewind', &
                form='unformatted')
          do i = 1, nm
-            write (74) real(pr(i)), real(temp(i)), real(sw(i))
+            write (75) real(pr(i)), real(temp(i)), real(sw(i))
          end do
-         rewind (unit=74)
+         rewind (unit=75)
       end if
 
 !CC....TEST TH3
@@ -4723,14 +4767,14 @@ program pression_ecoulement_transport_thermique
                real(qtcol), real(qthermtot), real(pt1), real(pt2)
 !              t,PM1,PM2,PM3,PM4_Pt1,PM4_Pt2
             call flush (181818)
-            open (74, file='S_pts', position='rewind', &
+            open (75, file='S_pts', position='rewind', &
                   form='unformatted')
-            write (74) real(paso/unitsortie)
+            write (75) real(paso/unitsortie)
             do i = 1, nm
-               write (74) real(pr(i)), real(temp(i)), real(sw(i))
-               call flush (74)
+               write (75) real(pr(i)), real(temp(i)), real(sw(i))
+               call flush (75)
             end do
-            rewind (unit=74)
+            rewind (unit=75)
          end if
       end select
 
@@ -4930,7 +4974,6 @@ program pression_ecoulement_transport_thermique
    close (329)
    close (330)
    close (32)
-   close (321)
    close (331)
 
    if (allocated(irow)) deallocate(irow)
@@ -4992,8 +5035,6 @@ program pression_ecoulement_transport_thermique
       if (allocated(dsidtempoo)) deallocate(dsidtempoo)
       if (allocated(dsidtempo)) deallocate(dsidtempo)
       if (allocated(siceoo)) deallocate(siceoo)
-      if (allocated(dsidtempoo)) deallocate(dsidtempoo)
-      if (allocated(dsidtempo)) deallocate(dsidtempo)
       if (allocated(zlo)) deallocate(zlo)
       if (allocated(zloo)) deallocate(zloo)
       if (allocated(zl)) deallocate(zl)
@@ -6183,6 +6224,7 @@ subroutine matt(val, icol_ind, irow_ptr, x, b, am, ivois, tempo, &
    dimension vxm(nm), vxp(nm), vzp(nm), vzm(nm)
    CHARACTER(3) :: ytest
 
+
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                         C
 !CC....Definition de la matrice pr le transport
@@ -6507,7 +6549,7 @@ subroutine matt(val, icol_ind, irow_ptr, x, b, am, ivois, tempo, &
       end if
       if (vzp(i) < 0 .and. iclt(i, 3) == -2) then
       if (abs(vzp(i) - vzm(i)) >= abs(vzm(i))/1D9) then
-         print *, 'pb de vitesse z', vzp(i), vzm(i), i, abs(vzp(i) - vzm(i)), dt
+         print *, 'pb de vitesse z', vzp(i), vzm(i), i,z(i), abs(vzp(i) - vzm(i)), dt
          print *, 'verifiez votre etat initial sup'
          stop
       end if
@@ -6557,7 +6599,7 @@ subroutine matt(val, icol_ind, irow_ptr, x, b, am, ivois, tempo, &
          b(i) = dble(b(i) - tempo(i)*(om(i)*sw(i)*rho(i)*cpe + &
                                       om(i)*(1 - sw(i))*rhog*cpg + &
                                       (1.-om(i))*rhos(i)*cps(i))/dt*irpth)
-      else if (ytest .ne. "THL" .and. igel == 2) then
+      else if (ytest .ne. "THL" .and. igel == 2) THEN
          b(i) = dble(b(i) - tempo(i)*((om(i)*sw(i)*rho(i)*cpe + &
                                        om(i)*sice(i)*rhoi(i)*cpice + om(i)*(1 - sw(i) - sice(i))*rhog*cpg + &
                                        (1.-om(i))*rhos(i)*cps(i)) - rhoi(i)*om(i)*chlat*ap)/dt*irpth)

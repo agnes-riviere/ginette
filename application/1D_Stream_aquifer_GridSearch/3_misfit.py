@@ -78,26 +78,14 @@ try:
                                initial_conditions,
                                boundary_conditions,
                                run_direct_model,
-                               smooth_square_wave)
+                               smooth_square_wave,remove_first_two_days_time_based)
 except Exception:
-     # fallback to legacy module name if present
-    from direct_model import (setup_ginette2,
-                                       initial_conditions,
-                                       boundary_conditions,
-                                       run_direct_model,
-                                       smooth_square_wave)
-
+    print("Error importing Direct_model from src_python.")
 
 try:
     from Init_folders import prepare_ginette_directories
 except Exception:
-    # fallback if an alternative utils module exists
-    try:
-        from utils_ginette import prepare_ginette_directories
-    except Exception:
-        # minimal fallback: create directory helper
-        def prepare_ginette_directories(path):
-            os.makedirs(path, exist_ok=True)
+    print("Error importing Init_folders from src_python.")
 
 # provide a portable copy_file helper if the project does not expose one
 try:
@@ -150,6 +138,7 @@ results["err_misfit"] = err
 for i in tqdm(done, desc="Compute misfit"):
     sim = pd.read_csv(os.path.join(RESULTS_DIR, f"sim_temp_{i}.txt"),
                       delimiter=" ", index_col=[0])
+    remove_first_two_days_time_based(sim, obs_data)
     m1 = misfit(obs_data.Temp1, sim.Temp1, err=err)
     m2 = misfit(obs_data.Temp2, sim.Temp2, err=err)
     m3 = misfit(obs_data.Temp3, sim.Temp3, err=err)

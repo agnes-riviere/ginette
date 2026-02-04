@@ -1,0 +1,79 @@
+iec=0                   iec=0 annule ecoulement ; format i1                                  C///  CONSTRUCTION MODEL
+rp=1			rp=1 regime transitoire ; rp=0 regime permanent ; format i1          C///  CONSTRUCTION MODEL
+ith=1			ith=0 thermique inactif, ith=1 thermique actif	; format i1 			CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE
+dt=00001D-02	s	pas de temps ; format d9.0                                            C//////////////////////////  CONSTRUCTION MODEL
+nitt=0000000001         nombre d'iterations en temps                                        C//////////////////////////  CONSTRUCTION MODEL    
+unite=0086400d0  s	temps total de simulation unite*nitt ;format d9.0       C//////////////////////////  CONSTRUCTION MODEL
+al=0001D+00	m 	longueur     ; format d8.0                                              C//////////////////////////  CONSTRUCTION MODEL
+az=00002D+00   m       profondeur ;   format d9.0                                             C//////////////////////////  CONSTRUCTION MODEL
+ixy=0			ixy=0 2D problem, ixy=1 3D problem ; format i1                        C//////////////////////////  CONSTRUCTION MODEL
+imaille=1	      =0 lecture maillage : voisins, coordonnees, def_maille : largeur (am), hauteur (bm), nb colonnes (nci), nb lignes (nri);  =1 construction maillage automatique                                                            C//////////////////////////  CONSTRUCTION MODEL
+itopo=0                 itopo=1 variation de altitude de top bot par colonne pas de E_geom.dats
+ibuilt=0		ibuilt=0 standard, ibuilt=1 special built ; format i1                C//////////////////////////  CONSTRUCTION MODEL
+reptop=00002D+00 m	altitude top
+repbot=00000D+00 m	altitude bottom
+icolonne=0              icolonne=1 remplir E_colonne.dat, nm valeurs de numero de colonne, sinon icolonne=0   C//////////  CONSTRUCTION MODEL
+nmi=000500		nombre de mailles actives                                             C//////////////////////////  CONSTRUCTION MODEL
+nci=00001		nombre de colonnes                                                    C//////////////////////////  CONSTRUCTION MODEL
+nri=00040		nombre de lignes                                                      C//////////////////////////  CONSTRUCTION MODEL
+dx=0001D+00	m	pas d'espace en x                                                     C//////////////////////////  CONSTRUCTION MODEL
+dz=0001D-03	m	pas d'espace en z                                                     C//////////////////////////  CONSTRUCTION MODEL
+nclog=00000		nb de pas discretisation log x                                        C//////////////////////////  CONSTRUCTION MODEL
+ilog=0			progression log du pas d'espace en x : ilog=1 actif, ilog=0 inactif   C//////////////////////////  CONSTRUCTION MODEL
+rho1=1000D+00	kg/m3	densite eau                                       		      C//////////////////////////  CONSTRUCTION MODEL
+irho=0			irho=1 variation spatiale de la densite du fluide                     C//////////////////////////  CONSTRUCTION MODEL
+g=0000D-02	m/s2	acceleration gravitationnelle  0981D-02                                       C//////////////////////////  CONSTRUCTION MODEL
+amu=0001D-03	kg/m/s	viscosite dynamique                                                   C//////////////////////////  CONSTRUCTION MODEL
+ipermh=0		ipermh=1 variation spatiale permeabilite, ipermh=0 permeabilite constante    C///////////////////  CONSTRUCTION MODEL
+ipermv=0		ipermv=1 variation spatiale permeabilite, ipermv=0 permeabilite constante    C///////////////////  CONSTRUCTION MODEL
+akrx=0001D+00		permeabilite relative verticale                                 C//////////////////////////  CONSTRUCTION MODEL
+akx=0010D-10	m2	permeabilite intrinseque horizontale                                  C//////////////////////////  CONSTRUCTION MODEL
+akrz=0001D+00		permeabilite relative verticale                                       C//////////////////////////  CONSTRUCTION MODEL
+akz=0010D-10	m2	permeabilite intrinseque verticale                                  C//////////////////////////  CONSTRUCTION MODEL
+iom=0			iom=1 variation spatiale de la porosite, iom=0 pas de variation       C//////////////////////////  CONSTRUCTION MODEL
+omp=0.5000		porosite                                                              C//////////////////////////  CONSTRUCTION MODEL
+iss=0			iss=1 variation spatiale du coefficient d'emmagasinement              C//////////////////////////  CONSTRUCTION MODEL
+ss=0.50D+00		coefficient d'emmagasinement                                          C//////////////////////////  CONSTRUCTION MODEL
+ia2=0			ia2=0 rho=cste, ia2=1 variation temporelle de la densite              C//////////////////////////  CONSTRUCTION MODEL
+iunconfined=no          akrh=0 dans les cellule dont la pression est nulle       CCCCCCCCCCCCCCCCCCC LIBRE sans calcul ZNS
+ivg=0			ivg=1 Van Genuchten, ivg=0 zone non saturee non prise en compte		CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+ans=0203D-02		n parametre de Van Genuchten						CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+asp=0664D-02	1/m	alpha parametre de Van Genuchten 					CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+swres=0.0000		saturation residuelle							CCCCCCCCCCCCCCCCCCCCCCCCCCC ZNS
+itr=0			itr=0 transport inactif, itr=1 transport actif					CCCCCCCCCCCCCCCCCCCCCCCCCCC TRANSPORT SOLUTE
+all=0000D+00	m	dispersivite longitudinale							CCCCCCCCCCCCCCCCCCCCCCCCCCC TRANSPORT SOLUTE
+alt=0000D+00	m	dispersivite transversale							CCCCCCCCCCCCCCCCCCCCCCCCCCC TRANSPORT SOLUTE
+iriv=0			iriv=0 riviere inactif, iriv=1 riviere actif					CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+iqriv=0                 iqriv=0 indiquer un hriv, iqriv=1 indiquer un qriva                     	CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+qre=0000D+00	m/s	pluie prise en compte pour riviere, meme valeur CL, subroutine infiltration		CCCCCCCCCCCCCCCCCCC RIVIERE
+hbot=095D-02    m	elevation du lit de la riviere							CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+xberg=0195D-02	m	coordonnee x de la berge de la riviere						CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+rug=0090D+00		rugosite, =90 beton lisse							CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+pent=0009D-03		pente de la riviere								CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+qriva=0278D-06	m3/s	debit amont de la riviere							CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+hriv=0013D-03   m       debit amont de la riviere                                               	CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+aklit=0220D-15	m2	permeabilite horizontale du lit de la riviere					CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+aklitv=0220D-15	m2	permeabilite verticale du lit de la riviere					CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+tempriv=0015d+00	C	temperature berge lit riviere						CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+elit=0001d-03	m	epaisseur du lit de riviere							CCCCCCCCCCCCCCCCCCCCCCCCCCC RIVIERE
+akdrain=0004D-12								CCCCCCCCCCCCCCCCCCCCCCCCCCC DRAIN
+edrain=0009d-03	                                                                CCCCCCCCCCCCCCCCCCCCCCCCCCC DRAIN
+crconvp=0001D+00        Pa      critere de convergence pression                                   C//////////////////////////   CONVERGENCE
+crconvc=0001D-03        critere de convergence concentration                                      C//////////////////////////   CONVERGENCE
+iteration=00000500      nombre iterations                                                         C//////////////////////////   CONVERGENCE
+itsortie=00000010       pas enregistrement des resultats                              C//////////////////////////   FICHIERS DE SORTIE
+unitsortie=00001D+00    unite temporelle enregistrement sorties				C//////////////////////////    FICHIERS DE SORTIE
+icalvit=0		calcul vitesse et nb de courant
+mcol=00001              numero de la colonne enregistrement pression temps                      C//////////////////////////  C FICHIERS DE SORTIE
+nmaille1=00001          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille2=00002          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille3=00030          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille4=00040          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille5=00040          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille6=00040          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille7=00040          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille8=00040          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille9=00040          numero de la maille enregistrement pression temps                       C//////////////////////////  C FICHIERS DE SORTIE
+nmaille10=00040
+iparo=0			iparo=0 standard, iparo=1 parallel ; format i1                        C//////////////////////////  CONSTRUCTION MODEL  
+ysolv=BIC		ysolv=BIC iterative solver, ysolv=CGS iterative solver ; format A3       C//////////////////////////  CONSTRUCTION MODEL

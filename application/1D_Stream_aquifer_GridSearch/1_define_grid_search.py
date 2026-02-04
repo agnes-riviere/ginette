@@ -101,7 +101,7 @@ lam = 2.5  # thermal conductivity (W/m.°C)
 log_k = [-15, -12]  # log of intrinsec permeability (k in m^2)
 lam = [1, 3]  # thermal conductivity (W/m.°C)
 poro=[0.1, 0.5]  # porosity (-)
-cap=[1.2e3, 3.2e3]  # volumetric heat capacity (J/m^3.°C)
+cap=[1.5e6, 3.5e6]  # volumetric heat capacity (J/m^3.°C)
 
 # Check all parameter intervals are all defined and exist 
 # i.e all name_parameters are defined in a vector for example log_k, lam, poro, cap
