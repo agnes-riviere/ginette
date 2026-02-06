@@ -1073,7 +1073,7 @@ def remove_first_two_days_time_based(sim_temp, obs_temp, date_begin=None, days=2
         return sim.iloc[0:0], obs.iloc[0:0]
 
     sim = sim[(sim['Time'] >= left) & (sim['Time'] <= right)]
-    obs    obs = obs[(obs['Time'] >= left) & (obs['Time'] <= right)]
+    obs = obs[(obs['Time'] >= left) & (obs['Time'] <= right)]
 
 
 
