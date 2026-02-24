@@ -78,7 +78,7 @@ print(f"Maillage  créé et sauvegardé sous {mesh_filename}")
 
 
 # gmsh to metis mesh
-fm.convertMsh2Mail(mesh_name)
+fm.convertMsh2Mail("AvAv_mesh")
 
 
 # adapter AvAv_bck.COMM 

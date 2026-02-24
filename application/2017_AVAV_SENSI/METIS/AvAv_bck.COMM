@@ -3,386 +3,284 @@
 
 flux
 
-nom_job = [job_name]
+nom_job = Case_unsat_heat
 
-geom = 2d
-
-maillage = [job_name].mail
+maillage = ./GEOM/case.mail
 
 type_probleme = 2
 
-idta = 0 # pas de temps auto
+non_sature = 1
 
-#reso 1 3 0 0 0 0 0 1 100 
-
-dump =
-	caldt 1
-fin
-
-parametres_dim
-
-max_arete 10000000
-
+parametres
+  maxsdo 1
 finparam
 
+idta = 0 # pas de temps auto
+
+reso 1 3 0 0 0 0 0 1 100
+
+dump =
+   caldt 1
+   fin
+
 fin
-
-
-##########################
-# Porous medium parameters #
-##########################
-
-# Edition #
-#########
 
 parametres
 
-	bvis
-	
-permeabilite = [akh1] [akv1]
- 	capacite_aquifere = 1.5e6
+   bvis
 
- 	capacite_eau = 4180
+permeabilite = 5.000000e-04 5.000000e-04
 
-    conductivite = [l1] [l1]
 
-    emmagasinement = 5.00e-01
-	
-    porosite = 5.00e-01	
+permeabilite   zone
+      val = 1.e-6 1.e-6
+         poly 10
+		25	-2, 25.5	 -3, 25.5	 -3, 26.5	 -3, 27	 -3, 27.5	 -3, 28	 -3, 28.5	 -3, 29.5	 -3,
+		30	-2, 29.5 -2, 28.5 -2, 27.5 -2, 26.5 -2, 25.5 -2 , 25 -2,
+         rfin
+      fin_val
 
-    permeabilite zone
-    val = [akh2] [akv2]
-    quad [xmin_geom] [ymin_geom] [xmax_geom] [ymin_geom] [xmax_geom] [ymax_geom] [xmin_geom] [ymax_geom]
-    rfin
-    fin_val
-    
-    conductivite zone
-    val = 0.59 0.59
-    quad [xmin_geom] [ymin_geom] [xmax_geom] [ymin_geom] [xmax_geom] [ymax_geom] [xmin_geom] [ymax_geom]
-    rfin
-    fin_val
-	
-		couplage_densitaire			#	Thèse
-		ro0 999.84
-		cro1 2.1e-4
-		cro3 0.
-		teta0 10
-		fin
+
+emmagasinement = 5.000000e-01
+
+porosite = .1
+
+sous_domaine = 1
+
+lois_nonsat 11
+1
+0 1 0.35 0 0
+1
+3.6 1.56 0 0 0
+
+
+capacite_aquifere = 2.000000e+06
+
+
+  capacite_eau = 4180
+
+conductivite = 4.000000e+00 4.000000e+00
+
 
 fin_parametres
 
-#############
-# End edition  #
-
-
-# Save as text files #
-##################
-
 edition_parametres
-
-    permeabilite fichier = permeability.dat y xy fmt=(4g20.12) 
-	
-    emmagasinement fichier = storage.dat y xy fmt=(3f20.5) 
-	
-	porosite fichier = omega.dat y xy fmt=(3f20.5) 
-	
-    conductivite fichier = conductivity.dat y xy fmt=(4f20.5) 
-	
-    capacite_aquifere fichier = capacity_sediment.dat y xy fmt=(3f20.5) 
-	
-	capacite_eau fichier = capacity_water.dat y xy fmt=(3f20.5)
-	
+    permeabilite fichier = .perm
+    emmagasinement fichier = .ema
+    conductivite fichier = .cond
+    capacite_aquifere fichier = .cap
 fin_edition
 
 
-######################
-# End save as text files  #
-
-##############################
-# End Porous medium parameters #
-##############################
-
-############################
-# Steady state flow parameters  #
-############################
-
 ecoulement_permanent
 
-########################
-# Flow boundary conditions #
-########################
+non_sature
+   c_pstep = .1
+   c_ps_inc = .1
+   niterns = 2000
+      c_ps_tol = 1.e-4
+fin
 
 conditions_limites
 
-	
+   potentiel contour
+ val = -7
+         points  0 0  0 -15  0 -5 #coté droit vertical
+      fin_val
 
- 	debit contour # right wall water layer
- 	val = [Qr] 
-    point  [xmax] [z_sea] [xmax] [yseabed2] [xmax] [ywater]			
- 	fin_val
-    
-	debit contour # left wall water layer
-	val = [Ql]
-    point [xmin] [z_sea] [xmin] [yseabed1] [xmin] [ywater]			
-	fin_val    
+   potentiel contour
+ val = -7
+         points 55 -15  55 0  55 -5 #coté gauche vertical
+      fin_val
 
+    potentiel boucle
+ val = -1.9       #fond rivière
+    inclure trace_riv_berge
+      fin_val
 
-	debit contour # top 
-	val = 0
-    point [xmin] [z_sea] [xmax] [z_sea] [xmean] [z_sea]		
-	fin_val	
+   fin_conditions
 
+edition_resultats
 
-    debit contour # right wall porous
- 	val = 0
-    point [xmax] [yseabed2] [xmax]  [z_bot] [xmax] [z_botmean]		
- 	fin_val
-    
-	debit contour # left wall porous
-	val = 0
-    point [xmin] [yseabed1] [xmin] [z_bot] [xmin] [z_botmean]	
-	fin_val    
-	
-	debit contour # bottom porous
-    val = 0
-        point [xmin] [z_bot] [xmax] [z_bot] [xmean] [z_bot]		
-    fin_val	
-    
+      potentiel fichier = .pot_nf ityf = nfor
 
-    
-    debit boucle # cable_AR
-    val=0
-    inclure cable.n		
-	fin_val
+      vitesse_darcy fichier = .vda
 
-	
-fin_conditions
+      potentiel fichier = potentiel_init.dat   fmt = (f8.3)
 
-############################
-# End Flow boundary conditions #
+	  saturation fichier = .sat                fmt = (f8.3)
+
+	  second_membre_ecoulement somme fmt = (hist,(2g17.4)) fichier = flux_hydrique_riv.dat 
+	 inclure trace_riv_berge
+
+	 
+	 
 
 
 
-######################
-# End save as text files  #
-
+      fin_edition
 
 fin_ecoulement
 
-################################
-# End steady state flow parameters   #
-################################
-
-################################
-# Steady state thermics parameters  #
-################################
+! program ./cal_therm_ZNS
+	 
 
 thermique_permanente
 
-# Thermal boundary conditions #
-###########################
-
 conditions_limites
+		
 
-	temperature contour # top
-	val = [Tsea]
-    point [xmin] [z_sea] [xmax] [z_sea] [xmean] [z_sea]		
-	fin_val
-	
-	temperature contour # right wall water layer
-	val = [Tsea]
-    point [xmin] [z_sea] [xmin] [yseabed2] [xmin] [ywater]		
-	fin_val
-	
-	debit_chaleur contour # right wall porous medium
-	val = 0.00e+00
-    point [xmax] [yseabed2] [xmax]  [z_bot] [xmax] [z_botmean]	
-	fin_val
-	
-	debit_chaleur contour # left wall porous medium
-	val = 0.00e+00
-    point  [xmin] [yseabed1] [xmin] [z_bot] [xmin] [z_botmean]
-	fin_val	
-	
-	temperature contour # fond aquifer
-	val = [Tbot]
-    point  [xmin] [z_bot] [xmax] [z_bot] [xmean] [z_bot]			
-	fin_val
-	
-	temperature boucle # cable_AR
-	val = [Tskin]
-    inclure cable.n		
-	fin_val	
+    temperature contour
+	val = 20.000000
+         points 0 0  55 0  25 0 # surface topc_ps_inco
+      fin_val
 
-#	temperature contour # seabed
-#	val = [Tsea]
-#	point [xmin] 0 [xmax] 0	[xmean] 0
-#	fin_val
+    temperature contour
+      val = 11
+        points  0 0  0 -15  0 -5 #coté droit vertical
+      fin_val
 
+   temperature contour
+      val =  11
+         points 55 -15  55 0  55 -5  #coté gauche vertical
+      fin_val
 
+	temperature contour
+      val = 11
+         points 0 -15  55 -15  25 -15 #coté fond aquifer
+      fin_val
 
    fin_conditions
 
 
-####################
-# End save as text files  #
+edition_resultats
+      temperature fichier = .temp_nf ityf = nfor
+fin_edition
+
+
 
 fin_dispersion
 
 
-####################################
-# End Steady state thermics parameters   #
-####################################
 
 
-
-%%%%%%%%%% COUPLAGE_THERMIQUE
-
-
-couplage_thermique
-
-
-%%% Phase 1 (On laisse évoluer le système avec les conditions aux limites constantes)
-
+thermique_transitoire
 
 phase
 
-decoupage_temporel de  0. a 6.3072e9  pas_ini 1. raison 1.414 pas_max 2.628e5
+decoupage_temporel de 0 a 8640000 pas_ini 300 pas_max 3600 raison 1.2 pas_min 300
+initialisation_deltat
+i 0 0 0
+f
 
 initialisation_limites
 
+show_info_vit
+
 conditions_limites
 
+# temperature_initial fichier = Temperature_initiale.dat
+#	potentiel_initial fichier = potentiel_init.dat
 
+   temperature contour fichier = T_R.fic
+      val =  20
+        points 55 0  0 0  25 0  # surface topo
+      fin_val
 
- 	debit contour # right wall water layer
- 	val = [Qr] 
-    point  [xmax] [z_sea] [xmax] [yseabed2] [xmax] [ywater]			
- 	fin_val
-    
-	debit contour # left wall water layer
-	val = [Ql]
-    point [xmin] [z_sea] [xmin] [yseabed1] [xmin] [ywater]			
-	fin_val    
+	   temperature contour
+      val =  11
+	 points  0 0  0 -15  0 -5 #coté droit vertical
+      fin_val
 
+   temperature contour
+      val =  11
+       points 55 -15  55 0  55 -5 #coté gauche vertical
+    fin_val
 
-	debit contour # top 
-	val = 0
-    point [xmin] [z_sea] [xmax] [z_sea] [xmean] [z_sea]		
-	fin_val	
+	temperature contour
+      val =  11
+	points 0 -15  55 -15  25 -15 # contour fond_aquifer
+      fin_val
 
+   fin_conditions
 
-    debit contour # right wall porous
- 	val = 0
-    point [xmax] [yseabed2] [xmax]  [z_bot] [xmax] [z_botmean]		
- 	fin_val
-    
-	debit contour # left wall porous
-	val = 0
-    point [xmin] [yseabed1] [xmin] [z_bot] [xmin] [z_botmean]	
-	fin_val    
-	
-	debit contour # bottom porous
-    val = 0
-        point [xmin] [z_bot] [xmax] [z_bot] [xmean] [z_bot]		
-    fin_val	
-    
-
-    
-    debit boucle # cable_AR
-    val=0
-    inclure cable.n		
-	fin_val
-
-
-   
-   
-
-	temperature contour # top
-	val = [Tsea]
-    point [xmin] [z_sea] [xmax] [z_sea] [xmean] [z_sea]		
-	fin_val
-	
-	temperature contour # right wall water layer
-	val = [Tsea]
-    point [xmin] [z_sea] [xmin] [yseabed2] [xmin] [ywater]		
-	fin_val
-	
-	debit_chaleur contour # right wall porous medium
-	val = 0.00e+00
-    point [xmax] [yseabed2] [xmax]  [z_bot] [xmax] [z_botmean]	
-	fin_val
-	
-	debit_chaleur contour # left wall porous medium
-	val = 0.00e+00
-    point  [xmin] [yseabed1] [xmin] [z_bot] [xmin] [z_botmean]
-	fin_val	
-	
-	temperature contour # fond aquifer
-	val = [Tbot]
-    point  [xmin] [z_bot] [xmax] [z_bot] [xmean] [z_bot]			
-	fin_val
-	
-	temperature boucle # cable_AR
-	val = [Tskin]
-    inclure cable.n		
-	fin_val	
-
-#	temperature contour # seabed
-#	val = [Tsea]
-#	point [xmin] 0 [xmax] 0	[xmean] 0
-#	fin_val
-
-
-fin_conditions
-
-kbilan
-1 6
+initialisation_resultats
 
 edition_resultats
 
-   boucle_date 2.628e8   # mois
-      0 600 12 
+   boucle_date
+   0  8640000 7200
 
-parametres
+   parametres
+     temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille1_t.dat
+     no 3606   #riv
+     temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille2_t.dat
+     no 18501 #10cm
+	temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille3_t.dat
+     no 18455	 #20cm
+	 temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille4_t.dat
+     no 17769 #30cm
+	  temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille5_t.dat
+     no 18292 #40cm
+     temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille6_t.dat
+     no 17158 #50cm
+     temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille7_t.dat
+     no 17927 #75cm
+	 temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille8_t.dat
+     no 3491 #1m
+	 temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille9_t.dat
+     no 15767 #1m
+	 temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille10_t.dat
+     no 10874 #1m
+	 temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille11_t.dat
+     no 6293 #1m
+	 temperature fmt = (hist,(2g13.5)) fichier = Sim_temperature_maille12_t.dat
+     no 4421 #1m
+
+   temperature fichier = .tempprof y fmt = (2f8.3)
+	#noeuds de la trace trace
+   no  3606 18517 17594 18501 17640 18455 17180 17769 19003 18292 17682
+   no  17158 17681 18811 17963 17216 17927 17086 18543 17358 18600
+   no  3491 15081 14712 15767 13351 2845 8463 7602 8659 10874
+   no  1985 6331 6592 5978 6293 1571 5028 4658 5095 4697
+   no  148 4420 4241 4169 4421 171 4038 3826 3687 3861
+   no  3925 3845 217
+  fin_parametres
+   boucle_date
+   6048000  8640000 7200
+   parametres
+         flux_arete_th fichier = riv.fluxth ityf = cfor
+	inclure riv.a
+	flux_arete_th fichier = bergerb.fluxth ityf = cfor
+	inclure rb.a
+	flux_arete_th fichier = bergelb.fluxth ityf = cfor
+	inclure lb.a
+	flux_arete_th fichier = aqui.fluxth ityf = cfor
+	inclure aqui.a
+
+  fin_parametres
 
 
-#	temperature fichier = .temp_nf ityf = nfor 
-	potentiel fichier = potentiel.dat y xy fmt = (3g12.5)
-	
-	potentiel fichier = .potprof y xy fmt=(3f20.5) 
-	
-#	pression fichier = .pres_prof y xy fmt=(3f20.5) 
-	
-	vitesse_darcy fichier = .vdaprof fmt=(9f20.12)
-	temperature fichier = .tempprof xy fmt=(3f12.5)	
-	
-	temperature fichier = .tempprofc xy fmt=(3f12.5)
-	inclure cable.n	
-	
-#	flux_arete_th fichier=arete_flutxth.dat ityf = cfor
-#	inclure cable.a
-	
-	second_membre_thermique fichier = flux_thermique.dat xy fmt=(3f12.5)
-	inclure cable.n
-	  
-	  
-fin_parametres
+
+   boucle_date
+   8639900.00 8639900.00 8639900.00
+   parametres
+	temperature fichier = Temperature_finale_init.dat   fmt = (f8.3)
+	temperature fichier = Temp_fort_final.txt  xy fmt=(3g12.5)
+
+	  fin_parametres
 
 
-fin_dates
+
+   fin_date
+
+
 
 fin_phase
 
-
-%%% Fin Phase 1
-
-
-fin_couplage
-
-
-%%%%%%%%% FIN_COUPLAGE_THERMIQUE
+fin_dispersion
 
 
 fin_job
+
 fin_donnees

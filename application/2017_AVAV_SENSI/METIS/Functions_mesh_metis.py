@@ -1618,14 +1618,20 @@ def convertMsh2Mail(meshName):
     # ver
     # libs_gfortran = ['gfortran']
 
-    if os.path.isfile('mshTomail'):
-        # print("convertisseur msh to mail")
-        subprocess.call(["gfortran","-o","mshTomail","./mail_gmsh_2_met.f90"]) 
-        
-    else:
-        # print('compilation de mail_gmsh_2_met') 
-        subprocess.call(["gfortran","-o","mshTomail","./mail_gmsh_2_met.f90"])     
-        
-    subprocess.call(["./mshTomail",meshName+".msh",meshName+".mail",meshName+".geom","2D/3D"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)    
+    import os
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    mshTomail_path = os.path.join(script_dir, 'mshTomail')
+    mail_gmsh_2_met_path = os.path.join(script_dir, 'mail_gmsh_2_met.f90')
+
+    if not os.path.isfile(mshTomail_path):
+        subprocess.call(["gfortran", "-o", mshTomail_path, mail_gmsh_2_met_path])
+
+    subprocess.call([
+        mshTomail_path,
+        meshName + ".msh",
+        meshName + ".mail",
+        meshName + ".geom",
+        "2D/3D"
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return
 
