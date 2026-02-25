@@ -82,3 +82,6 @@ fm.convertMsh2Mail("AvAv_mesh")
 
 
 # adapter AvAv_bck.COMM 
+
+
+# modifier conditions limites avec cree_fic3.f90
