@@ -171,7 +171,21 @@ def preprocessMETIS(meshName, dicMETIS, caselabel="tempResults", visual=False):
     print("#-----------------------#\n")
     return
 
+def creation_fichier_txt(input_list,output_list):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    debut_pas = 900
+    pas = 900
 
+    for i in range(len(input_list)):
+        input_name = input_list[i]
+        output_name = output_list[i]
+        input_path=os.path.join(script_dir, '..',input_name)
+        output_path=os.path.join(script_dir,output_name)
+
+        with open(input_path, "r") as f_in, open(output_path, "w") as f_out:
+            for i, line in enumerate(f_in):
+                pas_i = debut_pas + pas*i
+                f_out.write(f"{pas_i} "+line.strip() +"\n")
 
 def runAndReadMETIS(meshName, n_iter, dicMETIS):
     """
