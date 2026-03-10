@@ -85,7 +85,9 @@ fm.convertMsh2Mail("AvAv_mesh")
 boundary_files = fm.run_cree_fic3()
 print(f"Fichiers de conditions limites créés : {boundary_files}")
 
-
+input_list = ['E_chargeT_RD.dat','E_chargeT_RG.dat','E_chargeT_Riv.dat','E_tempT_RD.dat','E_tempT_RG.dat','E_tempT_Riv.dat']
+output_list = ['Ch_RD.txt','Ch_RG.txt','Ch_R.txt','tem_RD.txt','tem_RG.txt','temp_R.txt']
+mf.creation_fichier_txt(input_list=input_list,output_list=output_list)
 # adapter AvAv_bck.COMM 
 #ici modifier les parametres de la zone de non saturation (ZNS) dans le fichier de configuration AvAv_bck.COMM
 
