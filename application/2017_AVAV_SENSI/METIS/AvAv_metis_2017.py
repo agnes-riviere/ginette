@@ -81,7 +81,13 @@ print(f"Maillage  créé et sauvegardé sous {mesh_filename}")
 fm.convertMsh2Mail("AvAv_mesh")
 
 
+# conversion des conditions limites textuelles en .fic via cree_fic3.f90
+boundary_files = fm.run_cree_fic3()
+print(f"Fichiers de conditions limites créés : {boundary_files}")
+
+
 # adapter AvAv_bck.COMM 
+#ici modifier les parametres de la zone de non saturation (ZNS) dans le fichier de configuration AvAv_bck.COMM
 
 
 # modifier conditions limites avec cree_fic3.f90

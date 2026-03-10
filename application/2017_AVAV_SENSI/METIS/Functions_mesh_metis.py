@@ -1707,3 +1707,36 @@ def convertMsh2Mail(meshName):
         raise RuntimeError(f"Conversion METIS échouée : fichier vide ou absent {geom_path}")
     return
 
+
+def run_cree_fic3(
+    input_r_txt="Ch_R.txt",
+    output_r_fic="Ch_R.fic",
+    input_rd_txt="Ch_RD.txt",
+    output_rd_fic="Ch_RD.fic",
+    output_rg_fic="Ch_RG.fic"
+):
+    cree_fic3_src = os.path.join(MODULE_DIR, "cree_fic3.f90")
+    cree_fic3_exe = os.path.join(MODULE_DIR, "cree_fic3")
+
+    input_r_path = resolve_existing_file(input_r_txt)
+    input_rd_path = resolve_existing_file(input_rd_txt)
+    output_r_path = os.path.join(MODULE_DIR, output_r_fic) if not os.path.isabs(output_r_fic) else output_r_fic
+    output_rd_path = os.path.join(MODULE_DIR, output_rd_fic) if not os.path.isabs(output_rd_fic) else output_rd_fic
+    output_rg_path = os.path.join(MODULE_DIR, output_rg_fic) if not os.path.isabs(output_rg_fic) else output_rg_fic
+
+    subprocess.run(["gfortran", "-o", cree_fic3_exe, cree_fic3_src], check=True)
+    subprocess.run([
+        cree_fic3_exe,
+        input_r_path,
+        output_r_path,
+        input_rd_path,
+        output_rd_path,
+        output_rg_path,
+    ], check=True)
+
+    for output_path in [output_r_path, output_rd_path, output_rg_path]:
+        if not os.path.isfile(output_path) or os.path.getsize(output_path) == 0:
+            raise RuntimeError(f"Création des conditions limites échouée : fichier vide ou absent {output_path}")
+
+    return output_r_path, output_rd_path, output_rg_path
+
