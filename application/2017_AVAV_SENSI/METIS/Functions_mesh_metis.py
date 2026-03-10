@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from scipy.interpolate import griddata
 
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 #%%
 # Pour chaque élément, tracez une ligne entre chaque paire de nœuds
 def get_coord(noeud,n):
@@ -49,6 +51,68 @@ def find_file(filename, search_path):
         if filename in files:
             return os.path.join(root, filename)
     raise FileNotFoundError(f"Fichier {filename} non trouvé dans {search_path}")
+
+
+def resolve_existing_file(filename, search_path=None):
+    if os.path.isabs(filename):
+        if os.path.isfile(filename):
+            return filename
+        raise FileNotFoundError(f"Fichier introuvable : {filename}")
+
+    search_roots = []
+    if search_path:
+        search_roots.append(search_path)
+    search_roots.extend([os.getcwd(), MODULE_DIR])
+
+    checked_roots = []
+    for root in search_roots:
+        if root in checked_roots:
+            continue
+        checked_roots.append(root)
+
+        direct_path = os.path.join(root, filename)
+        if os.path.isfile(direct_path):
+            return direct_path
+
+        try:
+            return find_file(filename, root)
+        except FileNotFoundError:
+            continue
+
+    raise FileNotFoundError(f"Fichier {filename} non trouvé depuis {checked_roots}")
+
+
+def is_close_to_value(series, value, atol=1e-6):
+    return np.isclose(series, value, atol=atol, rtol=0.0)
+
+
+def read_mail_file(mesh_name_or_path):
+    if mesh_name_or_path.endswith('.mail'):
+        filename = mesh_name_or_path
+    else:
+        filename = mesh_name_or_path + ".mail"
+
+    file_path = resolve_existing_file(filename)
+
+    with open(file_path, 'r') as file:
+        lines = file.read().splitlines()
+
+    if not lines:
+        raise ValueError(f"Le fichier {file_path} est vide.")
+
+    nb_node_elt = lines[0].split()
+    if len(nb_node_elt) < 2:
+        raise ValueError(f"En-tête invalide dans {file_path}: {lines[0]}")
+
+    nb_node = int(nb_node_elt[0])
+    node_lines = lines[1:nb_node + 1]
+    coordinates = [line.split() for line in node_lines if line.strip()]
+    x = [float(coord[0]) for coord in coordinates]
+    y = [float(coord[1]) for coord in coordinates]
+    noeud = pd.DataFrame({'x': x, 'y': y})
+    noeud = noeud.reset_index().rename(columns={'index': 'identifiant'})
+    noeud['identifiant'] = noeud['identifiant'] + 1
+    return noeud
 
 def run_metis(meshName):    
     """
@@ -281,7 +345,7 @@ def extract_nodes_lin_H_hor(meshName, bound_name, visual,datFile, HdatFile):
     print(os.getcwd())
     filename = meshName + ".mail"
     try:
-        file_path = find_file(filename, os.getcwd())
+        file_path = resolve_existing_file(filename)
         print(f"Fichier {filename} trouvé dans {file_path}")
     except FileNotFoundError as e:
         print(e)
@@ -395,7 +459,7 @@ def extract_nodes_lin_Q_vert(meshName, bound_name, x_bound, Q_top, Q_bot, z_appl
     print(os.getcwd())
     filename = meshName + ".mail"
     try:
-        file_path = find_file(filename, os.getcwd())
+        file_path = resolve_existing_file(filename)
         print(f"Fichier {filename} trouvé dans {file_path}")
     except FileNotFoundError as e:
         print(e)
@@ -430,7 +494,7 @@ def extract_nodes_lin_Q_vert(meshName, bound_name, x_bound, Q_top, Q_bot, z_appl
     noeud['identifiant'] = noeud['identifiant'] + 1
     # find all nodes in the line x=x_bound and between y=0 and y=z_apply
 # extract node
-    node_in_line= noeud[(noeud['x'] == x_bound) & (noeud['y'] >=0 ) & (noeud['y'] <= z_apply)].copy()
+    node_in_line= noeud[(is_close_to_value(noeud['x'], x_bound, atol=1e-4)) & (noeud['y'] >=0 ) & (noeud['y'] <= z_apply)].copy()
     node_in_line['Q'] = Q_bot + (node_in_line['y'] / z_apply) * (Q_top - Q_bot)
 
 # write in a vector node_in_line['identifiant'] node_in_line['head']
@@ -445,7 +509,7 @@ def extract_nodes_temp(meshName,z_sed,temp_sea):
     filename = meshName + ".mail"
     filesave = name + ".n"
     try:
-        file_path = find_file(filename, os.getcwd())
+        file_path = resolve_existing_file(filename)
         print(f"Fichier {filename} trouvé dans {file_path}")
     except FileNotFoundError as e:
         print(e)
@@ -601,6 +665,8 @@ def build_gmsh_mesh_from_linestopbottom(
     # Générer le maillage
     gmsh.model.mesh.generate(2)
 
+    gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
+
     # Sauvegarder le maillage
     gmsh.write(mesh_filename)
 
@@ -667,11 +733,9 @@ def extract_nodes_lin_H_vert(meshName, bound_name, x_bound, head_top, head_bot, 
 
     noeud = read_mail_file(filename)
 
-    # Update the 'noeud' dataframe
-    noeud['identifiant'] = noeud['identifiant'] + 1
     # find all nodes in the line x=x_bound and between y=0 and y=z_apply
 # extract node
-    node_in_line= noeud[(noeud['x'] == x_bound) & (noeud['y'] >= 0) & (noeud['y'] <= z_apply)].copy()
+    node_in_line= noeud[(is_close_to_value(noeud['x'], x_bound, atol=1e-4)) & (noeud['y'] >= 0) & (noeud['y'] <= z_apply)].copy()
     node_in_line['head'] = head_bot + (node_in_line['y'] / z_apply) * (head_top - head_bot)
 
 # write in a vector node_in_line['identifiant'] node_in_line['head']
@@ -689,7 +753,7 @@ def extract_nodes_lin_H_seabed(meshName,name,z_sed, head_left=12.8, head_right=1
     noeud=read_mail_file(meshName)
     y_line_seased= z_sed
     # find all nodes in the line y=0
-    node_in_line = noeud[noeud['y'] == y_line_seased].copy()   
+    node_in_line = noeud[is_close_to_value(noeud['y'], y_line_seased, atol=1e-4)].copy()   
     # calculate head of each node of line_seased
     #head(0)=14 head(200)=15 head(x)=head(0)+(head(200)-head(0))/(200-0)*x
     node_in_line['head'] = head_left + (head_right - head_left) / (L - 0) * node_in_line['x']
@@ -1622,16 +1686,24 @@ def convertMsh2Mail(meshName):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     mshTomail_path = os.path.join(script_dir, 'mshTomail')
     mail_gmsh_2_met_path = os.path.join(script_dir, 'mail_gmsh_2_met.f90')
+    mesh_path = os.path.abspath(meshName + ".msh")
+    mail_path = os.path.abspath(meshName + ".mail")
+    geom_path = os.path.abspath(meshName + ".geom")
 
     if not os.path.isfile(mshTomail_path):
-        subprocess.call(["gfortran", "-o", mshTomail_path, mail_gmsh_2_met_path])
+        subprocess.run(["gfortran", "-o", mshTomail_path, mail_gmsh_2_met_path], check=True)
 
-    subprocess.call([
+    subprocess.run([
         mshTomail_path,
-        meshName + ".msh",
-        meshName + ".mail",
-        meshName + ".geom",
+        mesh_path,
+        mail_path,
+        geom_path,
         "2D/3D"
-    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    ], check=True)
+
+    if not os.path.isfile(mail_path) or os.path.getsize(mail_path) == 0:
+        raise RuntimeError(f"Conversion METIS échouée : fichier vide ou absent {mail_path}")
+    if not os.path.isfile(geom_path) or os.path.getsize(geom_path) == 0:
+        raise RuntimeError(f"Conversion METIS échouée : fichier vide ou absent {geom_path}")
     return
 
