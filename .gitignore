@@ -189,3 +189,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# Ajout Nicolas application Dharma
+application/model_dharrma/save_data
+application/model_dharrma/elec
+application/model_dharrma/sismique
+application/model_dharrma/input_ginette/Z_*
