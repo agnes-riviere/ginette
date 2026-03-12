@@ -1,0 +1,854 @@
+%% This is a Latex template file for articles submitted to
+%% Comptes Rendus. Geoscience.
+%% It uses the cedram.cls class file, which is available at
+%% http://www.centre-mersenne.org/texmf
+%
+%% The following template indicates the main features of the class file.
+%% In order to avoid mistakes in the handling of metadata (name, title, etc.),
+%% please use all the commands (and only those) indicated in the preamble for
+%% the title and authors.
+
+%% If your paper uses non-ascii characters, be aware that the class
+%% uses ISO-Latin-1 by default (inputenc is already loaded). You can
+%% opt for UTF-8 encoding using the Unicode documentclass option as
+%% below. In this case, you must add the following line at the top of
+%% the bibtex file
+%-*-coding: utf-8
+
+%% English is the default language. You may use the `francais' class
+%% option if the main language of your paper is French.
+
+\documentclass[CRGEOS,Unicode,manuscript,biblatex]{cedram}
+\addbibresource{bib_article.bib} 
+%% If you are using BibTeX instead of BibLaTeX for the bibliography,
+%% you should use this command instead of the two above:
+% \documentclass[CRGEOS,Unicode,manuscript]{cedram}
+
+%% Authors may use other style files (e.g. to create figures), as long as
+%% they do not alter the layout of the article.
+%\usepackage{tikz}
+
+%% Notice that the class file defines a scheme float.
+
+%% Notice that the class and the configuration file for this journal
+%% already load the following packages (don't load any conflicting
+%% package like enumerate for modifying lists, or changing fonts, e.g.!)
+%% enumerate, textcomp, amssymb, caption, graphicx, xcolor, array,
+%% lastpage, etex, ifplatform, amsfonts, hyperref, placeins, fontenc
+%% (T1), fancyvrb.
+%% In addition, this journal's style relies on the Fourier-GUT font
+%% that can be installed from CTAN. If you don't have them on your
+%% computer, the file will compile but the layout will be adjusted in
+%% production.
+
+
+% --- Preamble (keep it simple with cedram) ---
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,graphicx,xcolor}
+\usepackage{microtype}% améliorations typographiques
+\usepackage{siunitx}
+\usepackage{multicol}
+
+\AtBeginDocument{\selectlanguage{english}} % cedram already loads babel
+%% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+ colorlinks=true,
+ urlcolor=blue,
+}
+
+
+\usepackage{lineno}
+\usepackage{etoolbox}
+
+
+
+\newcommand{\citealp}[1]{\citeauthor{#1} \citeyear{#1}}
+
+
+%% Insert here your own symbols, as the following ones:
+\newcommand{\via}{\textit{via}}
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\missref}{\textbf{\textcolor{red}{REF MANQUANTE}}}
+\newcommand{\todo}[1] {\textbf{\textcolor{red}{#1}}}
+\newcommand{\eni}{\textbf{(i)}}
+\newcommand{\enii}{\textbf{(ii)}}
+\newcommand{\eniii}{\textbf{(iii)}}
+\newcommand{\eniv}{\textbf{(iv)}}
+\newcommand{\env}{\textbf{(v)}}
+\newcommand{\envi}{\textbf{(vi)}}
+\newcommand{\script}[1] {{\ttfamily {#1}}}
+\newcommand{\mmj}{mm\,y$^{-1}$}
+\newcommand{\mcy}{m$^3$\,y$^{-1}$}
+\newcommand{\mcs}{m$^3$\,s$^{-1}$}
+\newcommand{\kmc}{km$^2$}
+\newcommand{\mc}{m$^2$}
+\newcommand{\msqs}{m$^2$\,s$^{-1}$}
+\newcommand{\mman}{mm\,y$^{-1}$}
+\newcommand{\lits}{L\,s$^{-1}$}
+\newcommand{\degree}{\si{\degree}}
+\newcommand{\km}{\si{\km}}
+\newcommand{\wmc}{\si{\watt\per\meter\squared}}
+\providecommand{\tabularnewline}{\\}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+
+% Enable shell-escape in Overleaf for these commands to work
+% Define character count command
+
+% Define the commands for character and word count (with shell escape enabled)
+\newcommand{\quickcharcount}[1]{%
+ \immediate\write18{texcount -1 -sum -merge -char #1.tex > #1-chars.sum }% 
+ \input{#1-chars.sum}%
+}
+
+\newcommand{\quickwordcount}[1]{%
+ \immediate\write18{texcount -1 -sum -merge #1.tex > #1-words.sum }%
+ \input{#1-words.sum}%
+}
+
+
+%% Title of the article. 
+%% The optional argument [] is the short version of the title (unused),
+%% and the mandatory argument {} the title itself
+\title{Review of Integrating thermal, electrical, and seismic geophysical Methods for Shallow groundwater modeling in the critical zone}
+
+
+
+%% Authors, addresses and supports.
+%% The optional argument is for shortened version appearing in the headings. Please
+%% distinguish between first, middle and last names with the appropriate commands.
+%% If an author has an ORCID, this should be added as shown below
+
+\author{\firstname{Agnès} \lastname{Rivière} \CDRorcid{0000-0002-6002-3189} \IsCorresp}
+\address{Mines Paris, PSL University, Centre for geosciences and geoengineering, Fontainebleau, France}
+\email[A. Rivière]{agnes.riviere@minesparis.psl.eu} % corresponding author
+\urladdr{https://agnes-riviere.github.io/}
+
+
+\author{\firstname{Maxime} \lastname{Gautier} \CDRorcid{0000-0002-6416-1781}}
+\addressSameAs{1}{Mines Paris, PSL University, Centre for geosciences and geoengineering, Fontainebleau, France}
+\email[M. Gautier]{maxime.gautier@minesparis.psl.eu}
+
+\author{\firstname{Nicolas} \lastname{Radic} \CDRorcid{0009-0009-9275-294X}}
+\addressSameAs{1}{Mines Paris, PSL University, Centre for geosciences and geoengineering, Fontainebleau, France}
+\email{nicolas.radic@minesparis.psl.eu}
+
+\author{\firstname{Ludovic} \lastname{Bodet} \CDRorcid{0000-0003-2271-3223}}
+\address{Sorbonne Université, CNRS, EPHE, UMR 7619 METIS, 4 place Jussieu, 75252 Paris 05, France}
+\email{ludovic.bodet@sorbonne-universite.fr}
+
+\author{\firstname{Alexandrine} \lastname{Gesret} \CDRorcid{0000-0002-6828-392X}}
+\addressSameAs{1}{Mines Paris, PSL University, Centre for geosciences and geoengineering, Fontainebleau, France}
+\email{alexandrine.gesret@minesparis.psl.eu}
+
+\author{\firstname{Roland} \lastname{Martin} \CDRorcid{0000-0003-3669-094X}}
+\address{Géosciences Environnement Toulouse, Observatoire Midi-Pyrénées, Université de Toulouse, 14 Av. E. Belin, 31400, Toulouse, France}
+\email{roland.martin@get.omp.eu}
+
+\author{\firstname{Sylvain} \lastname{Pasquet} \CDRorcid{0000-0002-3625-9212}}
+\addressSameAs{2}{Sorbonne Université, CNRS, EPHE, UMR 7619 METIS, 4 place Jussieu, 75252 Paris 05, France}
+\email{sylvain.pasquet@sorbonne-universite.fr}
+
+\author{\firstname{Mathias} \lastname{Maillot} \CDRorcid{0000-0000-0000-0000}}
+\address{Geological Survey of France - BRGM, 3 Av. Claude Guillemin, 45100 Orléans, France}
+\email{m.maillot@brgm.fr}
+
+
+\author{\firstname{Didier} \lastname{Renard} \CDRorcid{0000-0002-9402-0007}}
+\addressSameAs{1}{Mines Paris, PSL University, Centre for geosciences and geoengineering, Fontainebleau, France}
+\email{didier.renard@minesparis.psl.eu}
+
+
+\author{\firstname{Pierre} \lastname{Weill} \CDRorcid{0000-0002-6201-1472}}
+\address{Normandie Université, UNICAEN, UNIROUEN, CNRS, M2C, 14000 Caen, France}
+\email{pierre.weill@unicaen.fr}
+
+\author{\firstname{Dominique} \lastname{Bruel} \CDRorcid{0000-0000-0000-0000}}
+\addressSameAs{1}{Mines Paris, PSL University, Centre for geosciences and geoengineering, Fontainebleau, France}
+\email{dominique.bruel@minesparis.psl.eu}
+
+\author{\firstname{Rémi} \lastname{Valois} \CDRorcid{0000-0002-6447-7057}}
+\address{Avignon Université, UMR EMMAH, Avignon, France}
+\email{remi.valois@univ-avignon.fr}
+
+\author{\firstname{José} \lastname{Cunha Teixeira} \CDRorcid{0000-0003-0305-4146}}
+\addressSameAs{2}{Sorbonne Université, CNRS, EPHE, UMR 7619 METIS, 4 place Jussieu, 75252 Paris 05, France}
+\email{jose.teixeira@sorbonne-universite.fr}
+
+\author{\firstname{Patrick} \lastname{Goblet} \CDRorcid{0000-0003-4540-4132}}
+\addressSameAs{1}{Mines Paris, PSL University, Centre for geosciences and geoengineering, Fontainebleau, France}
+\email{patrickgoblet@free.fr}
+
+\author{\firstname{Mark} \lastname{Noble} \CDRorcid{0000-0001-5638-6115}}
+\addressSameAs{1}{Mines Paris, PSL University, Centre for geosciences and geoengineering, Fontainebleau, France}
+\email{mark.noble@minesparis.psl.eu}
+
+
+
+
+
+%\input{GWSBOUND_state_review}
+%% Funding acknowledgement should be placed at the end of the paper, before the references.
+
+%% The grant number can be inserted in the database
+%% This won't be printed. It should be acknowledged in the text.
+% \CDRGrant[UKRC]{2019-$$155900}
+
+%% If yo have supplementary material, you have to
+%% * say it at the end of the paper
+%% * declare it the following way (the file will be copied and linked on the website)
+%% PDF is the default file type (don't use .doc or other document format)
+% \CDRsupplementaryTwotypes{supplementary-material}{\cdrattach{supplement-doc.pdf}}
+%% For another file type you should declare the mime-type as an optionnal argument:
+% \CDRsupplementaryTwotypes[application/zip]{supplementary-material}{\cdrattach{mycode.zip}}
+
+%% Keywords
+\keywords{Hydrogeophysics, water, temperature, seismic, electric, critical zone, numerical simulations, inverse problem, Uncertainty quantification, geostastistics, groundwater, stream-aquifer exchanges,vadose zone}
+\linenumbers
+%% Abstract should be placed before \maketitle (and, in fact, before
+%% \begin{document} is best)
+\begin{abstract} 
+Groundwater systems are components of the Critical Zone, in dynamic balance with the climate and human pressure. Water and heat fluxes control biogeochemical processes and regulate both resource potential and system vulnerability. Evaluating system responses to climate and land use changes requires an estimation of subsurface structure, flow dynamics, and the spatial distribution of recharge and discharge zones.
+
+Classical hydrological data, such as water levels and river discharge, are commonly coupled with unconventional methodologies, including heat tracing, electrical resistivity tomography, and surface wave analysis. Their coupling via time-lapse monitoring and inversion frameworks enables the characterization of thermal, electrical, and mechanical interactions, thus encouraging a transition from static structure description to transient representations of groundwater.
+
+
+We identify key challenges, including data limitations, model uncertainty propagation, and the integration of transient variables and parameters into inversion workflows. Petrophysical and geostatistical approaches help overcome these issues by coupling geophysical and groundwater models, quantifying spatio-temporal uncertainties, and addressing scale change. Finally, choices regarding experimental design, parameter reduction, dimensionality, model hypotheses, and inversion scale must be assessed to balance parsimony with model accuracy. These developments underscore the central role of hydrogeophysics in advancing Critical Zone science and sustainable groundwater management. Emphasizing transient processes is essential for capturing how subsurface systems evolve over time in response to environmental changes.
+\end{abstract}
+
+%% If the paper is in English, you may provide French metadata
+%% (alttitle, altabstract)
+
+
+
+
+\begin{document}
+
+% Use the \maketitle command after the abstract
+\maketitle
+
+%% Abbreviations
+% Define abbreviations
+\section*{List of Abbreviations}
+
+\begin{tabular}{ll}
+CZ & Critical Zone \\
+GW & Groundwater \\
+SW & Surface Water \\
+SW-GW & Surface Water-Groundwater interactions \\
+VZ & Vadose Zone \\
+BC & Boundary Conditions \\
+ERT & Electrical Resistivity Tomography \\
+SRT & Seismic Refraction Tomography \\
+WRC & Water Retention Curve \\
+FWD & Forward Model \\
+$V_P$ & P-wave velocity \\
+$V_S$ & S-wave velocity \\
+MASW & Multichannel Analysis of Surface Waves \\
+MCMC & Markov chain Monte Carlo\\
+SHI & Sequential Hydrogeophysical Inversion \\
+CHI & Coupled Hydrogeophysical Inversion \\ 
+JHI & Joint Hydrogeophysical Inversion \\
+PBI & Process-Based Inversion \\
+DNNs & Deep Neural Networks \\
+MPS & Multiple-Point Simulation \\
+SPDE & Stochastic Partial Differential Equations \\
+PGS & Plurigaussian Geostatistical Simulation \\
+\blue{DGM} & \blue{Discrete Gaussian Model}\\
+BSS & Bayesian Sequential Simulation Method \\
+DWA & Data-Worth Analysis \\
+1D & One-dimensional (space) \\
+2D & Two-dimensional (space) \\
+3D & Three-dimensional (space) \\
+4D & Four-dimensional (space and time)
+\end{tabular}
+
+
+\section{Introduction}
+% contexts
+The Earth’s Critical Zone (CZ) is the near-surface layer where water, soil, air, and living organisms interact to support terrestrial ecosystems and human society. Among its components, groundwater (GW) represents the largest reservoir of freshwater \parencite{singha_importance_2022,lee_meanings_2023}. It plays a fundamental role in Earth’s hydrogeochemical cycles by redistributing water, energy, solutes, and contaminants throughout the subsurface \parencite{brunke_ecological_1997,stegen_influences_2018,gomez-gener_towards_2021}. In addition to sustaining ecosystems and surface water (SW) bodies critical to biodiversity, GW is a vital resource for global water, energy, and food security \parencite{de_amorim_nexus_2018,castilla-rho_social_2017,sacco_groundwater_2024}.
+
+% Research Gap: Underrepresentation and Dynamic Complexity of GW
+Despite its significance within the Critical Zone (CZ), GW is frequently overlooked due to the difficulty and high cost of subsurface access, and its characteristically slow, diffuse dynamics \parencite{chavez_garcia_silva_multi-decadal_2024}. \blue{Hydrogeophysical methods} provide efficient, non-intrusive tools to estimate GW physical properties in time and space. However, key challenges in CZ hydrogeophysics include: (i) characterizing the structure and behavior of GW systems and their interactions with other CZ compartments, (ii) quantifying the temporal and spatial distribution of water, energy, and nutrients or contaminants, and (iii) predicting GW responses to climatic variability and anthropogenic influences.
+
+% Coupled Hydrogeological Processes and the Role of Temperature
+Shallow GW systems are influenced by both climatic factors \parencite{cuthbert_global_2019, fan_global_2013, condon_evapotranspiration_2020} and anthropogenic pressures such as water abstraction \parencite{dixon_subsidence_2006, rahardjo_effects_2010,waltham_sinkholes_2004}, geothermal exploitation \parencite{bidarmaghz_impacts_2021,menberg_opportunities_2025,bayer_geothermal_2019}, and contaminant discharge \parencite{stigter_groundwater_2023}. In this context, understanding long-term trends and the spatial dynamics of GW recharge, SW-GW exchanges, flow paths, residence times, and associated thermal regimes is essential for anticipating future conditions and managing current impacts \parencite{maxwell_interdependence_2008, de_marsily_quantitative_1986, enemark_hydrogeological_2019, boulton_rivers_2006, singha_importance_2022,gleeson_global_2020,fan_global_2013}. 
+Temperature is increasingly recognized as a key tracer in shallow GW systems, providing critical insights into water quality, recharge dynamics, and geothermal potential \parencite{neidhardt_impact_2023,xu_effect_2021,benz_global_2024}. Although only a limited number of studies have focused on temperature evolution within GW, recent investigations underscore its sensitivity to climatic variability and anthropogenic pressures \parencite{benz_global_2024}. Water and temperature are fundamental vectors of transport and transformation within the CZ, shaping biogeochemical processes that influence CZ functioning \parencite{safieddine_surface_2025}, altering water quality through complex biogeochemical feedbacks \parencite{neidhardt_impact_2023}, and affecting stream and GW biodiversity \parencite{land_groundwater_2023}.
+
+Unraveling the four-dimensional (4D) distribution of water and heat fluxes at the GW boundaries (i.e. 3D spatial + temporal), particularly at the Vadose Zone (VZ) and SW-GW interfaces \parencite{hermans_advancing_2023} remains a major challenge for accurately assessing the components of the water and energy balances and achieving water budget closure, particularly concerning climate changes and land use \parencite{bloschl_twenty-three_2019,condon_global_2021,xie_uncertainty_2018,xie_uncertainty_2019,levin_uncertainties_2023}. VZ regulates recharge, vertical water movement, and the exchange of energy and solutes, while SW-GW interactions control hydrological connectivity as well as the magnitude and directionality of both water and thermal exchanges.
+These efforts are further complicated by the non-linear, transient nature of GW recharge processes, including capillary rise across the water table \parencite{vereecken_value_2008}, shifting GW divides that can induce lateral flows between riverbanks \parencite{texier_numerical_2022}, and temporally variable SW-GW connectivity. SW-GW can fluctuate between gaining, losing, transitional, and disconnected states, introducing uncertainty into water and energy budget estimation \parencite{brunner_advances_2017, brunner_disconnected_2011, riviere_experimental_2014} (Fig.~\ref{fig:Gw_bound}).
+
+%Modeling Needs, Geological Heterogeneity, and Conceptual Challenges of Limited Observations and Geological Ambiguity
+GW flow systems remain poorly understood due to their hidden subsurface nature, often described as a terra incognita \parencite{kleinhans_terra_2005, mcdonnell_beyond_2017, grant_frontier_2017} (Fig.~\ref{fig:Gw_bound}). Shallow GW systems exhibit a rich diversity in the composition and topology of internal structures, shaped by interactions among geological, hydrological, and climatic processes (see Appendix~\ref{app:geology}). These systems are underlain by regolith, which can be categorized into two types: allochthonous regolith, composed of unconsolidated sediments transported through geomorphological mechanisms, and autochthonous regolith, formed through in-situ weathering and transformation of the underlying bedrock. The evolution of regolith and bedrock varies significantly across spatial and temporal scales, complicating the accurate representation of flow and transport dynamics (further detailed in Appendix~\ref{app:geology}).
+Despite the advancement of hydrogeological modeling, GW management, including well regulation, streamflow depletion, recharge enhancement, and development of geothermal resources, often operates under significant data constraints. These limitations require simplifying assumptions that can obscure spatial heterogeneity, misrepresent boundary conditions, and ultimately lead to non-unique or unreliable model interpretations \parencite{casillas-trasvina_bayesian_2024}. However, the hydrological sciences have historically prioritized hydraulics and mathematical modeling over geological realism, frequently yielding precise solutions to ill-posed problems. Inadequate conceptual geological models and poor estimations of aquifer parameters still contribute to major sources of uncertainty in flow modeling \parencite{rojas_assessment_2010, refsgaard_review_2012, enemark_hydrogeological_2019, yin_accounting_2021, tran_influence_2025}.
+
+While many components of the hydrological cycle, such as river discharge, precipitation, piezometric levels, and even GW pumping (though often not routinely monitored), can be measured with reasonable accuracy, fluxes at GW boundaries, including recharge \parencite{rawls_infiltration_1993,halloran_heat_2016,zheng_response_2019,vereecken_soil_2022} and SW-GW exchanges \parencite{fleckenstein_groundwater-surface_2010,krause_inter-disciplinary_2011,flipo_continental_2014,barthel_hess_2014,boano_hyporheic_2014,irvine_groundwater-surface_2024}, cannot be directly observed at the hillslope scale. Although methods such as seepage meters \parencite{rosenberry_history_2020}, lysimeters \parencite{saaltink_analysis_2020,balugani_lysimeter_2023,saaltink_analysis_2020}, single-well tracer tests \parencite{paradis_singlewell_2022}, and active Distributed Temperature Sensing (DTS) experiments \parencite{chang_application_2024,briggs_comparison_2012} are often described as "direct measurements" of these fluxes \parencite{rosenberry2008field}, they actually infer exchange rates by inverting data. Each inversion requires modeling assumptions and is sensitive to site-specific conditions. While informative at the local scale, such measurements are rarely representative of larger domains.
+
+At the hillslope or watershed scale, SW-GW exchanges are often depicted using a one-dimensional conductance term in watershed models. This representation neglects heterogeneity and assumes steady-state conditions and places the GW divide at the midpoint of the river \parencite{gianni_rapid_2016}. This conceptual limitation is illustrated in Figure~\ref{fig:Gw_bound}a.,
+which shows how GW flow paths and divides are idealized without accounting for hydrofacies variability. Notably, if the transient state is not taken into account, predictions of exchange fluxes will be unreliable, especially during extreme events \parencite{tripathi_review_2021}. This limitation impacts water fluxes as well as heat and solute transport processes \parencite{lemoubou_effects_2023}. In reality, GW head distributions follow physical laws that yield complex spatial patterns, which are not easily reproduced with analytical solutions or simplified geometries. Consequently, assigning boundary conditions based on topography or interpolation of piezometric level carries a significant risk of physical inconsistency \parencite{de_marsily_dealing_2005}. A major unresolved issue remains the inherent incompleteness of the data required to constrain these models accurately.
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=0.8\textwidth]{Figure1_hydroVF.png}
+\caption{ a) Watershed-scale view illustrating GW flow paths, geological structure, SW-GW interactions, and human influences, with idealized GW divides and flowpaths (after \textcite{toth_theoretical_1963}).
+b) Hillslope-scale 3D view with subsurface hydrofacies heterogeneity meshes, model parameters (intrinsic permeability $k$, porosity $n$, specific yield $Sy$, water retention curve $WRC$ \parencite{van_genuchten_closed-form_1980,mualem_new_1976,brooks_properties_1966,fredlund_unsaturated_2006}, thermal conductivity $\lambda$, the density of the porous media $\rho$ and heat capacity $C$). Parameters may vary continuously or discretely across the domain, reflecting natural heterogeneity and modeling assumptions.
+c) Output of advanced GW simulation following data integration and inversion (Inv), revealing realistic SW-GW flow paths, residence time distribution, and estimates of water and heat budgets. After inversion, spatial uncertainty in model parameters and flow directions can be quantitatively assessed, reflecting the limitations imposed by sparse or uneven field data. FWD: forward models; Inv: inversion approaches.}
+ \label{fig:Gw_bound}
+\end{figure}
+
+Figure~\ref{fig:Gw_bound} provides a conceptual overview of GW systems at multiple scales, illustrating (a) watershed-scale flow paths and human influences, (b) hillslope-scale subsurface heterogeneity and hydrogeological parameters, and (c) the output of advanced GW simulations and inversion approaches, which estimate GW flow paths, residence times, SW-GW exchanges, and recharge across the domain. The fundamental challenge lies in solving flow and transport equations within a complex geological system that remains only partially characterized \parencite{anderson_applied_2015}. Parameters may vary continuously or discretely across the domain. In both cases, the subsurface domain is discretized into a mesh of cells in the model. Each mesh assigned a set of parameters that defines the hydraulic and thermal behavior of the medium (Fig.~\ref{fig:Gw_bound}b.). These parameters such as the saturated hydraulic conductivity (or permeability), porosity, the relative permeability function, water retention curve, unsaturated permeability function, specific heat (heat capacity/density), thermal conductivity, and density of every phase (i.e., solid particles, water, and air) are typically linked to a specific hydrofacies, which represent geologically coherent units with distinct properties. While this framework enables spatial variability in model inputs, it also depends heavily on how well the hydrofacies are conceptualized, parameterized, and distributed \parencite{zinn_when_2003,zhan_subsurface_2023}, underscoring the importance of robust geological characterization. Although heterogeneity is incorporated into models at a certain scale, it is not directly observed or mapped in detail at the scale of the cell of the model (Fig.~\ref{fig:Gw_bound}b.). Instead, its spatial distribution is typically inferred from sparse measurements through inverse modeling or interpolated through a geostatistical framework, introducing further uncertainty into the representation of subsurface complexity \parencite{condon_global_2021, zhou_inverse_2014}.
+
+As a result, GW simulations often reflect a compromise between \parencite{gupta_towards_2012}: (i) available data and its spatiotemporal resolution \parencite{irvine_groundwater-surface_2024, condon_global_2021, de_marsily_comment_1992, konikow_ground-water_1992, andreassian_hydrogeological_2023, carrera_discussion_1993}; (ii) the complexity of physical processes; (iii) model capacity to represent heterogeneity and boundary conditions; and (iv) the inclusion of uncertainties in model inputs, structure, parameters, and observations used to constrain model parameter sets \parencite{condon_global_2021, zhou_inverse_2014, sagar_direct_1975, tarantola_popper_2006} (Fig.~\ref{fig:Gw_bound}c.). 
+
+Most hydrological models are calibrated using two conventional observation types: hydraulic heads and river discharge. However, it is established that these conventional observations alone are insufficient to accurately parameterize subsurface heterogeneity and predict flow paths and transport dynamics, especially in geologically complex settings and near the SW \parencite{de_marsily_dealing_2005}. Calibration from hydraulic heads alone often leads to non-unique solutions \parencite{beven_undermining_2006, doherty_modeling_2011}. This issue arises because distinct hydrofacies can produce similar hydraulic responses but different flow paths.
+
+To illustrate the hydrogeological consequences of sedimentary heterogeneity, Figure~\ref{fig:sed_setup} presents a hydrogeological simulation of GW flow paths and hydraulic gradients within a synthetic geological model of a meandering fluvial system. The geological model, developed using the \href{https://flumy.minesparis.psl.eu/}{Flumy} process-based sedimentary simulator, mimics the deposits in a simplified alluvial plain \parencite{weill_process-based_2013,bhavsar_stable_2024}. The facies simulated by Flumy were implemented in a GW flow model to assess the impact of mud plugs, which are low-permeability deposits formed in abandoned meanders, on subsurface flow dynamics. Modeling details are provided in Appendix~\ref{app:geology}. The results show that while the overall hydraulic head distributions in the homogeneous and heterogeneous models appear nearly identical, the presence of mud plugs significantly alters GW flow directions and locally doubles the velocity beneath these features. These insights underscore the limitations of relying solely on hydraulic head data for model calibration.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{figure2.png}
+\caption{Sedimentary and hydrogeological setup (facies and hydrological boundary conditions) : a) homogeneous sedimentary model, b) heterogeneous sedimentary model, c) and d) zoom of the simulated hydraulic head (black lines) and Darcy flow velocity fields of both models, e) and f) slice view below the mudplug at $t=15$~days. The map-view locations of profiles A-B (panels a and c) and A'-B' (panels b and d) correspond to the vertical slices shown in panels e and f.} 
+\label{fig:sed_setup}
+\end{figure}
+
+% Promise of Geophysical Integration
+Conventional observations coupled with unconventional data (heat or biogeochemical tracer, geophysical data) allow addressing these limitations of GW modeling \parencite{de_marsily_dealing_2005, schilling_beyond_2019,casillas-trasvina_bayesian_2024}. Concentration and temperature data are more commonly available and jointly used with the hydraulic head in inversion processes \parencite{ellison_can_2025}. Recent reviews demonstrate the role of geophysics in hydrological studies, for characterizing underground hydrofacies, constraining the GW architecture, and estimating key hydrological properties such as hydrodynamic and thermal parameters \parencite{hubbard_hydrogeological_2000, parsekian_multiscale_2015, binley_dc_2005, hermans_advancing_2023, wagner_overview_2021, dumont_geophysics_2024}. These methods provide spatially extensive, non-invasive insights into subsurface architecture and hydrofacies distributions \parencite{hubbard_hydrogeological_2000, parsekian_multiscale_2015, binley_dc_2005, hermans_advancing_2023}. \textcite{beaujean_calibration_2014,copty_testing_2016,irving_stochastic_2010} show that integration of geophysics results inside GW models can significantly improve the accuracy of the model compared to using hydrogeological data alone. Common geophysical approaches such as electrical resistivity tomography (ERT), seismic refraction tomography (SRT), and temperature tracer are widely applied in transient states and complex, heterogeneous geological environments at the hillslope scale.
+
+Understanding and modeling shallow groundwater systems in heterogeneous environments remains a major challenge in hydrology and CZ science. This review explores how the integration of geophysical methods, specifically electrical, thermal, and seismic techniques, can enhance our ability to characterize and model these complex systems. We synthesize recent advances, highlight methodological developments, and propose directions for future research at the interface of geophysics and hydrology.
+
+We begin by outlining the fundamental principles and applications of these three geophysical methodologies, highlighting their respective strengths and limitations in the context of heterogeneous shallow GW investigations. A particular focus is placed on the potential of these methods to reveal 4D GW fluxes, which are often poorly constrained in heterogeneous shallow GW. Recent advances in incorporating geophysical data into groundwater models are then discussed, with a particular focus on the development of various inversion approaches that optimize data assimilation and improve model reliability.
+
+Finally, we identify emerging methodological developments and propose key research directions for integrating hydrogeophysical data into GW models, thereby bridging the gap between theory and practice. These include strategies for effective field data monitoring, the development of scalable hydrogeophysical models, and robust approaches for quantifying uncertainty. 
+
+% ######################################
+\section{Geophysical Methods, Petrophysics, and Geostatistics}
+To identify hydrofacies parameters, common hydrological practices include laboratory measurements, pumping tests \parencite{theis_relation_1935, papadopulos_drawdown_1967,jacob_nonsteady_1952,black_determination_1981}, GW time-series analyses, such as data in the spectral domain \parencite{gelhar_groundwater_1974, guillaumot_frequency_2022, pedretti_scale_2016, schuite_improving_2019}, or responses to Earth or atmospheric tides \parencite{klonne_periodischen_1880, rau_technical_2020,meinzer_ground_1939, merritt_estimating_2004, mcmillan_utilizing_2019, thomas_hydro-mechanical_2024, valois_technical_2024}. Critics argue that these methods are inherently local, dependent on the design of pumping test experiments, piezometer placement, and site-specific conditions. There is ongoing debate about the spatial representativeness and upscaling of these parameters from local measurements to hydrogeological models at the hillslope scale. However, these data, combined with detailed geological descriptions, provide valuable constraints for hydrogeological models, improving the calibration and validation of model parameters. These data are commonly used as prior information in hydrogeological modeling, supporting the range of the physical parameter values of the subsurface. Rocks and unconsolidated materials are often described as a mix of various components: rock matrix and multi-fluids (air, water). These characteristics control the physical properties such as the hydraulics, thermal, electrical, and seismic parameters. Therefore, geophysical methods can assist in characterizing hydrofacies through direct modelling and inverse problems solving \parencite{rubin_stochastic_2005}.
+\subsection{Thermal, electrical, and seismic methods}
+ Equations governing the forward model (FWD) of each method are given in the appendix~\ref{app:equations}.
+
+\subsubsection{Heat as a flow tracer}
+While temperature is widely acknowledged as a significant state variable with extensive hydrological and hydrochemical impacts, the past decade has seen an increased recognition of the value of temperature measurements to trace subsurface flow paths, especially for GW flow, vadose zone and SW-GW interaction \parencite{anderson_heat_2005,kurylyk_theory_2019,halloran_heat_2016}. Owing to the strong coupling between flow and heat transport, temperature has long been used as a natural tracer to infer subsurface flow processes, beginning with foundational studies in the 1960s \parencite{suzuki_percolation_1960, stallman_steady_1965, bredehoeft_rates_1965}. In such systems, the advective term in the heat transport equation is directly proportional to specific discharge (Appendices~\ref{app:flow_eq}, \ref{app:heat_eq}). The theoretical basis stems from classical heat conduction work by \textcite{carlaw_conduction_1959} and has been extended to account for advective heat transport under transient conditions \parencite[e.g.][]{campbell_probe_1991, heitman_field_2003, briggs_comparison_2012, simon_numerical_2021}). The increasing availability of affordable temperature sensors facilitates high-resolution monitoring of thermal dynamics in rivers, soil, and aquifers, which provides a natural signal for tracing water movement (Fig.~\ref{fig:thermic_method}a and b). Temperature fluctuations, whether diurnal, seasonal, or induced by artificial sources, can be leveraged to infer SW-GW interactions, quantify the GW recharge, delineate subsurface flow paths, and quantify geothermal potential \parencite{hatch_quantifying_2006, keery_temporal_2007, kurylyk_theory_2019, saar_review_2011, anderson_heat_2005, constantz_heat_2008, rau_analytical_2010, healy_using_2002}.
+
+% Passive and Active Thermal Tracing Approaches
+The use of temperature as a hydrological tracer relies on two main strategies: passive and active thermal tracing. Passive approaches take advantage of natural temperature fluctuations, typically diurnal or seasonal surface signals, and analyze their propagation through the subsurface to infer GW flow characteristics (Fig.~\ref{fig:thermic_method} a and b). Signal attenuation and phase shifts with depth (Fig~\ref{fig:thermic_method}a) allow estimation of vertical fluxes and thermal diffusivity, particularly in streambeds and in the VZ \parencite[e.g.][]{hatch_quantifying_2006, keery_temporal_2007, kurylyk_theory_2019, constantz_heat_2008}. Heat is a particularly effective tracer for revealing subsurface heterogeneities, as its transport is highly sensitive to variations in thermal properties and flow paths. 
+
+Fig.~\ref{fig:thermic_method}c and d present transient temperature profiles produced with the Ginette model \parencite{riviere_experimental_2014,riviere_experimental_2019,riviere_ginette_2020,grenier_groundwater_2018}, a coupled water- and heat-diffusivity equations, for both homogeneous and two-layer domains, demonstrating the influence of subsurface heterogeneity on heat transfer. \blue{During aquifer recharge}, surface water infiltrates downward, and advective heat transport produces a concave-upward temperature profile characteristic of downward flow. The infiltrating water may be warmer in summer or cooler in winter, but the curvature remains diagnostic of recharge, while discharge creates a convex or compressed profile near the surface (Fig.~\ref{fig:thermic_method}c and d) \parencite{riviere_thermal_2020}. These advective processes stand in clear contrast to purely conductive heat transfer, where temperatures vary only by diffusion and follow a nearly linear trend with depth. In the heterogeneous model, the presence of a shallow, permeable layer accelerates advective transport during recharge and discharge events. As a result, the thermal profile diverges from the expected recharge pattern and instead bends convex-upward. \textcite{kurylyk_heat_2017} demonstrates that heat can serve as an effective hydrologic tracer in both shallow and deep heterogeneous media, offering analytical tools based on the work of \textcite{shan_analytical_2004} and field data to improve subsurface flow characterization.
+Thermal tracing is widely used to assess SW-GW interactions, as reviewed by \textcite{anderson_heat_2005}, \textcite{saar_review_2011}, and \textcite{kurylyk_theory_2019}. However, its accuracy relies on having enough advective heat transfer. Recommended intrinsic permeability values range from $10^{-13}$ to $10^{-10}$ m$^{2}$ \parencite{cucchi_estimating_2021, smith_thermal_1983, riviere_thermal_2020}. If the conductivity falls below this range, it is not possible to infer intrinsic permeability from thermal data, as heat transport is dominated by conduction.
+
+In the VZ, temperature data have also been used to estimate recharge rates \parencite[e.g.][]{tabbagh_determination_1999, benderitter_flow_1993, bechkit_monitoring_2014, halloran_heat_2016}. However, inversion under unsaturated conditions requires a fully coupled thermo-hydraulic framework, involving soil-specific relationships for thermal conductivity and water retention \parencite[e.g.][]{van_genuchten_closed-form_1980, mualem_new_1976, brooks_properties_1966, fredlund_unsaturated_2006}. However, no single model yet exists for thermal conductivity in VZ \parencite{cosenza_relationship_2003}. Thus, testing and comparison with other methods under a variety of conditions, such as low saturation, high saturation, and active infiltration at various rates, is an obvious next step to improve the VZ heat tracer methodology \parencite{halloran_heat_2016}. Quantifying vertical GW discharge fluxes necessitates measurement approaches with spatial resolutions consistent with the scale of subsurface heterogeneity and the gradients driving vertical flow \parencite{tabbagh_determination_1999}.
+
+% Technological Advances in Thermal Sensing
+Recent advances in measurement technologies have significantly expanded the use of thermal methods to characterize GW flow and heterogeneity.
+Fiber-optic distributed temperature sensing (FO-DTS) enables high-frequency, high-resolution temperature measurements over long spatial domains \parencite[e.g.][]{tyler_environmental_2009, hermans_geophysical_2014}. Applications include resolving small-scale hydrofacies variability and preferential flow paths in alluvial systems.
+In active FO-DTS, heat is applied along the fiber, and temperature changes are used to infer thermal and hydraulic properties through the inversion. This method has proven particularly effective in high-flux environments, where passive signals may be obscured. \textcite{briggs_comparison_2012} and \textcite{simon_numerical_2021} demonstrated how thermal signals correlate with known hydrofacies and enhance resolution of vertical water fluxes in the context of SW-GW exchanges.
+
+Drone-based thermal infrared imaging provides complementary surface temperature data across broad spatial extents. In Arctic catchments and braided river systems, UAV-mounted TIR cameras have been used to detect GW discharge zones and identify ecologically significant thermal habitats \parencite[e.g.][]{hare_continental-scale_2021}. These systems have been validated against FO-DTS and in-situ sensors, providing an effective platform for regional thermal mapping.
+
+% difference between active and passive approaches
+Active thermal tracing offers a controlled approach to investigating subsurface flow by introducing a heat source, via heated probes, injected water, or fiber-optic cables \blue{surrounded by a wire acting as a resistance that can heat the medium}, and monitoring its spatial and temporal propagation. This approach is advantageous where natural thermal gradients are insufficient to resolve flow dynamics. Moreover, imposing a well-defined heat source significantly reduces uncertainties related to external forcing and simplifies the inversion process. For instance, studies using actively heated DTS have demonstrated the ability to estimate SW-GW exchanges \parencite{briggs_actively_2016, simon_combining_2022}. Analytical solutions, such as the moving instantaneous line source model, can then be applied to derive thermal conductivity and SW-GW fluxes with relatively low uncertainty \parencite{simon_numerical_2021, simon_combining_2022}. Similarly, thermal response tests using actively heated fiber-optic cables in boreholes have led to precise estimation of GW flow rates and the characterization of borehole properties by modeling heat transfer in a controlled environment \parencite{zhang_estimation_2023}. \textcite{chang_application_2024} applied this approach for characterizing subsurface heterogeneity and flow dynamics in a tidal-influenced coastal aquifer. The thermal tracer needs to be used for a long period of time, depending on the thermal delay effect \parencite{palmer_thermal_1992}. Passive temperature sensing might be better for long-term and wide-ranging monitoring \parencite{furlanetto_fiber_2024}.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{Figure3.png}
+\caption{
+Using heat as a tracer: 
+a) Temperature time series recorded in the Orgeval CZ observatory (France) \parencite{tallec_observatoire_2015,riviere_revue_2018} for aquifer (black line), bank (gray line), and stream (light-grey line) over a decade. 
+b) Annual temperature regime plot: light blue and red points indicate the daily minimum and maximum temperatures, respectively; the gray-shaded region represents the range between the $0.05$ and $0.95$~quantiles, and the dark blue line shows the mean. 
+c) Simulation of a temperature profile as a function of depth for a homogeneous soil, and 
+d) a heterogeneous soil, for aquifer discharge (orange line) and aquifer recharge (blue line). c) and d) showing deviations from the geothermal gradient caused by surface zone and convection in the geothermal
+zone. Aquifer recharge (downward movement) results in concave upward profiles, whereas aquifer discharge (upward movement) results in convex upward profiles. 
+}
+\label{fig:thermic_method}
+
+\end{figure}
+
+% Advantages and Limitations in Characterizing Heterogeneity
+Thermal methods offer distinct advantages for studying flow in heterogeneous media (Fig~\ref{fig:thermic_method}c and d). Unlike hydraulic head or solute concentration data, temperature signals can directly characterize the direction, magnitude, and timing of flow across hydrofacies boundaries. However, the nature of heterogeneity, involving abrupt changes in lithology, porosity, hydraulic conductivity, thermal conductivity, and water retention properties, poses different challenges when interpreting heat transport in subsurface systems. Hydraulic conductivity can vary dramatically, which complicates the estimation of GW flow rates based solely on temperature measurements \parencite{constantz_heat_2008}. This necessitates the integration of temperature observations with hydraulic gradient measurements for robust flow characterization \parencite{cucchi_estimating_2021}.
+
+Joint heat and solute tracer experiments have been proposed to reduce uncertainties in transport predictions by exploiting their complementary behaviors, offering a more comprehensive understanding of subsurface heterogeneity and improving model accuracy \parencite{hoffmann_heterogeneity_2019}. However, complex three-dimensional flow fields can still introduce significant errors in the estimation of thermal fluxes and effective thermal diffusivity, underlining the need for modeling approaches that explicitly consider spatial variability and flow directionality \parencite{sommer_impact_2013,reeves_impacts_2016}. 
+
+\subsubsection{Electrical Resistivity Tomography}
+The electrical conductivity (or resistivity) of geological materials is governed by the lithological properties of the rock matrix, as well as the chemistry, volume, and temperature of internal fluids \parencite{hayley_low_2007}. Consequently, electrical investigation methods provide a direct window into these subsurface parameters. ERT is a preferred near-surface geophysical technique, valued for its non-invasive nature and ease of implementation \parencite{everett_near-surface_2013}. Its widespread adoption is further supported by various robust data processing software packages (see Appendix~\ref{app:ert}) \parencite{loke_rapid_1996, blanchy_resipy_2020, rucker_pygimli_2017}. As illustrated in Fig.~\ref{fig:ert_method}, the typical ERT workflow follows three stages: i) installing electrodes at the ground surface or within boreholes, ii) collecting apparent resistivity ($\rho_{a}$) data using a variety of quadrupole configurations, and iii) solving an inverse problem to generate a final electrical resistivity model of the subsurface.
+
+ERT consists in inducing an electrical current ($I$) in the ground using two injection electrodes (Fig.~\ref{fig:ert_method}). The resulting voltage difference ($\Delta{}U$) is measured by two potential electrodes. These four electrodes form a quadrupole. The apparent resistivity $\rho_{a}$ is then derived from the current, the voltage difference, and the geometrical factor, which depends on the arrangement of the quadrupole's electrodes. The apparent resistivity represents an average value of the subsurface, assuming a homogeneous half-space. \blue{Increasing the spacing between the electrodes allows sounding deeper, but the resulting value remains an integration over the entire volume of ground between the injection electrodes.} All quadrupoles of a profile are characterized by a theoretical depth of investigation defined by \textcite{roy_depth_1971} and \textcite{barker_depth_1989}. A 2D distribution of $\rho_{a}$ along a transect can be obtained by combining several combinations of ‘single’ measurements.
+
+Measured apparent resistivity values are then processed and inverted to eventually obtain a resistivity model. This model can be interpreted in terms of subsurface structure \parencite{guerin_geophysical_2009, boura_improving_2024}, lithology \parencite{guerin_geophysical_2004,bentley_two_2004}, water content, \parencite{tabbagh_measurement_2002,tabbagh_determination_1999,bai_groundwater_2021}, hydraulic conductivity \parencite{rehfeldt_field_1992}, salt content \parencite{hayley_time-lapse_2009}, transport parameters of tracer plumes \parencite{lekmine_quantification_2017, benderitter_heat_1982, giordano_time-lapse_2017, hermans_geophysical_2014}, or water level \parencite{bentley_accuracy_2002,wu_application_2023}. Inferring parameters from geological and hydrofacies features is possible using petrophysical models from the literature or site-specific information (Section~\ref{sec:petrophy}). For dynamic parameters or variables, a time-lapse approach is required (cf. Section~\ref{sec:transient}). Data errors significantly impact both the inversion stability and the subsequent interpretation of the resulting resistivity images \parencite{tso_improved_2017, tso_field_2019}. Often, field data errors are estimated by stacked or reciprocal measurements performed with the resistivity meter \parencite{tso_improved_2017, tso_field_2019, dahlin_short_2000, wilkinson_practical_2012}. Error estimation is essential in the inversion process because underestimating error levels can result in model overfitting, while overestimating them can lead to underfitting, both of which complicate the interpretation of results. ERT output models are particularly challenging to interpret due to the unconstrained nature of ERT images, which are affected by survey configuration, field conditions, subsurface heterogeneity, and the inherent non-uniqueness of the inversion solution. Some tools, such as the PyMERRY code \parencite{gautier_pymerry_2024}, can be employed to quantify uncertainties in ERT images in addition to classical sensitivity computation \parencite{loke_tutorial_2025}.
+
+\begin{figure}
+\centering
+\includegraphics[width=1.\textwidth]{method_ERT.png}
+\caption{ERT method consisting of apparent resistivity measurements during a field survey, data processing or inversion, and interpretation phase. Streamlines and depth of investigation (blue circle) for a given quadrupole $ABMN$ are shown.}
+\label{fig:ert_method}
+\end{figure}
+
+\subsubsection{Active seismic methods}
+Seismic approaches are widely employed at various scales in hydrogeology; however, they primarily focus on delineating subsurface contrasts rather than specifying the associated physical properties \parencite{pride_relationships_2005, hubbard_hydrogeophysics_2011}. Seismic reflection can provide high-resolution images of the CZ architecture \parencite{haeni_application_1986, bradford_depth_2002, kaiser_ultrahigh-resolution_2009}, but its application in shallow GW is difficult. Gradual weathering often leads to subtle or absent impedance contrasts, hindering strong reflections. Besides, the near-surface exhibits significant heterogeneity, noise, and the presence of surface wave hiding reflection, necessitating dense acquisition and advanced processing for effective imaging. SRT has been increasingly employed in CZ exploration in the last decade \parencite{olona_weathering_2010, befus_seismic_2011, fabien-ouellet_using_2014, holbrook_geophysical_2014, st_clair_geophysical_2015, pasquet_2d_2015, flinchum_critical_2018, callahan_subsurface_2020, cosans_anatomy_2024}, using the inferred pressure-wave ($P$) velocity ($V_P$) as a proxy to delineate subsurface layers (\eg{} soil, regolith, bedrock). Borehole data are used with these images to assign hydrofacies characteristics \parencite{befus_seismic_2011, cassidy_combining_2014, holbrook_links_2019, guerin_borehole_2005, olona_weathering_2010, paillet_integrating_1995, lesparre_impacts_2024}.
+
+Nowadays, it is widely acknowledged that hydrofacies parameter values (porosity, fluid saturation, and permeability) can influence seismic properties \parencite{pride_relationships_2005}. The major theory which links hydrofacies and seismic parameters is poroelasticity proposed by \textcite{biot_theory_1956, biot_theory_1956-2, biot_mechanics_1962} as described in the Appendix~\ref{app:poroelastic_eq}. As the S-wave propagates primarily within the solid frame, the behaviors of P-waves and S-waves are partially decoupled in the presence of fluids \parencite{bachrach_seismic_2000, bachrach_portable_2004}. This decoupling implies that P-wave velocity ($V_P$) is sensitive to changes in fluid properties, while S-wave velocity ($V_S$) primarily reflects the elastic properties of the solid matrix. Studying both $V_P$ and $V_S$ offers valuable subsurface information, enabling more accurate hydrofacies characterization, including porosity and fluid content in the VZ \parencite{pasquet_detecting_2015, pasquet_2d_2015} and the piezometric surface \parencite{flinchum_identifying_2020, dangeard_river_2021}. 
+
+\begin{figure}
+\centering
+\includegraphics[width=.95\textwidth]{Image_sismiquev3.png}
+\caption{Schematic illustration from \textcite{solazzi_surfacewave_2021} and \textcite{dangeard_river_2021} of a) a saturation-depth profile calculated with the \textcite{van_genuchten_closed-form_1980} relationship, b) associated porous media density $\rho_{pm}(z,\;Sw)$, P-wave velocity $V_{p}(z,\; Sw)$, and S-wave velocity $V_{s}(z, Sw)$ profiles, and c) body ($P$ and $S$) and surface (PSV) waves propagating in the partially saturated soil. d) Sections of Poisson's ratio ($\upsilon$) estimated from seismic data for each time step and estimated piezometric surface(colored lines). The highest values of $\upsilon$ indicate a saturated medium, while low values correspond to a partially or unsaturated medium The white shaded area indicates the unconstrained area below the depth of investigation.}
+\label{fig:seismic_method}
+\end{figure}
+
+While both $V_P$ and $V_S$ can be jointly estimated through SRT \parencite{turesson_comparison_2007, grelle_seismic_2009, pasquet_2d_2015}, obtaining reliable $V_S$ estimates from SRT often presents critical challenges. These include the need for specific sources and horizontal geophone arrays, which increases field effort, and the difficulty in accurately identifying S-wave first arrivals during data processing. To overcome these challenges, $V_S$ characteristics are frequently inferred from surface-wave dispersion inversion \parencite{socco_surface-wave_2004, socco_geophysical_2010} (referred to as Multichannel Analysis of Surface Waves, MASW). Recent studies have extensively developed integrated approaches combining SRT and MASW to simultaneously estimate 2D $V_P$ and $V_S$ sections along coincident profiles from single datasets \parencite{konstantaki_determining_2013, flinchum_identifying_2020, pasquet_detecting_2015, pasquet_2d_2015, pasquet_geophysical_2016}. With this approach, seismic methods have become a promising imaging tool for both hydrofacies heterogeneities and water content contrasts through the $V_P/V_S$ or Poisson's ratio ($\upsilon$) (Fig.~\ref{fig:seismic_method} d). This approach, relying on the open-source processing tools SWIP \parencite{pasquet_swip_2017, pasquet_multiwindow_2021} and PyGIMLi \parencite{rucker_pygimli_2017}, appears successful in various hydrogeological contexts and application scales: from the laboratory on partially saturated glass beads \parencite{pasquet_small-scale_2016}, to the field and the catchment scale \parencite{pasquet_catchment-scale_2022}. This approach has also proved to be a very promising tool for imaging the VZ water content and the water flow paths within the river corridor \parencite{dangeard_river_2021}. In addition, it has been recently shown that simple neural networks can effectively extrapolate 3D water table maps from passive seismic data, using a limited number of piezometric spatial observations \parencite{cunha_teixeira_physics-guided_2025}. Reliance on direct piezometric measured data constrains the method's broader applicability. To address this limitation, a Transformer-based language model inspired by neural machine translation and speech recognition architectures has been proposed \parencite{cunha_teixeira_neural_2025}. Designed for deterministic petrophysical inversion, it translates surface-wave dispersion data into detailed textual descriptions of subsurface properties, including soil composition, geomechanical parameters, and hydrogeological conditions (basically hydrofacies). This method limits the need for piezometric data and processes seismic data 2,000 times faster than conventional stochastic inversion methods, describing both water levels and medium heterogeneities.
+
+A primary drawback of SRT and MASW is the manual effort required for first-arrival picking and dispersion curve extraction. Furthermore, quantifying the uncertainties associated with these picks remains an active area of research \parencite{dangeard_estimating_2018}. Errors are controlled by several factors like instrument responses, poor coupling between sources and geophones, tilt angles, near-field offset effects, waveform changes, signal attenuation, and ambient noise sensitivity. Data may not be reproduced accurately due to differences in source frequency or temporal shape from location to location. Automatic source generation cannot guarantee reproducibility in orientation, frequency content, amplitude, and first P-arrival waveforms. These issues are not discussed in the literature.
+
+In recent advanced works in near-surface geophysics, the time-picking process is generally done randomly many times (from 15 to 30 times) by hand for each seismogram, a minimum of 15~times being necessary \parencite{dangeard_estimating_2018, dangeard_river_2021}. A standard deviation is then estimated to quantify the picking uncertainty. Recent deep-learning methods offer more competitive accuracy and speed in time arrival labels compared to classical methods. Transfer and hybrid semi-supervised deep-learning picking approaches can achieve similar accuracies over ten times faster, especially in active seismics \parencite{huynh_near-surface_2023}. This approach is based on PhaseNet, a U-net-based deep learning algorithm initially developed for seismic wave picking \parencite{zhu_phasenet_2018}, is improved via Machine-Learning based corrections and extended to the context of active seismic data.
+
+Relative errors of approximately 5 up to 7$\%$ are generally obtained for P-wave first arrival for different setup configurations that are very similar at near-surface scales \parencite{pasquet_detecting_2015, pasquet_2d_2015, bergamo_p-_2016} or at laboratory scales \parencite{bodet_elasticity_2010, bodet_small-scale_2014, pasquet_small-scale_2016}. Besides, in those studies, dispersion curves are also extracted from dispersion diagrams using MASW approaches. Fundamental modes such as Rayleigh wave modes can be detected with relative errors lower than 7-10$\%$ by using classic random picking or semi-supervised deep-learning approaches \parencite{dai_deep_2021}.
+
+
+
+
+
+
+\subsection{Petrophysical relationships for linking geophysical observables to hydrofacies}
+\label{sec:petrophy}
+
+Subsurface lithology inherently governs both hydrogeological and geophysical data. To bridge these fields, petrophysical laws provide quantitative links between hydrogeological properties (e.g. porosity, hydraulic conductivity, water saturation) and geophysical parameters, including seismic velocities and electrical resistivity \parencite{pride_relationships_2005, johnson_data-domain_2009, chen_estimating_2001}. These relationships are frequently derived through empirical calibrations based on site-specific observations \parencite{huisman_measuring_2003, roth_calibration_1990, west_dependence_2001}.
+
+These models can be refined to incorporate additional variables, such as mineral composition, density, and various geophysical parameters. Petrophysical models often exhibit significant variability across different lithologies as they are highly sensitive to fluctuations in mineral composition and pore structure \parencite{mavko_rock_2009}. Semi-empirical models, which partially integrate the geometrical and physical characteristics of the porous medium, are widely used in practice. The main relationships and petrophysical models used in hydrogeophysics include:
+\begin{itemize} 
+\item Archie's law: this empirical relationship relates the electrical conductivity of a brine-saturated rock to its porosity and water saturation \parencite{archie_electrical_1942}. Numerous studies have adapted this law to their geological context as it is synthesized in \textcite{ glover_new_2017, glover_geophysical_2015, zinszner_geoscientists_2007}. For example, \textcite{waxman_electrical_1968} and \textcite{johnson_new_1986} have extended this law to account for surface conduction in the presence of clay, which is particularly important in low-salinity environments.
+\item Gassmann's model predicts the impact of fluid saturation on the elastic properties of rocks. It is particularly useful for the seismic approaches \parencite{gassmann_uber_1951}. 
+\item Various petrophysical models and empirical relationships are used in seismic modeling \parencite{schmitt_geophysical_2015}. For instance, Gardner's equation is an empirical relationship linking rock density to seismic velocity \parencite{gardner_formation_1974} at the near surface scale. Hertz-Mindlin grain contact theory provides a framework for predicting seismic velocities ($V_P$ and $V_S$) based on grain interactions, considering factors like porosity, mineralogy, and fluid saturation \parencite{mindlin_compliance_1949}. This model was used to the VZ by \textcite{solazzi_surfacewave_2021}. The Kuster-Toksöz model predicts the elastic properties of randomly oriented pores in rocks, particularly in establishing relationships between lithofacies parameters with seismic velocities \parencite{mavko_rock_2009, kuster_velocity_1974}. Additionally, the relationship of \textcite{christensen_83_2003} correlates porous media density to $V_P$ and $V_S$.
+\item The empirical Kozeny-Carman relationship relates hydraulic conductivity to porosity and specific surface area \parencite{wyllie_application_1950, carman_fluid_1937, kozeny_uber_1927}. 
+\end{itemize}
+
+These petrophysical models have been empirically adapted for CZ applications to characterize soil water content \parencite{pasquet_catchment-scale_2022, gase_estimation_2018, merritt_measurement_2016, pasquet_geophysical_2016, tran_joint_2014}, porosity distribution \parencite{mezquita_gonzalez_quantification_2021, callahan_subsurface_2020, flinchum_estimating_2018, holbrook_geophysical_2014, mount_characterization_2014}, hydraulic conductivity \parencite{di_maio_combined_2015}, and fluid content \parencite{yuan_prediction_2023, holmes_application_2022}. Petrophysical models can be derived from both laboratory measurements (e.g., core and plug analyses, well logs) and geophysical inversions. Laboratory data provide direct, high-resolution measurements at the core scale \parencite{schon2015physical}, \blue{although the samples may not fully represent in-situ conditions because their properties can be altered during coring, extraction, and transport}. Geophysical inversions yield indirect, spatially regularized estimates that integrate over larger volumes and depend on prior assumptions and inversion constraints \parencite{tarantola_inverse_2005,aster_parameter_2018}. Both sources are widely used and typically complement each other in subsurface characterization \parencite{pride_relationships_2005,linde_joint_2016}.
+
+A key challenge arises when applying petrophysical laws to these geophysical inverted fields. Geophysical inversions produce spatially correlated models due to both the physics of data acquisition and the regularization applied during inversion. Typically, these fields exhibit long-range continuity in the horizontal direction and short-range continuity in the vertical direction, reflecting geological layering and the geometry of surface measurements \parencite{chiles_geostatistics_2012, isaaks_introduction_1989,grana_geostatistical_2022}. In addition, poorly constrained petrophysical relationships themselves remain a major source of uncertainties in models \parencite[e.g.][]{seo_improved_2023, tso_field_2019,brunetti_impact_2018}.
+
+\subsection{Geostatistical methods for subsurface characterization}
+Integrating diverse data types requires the application of robust geostatistical algorithms. While high-resolution spatial studies often rely on datasets with limited 2D extent, there is a growing need to incorporate 3D or 4D (timelapse) dimensions. To address these complexities, several powerful geostatistical frameworks are available. The package gstlearn \parencite{renard_gstlearngstlearn_2025}, developed by Mines Paris, offers a comprehensive suite of tools for such multivariate challenges, complementing other established packages like geoR \parencite{ribeirojr_geoR_2025}, gstat \parencite{pebesma_gstat_1998}, or GEONE (DeeSse) \parencite{zhexenbayeva_deesse_2024}. A key challenge is to construct a three-dimensional model providing the hydrofacies distribution by assigning probabilities to the geophysical property values associated with a particular medium \parencite{gottschalk_integrating_2017, zhu_improved_2016}. 
+
+Hard data, or quantitative data, refers to information that is measurable and verifiable. It is a type of data that is measured and can be analyzed statistically. In contrast, soft data and qualitative data are mostly derived indirectly (for example, related to the variable of interest), are usually more numerous and less accurate than hard data because of their indirect nature. One, two, or three-dimensional spatial information derived from geophysical imaging and hydrogeological interpretation (\eg{} cross-sections or calibrated flow models) are inherently uncertain and therefore considered as soft data. Combined with geological logs (hard data), they could be used to perform conditional geostatistical simulations.
+
+
+\blue{Ordinary kriging has also been applied in critical zone studies to interpolate CZ architecture, as demonstrated by a 3-D seismic velocity model constructed beneath a soil-mantled granite ridge in the Laramie Range, Wyoming, using 25 seismic refraction transects \parencite{flinchum_critical_2018}. This geostatistical approach enabled the delineation of subsurface layers and improved understanding of deep CZ structure. Similar kriging-based strategies have been implemented to map critical zone compartment geometry, such as in the Strengbach watershed (Vosges Mountains, France) \parencite{lesparre_impacts_2024}, and in the Quiock watershed (Guadeloupe archipelago, France) \parencite{pasquet_catchment-scale_2022}.}
+
+
+The multiple-point simulation (MPS) approach developed by \textcite{strebelle_conditional_2002} can be used to provide simulated facies maps. In practice, it directly uses empirical distributions inferred from one or several training images that can be derived either from similar outcrop observations, expert knowledge, or geophysical data \parencite{caers_stochastic_2003, linde_geological_2015}. Among the MPS methods, Direct Sampling is often employed since it is very flexible and computationally efficient \parencite{meerschman_practical_2013}. It has been recently extended for the simulation of multi-resolution patterns \parencite{straubhaar_multiple-point_2020}, or for handling complex conditioning data such as inequality constraints \parencite{straubhaar_conditioning_2021}. These methods reproduce complex geometries such as channels, meanders, or lenses while preserving the relations between the facies.
+
+An alternative is the Plurigaussian Geostatistical Simulation (PGS) approach. PGS has long been acknowledged as a practical tool for assessing the impact of subsurface heterogeneity on field and basin scale flow and transport processes \parencite{armstrong_plurigaussian_2011, le_loch_improvement_1994,abzalov_plurigaussian_2023}. The outcome of MPS and PGS simulation methods is a set of 3-D equiprobable realizations of hydrofacies that are conditioned by the hard data and can be used to derive the probability of occurrence for each hydrofacies at a given location.
+
+Process-based or hybrid stochastic/genetic models, such as Flumy, can be employed to generate geologically consistent prior realizations. These models more faithfully capture sedimentary dynamics while remaining strongly conditionable to geophysical and hydrological data. In this way, Flumy-type priors can complement geostatistical interpolation by providing more realistic subsurface structures that serve as a robust basis for hydrogeophysical inversion across different dimensionalities (1D to 3D). Moreover, \textcite{hermans_uncertainty_2015} demonstrated how training-image-based priors can be updated or falsified using electrical resistivity tomography (ERT) data, improving the consistency between geological scenarios and geophysical observations. Building on this, \textcite{neven_stochastic_2022} introduced a multi-fidelity inversion framework that combines low-fidelity geologically consistent stochastic models with high-fidelity GW flow simulations, enabling efficient joint inversion that preserves geological realism while reducing computational cost.
+
+While such methods are suitable for the simulation of heterogeneous media, the addition of geophysical and hydrological data (secondary information) makes them potentially more powerful. Bayesian sequential simulation method (BSS) from \textcite{doyen_bayesian_1996} provides an attractive alternative for simulating jointly primary and secondary variables, without requiring any linear or specific parametric relationship between the variables. The method is based on PGS, with the addition that the conditional distribution estimated by kriging is updated by the joint distribution of the primary and secondary variables in a Bayesian framework. While BSS is recognized as a powerful and flexible geostatistical tool \parencite{chen_estimating_2001,chiles_fifty_2018}, it also provides significant improvements. In particular, the simultaneous reproduction of: (i) the variance and the fine-scale structure, and (ii) the relationship between the primary and the secondary variables. It is particularly adapted for the hydrogeophysical applications, in order to deal with the smooth behavior of the secondary variable due to the regularization procedure involved in the geophysical inversion procedures. 
+
+The traditional geostatistical framework assumes that the spatial characteristics of the variables are defined and valid over the whole field. It fails at reproducing local changes. For that sake, the new branch of non-stationary Geostatistics has been recently launched which offers the possibility to consider any parameter of the spatial characteristics (e.g. range, anisotropy orientation, variogram sill) as defined locally \parencite{renard_gstlearngstlearn_2025}.
+To be fruitful, this technique requires additional information such as a proxy driving the anisotropy orientation (following a meander direction for example) or a proxy for the variance (following the river flow for example) \parencite{fouedjio:tel-01139460}.
+
+
+\section{Geophysical and hydrological wedding}
+Historically, a disciplinary divide has persisted between geophysicists and hydrogeologists, largely driven by diverging research priorities. While geophysicists have traditionally focused on advancing instrumentation, inversion algorithms, and interpretation frameworks, hydrogeologists are deeply driven by the development of predictive models to simulate complex hydrological processes within the CZ. This disconnect often arises from a difference in application: hydrogeologists frequently seek to optimize their numerical models using geophysical data as a spatial constraint, whereas geophysicists have historically prioritized the methodological validation of the signal itself over the broader hydrological outcomes \parencite{robinson_advancing_2008}. The emerging fields of hydrogeophysics \parencite{binley_emergence_2015} and CZ sciences aim to bridge the gap between geophysical and hydrological data to explore their interrelationships. Both disciplines seek to understand subsurface processes using the same Laplace’s equations. Researchers are increasingly focused on correlating equation parameters, converting geophysical measurements into hydrological features and vice versa, to develop more precise, data-driven models.
+
+\subsection{Conceptual framework for data and model integration}
+Integration of geophysical and hydrological models requires robust inversion frameworks capable of reconciling sparse and indirect observations with inherent complexity of subsurface dynamics. The inversion process seeks a parameter distribution that minimizes a misfit function (i.e. the discrepancy between observed and synthetic data); in order to identify the physical properties that govern processes such as GW flow or electrical resistivity. In practice, these inversion strategies are generally categorized into deterministic and stochastic approaches.
+
+As illustrated in Fig.~\ref{fig:workflow_inv_pb}, the methodologies for integrating hydrogeophysical data follow two main workflows: (i) sequential hydrogeophysical inversion (SHI), where data are processed through separate and/or successive stages; (ii) processes based inversion (PBI), which solves for the underlying transient process-based parameters directly \parencite{hellman_structurally_2017, herckenrath_sequential_2013, hinnell_improved_2010,wagner_overview_2021,wagner_overview_2021,Linde2017AdvancesHydrogeophysics,hubbard_hydrogeophysics_2011}.
+
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=0.9\textwidth]{workshop6.png}
+\caption{(a) Sequential hydrogeophysical inversion (SHI): Geophysical data are independently inverted and interpreted to inform the structural framework of the hydrogeological model, which is then calibrated using hydrological observations. (b) Process-based inversion (PBI): hydrological and geophysical forward models are dynamically linked. Multiple geophysical and/or hydrological datasets are integrated within a unified inversion framework, with coupling terms or petrophysical constraints. Arrows represent the flow of information as well as iterative parameter and condition updating, continuing until a minimum data and/or constraint misfit is achieved.}
+\label{fig:workflow_inv_pb}
+\end{figure}
+
+\subsubsection{Deterministic inversion: local optimization}
+Deterministic inversion methods are based on the computation of the gradient of the misfit function using local iterative linearization approaches. In these common local approaches, to reduce the space of possible solutions, a regularization procedure is applied \parencite{menke_describing_2012} often imposing smoothness or closeness to a prior model. If the initial solution is too far from the global solution, the inversion can be stopped in a local minimum or in an area where the cost function does not significantly change. Linearized approximations like those used by \textcite{cockett_efficient_2018} remain computationally efficient, but may fail in highly nonlinear or ill-posed settings \parencite{dagasan_using_2020}. Moreover, local approaches are not suitable for estimating reliable uncertainties.
+
+\subsubsection{Stochastic inversion and uncertainty quantification}
+In contrast, stochastic inversion approaches aim to explicitly quantify uncertainty by sampling the posterior distribution of model parameters \parencite[e.g.][]{vrugt_hydrologic_2013, rings_coupled_2010, hinnell_improved_2010, chen_coupled_2003, sambridge_monte_2002,hubbard_hydrogeological_2000,}.\textcite{dmowska_chapter_2014} give a comprehensive description of existing methods for estimating uncertainties and illustrate that a posteriori probabilistic distribution sampling of model parameters within a Bayesian framework is much more suitable. As a matter of fact, importance sampling enables the cost function to be sampled proportionally to the probability \parencite{tarantola_inverse_2005}. This sampling is generally carried out using Markov chain Monte Carlo (MCMC)-based algorithms \parencite{mosegaard_monte_1995,sambridge_monte_2002}. State-of-the-art inversion \parencite[e.g.][]{aster_parameter_2018,zhou_inverse_2014, tarantola_inverse_2005} and data assimilation (e.g., ensemble smoother, ensemble Kalman filers and its variants) \parencite[e.g.][]{mcaliley_application_2022,jiang_dart-pflotran_2021, chen_application_2013} are generally used to ingest the hydrological and geophysical data.
+
+
+\subsubsection{Misfits definition}
+ The combination of various misfits related to dynamic data, such as water level or temperature, with those of spatial data, including travel time, water level geometry, or electrical resistivity, is not straightforward. In the sequential hydrogeophysical inversion, the objective functions are estimated independently, whereas in the joint, coupled or process-based inversion, the objective function can assume various forms \parencite{mboh_coupled_2012, hinnell_improved_2010, rubin_hydrogeophysics_2005} (see section below). The misfit of each measurement can be weighted in the objective function according to the measurement uncertainty and sensitivity of each method.
+
+\subsection{Static hydrofacies characterization by Sequential hydrogeophysical Inversion approaches (SHI)}
+In a SHI, geophysical data is separately inverted to estimate the distribution of a single geophysical property (e.g., a map of resistivity). Estimated geophysical property maps are subsequently employed to delineate hydrofacies structures, including the number, geometry, and spatial distribution of facies boundaries of the hydrogeological FWD (Fig.~\ref{fig:workflow_inv_pb} a) or state variable (e.g., saturation or salinity from resistivity) \parencite{binley_emergence_2015, singha_advances_2015, razafindratsima_hydrogeological_2014, bendjoudi_riparian_2002, hubbard_hydrogeological_2000, rubin_mapping_1992}. In these workflows, geophysical and hydrological models are processed sequentially rather than iteratively. The objective functions of the geophysical and hydrological models are not linked; each model is calibrated independently without direct coupling between their respective misfit functions. The geophysical data are first interpreted independently to infer subsurface structure, which then informs the hydrogeological FWD (Fig.~\ref{fig:workflow_inv_pb}a). After defining the inversion framework, GW flow and transport simulations, whether stochastic or deterministic, are conditioned on prior estimates of hydrofacies parameters such as hydraulic conductivity or porosity. These prior ranges, which help constrain parameter uncertainty, are typically derived from laboratory analyses, pumping tests, or empirical correlations with well-log or geophysical data \parencite{hyndman_coupled_1994, ahmed_combined_1988}. In addition to defining prior ranges, certain measurements, such as pumping tests, can also be incorporated directly into the inversion process. The calibration of the GW model parameter is then carried out while keeping the conceptual model fixed \parencite{kollet_integrated_2006}. The earliest study that used this approach was conducted by \textcite{ahmed_combined_1988}, which used the co-kriging of measured transmissivity, specific capacity, and electrical resistivity to elaborate transmissivity maps.
+
+Geophysical joint inversion involves integrating multiple geophysical data types to improve the characterization of subsurface properties. This approach is particularly beneficial in complex heterogeneous environments \parencite{gallardo_joint_2007}. To reduce such drawbacks, joint inversion methods combining SRT and ERT simultaneously have been developed at the near-surface scale \parencite{doetsch_imaging_2012, gallardo_joint_2007, gallardo_joint_2004} and could be extended to hydrogeophysics problems. Different constraints linking directly the $P$ and/or $S$ velocities to resistivity, such as petrophysical models, cross-gradients (similarity constraints) can be introduced in the misfit function to reduce the models' uncertainties during the inversion process. Furthermore, a priori geological information such as lithological boundaries could also be inverted during the inversion process at the same time as the property values or separately by introducing level-set constraints as in \textcite{giraud_structural_2021, zheglova_multiple_2018}. Recent studies have adopted multiple-point geostatistics or geological scenario modeling to generate ensembles of plausible hydrofacies configurations \parencite{hermans_uncertainty_2015,neven_novel_2023}. These scenarios are subsequently evaluated by comparing simulated responses with observed geophysical data, often through a probabilistic falsification procedure, providing a more robust basis for structural inference. By extending those approaches to hydrogeophysics, more particularly to seismic data and ERT, it could be possible to reconstruct geological features compatible with different physics but also to retrieve physical properties that are not necessarily correlated. If $V_P$ seismic models using ray-tracing-based inversions and $V_S$ seismic models using wave dispersion curves inversions can be obtained, they can also be improved by using full waveform inversion at the hydrogeophysical scale \parencite{groos_application_2017, groos_challenges_2014,liu_critical_2022}. \blue{For example, \textcite{eppinger_2d_2024} developed a full-waveform tomography workflow to investigate 2D weathering patterns in the critical zone, applied in the Medicine Bow National Forest (USA). Their results are promising, but they also point out that extending the approach to 3D would require substantially greater computational resources.}
+
+
+Besides, joint inversions can be performed using various combinations of physics, such as different heat tracing, ERT, Ground Penetrating Radar, SRT, and MASW, and constrained by petrophysical models relating parameters that characterize the medium under study. Those petrophysical constraints allow not only to reduce the number of free parameters but also to obtain a final inverted model compatible with the different physics \parencite{qin_indirect_2024, steiner_quantitative_2022, wagner_overview_2021, wagner_quantitative_2019}.
+
+As long as the inversion is deterministic, a key limitation of geophysical joint inversion approaches is their reliance on multiple geophysical datasets to define a single groundwater conceptual model, which may not fully capture subsurface heterogeneity. In addition, this approach can create discrepancies related to state variables such as water saturation or pressure, and it does not account for the transient behavior of these variables, which is critical in dynamic groundwater systems. If the geometry was fixed before inverting for hydrogeological parameters, and not correctly estimated, the hydrogeological parameters will likely have to be incorrectly identified during inversion in order to compensate for these initial errors \parencite{de_marsily_current_1998}. The outputs of GW simulations, such as saturation, hydraulic heads, fluxes, or transport behavior, do not influence the geophysical inversion, while the hydrofacies parameters influence geophysical data. This issue becomes particularly critical under transient conditions, where the dynamic evolution of water and heat fluxes provides valuable information that could help refine both structural and parametric interpretations of the geophysical data. Recent studies have adopted multiple-point geostatistics or geological scenario modeling to generate ensembles of plausible hydrofacies configurations \parencite{hermans_uncertainty_2015, enemark_hydrogeological_2019, enemark_incorporating_2024}. 
+
+\subsection{Toward transient hydrogeophysical inversions} \label{sec:transient}
+ The CZ requires time-lapse geophysical surveys to move beyond static imaging and effectively monitor and quantify dynamic subsurface processes over time, thus transitioning geophysics from a field primarily concerned with static structural imaging to one adept at monitoring and quantifying dynamic physical and biogeochemical processes. This continuous monitoring has demonstrated efficacy in identifying transient processes in the CZ, such as water infiltration \parencite{daily_electrical_1992, wehrer_characterization_2016, hu_advanced_2023, blazevic_time-lapse_2020}, variations in water storage \parencite{galibert_quantitative_2016}, flowpaths identification \parencite{nyquist_testing_2018} GW recharge, and the propagation of thermal fronts \parencite{shariatinik_ert_2024, lesparre_4d_2019, hermans_quantitative_2015}. The three first methods are based on the SHI approaches.
+
+\subsubsection{Absolute inversion}
+Absolute inversion is the method commonly used to interpret time-lapse datasets. Every geophysical dataset is inverted independently. Transient subsurface changes are then identified by comparing the resulting models for each time step, either on the basis of absolute values or relative differences \parencite{herckenrath_sequential_2013,LaBrecque_1995,daily_electrical_1992, slater_cross-hole_2000}. This method is computationally efficient and simple. However, some studies have shown that this approach can result in unrealistic geophysical parameters changes because it is sensitive to data noise and does not directly account for time correlations or hydrological constraints \parencite{miller_application_2008,loke_use_2022,johnson_time-lapse_2015,labrecque_difference_2001}. To address the limitations of absolute inversion, several hydrogeophysical strategies have been developed, as discussed in the following subsections.
+
+\subsubsection{Difference inversion}
+Differencing and ratio methods focus directly on changes between datasets, rather than reconstructing each model separately, allow to decrease these effects \parencite{labrecque_difference_2001}.
+The difference inversion enhances sensitivity to temporal changes by inverting differences in data $ \delta d_t = d_t - d_0 $, and model parameters \( \delta m_t = m_t - m_0 \), where \( m_0 \) is the baseline model. The inversion is typically linearized around the baseline using a Jacobian matrix $ J_{ij} = \frac{\partial d_{t,\text{sim},i}}{\partial m_{t,j}} $ which quantifies the sensitivity. Introduced by \textcite{labrecque_ert_1996}, it can also be computationally efficient if the Jacobian is reused across time steps \parencite{labrecque_difference_2001}. This approach has proven valuable in resolving subsurface changes with time-lapse ERT during heat-tracing experiments and solute transport, as shown by \textcite{hermans_covariance-constrained_2016} and \textcite{bretaudeau_time-lapse_2021}, who applied covariance-based constraint of model differences and double-difference inversion schemes to improve sensitivity and reduce artifacts.
+
+\subsubsection{Time-constrained inversion} 
+The time-constrained inversion introduces temporal smoothness constraints to stabilize the inversion across time steps. It minimizes a cost function that balances two terms: (i) the data misfit, measuring agreement with the observed responses, and (ii) a temporal regularization term, penalizing abrupt parameter changes over time. The optimization is frequently solved using Gauss-Newton iterations, with the Jacobian matrix \( J_{ij} = \frac{\partial d_{t,\text{sim},i}}{\partial m_{t,j}} \) quantifying the sensitivity of simulated data to parameter updates. 
+
+
+Several strategies have emerged. Sequential approaches invert each time step independently, using a baseline reference model (typically from the initial survey, $t_0$) to compute resistivity changes at subsequent time steps \parencite{miller_application_2008}. The baseline model ($t_0$) is typically acquired under reference conditions (e.g., before hydrological perturbations) and serves as the structural and resistivity reference for all subsequent surveys. In this framework, each survey is inverted separately, and time-lapse changes are analyzed by comparing the inverted models post-inversion. While computationally efficient, this approach can introduce noise amplification and inconsistencies between surveys, as each inversion is subject to different regularization choices and data quality variations, which can lead to anomalous artifacts \parencite{lesparre_4d_2019}.
+
+
+In contrast, joint inversion frameworks have been proposed, in which all time steps are inverted simultaneously while imposing temporal smoothness constraints \parencite{kim_four-dimensional_2013, karaoulis_4d_2014, wilkinson_windowed_2022,zhou_joint_2025,karaoulis_time-lapse_2013,doetsch_structural_2010}. These methods improve model stability and reduce artifacts in dynamic environments like riverbeds \parencite{mclachlan_limitations_2020}, during solute transport \parencite{karaoulis_4d_2014}. However, excessive smoothing may obscure real changes, and coarse inversion meshes may limit resolution \parencite{liu_rapid_2020, hermans_quantitative_2015}.
+
+One promising strategy is to embed geostatistical information that characterizes the spatial correlation structure of the subsurface. For example, in an alluvial context, \textcite{jordi_geostatistical_2018} constructs regularization operators based on an exponential covariance model that describe the heterogeneities of the subsurface. Applications of this approach to layered alluvial systems are demonstrated by \textcite{palacios_time-lapse_2020} and \textcite{arboleda-zapata_time-lapse_2025}.
+
+
+
+
+\subsubsection{Transient process-based inversion: Joint inversion or fully coupled hydrogeophysical inversion}
+Process-based hydrogeophysical inversion refers to approaches that dynamically couple hydrological and geophysical FWDs, enabling simultaneous data integration and bidirectional interaction during the inversion process. In time-lapse applications, these methods incorporate temporal evolution of subsurface parameters and state variables \parencite{hermans_advancing_2023}. The hydrogeophysical literature uses various terms, including ``coupled hydrogeophysical inversion,'' ``joint hydrogeophysical inversion,'' ``process-based inversion'' \parencite{wagner_overview_2021}, and ``fully-coupled inversion'' \parencite{hubbard_hydrogeophysics_2011}, often interchangeably to describe approaches that integrate hydrological and geophysical data \parencite{linde_joint_2016, finsterle_joint_2008}. While terminology varies across the community, these approaches share the common goal of coupling hydrological and geophysical models through petrophysical relationships to avoid the biases inherent in sequential approaches \parencite{daylewis_applying_2005, linde_joint_2016, herckenrath_sequential_2013}. The key differences lie in implementation strategies-specifically, how petrophysical relationships are incorporated into the inversion framework-rather than in formal nomenclature.
+
+
+
+In one common implementation (often termed coupled hydrogeophysical inversion), the hydrological FWD provides state variables such as water saturation, salinity, or temperature, which are converted into geophysical parameter distributions through petrophysical models (Fig.~\ref{fig:workflow_inv_pb}b) \parencite{hubbard_hydrogeophysics_2011, huisman_hydraulic_2010, linde_joint_2016, wagner_overview_2021, bascur_hybrid_2025}. The parameters of the hydrological FWD are updated by minimizing a combined objective function that accounts for both hydrological and geophysical misfits \parencite{mboh_coupled_2012, hinnell_improved_2010}. A key advantage is that geophysical inversion is guided by hydrological process models, with petrophysical-hydrological regularization avoiding the potential biases arising from traditional geophysical regularization, such as smoothness and smallness constraints \parencite{daylewis_applying_2005, linde_joint_2016}.
+
+
+
+
+An alternative implementation strategy (often termed joint hydrogeophysical inversion) processes multiple datasets simultaneously, enforcing structural or petrophysical consistency across geophysical and hydrological FWDs (Fig.~\ref{fig:workflow_inv_pb}c) \parencite{herckenrath_sequential_2013,steklova_joint_2017}. This approach employs a modular framework that integrates the parameters of hydrological and geophysical models into a unified vector. The inversion process minimizes an integrated objective function comprising three weighted components: geophysical data misfit terms ($\Phi_{SWD}$, $\Phi_{TT}$, $\Phi_{\rho}$), hydrogeological data misfit terms ($\Phi_{pw}$, $\Phi_{Sw}$, $\Phi_{T}$), and an explicit coupling constraint misfit ($\Phi_{coup}$). The most common coupling mechanisms are petrophysical relationships \parencite{wagner_overview_2021,steklova_joint_2017}. This strategy differs from the previous approach in that both hydrological and geophysical parameters are simultaneously estimated, with petrophysical relationships serving as explicit constraints rather than forward transformations.
+
+
+
+
+A critical challenge in both approaches is the appropriate weighting of different misfit terms to balance the influence of diverse data types with varying units, sensitivities, and uncertainties \parencite{linde_joint_2016}. Common approaches include equal weighting of normalized misfits, uncertainty-based weighting (where weights are inversely proportional to data variance or covariance matrices), and data error-based weighting \parencite{mboh_coupled_2012, kowalsky_joint_2006, linde_joint_2016}. \textcite{mboh_coupled_2012} demonstrated that uncertainty-based weighting using the inverse of data covariance matrices provides a statistically rigorous framework for balancing electrical resistance and hydrological measurements in coupled inversion. \textcite{christensen_testing_2016} showed that propagating geophysical data uncertainties into hydrological model calibration significantly affects prediction error, highlighting the importance of proper error-based weighting strategies. 
+More sophisticated strategies have emerged, including:
+(i) adaptive weighting schemes that adjust weights during the inversion process \parencite{steklova_joint_2017}, (ii) ensemble-based data assimilation approaches where weighting is handled through estimated data-model covariances rather than fixed scalar weights \parencite{neven_novel_2023}, (iii) multi-objective Pareto optimization that avoids pre-selecting scalar weights by producing trade-off solution fronts \parencite{danek_pareto_2019}, (iv) Bayesian frameworks where weights naturally emerge from data and prior covariance matrices \parencite{dettmer_probabilistic_2024}. However, weight selection remains partly subjective and can significantly influence inversion results, particularly when data quality or petrophysical uncertainty varies across datasets \parencite{commer_hydrogeophysical_2013, finsterle_itough2_2017}.
+
+In alluvial aquifer settings, \textcite{herckenrath_sequential_2013} demonstrated that this approach improves parameter estimation and model consistency compared to sequential hydrogeophysical inversion when high-quality petrophysical constraints are available, though at a higher computational cost. Recent applications highlight both the opportunities and challenges of hydrogeophysical inversion. For example, \textcite{pleasants_hydrogeophysical_2022}, \textcite{pleasants_comparison_2023} and \textcite{boyd_coupled_2024} used time-lapse ERT data in mountainous regions to improve groundwater flow models. In these studies, simulated water saturation was first converted to resistivity using petrophysical relationships (e.g., Archie's Law). A weighted misfit function was then employed to compare these modeled resistivities with ERT data and to balance the influence of the different data types during calibration. \textcite{bascur_hybrid_2025} introduced a Hybrid Bayesian Inversion framework for CHI using single-time 2-D ERT data from an unconfined alluvial aquifer. Their approach jointly integrates saturated GW FWD modeling with geophysical observations via uncalibrated petrophysical models, with weighting naturally emerging from the Bayesian framework through data and prior covariance matrices. Tested on both synthetic and experimental datasets, this framework provides efficient uncertainty quantification and is particularly suited to estimating water fluxes in heterogeneous aquifers. To address computational challenges, \textcite{neven_stochastic_2022} proposed a stochastic multi-fidelity framework integrating Ensemble Smoother with Multiple Data Assimilation (ES-MDA) and multi-fidelity modeling. Applied to both synthetic and real datasets, this approach improved accuracy while significantly reducing computational costs.
+
+The recent development of a fully coupled GW-ERT FWD using pore water pressure as the coupling variable \parencite{salas-ariza_permeability_2024} represents a promising methodological advancement. A sensitivity analysis of this model was performed, though full inversion using the coupled framework in real field applications had not yet been demonstrated at the time of publication.
+
+Both implementation strategies are typically applied to sites with relatively simple geometries, low heterogeneity, and limited multiphysical calibration datasets. Future research is needed to address the definition of coupling terms between different FWDs, the assignment of weights in objective functions for various data types, and the evaluation and quantification of petrophysical uncertainty. While coupled hydrogeophysical inversion has demonstrated success in controlled settings and moderately complex field sites, extending these approaches to highly heterogeneous systems with complex geometries remains challenging. 
+
+
+%##################################
+\section{Remaining Challenges and Future Directions}
+
+Shallow groundwater processes in the critical zone occur within strongly heterogeneous environments, where heat, water, and solute fluxes vary in space and time \parencite{huggins_groundwater_2023}. Surface interfaces such as SW-GW boundaries and the vadose zone are especially heterogeneous (see Appendix~\ref{app:geology}), making it difficult to resolve the associated four-dimensional water and heat fluxes. Despite recent advances in hydrogeophysics and modeling, accurately characterizing and predicting these dynamics remains challenging, particularly in terms of data interpretation and process representation \parencite{binley_emergence_2015, romeroruiz_review_2018, ledford_connecting_2022, whiteley_geophysical_2019, dangeard_river_2021, hermans_advancing_2023}. A key difficulty arises from the mismatch between data types: hydrological measurements typically provide high-accuracy, high-temporal-resolution information but only at sparse spatial locations, whereas geophysical observations, \blue{such as ERT or SRT}, offer spatially extensive coverage but at coarser spatial resolution and with lower temporal resolution and greater uncertainty. Reconciling these datasets, therefore, requires multivariate methodologies capable of integrating information with different spatial supports and error structures \parencite{wackernagel_multivariate_2003}.
+
+Together, these complexities limit our ability to fully resolve four-dimensional patterns of shallow GW flow, to quantify uncertainty, and to design models and monitoring strategies that are both representative and computationally tractable. Addressing these limitations requires careful consideration of: (i) the balance between model complexity and representativeness; (ii) approaches for managing parameter dimensionality and uncertainty; (iii) integration of multi-dimensional geophysical and hydrological datasets; (iv) treatment of transient parameters and state variables; (v) model-guided strategies for optimal monitoring design; and (vi) scaling frameworks that enable transition from hillslope to catchment domains while accounting for change-of-support issues.
+
+The following subsections discuss these remaining challenges in detail and outline opportunities for advancing the characterization and modeling of shallow GW systems in the CZ. Highly instrumented observatories such as CZNet and eLTER networks (e.g., OZCAR, TERENO) offer unique opportunities in this context. These sites are not only geologically well characterized but also benefit from dense spatial networks and extended time series of hydrological measurements, which are critical for defining robust initial and boundary conditions in numerical models \parencite{gaillardet_ozcar_2018}.
+
+\subsection{Multi-Dimensional Geophysical and Hydrological Data}
+
+A fundamental difficulty in hydrogeophysical characterization lies in the integration of complementary yet dimensionally and temporally distinct data types. On the one hand, 2D (x,y) or (x,z) and 3D geophysical surveys provide spatially extensive but temporally discrete information. On the other hand, hydrological observations (e.g., temperature, water level, discharge, or high-frequency DTS measurements) offer high temporal resolution but are limited to point or line scales. Combining these heterogeneous datasets to reveal spatiotemporal patterns, such as water-table dynamics, temperature-field evolution, soil-moisture variations, and water-flux behaviors, therefore remains methodologically challenging.
+
+Accurately defining initial and boundary conditions, as well as transient parameters, also remains a key challenge in GW flow and transport models within the CZ, particularly in unsaturated, heterogeneous environments and data-scarce regions. Transient dynamics are frequently simplified in GW FWD due to insufficient temporal resolution or overly idealized boundary conditions. Key hydrological and geophysical variables are often observed at sparse and irregular intervals across space and time. Predicting their 4D distribution, therefore, requires robust interpolation or modeling frameworks capable of bridging these observational gaps.
+
+
+The sensitivity of parameter estimation to initial conditions has been widely studied in hydrology, with evidence showing that different initial parameter values can lead to significantly varied model outcomes highlighting that initial conditions are as critical as the calibration process itself \parencite{liu_simultaneous_2009}. Recent studies have demonstrated that geophysical data can be used to estimate initial states and boundary conditions of GW models. For instance, integrating seismic time-lapse data with hydrological time series enables the reconstruction of the initial shape of the water table and the boundary conditions, thereby facilitating the simulation of water flow paths in river corridors \parencite{dangeard_river_2021}. Another approach, as developed by \textcite{bascur_hybrid_2025}, is to \blue{suggest} hybrid Bayesian inversion frameworks to integrate single-time ERT data and infer initial water table depth along with hydraulic conductivity, even under petrophysical uncertainty. Similarly, \textcite{pleasants_hydrogeophysical_2022} derive hydraulic parameters and initial conditions in a hillslope-scale model from time-lapse ERT, showing that coupled hydrogeophysical inversion improves physical consistency and model initialization.
+
+However, these approaches still face limitations when data coverage is sparse or when geophysical measurements are irregularly distributed in space and time. This calls for a multivariate methodology with different supports of information \parencite{wackernagel_multivariate_2003}. The traditional geostatistical framework usually implies that the spatial characteristics of the variables are defined and valid over the whole field. These constraints have been addressed by introducing the local geostatistics concept \parencite{renard_modeling_2013,thiesen_assessing_2022} where the parameters of the spatial characteristics (variograms) can vary over the domain. This improvement yet implies the use of a local approach (through a compulsory moving neighborhood). 
+More recently, this flexibility has been reinforced by maintaining consistency even at large scale, through the stochastic partial differential equations (SPDE) \parencite{renard_inference_2019, clarotto_spde_2024}. This methodology presents two advantages: it allows handling complex non-stationarity where any variogram parameter could follow information provided by auxiliary information; it also enables efficient processing of large amounts of information, ignoring any neighborhood limitation \parencite{lindgren_explicit_2011}. 
+
+Finally, the SPDE model incorporates physics within a stochastic framework. It is well defined when processing a variable in a space and time domain. For example, \textcite{clarotto_spde_2024} develops an advection-diffusion version of SPDE to define a large class of spatio-temporal models. \textcite{grimaud_kriging_2025} demonstrate the efficiency of SPDE-based kriging in modeling nonstationary anisotropies for predicting alluvial thickness, yielding more geologically realistic patterns and lower uncertainties than traditional stationary approaches. SPDE could offer more accurate representations of asymmetrical space-time processes, such as those found in hydrogeophysical phenomena. Incorporating time into PGS is essential to accurately represent water content variations over time and interpolate the hydrofacies in 4D. The time variations of the hydrofacies are linked to water saturation fluctuations. A water level mapping geostatistical framework that accounts for SW-GW connectivity has for instance been elaborated by \textcite{maillot_technical_2019}. The method is conditioned by ‘hard’ data (hydraulic head) and ‘soft’ data (dry wells) as conditioning points. The next challenge is to incorporate the 2D water level produced by the geophysical methods.
+
+\subsection{Coupled Properties Inversion}
+\blue{Hydrogeophysical process-based inversion must reconcile not only contrasting spatial and temporal scales but also the fundamentally different physical meanings of hydrological and geophysical observables.} Hydrological observables (e.g., pressure head, solute concentration, temperature) and geophysical observables (e.g., resistivity, seismic velocity) respond to distinct physical mechanisms, such as flow and transport, electromagnetic or elastic properties, which do not necessarily share a common characteristic length or wavelength, nor the same way of transferring, propagating, diffusing or, more generally, reflecting the medium under study \parencite{Linde2017AdvancesHydrogeophysics}.
+Establishing meaningful correlations therefore requires identifying parameters that are jointly sensitive to both domains, such as porosity, water saturation, or salinity. However, these parameters represent effective quantities averaged over distinct scales, meaning that one inferred parameter may not describe the same physical property or structural feature across domains. This scale discrepancy complicates the establishment of robust correlations between hydrological and geophysical models. Coupling should therefore be restricted to parameters or processes that share comparable scales of sensitivity, while recognizing that others remain uncorrelated due to fundamental differences in resolution and physical response. Although several studies have proposed petrophysical or constitutive laws to link hydrological and geophysical parameters, these relationships generally fail to resolve inherent scale discrepancies, as they are often defined at the laboratory or local scale and lose validity under heterogeneous field conditions \parencite{binley_resistivity_2020}.
+
+To address this, the field is moving toward physics-informed machine learning \parencite{cunha_teixeira_physics-guided_2025} and probabilistic upscaling, or U-net based deep learning joint multiphysics inversion models \blue{\parencite{hu_deep_2023,ren_joint_2024,oh_deep_2024}} where models learn effective relationships from multi-domain datasets rather than relying on rigid constitutive laws \parencite{neven_stochastic_2022}, with or without structural similarity constraints (such as cross-gradients, level-set structural geometries, ...). These approaches combine physical constraints with data-driven flexibility, enabling improved parameter estimation and uncertainty quantification in heterogeneous environments.
+
+
+\subsection{Choosing Model Spatial Dimensionality in Coupled Hydrogeophysical Inversion}
+\blue{Determining the appropriate spatial dimensionality and temporal parameterization of geophysical inversion is a central challenge. An additional difficulty lies in identifying how geophysical information should be coupled with GW models to robustly characterize subsurface heterogeneity and hydrological processes}. In particular, it remains unclear whether GW models can be effectively constrained by static geophysical interpretations, or whether geophysical forward modeling should instead be dynamically constrained by transient GW simulations. The choice depends on several factors: (i) geological complexity, hydrogeological context and human uses may require 3D models; (ii) the spatial coverage and temporal resolution of the acquired datasets may be insufficient to support fully 3D inversion; (iii) high-dimensional models can resolve finer-scale features but require sufficient data \parencite{bai_groundwater_2021,casillas-trasvina_characterizing_2022,neven_novel_2023}.
+
+2D approaches provide a compromise in terms of computational efficiency and are particularly suited to layered systems or settings where lateral heterogeneity is limited. They are effective for understanding processes along transects or profiles, such as SW-GW interactions or hillslope hydrology, once the dominant flow directions and heterogeneity patterns as well as the primary direction of change are known or have been thoroughly determined by sensitivity analyses. In contrast, 3D inversions provide the most comprehensive representation of coupled transient physical processes but require substantial computational resources and dense data coverage \parencite{linde_joint_2016}. As a result, advances in parallel computing, workflow automation, and model reduction (see section \ref{sec:parameters_reduction}) or surrogate modeling approaches \parencite{asher_review_2015} are essential for applying 3D approaches to field-scale systems with heterogeneous geology \parencite{linde_geological_2015} or with complex processes, such as seawater intrusion \parencite{steklova_joint_2017}.
+
+An alternative approach, proposed by \textcite{neven_novel_2023}, involves iteratively coupling geological, geophysical, and groundwater FWD models within a stochastic framework. FWD responses are computed in lower-dimensional spaces relevant to each physical problem (the geophysical FWD is simulated in 1D for SRT and the GW FWD in 2D) to speed up the inversion process. This dimensional reduction exploits the fact that different physical processes are sensitive to different spatial dimension of the subsurface parameter field, enabling significant computational savings with limited information loss. In this sense, \textcite{cunha_teixeira_neural_2025} for instance trains a language-model-style neural network on many 1D FWD simulations that map seismic velocity profiles to petrophysical and hydrogeophysical properties. Once trained, the model can generalize these learned 1D relationships in 3D by translating new seismic data into spatially consistent, text-described subsurface properties, effectively lifting 1D inversion knowledge into a 3D interpretive framework. But \blue{such reduced}-dimensional FWD simulations cannot fully represent all 3D processes, and the gains in computational efficiency often outweigh the minor losses in information, particularly for large-scale or data-limited studies. Further research into integrating FWDs of differing dimensionalities is therefore needed to improve computational efficiency, accuracy, and scalability in hydrogeophysical modeling, while identifying simplifying assumptions that preserve predictive capability \parencite{schilling_beyond_2019, steklova_joint_2017}.
+
+\subsection{Real Physical Integration in Model vs. Representativeness Based on the Real Data}
+\blue{Subsurface modeling requires a careful trade-off between physical complexity and the representativeness of the available data.} Increasing model complexity, such as incorporating thermo-hydro-mechanical (THM) coupling, can improve physical realism \parencite{pandey_geothermal_2018,carcione_physics_2019,yang_simulation_2024,haibing_characteristics_2014} but often limits applicability at the hillslope scale due to data scarcity and computational demands. The coupling mechanisms of THM are mathematically represented by parameters such as Biot coefficients and thermal expansion or conductivity coefficients \parencite{pham_thermo-hydro-mechanical_2023,ai_thermo-hydro-mechanical_2024, liu_simulation_2023,chambers_new_2024} which can be easily coupled with geophysical FWD models. A successful application to variably saturated soils undergoing freeze-thaw cycles demonstrates how simplifications, such as 2D shallow homogeneous domains, isotropic deformation, and simplified hydraulic boundary conditions that neglect lateral subsurface flow, make simulations feasible while retaining key THM interactions \parencite{huang_numerical_2023}. The key question is how to identify and validate simplifying assumptions that preserve predictive accuracy while enabling practical implementation. A suitable level of model complexity is also scale-dependent. Fully coupled THM models may be appropriate at small scales such as the borehole application and deep geothermal systems \parencite{hermans_geophysical_2014,shariatinik_ert_2024}, but their applicability in the CZ remains limited due to variable saturation, pronounced heterogeneity, high-dimensional parameter spaces, scarce petrophysical and mechanical constraints, and pervasive uncertainty in climate-sensitive boundary conditions \parencite{schilling_beyond_2019,neven_novel_2023, hinnell_improved_2010, romhild_joint_2024}. In these larger domains, simpler hydro-thermal or hydro-mechanical formulations often provide sufficient predictive skill faced to the available data. In other words, a central challenge is to ensure that the predictive models employed are valid for representative elementary volumes (REV) over which the averaged equations remain applicable and predictive. The equations that accurately reflect reality are intrinsically linked to the REV corresponding to a given scale. The challenge is to ensure model representativeness while maintaining predictive accuracy through validated simplifications that allow practical implementation. Thus, the complexity of a model should reflect the dominant processes that can realistically be constrained at the relevant scale.
+
+
+\subsection{Managing Parameter Complexity and Model Uncertainty} \label{sec:parameters_reduction}
+Probabilistic inversion methods are extremely computationally expensive because they require thousands of forward simulations, especially for complex geometries like shallow groundwater systems \parencite{ferre_being_2020}. The computational burden obviously grows with the number of parameters to invert, making high-dimensional problems impractical without simplification. Reducing dimensionality and improving efficiency is essential to make probabilistic approaches feasible for real-world hydrogeophysical applications. Therefore, parsimonious parameterizations must also be proposed. In order to reduce the model parameter space to be sampled, any available a priori information should be accounted for such as the information issued from geological models (for example, Flumy realizations). A few other approaches to reduce computational demand have also been proposed, for instance, the use of parallel/distributed computing technologies \parencite[e.g.][]{tavakoli_parallel_2013}; the use of efficient surrogate models to reduce the cost of the forward problem, i.e., reduced-order flow modeling \parencite[e.g.][]{lu_drips_2023,gadd_surrogate_2019}, and the reduction of the number of model parameters to infer. 
+
+Sensitivity analysis is essential for identifying the contribution of individual or grouped input parameters to output variance, typically measured using Sobol sensitivity indices \parencite{sobol_sensitivity_1993}. Common indices include first-order indices, representing isolated contributions, and total-order indices, accounting for joint effects with other parameters \parencite{sochala_polynomial_2021}. Computational efficiency can be improved using optimized sampling strategies \parencite{campolongo_effective_2007,saltelli_variance_2010} or distance-based sensitivity, which is an alternative requiring less realizations \parencite{fenwick_quantifying_2014,park_dgsa_2016}. For instance, in the poroelastic context, sophisticated MCMC probabilistic-based variance methods have been developed, such as E-FAST tool \parencite{mesgouez_use_2017,mesgouez_characterization_2018}, to estimate the impact of the parameter perturbations on recorded seismic data for a given experiment configuration. Those kinds of analysis allow to reduce the number of parameters and could be also naturally adapted to other FWDs. However, those techniques involve a huge number of forward problem runs. An alternative approach involves the Taguchi method, which employs statistical approaches based on orthogonal arrays to estimate the impact of different parameters \parencite{plazolles_monte-carlo_2015,plazolles_plateforme_2017, martin_gravity_2025} and reduce the number of parameters. This will allow not only to reduce the computational costs of each FWD and data inversion in terms of CPU time and disk storage but also to better constrain the data inversions thanks to those parameter reductions and their related impact estimates. Once the probabilistic analysis has been done for one given reduced set of parameters associated with a given physical domain, it is possible to study and quantify the impact of the variations of those parameters on the reduced parameter set of another physical domain. This also allows us to estimate the interest of performing joint inversions or not, and to define realistic parameter space intervals or covariance matrices to constrain \blue{ separate,} collaborative, or simultaneous joint inversions \parencite{giraud_structural_2021,ogarko_tomofastx_2023,martin_gravity_2025}. 
+
+In addition, adaptive reduced-order modeling approaches have been applied successfully in hydrogeophysics, such as projection-based approaches for resistivity imaging of solute transport \parencite{oware_geophysical_2014} and Bayesian Evidential Learning frameworks \parencite{hermans_uncertainty_2018}, for instance more recently applied to seismic data \parencite{Mreyen_full_2025}. They reduce the parameter space by focusing only on the prediction-relevant dimensions, rather than attempting to resolve the full subsurface model. This is achieved through statistical learning and prior falsification, which filters out models inconsistent with observed data. These strategies enable efficient inversion-free prediction while preserving accuracy in dynamic GW systems.
+
+Besides, recent advancements in machine learning, such as deep neural networks (DNNs), have demonstrated the efficient reduction of complex spatial patterns to manageable dimensions. DNNs simplify subsurface models with millions of cells while maintaining geometrical complexity \parencite{laloy_trainingimage_2018,laloy_inversion_2017,lopez-alvis_deep_2021}. This dimensionality reduction enables the application of gradient-based deterministic inversion \parencite{cui_characterizing_2024,lopezalvis_geophysical_2022} or MCMC sampling \parencite{laloy_trainingimage_2018} at a reasonable computational cost. Realistic solutions can be further constrained through falsification approaches or the construction of assembled priors. 
+
+Ultimately, the uncertainties can be propagated from one inverse problem to another inverse problem \parencite{gesret_propagation_2015} when independent data are available. For example, the uncertainties on saturation profiles could be estimated by inverting seismic data in a first step. Then the uncertainties on hydrogeological parameters could be estimated by inverting temperature data accounting for both the uncertainties on temperature measurements and the uncertainties on saturation profiles. Coupled hydrogeophysical models integrate multiple physical processes, such as geophysical inversion and hydrogeological simulation, which introduces multi-source uncertainty. These uncertainties arise from measurement errors, inversion approximations, and petrophysical relationships. Propagating errors from geophysical data (e.g., seismic, electrical resistivity) into hydrogeological predictions (e.g., groundwater flow, temperature distribution) is particularly challenging because these relationships are often nonlinear and poorly constrained \parencite{linde_joint_2016, irving_stochastic_2010}. Several strategies have been proposed to quantify and propagate uncertainty in such coupled models. Bayesian posterior analysis treats model outputs as random variables conditioned on uncertain inputs. Bayesian inversion frameworks, including recent advances using deep generative models, enable a probabilistic characterization of uncertainty and provide credible intervals for predictions \parencite{irving_stochastic_2010, laloy_trainingimage_2018}. Similarly, covariance propagation approaches rely on linearized error propagation using Jacobians, which offers an efficient way to estimate uncertainty for small perturbations, while nonlinear extensions have been developed to better capture uncertainty amplification in complex systems \parencite{zhang_imprecise_2020,reichert_potential_2021}. 
+
+
+Despite these advances, a major challenge remains: how to describe and combine errors across parameters that differ in units, spatial resolution, and temporal scales. Geophysical parameters such as resistivity or seismic velocity hydrological parameters such as hydraulic conductivity and hydrological variables such as water pressure or saturation are not directly comparable, making unified error metrics essential. To address this heterogeneity, several solutions have been proposed. One approach is to normalize errors using dimensionless metrics, such as the coefficient of variation (CV), defined as $ \text{CV} = \frac{\sigma}{\mu} $, where $\sigma$ is the standard deviation and $\mu$ the mean. This normalization enables comparison across parameters with different units. Another strategy is to represent uncertainties as probability distributions rather than raw errors. For example, geophysical inversion may yield a posterior distribution of resistivity, while hydrological models produce a posterior distribution of hydraulic conductivity or Van Genuchten parameters. These distributions can then be combined in a Bayesian hierarchical framework, where each parameter retains its own probabilistic space but is linked through joint likelihoods \parencite{irving_stochastic_2010, laloy_trainingimage_2018}. An alternative approach involves transforming parameters to a common space using petrophysical relationships, such as Archie’s law, and propagating uncertainty through these transformations using Monte Carlo simulations or covariance-based methods, expressed as $\mathbf{C}_{\text{output}} = \mathbf{J} \, \mathbf{C}_{\text{input}} \, \mathbf{J}^T$, where $\mathbf{J}$ is the Jacobian of the transformation \parencite{tarantola_inverse_2005}. Finally, multi-objective error metrics have been introduced to combine normalized errors from both domains in a single misfit function, ensuring balanced contributions from geophysical and hydrological data. For instance, if geophysical inversion gives resistivity uncertainty of $\pm 10\%$ and the hydrological model a hydraulic conductivity uncertainty of $\pm 30\%$, both can be normalized or represented as probability distributions and propagated through the coupled model using Bayesian updating or ensemble simulation.
+
+
+Nevertheless, computational and practical challenges persist. High-dimensional parameter spaces make sampling-based approaches, such as MCMC or ensemble methods, computationally expensive. Nonlinear petrophysical relationships amplify uncertainty during propagation, and visualization of uncertainty remains difficult, requiring improved tools for probability mapping, uncertainty envelopes, and multi-scale representation \parencite{hermans_uncertainty_2018}. Future research should focus on developing unified frameworks that can handle multi-scale, multi-physics uncertainty propagation \parencite{gomesgoncalves_uncertainty_2025}.
+
+
+\subsection{Model-Guided Monitoring Design}
+Effective integration of geophysical and hydrological data into groundwater models requires not only robust coupling approaches but also strategic monitoring design to optimize observation types, locations, and frequencies. However, identifying the most informative dataset under uncertainty remains a fundamental challenge \parencite{gates_worth_1974,freeze_hydrogeological_1992}. 
+
+Data-Worth Analysis (DWA) provides a framework to quantify the value of geophysical data in improving hydrological model predictions. By comparing model outcomes with and without specific geophysical datasets, DWA helps assess their influence on parameter estimation and forecast reliability. Value-of-Information frameworks extend DWA by explicitly incorporating decision-theoretic and economic considerations into monitoring design \parencite{alfonso_coupling_2012,trainor-guitton_geophysical_2014}. \textcite{feyen_framework_2005} framed data worth within Bayesian decision analysis for groundwater management, illustrating how economic objectives determine whether additional hydraulic conductivity measurements justify their collection costs.
+
+Multi-objective monitoring network design approaches combine data assimilation with optimization algorithms to identify observation locations and types that maximize information gain while respecting budget constraints. \textcite{thibaut_comparing_2022} applied Bayesian Evidential Learning (BEL) within an optimal experimental design framework to compare the value of borehole temperature logs versus time-lapse electrical resistivity tomography (ERT) for monitoring 4D thermal plumes, addressing the computational challenges and tradeoffs between invasive and non-invasive monitoring methods while identifying optimal sensor combinations that minimize prediction uncertainty under budget constraints. \textcite{durney_multipurpose_2025} applied multi-purpose DWA to a coupled SWAT-MODFLOW-RT3D model, evaluating the spatial worth of nitrate concentration measurements and SkyTEM-derived geophysical data for improving predictions of both water quantity and quality. Similarly, \textcite{vilhelmsen_extending_2018} extended the approach to multi-objective contexts, allowing the selection of observations that support several forecasting goals simultaneously.
+
+Adaptive sampling strategies, such as those used in time-lapse ERT surveys \parencite{wilkinson_adaptive_2015}, adjust measurement configurations dynamically based on prior observations. Surrogate-based optimization approaches, including proper orthogonal decomposition and Gaussian process modeling, allow for efficient evaluation of monitoring scenarios in computationally intensive models \parencite{gosses_robust_2021}. \textcite{mern_intelligent_2023} proposed sequential decision-making approaches using Monte Carlo planning methods for mineral exploration, demonstrating that closed-loop sequential information gathering is superior to non-sequential schemes while explicitly addressing the combinatorial explosion problem and computational burden inherent in optimal experimental design. Most data-worth studies focus on single prediction targets (e.g., contaminant arrival time), while water resources management increasingly requires multi-objective predictions (water quantity, quality, ecosystem services) that may demand different optimal monitoring strategies \blue{\textcite{vilhelmsen_extending_2018}}. Future research should focus on refining these approaches to ensure that monitoring efforts effectively enhance model reliability while remaining feasible under financial and logistical constraints.
+
+
+\subsection{From Hillslope Models to Catchment-Scale Simulations: The Role of Change-of-Support}
+Simulating water resources, especially on a watershed scale, necessitates the integration of datasets with various spatial supports, including simulated water and heat fluxes at \blue{hillslope} model grid resolutions, coarse-scale remote sensing observations (e.g., vegetation indices, soil moisture, topography) \parencite{lubczynski_remote_2024}, fine-scale geophysical interpretations (ERT, GPR, seismic methods), and point-scale records such as piezometric levels and temperature.
+
+Except recent advances showing promising results at the regional scale with ambiant noise seismology and geodesy \parencite{denolle_ambient_2025,lu_mapping_2025}, ERT and \blue{active} seismic methods are not usable at the full catchment scale. However, their hillslope-scale resolution remains still beneficial when used with scalable geophysical methods and change-of-support techniques. Fine-scale information derived from ERT and SRT can constrain or parameterize larger-scale Frequency-Domain Electromagnetic (FDEM) or Time-Domain Electromagnetic (TDEM) surveys, by providing information about lithological contrasts, hydrological connectivity, and shallow structural patterns that EM methods alone cannot resolve. Furthermore, groundwater models utilizing high-resolution geophysical data can estimate stream-aquifer interactions and aquifer recharge on larger scales, thereby enhancing the physical realism of catchment-scale simulations.
+
+To move from hillslope-scale simulations, such as water fluxes or SW-GW fluxes, to watershed domains, or to integrate interpretations from remote sensing and hydrogeophysics, change-of-support approaches are crucial \parencite{emery_change--support_2009,zaytsev_change--support_2016}. These methods help reconcile differences in data support, ensuring consistent interpretation of variance, correlation, and uncertainty at the larger scale \parencite{de_marsily_dealing_2005}. Methods such as block kriging, conditional simulation, and nonlinear geostatistical approaches (e.g., disjunctive kriging, uniform conditioning) help bridge between hillslope and watershed scales \parencite{demougeot-renard_geostatistical_2004}. Conditional simulation involves generating multiple realizations of the random field representing the target attribute, followed by regularization to block support \parencite{zaytsev_change--support_2016}. While powerful, this method is computationally demanding, requiring specification of finite-dimensional distributions and conditioning to sparse data. \textcite{benoit_stochastic_2021} addressed the change-of-support problem by up-scaling local quasi-point conductivity fields to block-scale conductivity tensors for GW flow modeling. The use of nonlinear geostatistical methods, such as disjunctive kriging or uniform conditioning provide an analytical solution to the change-of-support problem \parencite{emery_change--support_2009}. \textcite{emery_change--support_2009} and \textcite{zaytsev_change--support_2016} describe two generalizations of \blue{Discrete Gaussian Models} (DGMs) for irregular grids. DGMs ensure accurate reproduction of block-to-block covariance and marginal distributions and simplify computation. These models are particularly relevant for unstructured grids, such as those used in reservoir modeling, and are compatible with central limit theorem behavior under variance reduction. Additional research is needed to explore a wider range of physical processes and to derive scaling laws for the occurrence and characteristics of GW flow systems at various scales.
+
+
+\section{Conclusions}
+Advancing hydrogeophysics requires bridging the gap between its theoretical potential and its operational application to support sustainable critical zone science, GW management, resilience under global change and geothermal applications. One of the primary objectives of hydrogeophysics is to develop monitoring and forecasting tools for resolving the spatiotemporal variability of shallow GW under global change. This requires resolving the transient physical processes that govern water and heat fluxes, vectors of solute transport and transformation within the critical zone. This paper details three different geophysical methods commonly used at the hillscope scale. Many tasks remain to be done to improve the imaging capabilities in heterogeneous transient contexts regarding noise analysis and data integration. This paper underscores a paradigm shift from static to transient inversion, where coupled and joint approaches provide new opportunities to resolve subsurface heterogeneity and GW variability.
+
+Progress will depend on addressing parameter interdependence, petrophysical uncertainty, and mismatches in the spatial and temporal scales of multi-physics datasets. Geophysical data play a critical role in improving GW model initialization and boundary conditions by providing spatially distributed information that is otherwise difficult to obtain through direct measurements. A central challenge lies in determining the appropriate dimensionality for geophysical inversion and its coupling with GW models. In some cases, 1D or 2D geophysical inversions can be better constrained by using state variables simulated in 3D GW models, thereby linking scales and enhancing the representation of transient processes. However, such workflows must be carefully validated to ensure that the geophysical model remains consistent with hydrological reality and that unnecessary 3D inversion can be avoided. 
+
+Data availability remains limited by budgetary, logistical, and technical constraints, which often necessitate conceptual simplifications such as reducing the number of parameters, dimensionality, or the detail in initial and boundary conditions. Inversion dimensionality should therefore be adapted to site-specific contexts, balancing complexity with representativeness, while maintaining flexible rather than prescriptive workflows. Such simplifications should not be adopted as default assumptions but rather as deliberate, evidence-based choices supported by experiments, sensitivity analyses, or mechanistic modeling. The principle of parsimony remains valid, provided it does not compromise predictive capability. 
+
+At the same time, models should guide the design of experimental networks and measurement strategies, ensuring that data collection targets the most sensitive and uncertain processes. Geostatistical frameworks such as SPDE and change-of-support approaches require further research to strengthen hydrogeophysical inversion workflows, not only for integrating multi-source data and interpolating poorly constrained initial and boundary conditions, but also for using outputs from 3D GW models to better constrain and inform 2D geophysical inversions or to interpolate between multiple 2D inversions within a 3D hydrological framework. Addressing stakeholder needs will require extending model to the watershed scale, while integrating insights gained at the hillslope scale and leveraging remote sensing. Future research on change-of-support remains essential.
+
+Meeting these challenges will then depend on scalable inversion strategies that combine inversion, probabilistic frameworks, and machine learning surrogates. Field observatories linked to open-access databases and equipped with advanced monitoring technologies such as CZNet, OZCAR, and TERENO \parencite{gaillardet_ozcar_2018} are also essential to (i) build mechanistic models grounded in observations, (ii) test and validate sensors and methodologies, and (iii) identify which processes truly require high-resolution space-time data. By reducing uncertainty, optimizing dimensionality, and embedding field validation, hydrogeophysics can become a cornerstone of critical zone science and a key enabler of resilience in the Anthropocene.
+
+\section*{Conflicts of interest}
+
+The authors declare no competing financial interest.
+
+\section*{Dedication}
+The manuscript was written through contributions of all authors. All authors have given approval to the final version of the manuscript.
+
+\section*{Acknowledgments}
+The authors acknowledge the support of the French Agence Nationale de la Recherche (ANR) under grant ANR-23-CE01-0004 (project GWSBOUND). They also acknowledge the infrastructure and resources provided by OZCAR-RI (Observatoires de la Zone Critique - Recherche et Infrastructure). The authors acknowledge the support of Institutes UMR 7619 METIS, UAR3455 ECCE TERRA, Sorbonne Université, CNRS and Mines Paris - PSL (PSL University).
+
+%% For the database
+%\CDRGrant[UKRC]{2019-$$155900}
+
+
+%\section*{Supplementary data}
+
+%Supporting information for this article is available on the journal's
+%website under 
+%% this will be replaced by the DOI of the article
+%article's URL 
+%\printDOI\ 
+%or from the author. The experimental details
+%and randomization protocols were given.
+
+\appendix
+
+
+\section{Geological constraints on GW fluxes: Example of sediment heterogeneity in alluvial aquifers}\label{app:geology}
+
+\subsection{Structure and heterogeneity of alluvial aquifers in north-western Europe}
+River dynamics lead to the sediment deposition and formation of sedimentary bodies of varying lithologies and geometries, which determine the sedimentary heterogeneity of alluvial plain environments. These sedimentary heterogeneities, which correspond to contrasts in lithological and grain-size properties \parencite{koltermann_heterogeneity_1996}, also result in contrasts in hydraulic parameters (\eg{} hydraulic conductivity, porosity) and transport parameters (\eg{} effective diffusion coefficient, retardation factor, diffusivity, thermal conductivity, heat capacity). This has led to the concept of hydrofacies, developed within the hydrogeology community \parencite{poeter_influence_1990}. Sediment heterogeneities therefore influence preferential flow paths and residence times of water in the alluvial plain, as well as on GW-river exchanges \parencite{fogg_groundwater_1986,anderson_sedimentology_1999,webb_simulation_1996,hornung_reservoir_1999,klingbeil_relating_1999,bianchi_spatial_2011,heinz_heterogeneity_2003,fleckenstein_river-aquifer_2006,miall_geology_1996,stonedahl_multiscale_2010,flipo_continental_2014}. The streambed heterogeneities, coupled with the longitudinal variation of the bed, impact the dynamics of the SW-GW exchanges by creating flow recirculation \parencite{cardenas_impact_2004}. Sediment heterogeneities are the result of variability in time and space in the functioning of the fluvial systems, and more specifically in the energy of the depositional environment. They exist and can be described on different space and time scales, from lamina resulting from turbulent processes on the scale of seconds, to the basin controlled by climate and tectonics, which modify flow and sediment supply conditions on a regional scale \parencite{miall_geology_1996}.
+
+Most of the alluvial plains of north-western Europe were shaped by the alternating glacial and interglacial periods that characterized the Late Quaternary from the Middle Pleistocene \parencite{antoine_chronostratigraphy_2010}. These alternations are reflected in the response of fluvial systems to incision or aggradation. It is particularly during periods of climatic transition that fluvial systems become unstable and undergo profound morphological transformations. Climatic optima and glacial maxima, on the other hand, are periods of sediment reworking. In coastal settings, cutting and filling respond strongly to base-level fluctuations driven by glacioeustatic sea-level changes \parencite{schumm_river_1993, dalrymple_incised_2006, cardinal_interplay_2024}. Upstream of the limit of eustatic influence, changes in vegetation cover and hydrological functioning essentially modulate the ratio of water to solid discharge, and thus the timing of incision or aggradation of the fluvial system. Generally, large incisions are observed at interglacial-glacial transitions, followed by strong aggradation during the glacial period by high-energy braided fluvial systems. A more moderate incision marks the transition to the interglacial, where lower-energy systems, such as meandering channels, rework the glacial braided deposits \parencite{vandenberghe_relation_2002}.
+
+While braided river systems can temporarily store large volumes of fine sediments during low-water periods, these are rapidly remobilized during floods \parencite{navratil_assessment_2010}. As a result, their preservation potential is relatively limited. The sediment heterogeneity of alluvial deposits formed by these systems results essentially from the degree of mixing between sands and gravels that occurs in unit and compound bars, from open-framework gravel beds to fine sand drapes \parencite{bluck_structure_1979, bridge_fluvial_2006, klingbeil_relating_1999, heinz_heterogeneity_2003}. 
+
+Conversely, meandering fluvial systems generate highly heterogeneous deposits, with contrasting lithological properties expressed at different spatial scales \parencite{gouw_alluvial_2007}. At the kilometer scale, fine overbank deposits and abandoned channels filled with high organic content clays produce sharp lithological contrasts with the coarser channelized facies (Fig.\ref{fig:hetero_sedi} Level 1 and 2). The low width-to-depth ratio of meandering channels, compared to braided channels, allows the deep reworking of braided alluvial deposits associated with older glacial periods. At the scale of several tens to hundreds of meters (Fig.\ref{fig:hetero_sedi} Level 3), the internal structures of sand and gravel bars reflect the distribution of sediment load in the water column, the succession of different flow stages, and the morphodynamic interactions with other bars and cross-bar channels \parencite{bridge_fluvial_2006}. Their sizes, highly variable but proportional to the channel size, range from several tens to several hundreds of meters in width, and in height reflect the maximum channel depth. Grain segregation in bedload and turbulent fluctuations of the flow produce heterogeneous cross-stratification within bedforms at the centimeter scale \parencite{allen_classification_1963, allen_bed_1966} (Fig. \ref{fig:hetero_sedi} Level 4). 
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=0.6\textwidth]{Figure1.png}
+\caption{Hierarchical levels of sedimentary heterogeneity at aquifer-river interfaces (modified from Jordan and Pryor (1992))}
+ \label{fig:hetero_sedi}
+\end{figure}
+
+
+\subsection{Field characterisation and numerical modeling of alluvial heterogeneity}
+The heterogeneities of alluvial aquifers can be assessed directly in the field through outcrops, trenches, or boreholes \parencite{heinz_heterogeneity_2003,hornung_reservoir_1999,klingbeil_relating_1999,bertran_late_2025,malenda_grain_2019}, or indirectly via geophysical imaging methods. While sedimentological analysis provides detailed lithofacies descriptions along 1D or 2D profiles, the data are localized and challenging to interpolate. Geophysical methods, on the other hand, deliver broader spatial 2D/3D data but often lack resolution for smaller-scale heterogeneities.
+
+Numerical methods offer the possibility to create fully spatialized models of alluvial aquifers \parencite{bayer_three-dimensional_2011,comunian_three-dimensional_2011}, resolving the different scales of sediment heterogeneities, and potentially conditioned by field data \parencite{zappa_modeling_2006,bianchi_lithofacies_2016,sun_characterization_2008,teles_comparison_2004,zhang_impact_2013}. Geostatistical methods reproduce the geometric characteristics of an alluvial reservoir, without taking into account the reservoir construction history or the processes behind it. In object-based methods, each sedimentary body is treated as an object, discretized on a grid or continuously modeled by surfaces \parencite{jacquemyn_surface-based_2019}. The domain is filled using probability laws describing both the spatial distribution and the size and orientation of the objects, together with laws of attraction/repulsion between objects. In pixel-based methods, training images are used to define the geostatistical characteristics of sedimentary facies. Realizations are then performed following facies ordering rules \parencite{beucher_truncated_2016,tahmasebi_multiple_2018}. Geostatistical models can be easily conditioned by field data, and low computation times enable a large number of realizations to be generated. On the other hand, results sometimes lack geological realism. Process-based or genetic models aim to reproduce the evolution of a fluvial systems and the associated sediment deposits through a simplification of the physical laws of flow and sediment transport \parencite{camporeale_hierarchy_2007}. Because computation times can be very long, deterministic models are generally limited to simulating the morphodynamic evolution of the active channel of a fluvial system on time scales of a few hundred to thousands of years \parencite{van_de_lageweg_preservation_2016}. Finally, mixed stochastic-genetic models (forward model - \citealp{lopez_modelisation_2003} or reverse - \citealp{parquer_combined_2020}) use a deterministic approach to compute the channel-form evolution through time, but do only mimic the sedimentary processes with geometrical rules to build the alluvial plain heterogeneity.
+
+
+\subsection{Impact of alluvial plain heterogeneity on ground water fluxes - a synthetic case example}
+Meandering fluvial systems are characterized by highly sinuous channels (sinuosity > 1.5). The evolution of meander loops in time can lead to neck cutoffs \parencite{gao_exploring_2024} and abandoned oxbow lakes that are filled with fine sediments and organic matter \parencite{jordan_hierarchical_1992}. Head gradients along meander loops induce significant SW-GW fluxes across pointbars \parencite{cardenas_effect_2008,cardenas_streamaquifer_2009,boano_sinuosity-driven_2006,boano_linear_2010}. On the contrary, mud plugs in abandoned meander loops create extensive permeability barriers within the alluvial plain. Here, we use the Flumy genetic sedimentary model \textcite{lopez_processbased_2008}, \url{https://flumy.minesparis.psl.eu/}) coupled with hydrogeological model to investigate with synthetic cases the effects of alluvial plain heterogeneity on GW flow and water level in an alluvial aquifer.
+
+Flumy is a model that uses stochastic and process-based approaches to simulate meandering channelized reservoirs. It describes channel evolution through time using physical equations from hydraulic studies \parencite{ikeda_bend_1981}, with constant section, slope, and flow. Sedimentary facies are deposited at specific locations in the floodplain, depending on the distance to the channel or a specific process. Sandy point-bar is deposited inside meander loops, while floods produce fine-grained overbank deposits, contributing to channel aggradation. Levee breaches are at the origin of crevasse splays, and channels abandoned after neck cutoff or avulsion are filled with mudplug facies.
+
+
+
+Here, Flumy generates a simple 7 km-long, 3 km-wide, 10 m-thick floodplain heterogeneity model. The initial domain is filled with sand facies. The 50 m-wide and 6 m-deep channel is initially straight with small curvature perturbations and flows from west to east. Flumy is run without overbank flood (no vertical accretion) nor avulsion for a certain number of iterations, until the sinuosity is well developed ($D_{curve}/D_{straight} = 2.2$), producing meander neck cut-offs and mud plugs. The lateral migration of the channel meanders leads to the deposition of sandy point bars, a facies identical to the initial domain fill. Thus, mud plugs in meanders abandoned after neck cut-off are the only source of heterogeneity in the floodplain. From this heterogeneous model (Fig.\ref{fig:sed_setup}.d.), a reference homogeneous model is derived by replacing the mud plug facies by sand (Fig.\ref{fig:sed_setup}.a.). 
+
+ The hydrofacies values are derived from the literature \parencite{morris_summary_1967,urumovic_effective_2014}. The pointbar sand has a hydraulic conductivity of 2.9 $\times{} 10^{-3}\ m.s^{-1}$ while the mudplug has a conductivity of 1.6 $\times{} 10^{-9}\ m.s^{-1}$.
+
+The GW flow simulations for both models, homogeneous and heterogeneous, are performed using the 8.1 version of Feflow \parencite{diersch_feflow_2013}. The aquifer is supposed to be in a confined state. The simulation domain is subjected to a 0.4 \textperthousand{} regional hydraulic gradient with constant Dirichlet conditions of 9.5 and 7.5 m upstream and downstream. The river's hydraulic head decreases linearly along the river channel from 9 m to 7 m, representing that it is draining the aquifer. A 30-day flood wave scenario was applied to the riverline BC, with a 3m increase in the first 15 days and a return to initial state level in the last 15 days.
+
+
+
+
+The resulting simulated head and Darcy flux fields in Fig.~\ref{fig:sed_setup} for the peak flow condition ($t=15$~days) are shown for a location between two active meanders (Fig. \ref{fig:sed_setup}.d.), with the occurrence of a mudplug filled meander.
+
+These results, below the mudplug (Fig.~\ref{fig:sed_setup}.b. and c.), and cross-section view (Fig.~\ref{fig:sed_setup}e and f.), exhibit a doubling of Darcy velocity (from $10$ to $20$~$cm/day$) below the mudplug, and a modification of the flow direction. The heterogeneity affects the direction of GW flow beneath the mudplug: the mudplug's barrier effect tends to reorient the flow in the direction that is orthogonal to the mudplug, pushing downward flow below it. These results, in terms of flow direction and magnitude, confirm that the occurrence of large sedimentary heterogeneity, such as abandoned meander mud plug, can generate a preferential flow path for GW flow. The influence of significant heterogeneity on hydraulic head is restricted to the heterogeneity perimeter, however its effect on flow velocity extend across the full inter-meander area. This means that it could be "easily missed" by a classical data set where only a few piezometers would be available, highlighting the need for geophysical data. This implies that such features could be overlooked in conventional data with sparse piezometer coverage, underscoring the importance of incorporating geophysical data.
+
+The common approach for GW modeling involves calibrating hydrodynamical parameters by comparing simulated with observed hydraulic head, neglecting flow velocity. Consequently, the influence of sedimentary heterogeneity on flow velocity may pose a significant challenge for applications like contamination and heat transport or flow quantification.
+
+
+
+\section{Physical equations} \label{app:equations}
+\subsection{GW flow equations} \label{app:flow_eq}
+The mass balance equation used to calculate GW (GW) flow is: 
+
+\begin{equation}\label{eq:flow_eq}
+\nabla \cdot \left(\frac{k \bar{k}_r(S_w) \rho_w}{\mu_w} \left(\nabla p - \rho_w g \right) \right)
+=
+\frac{\partial \left(\rho_w n S_{w} \right)}{\partial t} + \rho_w q,
+\end{equation}
+
+where: 
+$t$ is time (s), 
+$p$ is the pressure (Pa), 
+$S_{w}$ is the water saturation, 
+$k$ is the intrinsic permeability (m$^{2}$), 
+$k_{r}(S_w)$ is the relative unsaturated hydraulic conductivity, given by the water retention curve, 
+$g$ is the acceleration due to gravity (m\,s$^{-2}$), 
+$\mu_w$ is the dynamic viscosity of water (Pa\,s), 
+$\rho_{w}$ is the density of water (kg\,m$^{-3}$), 
+$n(x, y, z)$ is porosity (-), 
+$q$ is a volumetric water source or sink (s$^{-1}$). 
+
+\subsection{Heat transport equations} \label{app:heat_eq}
+
+The heat transport is described by the advection-diffusion equation : 
+\begin{equation}\label{eq:heat_transport} 
+\nabla\left[
+ \lambda \, \nabla T
+ -
+ \, \rho_{w} \, C_{w} \, q \, T 
+ \right] 
+ = 
+ \rho \, C \, \displaystyle\frac{\partial T}{\partial t}
+,
+\end{equation}
+where $T$ is temperature ($K$),
+$\lambda$ is the thermal conductivity of the porous medium (water, air + solid) (W\,m$^{-1}$\,K$^{-1}$),
+$\rho$ is the density of the porous medium (kg\,m$^{-3}$),
+$C_{w}$ is the specific heat capacity of water (J\,kg$^{-1}$\,K$^{-1}$), 
+$C$ is the specific heat capacity of the porous medium (J\,kg$^{-1}$\,K$^{-1}$) and $q$ is the specific discharge (m\,s$^{-1}$). 
+
+\subsection{Electrical equations}
+\label{app:ert}
+
+The equations and theoretical models describing electrical current flow in materials are detailed in \textcite{telford_applied_1990}, particularly for applications in electrical resistivity sounding and tomography. These models combine Ohm's law with the governing equation for electrical potential, resulting in Laplace’s or Poisson’s equations.
+
+Ohm’s law in a conductive medium is expressed as:
+\begin{equation}
+\mathbf{J} = \sigma \mathbf{E}
+\label{eq:ohm}
+\end{equation}
+where \(\mathbf{J}\) is the current density (A/m\(^2\)), \(\sigma\) the electrical conductivity (S/m) wich is the inverse of the electrical resistivity, and \(\mathbf{E}\) the electric field (V/m).
+
+The electric field relates to the electrical potential \(\phi\) by:
+\begin{equation}
+\mathbf{E} = - \nabla \phi
+\label{eq:efield}
+\end{equation}
+
+Combining these and applying the principle of conservation of charge (no accumulation of charge in steady state):
+\begin{equation}
+\nabla \cdot \mathbf{J} = Q
+\label{eq:charge}
+\end{equation}
+where \(Q\) is the source term (current density per volume).
+
+Substituting equations \eqref{eq:ohm} and \eqref{eq:efield} into \eqref{eq:charge}, we get the governing equation for the electrical potential:
+\begin{equation}
+\nabla \cdot (\sigma \nabla \phi) = -Q
+\label{eq:governing}
+\end{equation}
+
+In regions without current sources, \(Q = 0\), this reduces to Laplace’s equation:
+\begin{equation}
+\nabla \cdot (\sigma \nabla \phi) = 0.
+\label{eq:laplace}
+\end{equation}
+
+
+
+\subsection{Poro-elastic wave equations} 
+\label{app:poroelastic_eq}
+Porous materials are made of a solid phase (called the frame) and of a fluid phase, and can be considered as an interconnected network of pores inside the solid \parencite{pride_seismic_2004}. 
+
+Air and/or water can play the role of the fluid and grains the solid. Poroelastic materials are most of the time modeled using the Biot theory (\parencite{biot_theory_1956,biot_theory_1956-2}.
+The differential or "strong" formulation of the poroelastic wave equations can be written as in \textcite{carcione_wave_2007,carcione_wave_2014}. 
+
+The related system of equations has seven wave eigenvalues related to seven wave velocity modes (instead of five for the elastic case). Those wave velocities are $\pm V_{pFAST}$, $\pm V_{pSLOW}$, $\pm V_{s}$ and $0$.
+The shear velocity $V_s$ and the fast and slow P-wave velocities ($V_{pFAST}$ and $ V_{pSLOW}$) can be expressed as \parencite{sidler_pseudospectral_2013}:
+
+\begin{equation}
+ V_s = \sqrt{ \frac{\mu}{a_1}},
+\end{equation}
+
+\begin{equation}
+ V_{p_{\text{FAST}}} = \sqrt{\frac{-b_1 + \sqrt{\Delta}}{2 a_1}},
+\end{equation}
+
+\begin{equation}
+ V_{p_{\text{SLOW}}} = \sqrt{\frac{-b_1 - \sqrt{\Delta}}{2 a_1}}
+\end{equation}
+
+where 
+
+$a_1 = \rho_{11} \rho_{22}-\rho_{12}^2,$
+
+$ b_1 = -S \rho_{22} - R \rho_{11} + 2 ga \rho_{11},$ 
+
+$c_1 = S R - ga^2, $
+
+$\rho_{11} = \rho + \rho_f n (a - 2),$
+
+$\rho_{12} = n \rho_f (1-a), $
+
+$\rho_{22} = a \rho_f n,$
+
+$S = \lambda + 2 \mu,$
+
+$R = M n^2,$
+
+$\Delta = b_1^2 - 4 a_1 c_1,$
+
+$ga = M n (\alpha - n). $
+
+The different parameters of the poroelastic model are : $n$ (porosity), $\rho$ (density of the satured medium, $\rho_s$ (density of the solid), $\rho_f$ (density of the fluid), $\rho_w$ (apparent density), $K_{s}$ (incompressibility modulus of the solid matrix), $K_{f}$ (incompressibility modulus of the fluid), $K_{fr}$ (incompressibility modulus of the porous frame), $\kappa$ (permeability of the solid matrix), $\eta$ (Fluid viscosity), $a$ (tortuosity), $\lambda$ (Lamé coefficient of the saturated matrix), $\lambda_s$ (Lamé coefficient in the solid matrix), $\mu$ (shear modulus). Some of these parameters are a combination of the others.
+
+Biot’s characteristic frequency $f_c$ defines the transition between two poroelastic regimes (with or without attenuation) and is given as follows (see \parencite{biot_theory_1956-2}, \parencite{carcione_wave_2007} and \parencite{morency_spectral-element_2008}):
+
+\begin{equation}
+ f_c = \min(\frac{\eta \space n}{ 2 \pi \space a \space \rho_f \kappa }), \label{fc_regime}
+\end{equation}
+
+\noindent 
+%where $\eta$, $\Phi$, $a$, $\rho_f$ and $\kappa$ 
+%are given above in the 
+%%see parameters in Table 1.
+
+The maximum frequency range $f_{max}$ of the source is such that $f_{max}< f_c$. Therefore, in the experimental and numerical modeling of unconsolidated granular media under study, we choose to stay in the poroelastic regime without attenuation. 
+
+
+
+% The next command determines the bibliography style. Please do not
+% change this.
+%\bibliographystyle{crgeos}
+
+
+
+% This inserts the bib file
+
+
+\printbibliography
+%% If you are using BibTeX instead of BibLaTeX for the bibliography,
+%% you should use these commands instead of the one above:
+% \bibliographystyle{crgeos}
+% \bibliography{samplebib}
+\end{document}
