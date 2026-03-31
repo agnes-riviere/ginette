@@ -710,6 +710,7 @@ def plot_initial_conditions(fontsize=15):
         
         plt.tight_layout()
         plt.show()
+        plt.savefig('initial_conditions_profiles.png', dpi=300)
         
         # Print summary statistics
         print("Initial Conditions Summary:")

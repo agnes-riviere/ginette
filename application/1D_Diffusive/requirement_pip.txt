@@ -1,0 +1,17 @@
+geopandas
+fiona
+shapely
+pyproj
+rasterio
+rtree
+folium
+contextily
+colorcet
+branca
+pandas
+numpy
+matplotlib
+requests
+scipy
+IPython
+seaborn

@@ -209,6 +209,77 @@ def setup_ginette_perm_2D(pt100_coord,nb_cell,nb_col,nb_row,nb_day=10,dt=900):
     f_param_therm_new.close()
     f_param_therm.close()
     
+def setup_ginette_no_date(dt, state, nb_day, z_top, z_bottom, az, dz,dz_obs,verbose=False):
+    """
+    Sets up the Ginette model parameters and writes them to the appropriate files in transient state.
+    Parameters:
+    dt (float): Time step for the simulation.
+    state (int): State of the simulation.
+    nb_day (float): Number of days for the simulation.
+    z_top (float): Top boundary of the model domain.
+    z_bottom (float): Bottom boundary of the model domain.
+    az (float): Total height of the model domain.
+    dz (float): Cell height in the model domain.
+    dz_obs (float): Observation depth interval.
+    Returns:
+    list: A list of observation depths.
+    """
+    if verbose:
+    # repertoire courant
+        print(os.getcwd())
+    # number of cell
+    nb_cell=az/dz
+    #-----------------------------------------------------------------
+    ## write the setup of the modeled domain
+    f_param_bck = open("E_parametre_bck.dat", "r")
+    f_param_new = open("E_parametre.dat", 'w')
+    setup_model = f_param_bck.read()
+    setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
+    setup_model = setup_model.replace('[state]', '%1i' % state)
+    setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)
+    setup_model = setup_model.replace('[z_top]', '%7.3e' % z_top)
+    setup_model = setup_model.replace('[z_bottom]', '%7.2e' % z_bottom)
+    setup_model = setup_model.replace('[az]', '%7.3e' % az)
+    setup_model = setup_model.replace('[dz]', '%6.2e' % dz)
+    setup_model = setup_model.replace('[nb_cell]', '%05.0f' % nb_cell)
+    setup_model= setup_model.replace('[itsortie]', '%08.0f' % dt)
+
+    # Observation positions x 0.50000
+    # Observation in meter
+    Obs1 = z_top - dz_obs
+    Obs2 = z_top - dz_obs * 2
+    Obs3 = z_top - dz_obs * 3
+    Obs4 = z_top - dz_obs * 4
+
+    # Create z_obs vector
+    z_obs = [Obs1, Obs2, Obs3, Obs4]
+    ## write the parameters
+    cell1 = abs(Obs1 / dz)
+    cell2 = abs(Obs2 / dz)
+    cell3 = abs(Obs3 / dz)
+    cell4 = abs(Obs4 / dz)
+    setup_model = setup_model.replace('[cell1]', '%05.0f' % cell1)
+    setup_model = setup_model.replace('[cell2]', '%05.0f' % cell2)
+    setup_model = setup_model.replace('[cell3]', '%05.0f' % cell3)
+    setup_model = setup_model.replace('[cell4]', '%05.0f' % cell4)
+    f_param_new.write(setup_model)
+    f_param_bck.close()
+    f_param_new.close()
+    
+    #-----------------------------------------------------------------
+    f_param_therm=open("E_p_therm_bck.dat", "r")
+    f_param_therm_new=open("E_p_therm.dat", "w")
+    therm=f_param_therm.read()     
+    therm = therm.replace('[state]', '%1i' % state)
+    f_param_therm_new.write(therm)
+    f_param_therm_new.close()
+    f_param_therm.close()
+    
+    #-----------------------------------------------------------------
+
+    return z_obs
+    
+    #-----------------------------------------------------------------
 
      
 
