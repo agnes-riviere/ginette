@@ -121,9 +121,9 @@ conditions_limites
 
 # potentiel_initial fichier = potentiel_init.dat
 
-   potentiel contour fichier = Ch_R.fic
-      val = 78.885580000000004
-        points 48.000 79.800  6.000 79.810  27.000 78.549 # surface topo
+   infiltration boucle fichier = pluie_surface.fic
+      val = 0.
+      inclure trace_surface_sol
       fin_val
 
 	   potentiel contour
