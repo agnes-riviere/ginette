@@ -668,3 +668,75 @@ Si vous changez de loi, vérifiez toujours :
 1. le nombre de coefficients attendu,
 2. l'ordre des coefficients,
 3. le numéro de sous-domaine avant chaque ligne de coefficients.
+
+## 14. Tracer les vitesses
+
+METIS peut écrire des sorties de vitesses dans des fichiers comme :
+
+- [Case_unsat.vda](Case_unsat.vda)
+- [vda_t_10j.dat](vda_t_10j.dat)
+- [vda_t_57j.dat](vda_t_57j.dat)
+- [vda_t_133j.dat](vda_t_133j.dat)
+
+Le format observé pour `Case_unsat.vda` est :
+
+- `x`
+- `z`
+- `vx`
+- `vz`
+- `|v|`
+
+Les lignes commençant par `#` sont des en-têtes METIS et doivent être ignorées au chargement.
+
+### Exemple Python
+
+```python
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def read_metis_velocity_file(file_path):
+  return pd.read_csv(
+    file_path,
+    comment="#",
+    sep=r"\s+",
+    engine="python",
+    header=None,
+    names=["x", "z", "vx", "vz", "vnorm"],
+  )
+
+def plot_metis_velocity(file_path, output_png=None):
+  velocity = read_metis_velocity_file(file_path)
+  if output_png is None:
+    output_png = os.path.splitext(file_path)[0] + "_velocity.png"
+
+  plt.figure(figsize=(11, 5))
+  scatter = plt.scatter(
+    velocity["x"], velocity["z"],
+    c=velocity["vnorm"].clip(lower=1e-20).apply(lambda v: __import__("numpy").log10(v)),
+    s=8, cmap="viridis", alpha=0.75,
+  )
+  step = max(1, len(velocity) // 1200)
+  sampled = velocity.iloc[::step]
+  plt.quiver(
+    sampled["x"], sampled["z"],
+    sampled["vx"], sampled["vz"],
+    sampled["vnorm"], cmap="plasma",
+    angles="xy", scale_units="xy", scale=None,
+    width=0.002, alpha=0.8,
+  )
+  plt.colorbar(scatter, label="log10(|v|)")
+  plt.xlabel("x")
+  plt.ylabel("z")
+  plt.title(os.path.basename(file_path))
+  plt.grid(True, alpha=0.25)
+  plt.tight_layout()
+  plt.savefig(output_png, dpi=150, bbox_inches="tight")
+  plt.close()
+
+plot_metis_velocity("Case_unsat.vda")
+```
+
+### Dans le script AvAv
+
+Le script [AvAv_metis_2017.py](AvAv_metis_2017.py) contient déjà une version de cette lecture et produit automatiquement un PNG pour `Case_unsat.vda`. Les fichiers `vda_t_*.dat` ne contiennent parfois qu'un en-tête; dans ce cas, ils sont ignorés sans faire échouer le script.

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import os
+import re
+import glob
 """
 Script simple :
 1. Lecture de E_geom.dat (z_haut, z_bas)
@@ -7,17 +10,131 @@ Script simple :
 3. Garde les x uniques, associe z_haut et z_bas à chaque x
 4. Trace le profil (x, z_haut) et (x, z_bas)
 """
+
+ENABLE_GUI = os.environ.get("GINETTE_ENABLE_GUI", "").lower() in {"1", "true", "yes"}
+HEADLESS = not ENABLE_GUI
+
+if HEADLESS:
+    os.environ["QT_QPA_PLATFORM"] = "offscreen"
+    import matplotlib
+    matplotlib.use("Agg")
+
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 import METISfunctions as mf
 import Functions_mesh_metis as fm
 from Functions_mesh_metis import build_gmsh_mesh_from_linestopbottom
-import os
-import re
+
+import matplotlib.pyplot as plt
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 geom_path = os.path.join(script_dir, '..', 'E_geom.dat')
 coord_path = os.path.join(script_dir, '..', 'E_coordonnee.dat')
+SHOW_GUI = ENABLE_GUI
+
+
+def finalize_plot(figure_name):
+    if SHOW_GUI:
+        plt.show()
+        return
+    figure_path = os.path.join(script_dir, figure_name)
+    plt.savefig(figure_path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Figure sauvegardee: {figure_path}")
+
+
+def write_uniform_metis_fic(input_path, output_path, time_step=900.0):
+    values = pd.read_csv(input_path, header=None, names=["value"])["value"].astype(float).to_numpy()
+    if values.size == 0:
+        raise ValueError(f"Aucune valeur lue dans {input_path}")
+
+    with open(output_path, "w", encoding="utf-8") as fic:
+        for index, value in enumerate(values):
+            current_time = time_step * index
+            if index == 0:
+                fic.write("date           0\n")
+            else:
+                fic.write(f"date   {current_time:.0f}.\n")
+            fic.write(f"   {value:.15f}     \n")
+
+    print(f"Fichier METIS genere: {output_path} | {values.size} pas de temps | dt={time_step:.0f} s")
+
+
+def read_metis_velocity_file(file_path):
+    velocity = pd.read_csv(
+        file_path,
+        comment="#",
+            sep=r"\s+",
+            engine="python",
+        header=None,
+        names=["x", "z", "vx", "vz", "vnorm"],
+    )
+    if velocity.empty:
+        raise ValueError(f"Aucune vitesse lue dans {file_path}")
+    return velocity
+
+
+def plot_velocity_field(file_path, output_name=None, max_arrows=1200):
+    velocity = read_metis_velocity_file(file_path)
+
+    if output_name is None:
+        base_name = os.path.splitext(os.path.basename(file_path))[0]
+        output_name = f"{base_name}_velocity.png"
+
+    step = max(1, len(velocity) // max_arrows)
+    sampled = velocity.iloc[::step].copy()
+
+    plt.figure(figsize=(11, 5))
+    scatter = plt.scatter(
+        velocity["x"],
+        velocity["z"],
+        c=np.log10(velocity["vnorm"].clip(lower=1e-20)),
+        s=8,
+        cmap="viridis",
+        alpha=0.75,
+    )
+    plt.quiver(
+        sampled["x"],
+        sampled["z"],
+        sampled["vx"],
+        sampled["vz"],
+        sampled["vnorm"],
+        cmap="plasma",
+        angles="xy",
+        scale_units="xy",
+        scale=None,
+        width=0.002,
+        alpha=0.8,
+    )
+    colorbar = plt.colorbar(scatter)
+    colorbar.set_label("log10(|v|)")
+    plt.xlabel("x")
+    plt.ylabel("z")
+    plt.title(f"Vitesses de Darcy - {os.path.basename(file_path)}")
+    plt.grid(True, alpha=0.25)
+    plt.tight_layout()
+    finalize_plot(output_name)
+
+
+def plot_existing_velocity_outputs():
+    patterns = [
+        os.path.join(script_dir, "Case_unsat.vda"),
+        os.path.join(script_dir, "vda_t_*.dat"),
+    ]
+    velocity_files = []
+    for pattern in patterns:
+        velocity_files.extend(sorted(glob.glob(pattern)))
+
+    seen = set()
+    for velocity_file in velocity_files:
+        if velocity_file in seen or not os.path.isfile(velocity_file):
+            continue
+        seen.add(velocity_file)
+        try:
+            plot_velocity_field(velocity_file)
+            print(f"Plot de vitesse genere: {velocity_file}")
+        except ValueError as exc:
+            print(f"Plot de vitesse ignore pour {velocity_file}: {exc}")
 
 
 
@@ -60,7 +177,7 @@ plt.title('Profil extrait de E_geom.dat selon E_def_maille.dat')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.show()
+finalize_plot("profil_geom.png")
 
 # Construction du maillage GMSH à partir du profil (sans cable)
 mesh_filename = "AvAv_mesh.msh"
@@ -73,7 +190,7 @@ build_gmsh_mesh_from_linestopbottom(
     z_bas_sorted[::-1],
     xr1=xr1, xr2=xr2,z_zns=z_zns,resolution_min = 0.01,resolution_max = 0.5,
     mesh_filename=mesh_filename,
-    visualize=True
+    visualize=SHOW_GUI
 )
 print(f"Maillage  créé et sauvegardé sous {mesh_filename}")
 
@@ -152,9 +269,11 @@ z_riv = riv_coords['z'].to_numpy()
 print(f"Coordonnées de la rivière (x_riv, z_riv) : {list(zip(x_riv, z_riv))[:5]} ... {list(zip(x_riv, z_riv))[-5:]}")
 
 
-# fill /home/ariviere/Programmes/ginette/application/2017_AVAV_SENSI/METIS/trace_riv_berge avec les coordonnées de gmsh pour les  points de la rivières c'est à dire entre les x_min et x_max de la rivière et les noeuds de la surface du maillage compris entre les deux x_min et x_max de la rivière
+# fill /home/ariviere/Programmes/ginette/application/2017_AVAV_SENSI/METIS/trace_riv_berge avec les noeuds de surface situés sous la rivière
+# et trace_surface_sol avec les noeuds de surface hors rivière, utile pour une pluie sur le sol.
 mail_path = os.path.join(script_dir, "AvAv_mesh.mail")
-trace_path = os.path.join(script_dir, "trace_riv_berge")
+trace_river_path = os.path.join(script_dir, "trace_riv_berge")
+trace_surface_sol_path = os.path.join(script_dir, "trace_surface_sol")
 
 with open(mail_path, "r", encoding="utf-8") as f_mail:
     header = f_mail.readline().split()
@@ -178,14 +297,18 @@ z_top_interp = np.interp(node_x, x_sorted, z_haut_sorted)
 
 # tolérance verticale sur la détection de la surface
 dz_tol = 5e-3
+mask_surface_all = np.abs(node_z - z_top_interp) <= dz_tol
 mask_surface_river = (
+    mask_surface_all &
     (node_x >= x_min_riv) &
-    (node_x <= x_max_riv) &
-    (np.abs(node_z - z_top_interp) <= dz_tol)
+    (node_x <= x_max_riv)
 )
+mask_surface_sol = mask_surface_all & ~mask_surface_river
 
 surface_river_nodes = node_ids[mask_surface_river]
 surface_river_x = node_x[mask_surface_river]
+surface_sol_nodes = node_ids[mask_surface_sol]
+surface_sol_x = node_x[mask_surface_sol]
 
 if surface_river_nodes.size == 0:
     raise ValueError(
@@ -193,20 +316,41 @@ if surface_river_nodes.size == 0:
         f"(x in [{x_min_riv:.3f}, {x_max_riv:.3f}], dz_tol={dz_tol})"
     )
 
+if surface_sol_nodes.size == 0:
+    raise ValueError(
+        "Aucun noeud de surface trouvé hors rivière pour trace_surface_sol "
+        f"(x hors [{x_min_riv:.3f}, {x_max_riv:.3f}], dz_tol={dz_tol})"
+    )
+
 # ordre gauche -> droite
 order = np.argsort(surface_river_x)
 surface_river_nodes = surface_river_nodes[order]
+surface_river_x = surface_river_x[order]
+
+order = np.argsort(surface_sol_x)
+surface_sol_nodes = surface_sol_nodes[order]
+surface_sol_x = surface_sol_x[order]
 
 # écriture au format attendu par METIS include: lignes préfixées par 'no'
-with open(trace_path, "w", encoding="utf-8") as f_trace:
-    chunk_size = 10
+chunk_size = 10
+
+with open(trace_river_path, "w", encoding="utf-8") as f_trace:
     for i in range(0, len(surface_river_nodes), chunk_size):
         chunk = surface_river_nodes[i:i + chunk_size]
         f_trace.write("   no  " + " ".join(str(n) for n in chunk) + "\n")
 
+with open(trace_surface_sol_path, "w", encoding="utf-8") as f_trace:
+    for i in range(0, len(surface_sol_nodes), chunk_size):
+        chunk = surface_sol_nodes[i:i + chunk_size]
+        f_trace.write("   no  " + " ".join(str(n) for n in chunk) + "\n")
+
 print(
-    f"trace_riv_berge généré: {trace_path} | "
+    f"trace_riv_berge généré: {trace_river_path} | "
     f"{len(surface_river_nodes)} noeuds de surface entre x={x_min_riv:.3f} et x={x_max_riv:.3f}"
+)
+print(
+    f"trace_surface_sol généré: {trace_surface_sol_path} | "
+    f"{len(surface_sol_nodes)} noeuds de surface hors rivière"
 )
 
 # figure verification
@@ -216,14 +360,28 @@ plt.plot(x_sorted, z_haut_sorted, label='z_haut (toit)', color='royalblue')
 plt.plot(x_sorted, z_bas_sorted, label='z_bas (fond)', color='saddlebrown')
 plt.fill_between(x_sorted, z_bas_sorted, z_haut_sorted, color='lightblue', alpha=0.3)
 plt.scatter(surface_river_x, node_z[mask_surface_river], color='red', label='Noeuds de surface rivière', zorder=5)
+plt.scatter(surface_sol_x, node_z[mask_surface_sol][np.argsort(surface_sol_x)], color='green', label='Noeuds de surface hors rivière', zorder=4)
 plt.axhline(y=z_zns, color='orange', linestyle='--', label=f'z = {z_zns} m')
 plt.xlabel('x')
 plt.ylabel('Altitude (m)')
-plt.title('Vérification des noeuds de surface pour trace_riv_berge')
+plt.title('Vérification des noeuds de surface rivière et hors rivière')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.show()
+finalize_plot("verification_noeuds_surface.png")
+
+rain_input_candidates = [
+    os.path.join(script_dir, "..", "E_PluieR.dat"),
+    os.path.join(script_dir, "..", "E_pluieR.dat"),
+]
+rain_input_path = next((path for path in rain_input_candidates if os.path.isfile(path)), None)
+if rain_input_path is None:
+    raise FileNotFoundError(
+        "Aucune chronique de pluie trouvee. Fichier attendu: E_PluieR.dat ou E_pluieR.dat"
+    )
+
+rain_output_path = os.path.join(script_dir, "pluie_surface.fic")
+write_uniform_metis_fic(rain_input_path, rain_output_path, time_step=900.0)
 
 input_list = ['E_chargeT_RD.dat','E_chargeT_RG.dat','E_chargeT_Riv.dat','E_tempT_RD.dat','E_tempT_RG.dat','E_tempT_Riv.dat']
 output_list = ['Ch_RD.txt','Ch_RG.txt','Ch_R.txt','temp_RD.txt','temp_RG.txt','temp_R.txt']
@@ -249,3 +407,5 @@ boundary_files_t = fm.run_cree_fic3(
 
 print(f"Fichiers de conditions limites hydrauliques créés : {boundary_files_h}")
 print(f"Fichiers de conditions limites thermiques créés : {boundary_files_t}")
+
+plot_existing_velocity_outputs()

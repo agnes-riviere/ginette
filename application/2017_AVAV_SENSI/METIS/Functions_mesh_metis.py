@@ -1724,7 +1724,7 @@ def run_cree_fic3(
     output_rd_path = os.path.join(MODULE_DIR, output_rd_fic) if not os.path.isabs(output_rd_fic) else output_rd_fic
     output_rg_path = os.path.join(MODULE_DIR, output_rg_fic) if not os.path.isabs(output_rg_fic) else output_rg_fic
 
-    subprocess.run(["gfortran", "-o", cree_fic3_exe, cree_fic3_src], check=True)
+    subprocess.run(["gfortran", "-o", cree_fic3_exe, cree_fic3_src], check=True, cwd=MODULE_DIR)
     subprocess.run([
         cree_fic3_exe,
         input_r_path,
@@ -1732,7 +1732,7 @@ def run_cree_fic3(
         input_rd_path,
         output_rd_path,
         output_rg_path,
-    ], check=True)
+    ], check=True, cwd=MODULE_DIR)
 
     for output_path in [output_r_path, output_rd_path, output_rg_path]:
         if not os.path.isfile(output_path) or os.path.getsize(output_path) == 0:
