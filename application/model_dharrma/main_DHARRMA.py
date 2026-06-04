@@ -55,7 +55,7 @@ dossier_actuel = Path(__file__).parent
 
 
 # Choix des parties à faire tourner dans le code
-thermique = True
+thermique = False
 sismic = False
 electrique = False
 visualisation = True
@@ -66,7 +66,7 @@ visualisation = True
 
 # Paramètres Généraux
 
-nbr_jour = 120 # nombre de jours de simulation au total
+nbr_jour = 10 # nombre de jours de simulation au total
 facies = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986)) 
 
 
@@ -80,14 +80,45 @@ dz = 0.01 # (en m) largeur des mailles du modèle hydro
 
 # Paramètre hydro
 pas_hydro = 900 # En seconde, Pas de temps à utiliser pour ma simulation hydro
-k1 = 6.94E-14 #1E-11# Perméabilité
-soil = selectSoilType(facies) # Paramètre selon le facies et la distribution de Carsel and Parrish
-phi_soil = soil[3] # Porosité
-Swr_soil = soil[7] # Saturation résiduelle
+homogeneite = False # Prise en compte de l'hétérogénéité du sol
 
-#Van genuchten parameter
-alpha_soil = soil[4]
-nvg_soil = soil[5]
+if homogeneite: # Paramètre de sol homogène
+    k1 = 6.94E-14 #1E-10#1E-11# Perméabilité
+    soil = selectSoilType(facies) # Paramètre selon le facies et la distribution de Carsel and Parrish
+    phi_soil = soil[3] #0.04# Porosité
+    Swr_soil = soil[7] #0.1325# Saturation résiduelle
+
+    #Van genuchten parameter
+    alpha_soil = soil[4]#14.5#
+    nvg_soil = soil[5]#2.68#
+
+else : # Paramètre de sol hétérogène
+    nbr_couches = 2
+    depth_boundary = -3 # (en m) Profondeur à laquelle on change de couche
+
+    #------ Couche 1------
+    facies1 = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986))
+
+    k1 = 6.94E-14 #1E-10#1E-11# Perméabilité
+    soil1 = selectSoilType(facies1) # Paramètre selon le facies et la distribution de Carsel and Parrish
+    phi_soil1 = soil1[3] #0.04# Porosité
+    Swr_soil1 = soil1[7] #0.1325# Saturation résiduelle
+
+    #Van genuchten parameter
+    alpha_soil1 = soil1[4]#14.5#
+    nvg_soil1 = soil1[5]#2.68#
+
+    #------ Couche 2------
+    facies2 = 'clay' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986))
+    k2 = 1E-14 # Perméabilité de la deuxième couche
+    soil2 = selectSoilType(facies2) # Paramètre selon le facies et la distribution de Carsel and Parrish
+    phi_soil2 = soil2[3] #0.04# Porosité
+    Swr_soil2 = soil2[7] #0.1325# Saturation résiduelle
+
+    #Van genuchten parameter
+    alpha_soil2 = soil2[4]#14.5#
+    nvg_soil2 = soil2[5]#2.68#
+
 
 
 
@@ -139,7 +170,17 @@ lambda1 = 2.4
 C1 = 897
 rho1 = 2400
 
-Dm.generate_zone_parameters_DHARRMA(thermique,depth_bottom,depth_top, dz, k1, phi_soil, alpha_soil, nvg_soil, Swr_soil, lambda1, C1, rho1)
+lambda2 = 1.5
+C2 = 800
+rho2 = 2000
+
+
+if homogeneite:
+    Dm.generate_zone_parameters_DHARRMA(thermique,depth_bottom,depth_top, dz, k1, phi_soil, alpha_soil, nvg_soil, Swr_soil, lambda1, C1, rho1)
+else :
+    Dm.generate_zone_parameters_hetero_DHARRMA(thermique,depth_bottom,depth_top, dz,nbr_couches, depth_boundary, k1, phi_soil1, alpha_soil1, nvg_soil1, Swr_soil1, lambda1, C1, rho1,
+                                        k2, phi_soil2, alpha_soil2, nvg_soil2, Swr_soil2, lambda2, C2, rho2)
+
 
 ###### Paramètre de simulation Sismique (avec Geopsy) --------------------------------------------------------------------------------------------------------------
 ######### Parametre simulation #############
@@ -215,7 +256,7 @@ debut_sim_elec = 1 # en jours
 pas_sim_elec = 1 # en jours
 fin_sim_elec = nbr_jour # (compris) en jours 
 
-elec_static = True
+elec_static = False
 
 ### Resistivité Vrai : Loi Petrophysique
 #Parametre Loi d'Archie
@@ -230,14 +271,16 @@ beta_s = 5.2E-9
 
 Waxman_smits = True
 if Waxman_smits:
-    # B_WS = Equation dans waxman smith
-    wsand = soil[0]
-    wclay = soil[1]
-    wsilt = soil[2]
-    CEC = wclay*19270 # illite Woodruff and Revil 2011
-    Q_v = rho1*((1-phi_soil)/phi_soil)*CEC
+    if homogeneite:
+        # B_WS = Equation dans waxman smith
+        wsand = soil[0]
+        wclay = soil[1]
+        wsilt = soil[2]
+        CEC = wclay*19270 # illite Woodruff and Revil 2011
+        Q_v = rho1*((1-phi_soil)/phi_soil)*CEC
 
-    print("Q_v =",Q_v)
+        print("Q_v =",Q_v)
+        #AJOUTER PARAMETRE WAXMAN SMITS POUR HETEROGENEITE SI BESOIN
 
 
 ### Resistivité mesurée : Problème direct
@@ -252,8 +295,8 @@ mn2 = 1.0 # en mètre, écartement des électrodes MN
 
 ###### Paramètre Visualisation -------------------------------------------------------------------------------------------------------------------------------------
 
-visualisation_temp = True
-visualisation_pluie = True
+visualisation_temp = False
+visualisation_pluie = False
 
 #### Visualisation 2D ####
 debut_representation = 1 # en jours
@@ -267,12 +310,13 @@ visualisation_output_ginette = True
 visualisation_propriete_geophy_2D = False
 visualisation_observable_geophy_2D = False
 
-#Profil jour
-jour_profil = [1,30,40,60] #[i for i in range(1,110,30)]#[10,50,110] #[1,30,60,90,119] # [1,5,10,15,20]#Jour où on plot les profils des différents modèles suivant ce qu'on veut.
+#Profil journalier
+jour_profil = [1,4,8,9] #[i for i in range(1,110,30)]#[10,50,110] #[1,30,60,90,119] # [1,5,10,15,20]#Jour où on plot les profils des différents modèles suivant ce qu'on veut.
 representation = 1 # Représentation sur un seul graph
 # representation = 2 # Représentation sur plusieurs graph
+visualisation_propriete_hydro_profil = True
 visualisation_propriete_geophy_profil = False
-visualisation_observable_geophy_profil = True
+visualisation_observable_geophy_profil = False
 
 DEBUG = False
 
@@ -291,7 +335,8 @@ if lancer_ginette:
     #     print(f"Le fichier '{fichier}' existe et est accessible.")
     # else:
     #     print(f"Le fichier '{fichier}' n'existe pas ou n'est pas accessible.")
-    subprocess.call(["./ginette"])
+    subprocess.call(["./ginette"]) # Utilisation Linux
+    # subprocess.call(["ginette.exe"]) # Utilisation Windows
     # Revenez au répertoire précédent
     os.chdir('..')
     print('Run model hydro et thermique Ok')
@@ -667,8 +712,10 @@ if visualisation :
         fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies,representation = representation ,path_fig = None)
     if visualisation_propriete_geophy_profil:
         fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies,representation = representation,path_fig = None)
+    if visualisation_propriete_hydro_profil:
+        fct.plot_sat_jours(dossier_actuel,jour_profil,lim_depth = -2.1)
     
-    if True :
+    if False :
         fct.plot_only_sat(dossier_actuel,86400*8,86400*11,900*4*12,lim_depth=-3)
 
     plt.show()

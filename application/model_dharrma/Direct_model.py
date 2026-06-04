@@ -469,3 +469,108 @@ def generate_zone_parameters_DHARRMA(thermique,depth_bottom,depth_top, dz, k1, p
     # Écrire les paramètres dans le nouveau fichier
     f_paramZ_new.write(param_zone)
     f_paramZ_new.close()
+
+def generate_zone_parameters_hetero_DHARRMA(thermique,depth_bottom, depth_top, dz, nb_zone, depth_boundary, k1, phi1, alphaVG1, nVG1, Swr1, lambda1, C1, rho1, 
+                                            k2, phi2, alphaVG2, nVG2, Swr2, lambda2, C2, rho2):
+    """
+    Écrit le fichier de paramètres de zone en fonction du nombre de zones et des valeurs de paramètres.
+
+    Parameters:
+    - nb_zone: Nombre de zones (1 ou 2).
+    - REF_k: Perméabilité intrinsèque pour la zone 1.
+    - REF_n: Porosité pour la zone 1.
+    - REF_l: Conductivité thermique pour la zone 1.
+    - REF_r: Densité pour la zone 1.
+    - REF_k2: Perméabilité intrinsèque pour la zone 2 (si nb_zone == 2).
+    - REF_n2: Porosité pour la zone 2 (si nb_zone == 2).
+    - REF_l2: Conductivité thermique pour la zone 2 (si nb_zone == 2).
+    - REF_r2: Densité pour la zone 2 (si nb_zone == 2).
+    """
+
+    if nb_zone >= 3:
+        raise ValueError("Le nombre de zones ne peut pas être supérieur à 2 pour cette fonction.")
+
+    ########### Zone of parameters
+    f_coor = open(f"{dossier_actuel}/input_ginette/E_coordonnee.dat", "w")
+    f_zone = open(f"{dossier_actuel}/input_ginette/E_zone.dat", 'w')
+
+    coord = pd.DataFrame()    
+
+    # Coodrinate
+    zvalues = np.sort(np.arange(depth_bottom +dz/2, depth_top, dz))
+    zvalues = zvalues[::-1]
+    xvalues = np.array([0.5])
+    zz, xx = np.meshgrid(zvalues, xvalues)
+    NT = np.prod(zz.shape)  # Remplacement de np.product par np.prod
+    data = {
+        "x": np.reshape(xx, NT),
+        "z": np.reshape(zz, NT)
+    }
+    coord = pd.DataFrame(data=data)
+    coord['id'] = coord.index.values.astype(int)
+    coord['id'] = coord['id'] + 1
+    cols = coord.columns.tolist()
+    cols = cols[-1:] + cols[:-1]
+    coord = coord[cols] 
+    coord.to_csv(f_coor, index=False, sep=' ', header=False)
+    
+    # zone parameter by cell (homogenous domain = 1 zone) A CHANGER SI HETEROGENEITE
+    print(depth_boundary)
+    # coord['zone'] = np.where(coord['z'] <= depth_boundary, 2, coord['zone'])
+    coord['zone'] = 1
+    coord['zone'] = np.where(coord['z'] <= depth_boundary, 2, coord['zone'])
+    print(coord)
+    # Write new ginette files
+    coord.zone.to_csv(f_zone, index=False, header=False)
+
+    # close files    
+    f_zone.close()
+    f_coor.close()
+    
+    param_zone = None
+ 
+    with open(f"{dossier_actuel}/input_ginette/E_zone_parameter_backup_hetero.dat", "r") as f_paramZ_bck:
+        param_zone = f_paramZ_bck.read()
+    if thermique:
+        # Remplacer les valeurs des paramètres
+        param_zone = param_zone.replace('[k1]', '%8.2e' % k1)
+        param_zone = param_zone.replace('[phi1]', '%6.2f' % phi1)
+        param_zone = param_zone.replace('[alphaVG1]', '%6.2f' % alphaVG1)
+        param_zone = param_zone.replace('[nVG1]', '%6.2f' % nVG1)
+        param_zone = param_zone.replace('[Swr1]', '%6.2f' % Swr1)
+        param_zone = param_zone.replace('[lambda1]', '%6.2f' % lambda1)
+        param_zone = param_zone.replace('[C1]', '%6.0f' % C1)
+        param_zone = param_zone.replace('[rho1]', '%6.0f' % rho1)
+        # Remplacer les valeurs des paramètres zone 2
+        param_zone = param_zone.replace('[k2]', '%8.2e' % k2)
+        param_zone = param_zone.replace('[phi2]', '%6.2f' % phi2)
+        param_zone = param_zone.replace('[alphaVG2]', '%6.2f' % alphaVG2)
+        param_zone = param_zone.replace('[nVG2]', '%6.2f' % nVG2)
+        param_zone = param_zone.replace('[Swr2]', '%6.2f' % Swr2)
+        param_zone = param_zone.replace('[lambda2]', '%6.2f' % lambda2)
+        param_zone = param_zone.replace('[C2]', '%6.0f' % C2)
+        param_zone = param_zone.replace('[rho2]', '%6.0f' % rho2)
+    else :
+        # Remplacer les valeurs des paramètres
+        param_zone = param_zone.replace('[k1]', '%8.2e' % k1)
+        param_zone = param_zone.replace('[phi1]', '%6.2f' % phi1)
+        param_zone = param_zone.replace('[alphaVG1]', '%6.2f' % alphaVG1)
+        param_zone = param_zone.replace('[nVG1]', '%6.2f' % nVG1)
+        param_zone = param_zone.replace('[Swr1]', '%6.2f' % Swr1)
+        param_zone = param_zone.replace('[lambda1]', '')
+        param_zone = param_zone.replace('[C1]', '')
+        param_zone = param_zone.replace('[rho1]', '')
+        # Remplacer les valeurs des paramètres zone 2
+        param_zone = param_zone.replace('[k2]', '%8.2e' % k2)
+        param_zone = param_zone.replace('[phi2]', '%6.2f' % phi2)
+        param_zone = param_zone.replace('[alphaVG2]', '%6.2f' % alphaVG2)
+        param_zone = param_zone.replace('[nVG2]', '%6.2f' % nVG2)
+        param_zone = param_zone.replace('[Swr2]', '%6.2f' % Swr2)
+        param_zone = param_zone.replace('[lambda2]', '')
+        param_zone = param_zone.replace('[C2]', '')
+        param_zone = param_zone.replace('[rho2]', '')
+    # Ouvrir le fichier de paramètres de zone
+    f_paramZ_new = open(f"{dossier_actuel}/input_ginette/E_zone_parameter.dat", 'w')
+    # Écrire les paramètres dans le nouveau fichier
+    f_paramZ_new.write(param_zone)
+    f_paramZ_new.close()

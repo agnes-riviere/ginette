@@ -1773,6 +1773,49 @@ def plot_only_sat(path_result,debut_rp,jours_rp,pas_rp,lim_depth = -2.1):
         ax.set_ylabel('Depth (m)')
         ax.legend(loc = 'lower left')
         ax.set_xlabel('Saturation (-)')
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def plot_sat_jours(path_result,jour_plot,lim_depth = -2.1):
+    '''
+    
+    '''
+
+    sat_txt = np.loadtxt(f'{path_result}/input_ginette/S_saturation_profil_t.dat')
+        
+    dt = sat_txt[:,0]
+    z = sat_txt[:,1]
+    sat = sat_txt[:,2]
+
+    temps_voulu = []
+
+    df_tot_sat = pd.DataFrame({'dt_sat': dt,'z_sat':z, 'sat': sat})
+
+    df_tot_sat = df_tot_sat[df_tot_sat["z_sat"]>=lim_depth].copy()
+
+    sec_profil = [sec*86400 for sec in jour_plot]
+    color_map = copper(np.linspace(0, 1, len(sec_profil)))
+
+    # df_tot_sat_static = pd.DataFrame({'hauteur_WT': hauteur_WT_sat,'z_sat_static': z_sat_static, 'sat_static': sat_static})
+    # df_tot_Vs_static = pd.DataFrame({'hauteur_WT': hauteur_WT,'z_sis_static': z_sis_static, 'Vs': Vs_static})
+    # df_tot_rho_static = pd.DataFrame({'dt_rho': dt_rho_static,'z_elec_static': z_elec_static,'rho_vrai_static' : rho_vrai_static})
+
+
+    for i, t_profil in enumerate (sec_profil):
+        color = color_map[i,:]
+
+        profil_sat = df_tot_sat[df_tot_sat["dt_sat"]==t_profil]
+
+        if i == 0 :
+                plt.rcParams['font.size']=20
+                fig,ax = plt.subplots(figsize=(5,15))
+                # profil_sat = df_tot_sat[df_tot_sat["dt_sat"]==900]
+                # ax.plot(profil_sat['sat'],profil_sat['z_sat'],color = color,label = f'Day {t_profil}')
+            
+        ax.plot(profil_sat['sat'],profil_sat['z_sat'],color = color,label = f'jours {jour_plot[i]}')
+        ax.set_ylabel('Depth (m)')
+        ax.legend(loc = 'lower left')
+        ax.set_xlabel('Saturation (-)')
     
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
