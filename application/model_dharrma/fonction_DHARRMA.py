@@ -806,7 +806,7 @@ def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation
         path_rho_app = f'{path_result}/elec/{facies}/rho_app_AB2.dat'
     
     else: 
-        path_PS_V = f'{path_result}/sismique/{facies}/output_SL_kk4_PS_v_Phase.dat'
+        path_PS_V = f'{path_result}/sismique/{facies}_{facies2}/output_SL_kk4_PS_v_Phase.dat'
         path_rho_app = f'{path_result}/elec/{facies}_{facies2}/rho_app_AB2.dat'
     
 
@@ -921,11 +921,11 @@ def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation
 
 
             ax[2].plot(profil_Vs['PS_V'],profil_Vs['freq'],color=color)
-            ax[2].set_ylim(150,250)
-            # ax[2].set_xlim(230,280)
+            ax[2].set_ylim(0,250)
+            # ax[2].set_xlim(225,300)
             ax[2].set_ylabel('Fréquence (Hz)')
             # ax[0,2].set_xticklabels([])
-            ax[2].set_xlabel ('Surface-wave velocity (m/s)')
+            ax[2].set_xlabel ('Surface-wave\nvelocity (m/s)')
 
             ax[3].plot(profil_temp['temp'],profil_temp['z_temp'],color=color)
             ax[3].set_ylabel('Depth (m)')
@@ -994,11 +994,11 @@ def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation
 
             ax[i,2].plot(profil_Vs['PS_V'],profil_Vs['freq'],color = 'blue')
             # ax[i,2].plot(profil_Vs_static['PS_V'],profil_Vs_static['freq'],color = 'red',linestyle='--')
-            ax[i,2].set_ylim(150,250)
-            if facies =='silt':
-                ax[i,2].set_xlim(230,270)
-            elif facies == 'clay':
-                ax[i,2].set_xlim(180,220)
+            # ax[i,2].set_ylim(150,250)
+            # if facies =='silt':
+            #     ax[i,2].set_xlim(230,270)
+            # elif facies == 'clay':
+            #     ax[i,2].set_xlim(180,220)
             
             ax[i,3].plot(profil_temp['temp'],profil_temp['z_temp'],color = 'blue')
             ax[i,3].set_ylim(-lim_depth,0)
@@ -1029,7 +1029,7 @@ def plot_profil_propriete_dharrma(path_result,jour_profil,facies,representation 
         path_rho_vrai = f'{path_result}/elec/{facies}/rho_vrai.dat'
     
     else :
-        path_Vs = f'{path_result}/sismique/{facies}/output_SL_kk4_Vp_Vs.dat'
+        path_Vs = f'{path_result}/sismique/{facies}_{facies2}/output_SL_kk4_Vp_Vs.dat'
         path_rho_vrai = f'{path_result}/elec/{facies}_{facies2}/rho_vrai.dat'
 
     temp_txt = np.loadtxt(path_temp)

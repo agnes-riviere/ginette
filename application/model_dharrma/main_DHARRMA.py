@@ -55,11 +55,11 @@ dossier_actuel = Path(__file__).parent
 
 
 # Choix des parties à faire tourner dans le code
-thermique = False
-sismic = False
-electrique = False
+lancer_ginette = True
+thermique = True
+sismic = True
+electrique = True
 visualisation = True
-
 
 
 ######################## PARTIE I : INPUT DU MODÈLE ##########################################
@@ -71,7 +71,7 @@ facies = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (198
 
 
 ###### Paramètre de simulation Hydro GINETTE-----------------------------------------------------------------------------------------------------------------------
-lancer_ginette = False
+
 # Maillage de GINETTE
 depth_top = 0 # (en m) haut du modèle
 depth_bottom = -4 # (en m) bas du modèle
@@ -95,7 +95,7 @@ if homogeneite: # Paramètre de sol homogène
 
 else : # Paramètre de sol hétérogène
     nbr_couches = 2
-    depth_boundary = -1 # (en m) Profondeur à laquelle on change de couche
+    depth_boundary = -3 # (en m) Profondeur à laquelle on change de couche
 
     #------ Couche 1------
     facies1 = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986))
@@ -212,11 +212,16 @@ k_sand = 37.0
 rho_clay = 2580.0 # Density [kg/m3]
 rho_silt = 2600.0
 rho_sand = 2600.0
-soiltypes = [facies]
+
+if homogeneite:
+    soiltypes = [facies]
+else:
+    soiltypes = [facies1,facies2]
+    # soiltypes2 = [facies2]
 
 # Grains/agregate parameters per layer
-Ns = [9] # Coordination Number (number of contact per grain) | default = 8
-fracs = [0.3] # Fraction of non-slipping grains (helps making the soil less stiff) | default = 0.3
+Ns = [9,9] # Coordination Number (number of contact per grain) | default = 8
+fracs = [0.3,0.3] # Fraction of non-slipping grains (helps making the soil less stiff) | default = 0.3
 # Four possible RP models:
 # kk = 1 # Constant Pe (see the approach of Zyserman et al., 2017)
 # kk = 2 # Pe without suction
@@ -261,10 +266,9 @@ fin_sim_elec = nbr_jour # (compris) en jours
 elec_static = False
 
 ### Resistivité Vrai : Loi Petrophysique
+
 #Parametre Loi d'Archie
 a_archie = 1.196 # Facteur de tortuosité ]0.5;1.5] #limon = 1.196, sable = 1.147
-rho_water_25 = 75 # Resistivité elec du fluide ici de l'eau à 25°C (en ohm.m)
-a_T = 0.02 # Compensateur de Température Hayashi 2004 et valeur de Matthes 1982
 m_archie = 1.929 # Exposant de concentration # limon = 1.929, sable = 2.135
 n_archie = 2.338 # Exposant de saturation # limon = 2.338, sable = 0.858
 # Parametre a,m et n calculé avec les techniques conventionelles.
@@ -275,6 +279,10 @@ if homogeneite ==  False:
      n_archie2 = 0.858 # Exposant de saturation # limon = 2.338, sable = 0.858
 
 beta_s = 5.2E-9
+
+#Corection thermique
+rho_water_25 = 75 # Resistivité elec du fluide ici de l'eau à 25°C (en ohm.m)
+a_T = 0.02 # Compensateur de Température Hayashi 2004 et valeur de Matthes 1982
 
 Waxman_smits = True
 if Waxman_smits:
@@ -406,31 +414,62 @@ if sismic:
             
             hs.append(round(float(h_val),3))
         
-        for prof in range (len(hs)):
-            Swes_val = (saturation_profil[prof] - Swr_soil) / (1 - Swr_soil)
-        
-            Swes.append(Swes_val)
+        if homogeneite:
+            for prof in range (len(hs)):
+                Swes_val = (saturation_profil[prof] - Swr_soil) / (1 - Swr_soil)
+
+                Swes.append(Swes_val)
+            thicknesses = [depth]
+        else:
+            for prof in range (len(hs)):
+                if prof <= int(abs(depth_boundary/dz)) :
+                    Swes_val = (saturation_profil[prof] - Swr_soil1) / (1 - Swr_soil1)
+                else :
+                    Swes_val = (saturation_profil[prof] - Swr_soil2) / (1 - Swr_soil2)
+
+                Swes.append(Swes_val)
+            thicknesses = [abs(depth_boundary),abs(depth_top-depth_bottom)-abs(depth_boundary)]
+        if len(set(map(len, (soiltypes, thicknesses, Ns, fracs)))) != 1:
+            raise ValueError(f"Arrays are not the same size : {soiltypes = }, {thicknesses = }, {Ns = }, {fracs = }")
+
 
         # Effective Grain Properties (constant with depth)
         mus, ks, rhos, nus = hillsAverage(mu_clay, mu_silt, mu_sand, rho_clay,
-                                            rho_silt, rho_sand, k_clay, k_silt,
-                                            k_sand, soiltypes)
+                                                rho_silt, rho_sand, k_clay, k_silt,
+                                                k_sand, soiltypes)
         
-        thicknesses = [depth]
-        
+
         # Effective Fluid Properties
         kfs, rhofs, rhobs = effFluid(saturation_profil, kw, ka, rhow,
-                                    rhoa, rhos, soiltypes, thicknesses , dz) # Utilisation de la saturation total
-        
+                                        rhoa, rhos, soiltypes, thicknesses , dz) # Utilisation de la saturation total
+
+
         # Hertz Mindlin Frame Properties
         KHMs, muHMs = hertzMindlin_trans(Swes, zs, hs, rhobs, pression_profil,
-                                g, rhoa, rhow, Ns,
-                                mus, nus, fracs, kk,
-                                soiltypes, thicknesses) # Utilisation de la saturation effective
-        
+                                    g, rhoa, rhow, Ns,
+                                    mus, nus, fracs, kk,
+                                    soiltypes, thicknesses) # Utilisation de la saturation effective
+
         # Saturated Properties
         VPs, VSs = biotGassmann(KHMs, muHMs, ks, kfs,
-                                rhobs, soiltypes, thicknesses, dz)
+                                    rhobs, soiltypes, thicknesses, dz)
+        
+        # else:
+        #     for prof in range (len(hs)):
+        #         Swes_val = (saturation_profil[prof] - Swr_soil1) / (1 - Swr_soil1)
+
+        #         Swes.append(Swes_val)
+
+
+        #     # Effective Grain Properties (constant with depth)
+        #     mus1, ks1, rhos1, nus1 = hillsAverage(mu_clay, mu_silt, mu_sand, rho_clay,
+        #                                         rho_silt, rho_sand, k_clay, k_silt,
+        #                                         k_sand, soiltypes1)
+            
+        #     mus2, ks2, rhos2, nus2 = hillsAverage(mu_clay, mu_silt, mu_sand, rho_clay,
+        #                                         rho_silt, rho_sand, k_clay, k_silt,
+        #                                         k_sand, soiltypes2)
+            
 
     # SEISMIC FWD MODELING -----------------------------------------------------------------------------------------------------------------------
 
@@ -481,8 +520,13 @@ if sismic:
         print(f'Simulation sismique : {i+1}/{it_tot_simique+1}')
         ### SAUVEGARDE DES DONNEES #####
         if i == 0 :
-            path_vp_vs = f'sismique/{soiltypes[0]}/output_SL_kk{kk}_Vp_Vs.dat'
-            path_PS_v = f'sismique/{soiltypes[0]}/output_SL_kk{kk}_PS_v_Phase.dat'                
+            if homogeneite:
+                path_vp_vs = f'sismique/{soiltypes[0]}/output_SL_kk{kk}_Vp_Vs.dat'
+                path_PS_v = f'sismique/{soiltypes[0]}/output_SL_kk{kk}_PS_v_Phase.dat'
+            
+            else:
+                path_vp_vs = f'sismique/{soiltypes[0]}_{soiltypes[1]}/output_SL_kk{kk}_Vp_Vs.dat'
+                path_PS_v = f'sismique/{soiltypes[0]}_{soiltypes[1]}/output_SL_kk{kk}_PS_v_Phase.dat'
 
             if not os.path.exists(path_vp_vs):
                 os.makedirs(os.path.dirname(path_vp_vs), exist_ok=True)
