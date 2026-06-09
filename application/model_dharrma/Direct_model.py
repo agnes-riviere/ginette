@@ -515,11 +515,9 @@ def generate_zone_parameters_hetero_DHARRMA(thermique,depth_bottom, depth_top, d
     coord.to_csv(f_coor, index=False, sep=' ', header=False)
     
     # zone parameter by cell (homogenous domain = 1 zone) A CHANGER SI HETEROGENEITE
-    print(depth_boundary)
     # coord['zone'] = np.where(coord['z'] <= depth_boundary, 2, coord['zone'])
     coord['zone'] = 1
     coord['zone'] = np.where(coord['z'] <= depth_boundary, 2, coord['zone'])
-    print(coord)
     # Write new ginette files
     coord.zone.to_csv(f_zone, index=False, header=False)
 

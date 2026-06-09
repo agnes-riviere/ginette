@@ -248,8 +248,8 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             fig, ax = plt.subplots(2,2,figsize=(20,7))
             ax[0,0].plot(time,pluie_A,label = 'infiltration')
             ax[0,0].fill_between(time, pluie_A, 0, alpha=0.3, color="blue")
-            ax[0,0].set_xlim(0,120)
-            ax[0,0].set_ylim(0, 3.2E-08)
+            ax[0,0].set_xlim(0,jours_sim)
+            ax[0,0].set_ylim(min(pluie_A)*1.1, max(pluie_A)*1.1)
             ax[0,0].tick_params(axis='both', labelsize=20)
             ax[0,0].set_xticklabels([])
             # ax[0,0].set_xlabel('day',fontsize = 20)
@@ -275,8 +275,8 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             
             ax[1,0].plot(time,pluie_B,label = 'infiltration')
             ax[1,0].fill_between(time, pluie_B, 0, alpha=0.3, color="blue")
-            ax[1,0].set_xlim(0,120)
-            ax[1,0].set_ylim(0, 3.2E-08)
+            ax[1,0].set_xlim(0,jours_sim)
+            ax[1,0].set_ylim(min(pluie_B)*1.1, max(pluie_B)*1.1)
             ax[1,0].tick_params(axis='both', labelsize=20)
             ax[1,0].set_xlabel('day',fontsize = 20)
             ax[1,0].set_ylabel('Infiltration (m/s)', fontsize = 20)
@@ -302,7 +302,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             # Plot 1
             ax[0].plot(time,pluie_A,label = 'infiltration')
             ax[0].fill_between(time, pluie_A, 0, alpha=0.3, color="blue")
-            ax[0].set_xlim(0,120)
+            ax[0].set_xlim(0,jours_sim)
             ax[0].set_ylim(0, 3.2E-08)
             ax[0].tick_params(axis='both', labelsize=20)
             # ax[0].set_xlabel('day',fontsize = 20)
@@ -323,7 +323,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
 
             ax[1].plot(time,pluie_B,label = 'infiltration')
             ax[1].fill_between(time, pluie_B, 0, alpha=0.3, color="blue")
-            ax[1].set_xlim(0,120)
+            ax[1].set_xlim(0,jours_sim)
             ax[1].set_ylim(0, 3.2E-08)
             ax[1].tick_params(axis='both', labelsize=20)
             ax[1].set_xlabel('day',fontsize = 20)
@@ -345,6 +345,8 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
         for temps_sec in range(900,jours_sim*86400,pas_sim):
             temps_jour = temps_sec/86400
 
+            
+
             cumul_A = cumul_A + pluie_A[i]
             cumul_A_list.append(cumul_A)
 
@@ -352,7 +354,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             i=i+1
 
             # print(i)
-        
+        pluie_A = pluie_A[:len(time)]
         if hauteur_WT_A :
             depth_WT_A = np.loadtxt(hauteur_WT_A)
 
@@ -360,7 +362,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
 
             ax[0].plot(time,pluie_A,label = 'infiltration')
             ax[0].fill_between(time, pluie_A, 0, alpha=0.3, color="blue")
-            ax[0].set_xlim(0,120)
+            ax[0].set_xlim(0,jours_sim)
             # ax[0].set_ylim(0, 3.2E-08)
             ax[0].tick_params(axis='both', labelsize=20)
             ax[0].set_xlabel('day',fontsize = 20)
@@ -390,7 +392,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             ax.fill_between(time, pluie_A, 0, alpha=0.3, color="blue")
             ax2 = ax.twinx()
             ax2.plot(time,cumul_A_list,color = 'black', label = 'cumul')
-            ax.set_xlim(0,120)
+            ax.set_xlim(0,jours_sim)
             # ax.set_ylim(0, 3.2E-08)
             ax2.set_ylim(0, max_cumul)
             ax.tick_params(axis='both', labelsize=20)
@@ -790,15 +792,23 @@ def three_plot_observable_geophy_dharrma(path_result,debut_rp,jours_rp,pas_rp, f
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation = 1,path_fig = None,lim_depth=2.1):
+def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation = 1,path_fig = None,lim_depth=2.1,facies2=None):
     '''
     
     '''
 
-    path_temp = f'{path_result}/input_ginette/S_temperature_t.dat'
-    path_PS_V = f'{path_result}/sismique/{facies}/output_SL_kk4_PS_v_Phase.dat'
-    path_rho_app = f'{path_result}/elec/{facies}/rho_app_AB2.dat'
     path_saturation = f'{path_result}/input_ginette/S_saturation_profil_t.dat'
+    path_temp = f'{path_result}/input_ginette/S_temperature_t.dat'
+
+
+    if facies2 == None:
+        path_PS_V = f'{path_result}/sismique/{facies}/output_SL_kk4_PS_v_Phase.dat'
+        path_rho_app = f'{path_result}/elec/{facies}/rho_app_AB2.dat'
+    
+    else: 
+        path_PS_V = f'{path_result}/sismique/{facies}/output_SL_kk4_PS_v_Phase.dat'
+        path_rho_app = f'{path_result}/elec/{facies}_{facies2}/rho_app_AB2.dat'
+    
 
     # path_temp = path_transient + f'/temp/{facies}/pluie_{pluie}/S_temperature_t.dat'
     # path_PS_V = path_transient + f'/sismique/pluie_{pluie}/{facies}/output_SL_kk4_PS_v_Phase.dat'
@@ -904,7 +914,7 @@ def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation
             ax[1].plot(profil_rho['rho_app'],profil_rho['AB_2'],color=color)
             ax[1].set_ylabel('AB/2 (m)')
             ax[1].set_yscale('log')
-            ax[1].set_ylim(profil_rho['AB_2'].min(), profil_rho['AB_2'].max())
+            # ax[1].set_ylim(profil_rho['AB_2'].min(), profil_rho['AB_2'].max())
             ax[1].invert_yaxis()
             # ax[0,1].set_xticklabels([])
             ax[1].set_xlabel('Mesured resistivity ' + r"$(\Omega{}.m)$")
@@ -1005,20 +1015,22 @@ def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def plot_profil_propriete_dharrma(path_result,jour_profil,facies,representation = 1,path_fig = None, Vp_Vs = 'Vs'):
+def plot_profil_propriete_dharrma(path_result,jour_profil,facies,representation = 1,path_fig = None, Vp_Vs = 'Vs',facies2=None):
 
     '''
     
     '''
-
     path_temp = f'{path_result}/input_ginette/S_temperature_t.dat'
-    path_Vs = f'{path_result}/sismique/{facies}/output_SL_kk4_Vp_Vs.dat'
-    path_rho_vrai = f'{path_result}/elec/{facies}/rho_vrai.dat'
     path_saturation = f'{path_result}/input_ginette/S_saturation_profil_t.dat'
 
-        # path_sat_static = path_static + f'/{facies}/WT_scenario_{pluie}/hydro/Saturation.dat'
-        # path_rho_vrai_static = path_static + f'/{facies}/WT_scenario_{pluie}/elec/rho_vrai_static_temperature.dat'
-        # path_Vs_static = path_static + f'/{facies}/WT_scenario_{pluie}/sismique/output_SL_kk3_Vp_Vs.dat'
+    if facies2 == None:
+        
+        path_Vs = f'{path_result}/sismique/{facies}/output_SL_kk4_Vp_Vs.dat'
+        path_rho_vrai = f'{path_result}/elec/{facies}/rho_vrai.dat'
+    
+    else :
+        path_Vs = f'{path_result}/sismique/{facies}/output_SL_kk4_Vp_Vs.dat'
+        path_rho_vrai = f'{path_result}/elec/{facies}_{facies2}/rho_vrai.dat'
 
     temp_txt = np.loadtxt(path_temp)
     Vs_txt = np.loadtxt(path_Vs)

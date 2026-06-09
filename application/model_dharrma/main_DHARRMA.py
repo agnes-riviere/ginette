@@ -66,21 +66,22 @@ visualisation = True
 
 # Paramètres Généraux
 
-nbr_jour = 10 # nombre de jours de simulation au total
+nbr_jour = 23 # nombre de jours de simulation au total
 facies = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986)) 
 
 
 ###### Paramètre de simulation Hydro GINETTE-----------------------------------------------------------------------------------------------------------------------
-lancer_ginette = True
+lancer_ginette = False
 # Maillage de GINETTE
 depth_top = 0 # (en m) haut du modèle
 depth_bottom = -4 # (en m) bas du modèle
 hauteur_WT_initial = -2 # (en m) Hauteur de la nappe à l'état initiale
 dz = 0.01 # (en m) largeur des mailles du modèle hydro
 
+
 # Paramètre hydro
 pas_hydro = 900 # En seconde, Pas de temps à utiliser pour ma simulation hydro
-homogeneite = False # Prise en compte de l'hétérogénéité du sol
+homogeneite = False # False = Prise en compte de l'hétérogénéité du sol
 
 if homogeneite: # Paramètre de sol homogène
     k1 = 6.94E-14 #1E-10#1E-11# Perméabilité
@@ -94,7 +95,7 @@ if homogeneite: # Paramètre de sol homogène
 
 else : # Paramètre de sol hétérogène
     nbr_couches = 2
-    depth_boundary = -3 # (en m) Profondeur à laquelle on change de couche
+    depth_boundary = -1 # (en m) Profondeur à laquelle on change de couche
 
     #------ Couche 1------
     facies1 = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986))
@@ -129,7 +130,7 @@ else:
 Dm.setup_ginette_DHARRMA(pas_hydro, ith, nbr_jour, depth_top, depth_bottom, abs(depth_top-depth_bottom), dz, pas_hydro,hauteur_WT_initial)
 
 # Création de fichier d'entrée pour GINETTE--------------------------------------------------------------------------------------------------------------------
-Creation_temp = True
+Creation_temp = False
 Creation_infiltation = True
 Evapo = False
 
@@ -158,8 +159,8 @@ if Creation_infiltation :
     if Evapo :
         max_evapo = 7E-8
         duree_transition_evapo = 0.125 # 1 # Jours
-        duree_max_evapo = 0.25 # 1 # Jours
-        debut_jour_evapo = [i+0.5 for i in range(1,120)]
+        duree_max_evapo = 0.5 # 1 # Jours
+        debut_jour_evapo = [i+0.5 for i in range(1,10)]
         fct.creation_infiltration_evapo(nbr_jour,pas_hydro,min_infiltration,max_infiltration,duree_transition,debut_jour_infiltration,duree_max_infiltration,0,max_evapo,duree_transition_evapo,debut_jour_evapo,duree_max_evapo)
     else :
         fct.creation_infiltration(nbr_jour,pas_hydro,min_infiltration,max_infiltration,duree_transition,debut_jour_infiltration,duree_max_infiltration)
@@ -170,9 +171,10 @@ lambda1 = 2.4
 C1 = 897
 rho1 = 2400
 
-lambda2 = 1.5
-C2 = 800
-rho2 = 2000
+if homogeneite == False:
+    lambda2 = 1.5
+    C2 = 800
+    rho2 = 2000
 
 
 if homogeneite:
@@ -190,7 +192,7 @@ fin_sim_sis = nbr_jour # (compris) en jours
 
 dz_sis = 0.01 # Discrétisation verticale (en m)
 
-first_arrival_calcul = True
+first_arrival_calcul = False
 
 ######### ROCK PHYSICS PARAMETERS ##########
 # General physical constants
@@ -267,6 +269,11 @@ m_archie = 1.929 # Exposant de concentration # limon = 1.929, sable = 2.135
 n_archie = 2.338 # Exposant de saturation # limon = 2.338, sable = 0.858
 # Parametre a,m et n calculé avec les techniques conventionelles.
 
+if homogeneite ==  False:
+     a_archie2 = 1.147 # Facteur de tortuosité ]0.5;1.5] #limon = 1.196, sable = 1.147
+     m_archie2 = 2.135 # Exposant de concentration # limon = 1.929, sable = 2.135
+     n_archie2 = 0.858 # Exposant de saturation # limon = 2.338, sable = 0.858
+
 beta_s = 5.2E-9
 
 Waxman_smits = True
@@ -280,7 +287,22 @@ if Waxman_smits:
         Q_v = rho1*((1-phi_soil)/phi_soil)*CEC
 
         print("Q_v =",Q_v)
-        #AJOUTER PARAMETRE WAXMAN SMITS POUR HETEROGENEITE SI BESOIN
+    else :
+        wsand1 = soil1[0]
+        wclay1 = soil1[1]
+        wsilt1 = soil1[2]
+        CEC1 = wclay1*19270 # illite Woodruff and Revil 2011
+        Q_v1 = rho1*((1-phi_soil1)/phi_soil1)*CEC1
+
+        wsand2 = soil2[0]
+        wclay2 = soil2[1]
+        wsilt2 = soil2[2]
+        CEC2 = wclay2*19270 # illite Woodruff and Revil 2011
+        Q_v2 = rho2*((1-phi_soil2)/phi_soil2)*CEC2
+
+        
+        print("Q_v1 =",Q_v1)
+        print("Q_v2 =",Q_v2)
 
 
 ### Resistivité mesurée : Problème direct
@@ -311,12 +333,12 @@ visualisation_propriete_geophy_2D = False
 visualisation_observable_geophy_2D = False
 
 #Profil journalier
-jour_profil = [1,4,8,9] #[i for i in range(1,110,30)]#[10,50,110] #[1,30,60,90,119] # [1,5,10,15,20]#Jour où on plot les profils des différents modèles suivant ce qu'on veut.
+jour_profil = [i for i in range (1,23,5)] #[i for i in range(1,110,30)]#[10,50,110] #[1,30,60,90,119] # [1,5,10,15,20]#Jour où on plot les profils des différents modèles suivant ce qu'on veut.
 representation = 1 # Représentation sur un seul graph
 # representation = 2 # Représentation sur plusieurs graph
-visualisation_propriete_hydro_profil = True
-visualisation_propriete_geophy_profil = False
-visualisation_observable_geophy_profil = False
+visualisation_propriete_hydro_profil = False
+visualisation_propriete_geophy_profil = True
+visualisation_observable_geophy_profil = True
 
 DEBUG = False
 
@@ -540,9 +562,27 @@ if electrique:
             # kappa = (pow(sat_profil_array,n_archie)/(a_archie*pow(phi_soil,-m_archie)))*(1/rho_water_T+kappa_s/sat_profil_array)
             # rho_vrai = 1/kappa
 
-            kappa_s = beta_s*Q_v/sat_profil_array
-            kappa = (pow(sat_profil_array,n_archie)/(a_archie*pow(phi_soil,-m_archie)))*((1/rho_water_T)+kappa_s)
-            # kappa = (pow(sat_profil_array,n_archie)/(a_archie*pow(phi_soil,-m_archie)))*((1/25)+0.5)
+            if homogeneite :
+                kappa_s = beta_s*Q_v/sat_profil_array
+                kappa = (pow(sat_profil_array,n_archie)/(a_archie*pow(phi_soil,-m_archie)))*((1/rho_water_T)+kappa_s)
+            
+            else :
+                 # Creation array Q_v
+                kappa = np.zeros(abs(int((depth_bottom-depth_top)/dz)))
+
+                for maille in range (abs(int((depth_bottom-depth_top)/dz))):
+                    if maille <= abs(int ((depth_boundary-depth_top)/dz)) : # Test pour savoir dans quelle couche on est
+                        
+                        #Couche 1
+                        kappa[maille] = (pow(sat_profil_array[maille],n_archie)/
+                                         (a_archie*pow(phi_soil1,-m_archie)))*((1/rho_water_T[maille])+(beta_s*Q_v1/sat_profil_array[maille]))
+
+                    else :
+
+                        #Couche 2
+                        kappa[maille] = (pow(sat_profil_array[maille],n_archie2)/
+                                         (a_archie*pow(phi_soil2,-m_archie2)))*((1/rho_water_T[maille])+(beta_s*Q_v2/sat_profil_array[maille]))
+
             rho_vrai = 1/kappa
             
             # rho_vrai = a_archie*rho_water_T*pow(phi_soil,-m_archie)*pow(sat_profil_array,-n_archie)*((1+rho_water_T*B_WS*Qv_WS)/(1+(rho_water_T*B_WS*Qv_WS/sat_profil_array)))
@@ -550,7 +590,10 @@ if electrique:
 
 
         else : # Loi d'Archie 
-            rho_vrai = a_archie*rho_water_T*pow(phi_soil,-m_archie)*pow(sat_profil_array,-n_archie)
+            if homogeneite :
+                rho_vrai = a_archie*rho_water_T*pow(phi_soil,-m_archie)*pow(sat_profil_array,-n_archie)
+            else :
+                raise NotImplementedError("Loi d'Archie non implémentée pour le cas hétérogène")
 
     #### Problème direct (Utilisation de PyGimly)
     # Espacement AB/2
@@ -568,8 +611,12 @@ if electrique:
         # print(len(u))
     #### SAUVEGARDE DES DONNEES #####
         if i == 0 :
-            path_rho_vrai = f'elec/{soiltypes[0]}/rho_vrai.dat'
-            path_rho_app_AB2 = f'elec/{soiltypes[0]}/rho_app_AB2.dat'
+            if homogeneite :
+                path_rho_vrai = f'elec/{soiltypes[0]}/rho_vrai.dat'
+                path_rho_app_AB2 = f'elec/{soiltypes[0]}/rho_app_AB2.dat'
+            else :
+                path_rho_vrai = f'elec/{facies1}_{facies2}/rho_vrai.dat'
+                path_rho_app_AB2 = f'elec/{facies1}_{facies2}/rho_app_AB2.dat'
             if not os.path.exists(path_rho_vrai):
                 os.makedirs(os.path.dirname(path_rho_vrai), exist_ok=True)
                 with open(path_rho_vrai, "w") as f:
@@ -709,9 +756,15 @@ if visualisation :
         fct.three_plot_observable_geophy_dharrma(dossier_actuel,debut_representation,fin_representation,pas_representation, facies, 
                                                  barre_vertical=[25.5,35.4],lim_depth=abs(lim_depth),path_save_fig =None)
     if visualisation_observable_geophy_profil:
-        fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies,representation = representation ,path_fig = None)
+        if homogeneite:
+            fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies,representation = representation ,path_fig = None)
+        else:
+            fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies1,representation = representation ,path_fig = None,facies2 = facies2)
     if visualisation_propriete_geophy_profil:
-        fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies,representation = representation,path_fig = None)
+        if homogeneite:
+            fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies,representation = representation,path_fig = None,facies2 = None)
+        else:
+            fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies1,representation = representation,path_fig = None,facies2 = facies2)
     if visualisation_propriete_hydro_profil:
         fct.plot_sat_jours(dossier_actuel,jour_profil,lim_depth = -2.1)
     
