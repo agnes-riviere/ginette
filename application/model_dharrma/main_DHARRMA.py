@@ -55,10 +55,10 @@ dossier_actuel = Path(__file__).parent
 
 
 # Choix des parties à faire tourner dans le code
-lancer_ginette = True
-thermique = True
-sismic = True
-electrique = True
+lancer_ginette = False
+thermique = False
+sismic = False
+electrique = False
 visualisation = True
 
 
@@ -82,6 +82,8 @@ dz = 0.01 # (en m) largeur des mailles du modèle hydro
 # Paramètre hydro
 pas_hydro = 900 # En seconde, Pas de temps à utiliser pour ma simulation hydro
 homogeneite = False # False = Prise en compte de l'hétérogénéité du sol
+sortie_hauteur_WT = True #True = Creation fichier S_wt_depth_t.dat qui donne la hauteur de la nappe en fonction du temps
+
 
 if homogeneite: # Paramètre de sol homogène
     k1 = 6.94E-14 #1E-10#1E-11# Perméabilité
@@ -347,11 +349,16 @@ representation = 1 # Représentation sur un seul graph
 visualisation_propriete_hydro_profil = False
 visualisation_propriete_geophy_profil = True
 visualisation_observable_geophy_profil = True
+visualisation_wt = True
 
 DEBUG = False
 
 #################### PARTIE II : MODÈLE HYDRO/THERMIQUE ######################################
+depth = depth_top-depth_bottom
+zs = -np.arange(dz, depth + dz, dz) # Depth positions (negative downward) [m]
+thks = np.diff(np.abs(zs)) # thickness vector [m]
 
+fct.creation_S_wt_depth(zs)
 # Compilation Ginette
 Info.compile_ginette_DHARRMA(DEBUG)
 
@@ -371,12 +378,14 @@ if lancer_ginette:
     os.chdir('..')
     print('Run model hydro et thermique Ok')
 
+
+    if sortie_hauteur_WT:
+        # Récupération de la hauteur de la nappe
+        fct.creation_S_wt_depth()
+
 ####################### PARTIE III : MODÈLE SISMIQUE #########################################
 
 if sismic:
-    depth = depth_top-depth_bottom
-    zs = -np.arange(dz, depth + dz, dz) # Depth positions (negative downward) [m]
-    thks = np.diff(np.abs(zs)) # thickness vector [m]
 
     # Modèle de physique des roches
     pressure = pd.read_csv("input_ginette/S_pressure_profil_t.dat", header=None, sep=r'\s+', names=['dt', 'Z', 'Pr','h'])
@@ -453,22 +462,6 @@ if sismic:
         # Saturated Properties
         VPs, VSs = biotGassmann(KHMs, muHMs, ks, kfs,
                                     rhobs, soiltypes, thicknesses, dz)
-        
-        # else:
-        #     for prof in range (len(hs)):
-        #         Swes_val = (saturation_profil[prof] - Swr_soil1) / (1 - Swr_soil1)
-
-        #         Swes.append(Swes_val)
-
-
-        #     # Effective Grain Properties (constant with depth)
-        #     mus1, ks1, rhos1, nus1 = hillsAverage(mu_clay, mu_silt, mu_sand, rho_clay,
-        #                                         rho_silt, rho_sand, k_clay, k_silt,
-        #                                         k_sand, soiltypes1)
-            
-        #     mus2, ks2, rhos2, nus2 = hillsAverage(mu_clay, mu_silt, mu_sand, rho_clay,
-        #                                         rho_silt, rho_sand, k_clay, k_silt,
-        #                                         k_sand, soiltypes2)
             
 
     # SEISMIC FWD MODELING -----------------------------------------------------------------------------------------------------------------------
@@ -811,6 +804,9 @@ if visualisation :
             fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies1,representation = representation,path_fig = None,facies2 = facies2)
     if visualisation_propriete_hydro_profil:
         fct.plot_sat_jours(dossier_actuel,jour_profil,lim_depth = -2.1)
+
+    if visualisation_wt:
+        fct.plot_wt_time(dossier_actuel,pas_jour_x=10)
     
     if False :
         fct.plot_only_sat(dossier_actuel,86400*8,86400*11,900*4*12,lim_depth=-3)

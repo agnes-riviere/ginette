@@ -1845,3 +1845,50 @@ def plot_temp_scenario(path_temp):
     ax.set_xlabel('Times (Days)', fontsize=16)
     ax.set_ylabel('Temperature\n(°C)', fontsize=16)
     fig.legend(fontsize = 16, loc='lower center', frameon=False, ncol=2)
+
+def creation_S_wt_depth(zs):
+
+    zsat_df = pd.DataFrame(columns=['dt', 'z_sat'])
+
+    saturation = pd.read_csv("input_ginette/S_saturation_profil_t.dat", header=None, sep=r'\s+', names=['dt', 'Z', 'Sw'])
+
+    dict_result = saturation.groupby("dt")["Sw"].apply(list).to_dict()
+
+    for i, temps in enumerate(dict_result):
+
+        saturation_profil = dict_result[temps]
+
+        #Trouver la hauteur de la WT
+        z_sat = None
+        j=0
+        while (j < len(zs) and z_sat == None) :
+                if saturation_profil[j] == 1.0 :
+                    z_sat = zs[j]
+                else :
+                    j = j+1
+            
+        
+        zsat_df.loc[len(zsat_df)] = [temps, z_sat]
+
+    # Creation du fichier S_wt_depth_t.dat
+    zsat_df.to_csv("input_ginette/S_wt_depth_t.dat", sep="\t", index=False, header=False)
+
+
+def plot_wt_time(path_result,pas_jour_x = 10):
+
+    zsat_txt = np.loadtxt(f'{path_result}/input_ginette/S_wt_depth_t.dat')
+        
+    dt = zsat_txt[:,0]
+    dt_jours = dt/86400
+    zsat = zsat_txt[:,1]
+
+    fig, ax = plt.subplots()
+
+    ax.plot(dt_jours, zsat)
+    ax.set_xticks(np.arange(min(dt_jours)-900/86400, max(dt_jours), pas_jour_x))
+    ax.set_title('Hauteur du niveau dans le temps')
+    ax.set_xlabel('Time (Days)')
+    ax.set_ylabel('WT depth(m)')
+
+    plt.show()
+        
