@@ -381,7 +381,7 @@ if lancer_ginette:
 
     if sortie_hauteur_WT:
         # Récupération de la hauteur de la nappe
-        fct.creation_S_wt_depth()
+        fct.creation_S_wt_depth(zs)
 
 ####################### PARTIE III : MODÈLE SISMIQUE #########################################
 
