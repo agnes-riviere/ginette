@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 from matplotlib.cm import copper
+import matplotlib.dates as mdates
 
 dossier_actuel = Path(__file__).parent
 
@@ -1874,21 +1875,88 @@ def creation_S_wt_depth(zs):
     zsat_df.to_csv("input_ginette/S_wt_depth_t.dat", sep="\t", index=False, header=False)
 
 
-def plot_wt_time(path_result,pas_jour_x = 10):
+def plot_wt_time(path_result,cote_ngf = 80.02,pas_jour_x = 10,ngf=False):
 
     zsat_txt = np.loadtxt(f'{path_result}/input_ginette/S_wt_depth_t.dat')
+
         
     dt = zsat_txt[:,0]
     dt_jours = dt/86400
     zsat = zsat_txt[:,1]
+    h_ngf = cote_ngf-zsat
 
-    fig, ax = plt.subplots()
+    if ngf:
+        fig, ax = plt.subplots(2,figsize=(15,10))
 
-    ax.plot(dt_jours, zsat)
-    ax.set_xticks(np.arange(min(dt_jours)-900/86400, max(dt_jours), pas_jour_x))
-    ax.set_title('Hauteur du niveau dans le temps')
-    ax.set_xlabel('Time (Days)')
-    ax.set_ylabel('WT depth(m)')
+        ax[0].plot(dt_jours, zsat)
+        ax[0].set_xticks(np.arange(min(dt_jours)-900/86400, max(dt_jours), pas_jour_x))
+        ax[0].set_xticklabels([])
+        ax[0].set_ylabel('WT depth(m)')
 
-    plt.show()
+        ax[1].plot(dt_jours,h_ngf)
+        ax[1].set_xticks(np.arange(min(dt_jours)-900/86400, max(dt_jours), pas_jour_x))
+        ax[1].set_xlabel('Time (Days)')
+        ax[1].set_ylabel('Hydraulic head (mNGF)')
+
+
+    else:
+
+        fig, ax = plt.subplots()
+
+        ax.plot(dt_jours, zsat)
+        ax.set_xticks(np.arange(min(dt_jours)-900/86400, max(dt_jours), pas_jour_x))
+        ax.set_title('Hauteur du niveau dans le temps')
+        ax.set_xlabel('Time (Days)')
+        ax.set_ylabel('WT depth(m)')
+
+    # plt.show()
         
+def plot_comparaison_wt_piezo(path_result,path_xlsx,cote_ngf_piezo ,pas_jour_x = 10):
+
+    #lecteur fichier
+    zsat_txt = np.loadtxt(f'{path_result}/input_ginette/S_wt_depth_t.dat')
+    df_piezo = pd.read_excel(path_xlsx)# ENcoding pour excel windows
+
+    # Convertir la première colonne en datetime
+    df_piezo["dates"] = pd.to_datetime(df_piezo["dates"],format="%d/%m/%Y %H:%M")
+
+    #Ajout IA----------------------------
+    #Traitement des trous dans le excel
+    col = " Hydraulic Head [mNGF]"
+    # Remplacer les espaces par NaN
+    df_piezo[col] = df_piezo[col].replace(r'^\s*$', pd.NA, regex=True)
+    # Conversion en numérique
+    df_piezo[col] = pd.to_numeric(df_piezo[col], errors="coerce")
+    # Supprimer les lignes invalides
+    df_piezo = df_piezo.dropna(subset=[col])
+    #---------------------------------------
+
+    #Convertion fichier
+        
+    dt = zsat_txt[:,0]
+    dt_jours = dt/86400 #Conversion en jours
+    zsat = zsat_txt[:,1]
+    h_ngf = cote_ngf_piezo+zsat #Conversion en mNGF
+
+    #mise en place des dates pour le fichier S_wt....
+    t0 = df_piezo["dates"].iloc[0]
+    dates_model = t0 + pd.to_timedelta(dt_jours, unit="D")
+
+    #Figure
+    fig, ax = plt.subplots(2,figsize=(15, 10))
+
+    #plot sortie Ginette
+    ax[0].plot(dates_model,h_ngf)
+    ax[0].xaxis.set_major_locator(mdates.MonthLocator(bymonthday=1)) # Un tick le 1er de chaque mois
+    ax[0].xaxis.set_major_formatter(mdates.DateFormatter("%m/%Y")) # Format d'affichage
+    # ax[0].set_xlabel('Time (Days)')
+    ax[0].set_ylabel('Simulated Hydraulic\nhead (mNGF)')
+
+    #plot piezo
+    ax[1].plot(df_piezo["dates"],df_piezo[" Hydraulic Head [mNGF]"],lw=1)
+    ax[1].xaxis.set_major_locator(mdates.MonthLocator(bymonthday=1)) # Un tick le 1er de chaque mois
+    ax[1].xaxis.set_major_formatter(mdates.DateFormatter("%m/%Y")) # Format d'affichage
+    ax[1].set_xlabel("Date")
+    ax[1].set_ylabel("Hydraulic\nHead [mNGF]")
+
+

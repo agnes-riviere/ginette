@@ -66,7 +66,7 @@ visualisation = True
 
 # Paramètres Généraux
 
-nbr_jour = 23 # nombre de jours de simulation au total
+nbr_jour =  62 # nombre de jours de simulation au total
 facies = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986)) 
 
 
@@ -350,6 +350,12 @@ visualisation_propriete_hydro_profil = False
 visualisation_propriete_geophy_profil = True
 visualisation_observable_geophy_profil = True
 visualisation_wt = True
+
+#Comparaison WT simulé avec un vrai piezomètre
+
+comparaison_wt_piezo = True
+path_xlsx = '/home/nradic/Documents/ginette/application/model_dharrma/save_data/pzps16.xlsx' #Chemin où se trouve le CSV du piezo à comparer
+cote_ngf_piezo = 80.02 # Cote en mNGF du piezo que l'on va comparer
 
 DEBUG = False
 
@@ -807,6 +813,9 @@ if visualisation :
 
     if visualisation_wt:
         fct.plot_wt_time(dossier_actuel,pas_jour_x=10)
+
+    if comparaison_wt_piezo:
+        fct.plot_comparaison_wt_piezo(dossier_actuel,path_xlsx,cote_ngf_piezo,pas_jour_x=10)
     
     if False :
         fct.plot_only_sat(dossier_actuel,86400*8,86400*11,900*4*12,lim_depth=-3)
