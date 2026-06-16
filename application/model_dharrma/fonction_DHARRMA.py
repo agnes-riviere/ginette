@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 from matplotlib.cm import copper
+import matplotlib.dates as mdates
 
 dossier_actuel = Path(__file__).parent
 
@@ -248,8 +249,8 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             fig, ax = plt.subplots(2,2,figsize=(20,7))
             ax[0,0].plot(time,pluie_A,label = 'infiltration')
             ax[0,0].fill_between(time, pluie_A, 0, alpha=0.3, color="blue")
-            ax[0,0].set_xlim(0,120)
-            ax[0,0].set_ylim(0, 3.2E-08)
+            ax[0,0].set_xlim(0,jours_sim)
+            ax[0,0].set_ylim(min(pluie_A)*1.1, max(pluie_A)*1.1)
             ax[0,0].tick_params(axis='both', labelsize=20)
             ax[0,0].set_xticklabels([])
             # ax[0,0].set_xlabel('day',fontsize = 20)
@@ -275,8 +276,8 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             
             ax[1,0].plot(time,pluie_B,label = 'infiltration')
             ax[1,0].fill_between(time, pluie_B, 0, alpha=0.3, color="blue")
-            ax[1,0].set_xlim(0,120)
-            ax[1,0].set_ylim(0, 3.2E-08)
+            ax[1,0].set_xlim(0,jours_sim)
+            ax[1,0].set_ylim(min(pluie_B)*1.1, max(pluie_B)*1.1)
             ax[1,0].tick_params(axis='both', labelsize=20)
             ax[1,0].set_xlabel('day',fontsize = 20)
             ax[1,0].set_ylabel('Infiltration (m/s)', fontsize = 20)
@@ -302,7 +303,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             # Plot 1
             ax[0].plot(time,pluie_A,label = 'infiltration')
             ax[0].fill_between(time, pluie_A, 0, alpha=0.3, color="blue")
-            ax[0].set_xlim(0,120)
+            ax[0].set_xlim(0,jours_sim)
             ax[0].set_ylim(0, 3.2E-08)
             ax[0].tick_params(axis='both', labelsize=20)
             # ax[0].set_xlabel('day',fontsize = 20)
@@ -323,7 +324,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
 
             ax[1].plot(time,pluie_B,label = 'infiltration')
             ax[1].fill_between(time, pluie_B, 0, alpha=0.3, color="blue")
-            ax[1].set_xlim(0,120)
+            ax[1].set_xlim(0,jours_sim)
             ax[1].set_ylim(0, 3.2E-08)
             ax[1].tick_params(axis='both', labelsize=20)
             ax[1].set_xlabel('day',fontsize = 20)
@@ -345,6 +346,8 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
         for temps_sec in range(900,jours_sim*86400,pas_sim):
             temps_jour = temps_sec/86400
 
+            
+
             cumul_A = cumul_A + pluie_A[i]
             cumul_A_list.append(cumul_A)
 
@@ -352,7 +355,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             i=i+1
 
             # print(i)
-        
+        pluie_A = pluie_A[:len(time)]
         if hauteur_WT_A :
             depth_WT_A = np.loadtxt(hauteur_WT_A)
 
@@ -360,7 +363,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
 
             ax[0].plot(time,pluie_A,label = 'infiltration')
             ax[0].fill_between(time, pluie_A, 0, alpha=0.3, color="blue")
-            ax[0].set_xlim(0,120)
+            ax[0].set_xlim(0,jours_sim)
             # ax[0].set_ylim(0, 3.2E-08)
             ax[0].tick_params(axis='both', labelsize=20)
             ax[0].set_xlabel('day',fontsize = 20)
@@ -390,7 +393,7 @@ def plot_graphe_pluie(path_pluie_A,jours_sim, pas_sim,path_pluie_B = None, liste
             ax.fill_between(time, pluie_A, 0, alpha=0.3, color="blue")
             ax2 = ax.twinx()
             ax2.plot(time,cumul_A_list,color = 'black', label = 'cumul')
-            ax.set_xlim(0,120)
+            ax.set_xlim(0,jours_sim)
             # ax.set_ylim(0, 3.2E-08)
             ax2.set_ylim(0, max_cumul)
             ax.tick_params(axis='both', labelsize=20)
@@ -790,15 +793,23 @@ def three_plot_observable_geophy_dharrma(path_result,debut_rp,jours_rp,pas_rp, f
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation = 1,path_fig = None,lim_depth=2.1):
+def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation = 1,path_fig = None,lim_depth=2.1,facies2=None):
     '''
     
     '''
 
-    path_temp = f'{path_result}/input_ginette/S_temperature_t.dat'
-    path_PS_V = f'{path_result}/sismique/{facies}/output_SL_kk4_PS_v_Phase.dat'
-    path_rho_app = f'{path_result}/elec/{facies}/rho_app_AB2.dat'
     path_saturation = f'{path_result}/input_ginette/S_saturation_profil_t.dat'
+    path_temp = f'{path_result}/input_ginette/S_temperature_t.dat'
+
+
+    if facies2 == None:
+        path_PS_V = f'{path_result}/sismique/{facies}/output_SL_kk4_PS_v_Phase.dat'
+        path_rho_app = f'{path_result}/elec/{facies}/rho_app_AB2.dat'
+    
+    else: 
+        path_PS_V = f'{path_result}/sismique/{facies}_{facies2}/output_SL_kk4_PS_v_Phase.dat'
+        path_rho_app = f'{path_result}/elec/{facies}_{facies2}/rho_app_AB2.dat'
+    
 
     # path_temp = path_transient + f'/temp/{facies}/pluie_{pluie}/S_temperature_t.dat'
     # path_PS_V = path_transient + f'/sismique/pluie_{pluie}/{facies}/output_SL_kk4_PS_v_Phase.dat'
@@ -904,18 +915,18 @@ def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation
             ax[1].plot(profil_rho['rho_app'],profil_rho['AB_2'],color=color)
             ax[1].set_ylabel('AB/2 (m)')
             ax[1].set_yscale('log')
-            ax[1].set_ylim(profil_rho['AB_2'].min(), profil_rho['AB_2'].max())
+            # ax[1].set_ylim(profil_rho['AB_2'].min(), profil_rho['AB_2'].max())
             ax[1].invert_yaxis()
             # ax[0,1].set_xticklabels([])
             ax[1].set_xlabel('Mesured resistivity ' + r"$(\Omega{}.m)$")
 
 
             ax[2].plot(profil_Vs['PS_V'],profil_Vs['freq'],color=color)
-            ax[2].set_ylim(150,250)
-            # ax[2].set_xlim(230,280)
+            ax[2].set_ylim(0,250)
+            # ax[2].set_xlim(225,300)
             ax[2].set_ylabel('Fréquence (Hz)')
             # ax[0,2].set_xticklabels([])
-            ax[2].set_xlabel ('Surface-wave velocity (m/s)')
+            ax[2].set_xlabel ('Surface-wave\nvelocity (m/s)')
 
             ax[3].plot(profil_temp['temp'],profil_temp['z_temp'],color=color)
             ax[3].set_ylabel('Depth (m)')
@@ -984,11 +995,11 @@ def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation
 
             ax[i,2].plot(profil_Vs['PS_V'],profil_Vs['freq'],color = 'blue')
             # ax[i,2].plot(profil_Vs_static['PS_V'],profil_Vs_static['freq'],color = 'red',linestyle='--')
-            ax[i,2].set_ylim(150,250)
-            if facies =='silt':
-                ax[i,2].set_xlim(230,270)
-            elif facies == 'clay':
-                ax[i,2].set_xlim(180,220)
+            # ax[i,2].set_ylim(150,250)
+            # if facies =='silt':
+            #     ax[i,2].set_xlim(230,270)
+            # elif facies == 'clay':
+            #     ax[i,2].set_xlim(180,220)
             
             ax[i,3].plot(profil_temp['temp'],profil_temp['z_temp'],color = 'blue')
             ax[i,3].set_ylim(-lim_depth,0)
@@ -1005,20 +1016,22 @@ def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def plot_profil_propriete_dharrma(path_result,jour_profil,facies,representation = 1,path_fig = None, Vp_Vs = 'Vs'):
+def plot_profil_propriete_dharrma(path_result,jour_profil,facies,representation = 1,path_fig = None, Vp_Vs = 'Vs',facies2=None):
 
     '''
     
     '''
-
     path_temp = f'{path_result}/input_ginette/S_temperature_t.dat'
-    path_Vs = f'{path_result}/sismique/{facies}/output_SL_kk4_Vp_Vs.dat'
-    path_rho_vrai = f'{path_result}/elec/{facies}/rho_vrai.dat'
     path_saturation = f'{path_result}/input_ginette/S_saturation_profil_t.dat'
 
-        # path_sat_static = path_static + f'/{facies}/WT_scenario_{pluie}/hydro/Saturation.dat'
-        # path_rho_vrai_static = path_static + f'/{facies}/WT_scenario_{pluie}/elec/rho_vrai_static_temperature.dat'
-        # path_Vs_static = path_static + f'/{facies}/WT_scenario_{pluie}/sismique/output_SL_kk3_Vp_Vs.dat'
+    if facies2 == None:
+        
+        path_Vs = f'{path_result}/sismique/{facies}/output_SL_kk4_Vp_Vs.dat'
+        path_rho_vrai = f'{path_result}/elec/{facies}/rho_vrai.dat'
+    
+    else :
+        path_Vs = f'{path_result}/sismique/{facies}_{facies2}/output_SL_kk4_Vp_Vs.dat'
+        path_rho_vrai = f'{path_result}/elec/{facies}_{facies2}/rho_vrai.dat'
 
     temp_txt = np.loadtxt(path_temp)
     Vs_txt = np.loadtxt(path_Vs)
@@ -1773,6 +1786,49 @@ def plot_only_sat(path_result,debut_rp,jours_rp,pas_rp,lim_depth = -2.1):
         ax.set_ylabel('Depth (m)')
         ax.legend(loc = 'lower left')
         ax.set_xlabel('Saturation (-)')
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def plot_sat_jours(path_result,jour_plot,lim_depth = -2.1):
+    '''
+    
+    '''
+
+    sat_txt = np.loadtxt(f'{path_result}/input_ginette/S_saturation_profil_t.dat')
+        
+    dt = sat_txt[:,0]
+    z = sat_txt[:,1]
+    sat = sat_txt[:,2]
+
+    temps_voulu = []
+
+    df_tot_sat = pd.DataFrame({'dt_sat': dt,'z_sat':z, 'sat': sat})
+
+    df_tot_sat = df_tot_sat[df_tot_sat["z_sat"]>=lim_depth].copy()
+
+    sec_profil = [sec*86400 for sec in jour_plot]
+    color_map = copper(np.linspace(0, 1, len(sec_profil)))
+
+    # df_tot_sat_static = pd.DataFrame({'hauteur_WT': hauteur_WT_sat,'z_sat_static': z_sat_static, 'sat_static': sat_static})
+    # df_tot_Vs_static = pd.DataFrame({'hauteur_WT': hauteur_WT,'z_sis_static': z_sis_static, 'Vs': Vs_static})
+    # df_tot_rho_static = pd.DataFrame({'dt_rho': dt_rho_static,'z_elec_static': z_elec_static,'rho_vrai_static' : rho_vrai_static})
+
+
+    for i, t_profil in enumerate (sec_profil):
+        color = color_map[i,:]
+
+        profil_sat = df_tot_sat[df_tot_sat["dt_sat"]==t_profil]
+
+        if i == 0 :
+                plt.rcParams['font.size']=20
+                fig,ax = plt.subplots(figsize=(5,15))
+                # profil_sat = df_tot_sat[df_tot_sat["dt_sat"]==900]
+                # ax.plot(profil_sat['sat'],profil_sat['z_sat'],color = color,label = f'Day {t_profil}')
+            
+        ax.plot(profil_sat['sat'],profil_sat['z_sat'],color = color,label = f'jours {jour_plot[i]}')
+        ax.set_ylabel('Depth (m)')
+        ax.legend(loc = 'lower left')
+        ax.set_xlabel('Saturation (-)')
     
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1790,3 +1846,117 @@ def plot_temp_scenario(path_temp):
     ax.set_xlabel('Times (Days)', fontsize=16)
     ax.set_ylabel('Temperature\n(°C)', fontsize=16)
     fig.legend(fontsize = 16, loc='lower center', frameon=False, ncol=2)
+
+def creation_S_wt_depth(zs):
+
+    zsat_df = pd.DataFrame(columns=['dt', 'z_sat'])
+
+    saturation = pd.read_csv("input_ginette/S_saturation_profil_t.dat", header=None, sep=r'\s+', names=['dt', 'Z', 'Sw'])
+
+    dict_result = saturation.groupby("dt")["Sw"].apply(list).to_dict()
+
+    for i, temps in enumerate(dict_result):
+
+        saturation_profil = dict_result[temps]
+
+        #Trouver la hauteur de la WT
+        z_sat = None
+        j=0
+        while (j < len(zs) and z_sat == None) :
+                if saturation_profil[j] == 1.0 :
+                    z_sat = zs[j]
+                else :
+                    j = j+1
+            
+        
+        zsat_df.loc[len(zsat_df)] = [temps, z_sat]
+
+    # Creation du fichier S_wt_depth_t.dat
+    zsat_df.to_csv("input_ginette/S_wt_depth_t.dat", sep="\t", index=False, header=False)
+
+
+def plot_wt_time(path_result,cote_ngf = 80.02,pas_jour_x = 10,ngf=False):
+
+    zsat_txt = np.loadtxt(f'{path_result}/input_ginette/S_wt_depth_t.dat')
+
+        
+    dt = zsat_txt[:,0]
+    dt_jours = dt/86400
+    zsat = zsat_txt[:,1]
+    h_ngf = cote_ngf-zsat
+
+    if ngf:
+        fig, ax = plt.subplots(2,figsize=(15,10))
+
+        ax[0].plot(dt_jours, zsat)
+        ax[0].set_xticks(np.arange(min(dt_jours)-900/86400, max(dt_jours), pas_jour_x))
+        ax[0].set_xticklabels([])
+        ax[0].set_ylabel('WT depth(m)')
+
+        ax[1].plot(dt_jours,h_ngf)
+        ax[1].set_xticks(np.arange(min(dt_jours)-900/86400, max(dt_jours), pas_jour_x))
+        ax[1].set_xlabel('Time (Days)')
+        ax[1].set_ylabel('Hydraulic head (mNGF)')
+
+
+    else:
+
+        fig, ax = plt.subplots()
+
+        ax.plot(dt_jours, zsat)
+        ax.set_xticks(np.arange(min(dt_jours)-900/86400, max(dt_jours), pas_jour_x))
+        ax.set_title('Hauteur du niveau dans le temps')
+        ax.set_xlabel('Time (Days)')
+        ax.set_ylabel('WT depth(m)')
+
+    # plt.show()
+        
+def plot_comparaison_wt_piezo(path_result,path_xlsx,cote_ngf_piezo ,pas_jour_x = 10):
+
+    #lecteur fichier
+    zsat_txt = np.loadtxt(f'{path_result}/input_ginette/S_wt_depth_t.dat')
+    df_piezo = pd.read_excel(path_xlsx)# ENcoding pour excel windows
+
+    # Convertir la première colonne en datetime
+    df_piezo["dates"] = pd.to_datetime(df_piezo["dates"],format="%d/%m/%Y %H:%M")
+
+    #Ajout IA----------------------------
+    #Traitement des trous dans le excel
+    col = " Hydraulic Head [mNGF]"
+    # Remplacer les espaces par NaN
+    df_piezo[col] = df_piezo[col].replace(r'^\s*$', pd.NA, regex=True)
+    # Conversion en numérique
+    df_piezo[col] = pd.to_numeric(df_piezo[col], errors="coerce")
+    # Supprimer les lignes invalides
+    df_piezo = df_piezo.dropna(subset=[col])
+    #---------------------------------------
+
+    #Convertion fichier
+        
+    dt = zsat_txt[:,0]
+    dt_jours = dt/86400 #Conversion en jours
+    zsat = zsat_txt[:,1]
+    h_ngf = cote_ngf_piezo+zsat #Conversion en mNGF
+
+    #mise en place des dates pour le fichier S_wt....
+    t0 = df_piezo["dates"].iloc[0]
+    dates_model = t0 + pd.to_timedelta(dt_jours, unit="D")
+
+    #Figure
+    fig, ax = plt.subplots(2,figsize=(15, 10))
+
+    #plot sortie Ginette
+    ax[0].plot(dates_model,h_ngf)
+    ax[0].xaxis.set_major_locator(mdates.MonthLocator(bymonthday=1)) # Un tick le 1er de chaque mois
+    ax[0].xaxis.set_major_formatter(mdates.DateFormatter("%m/%Y")) # Format d'affichage
+    # ax[0].set_xlabel('Time (Days)')
+    ax[0].set_ylabel('Simulated Hydraulic\nhead (mNGF)')
+
+    #plot piezo
+    ax[1].plot(df_piezo["dates"],df_piezo[" Hydraulic Head [mNGF]"],lw=1)
+    ax[1].xaxis.set_major_locator(mdates.MonthLocator(bymonthday=1)) # Un tick le 1er de chaque mois
+    ax[1].xaxis.set_major_formatter(mdates.DateFormatter("%m/%Y")) # Format d'affichage
+    ax[1].set_xlabel("Date")
+    ax[1].set_ylabel("Hydraulic\nHead [mNGF]")
+
+

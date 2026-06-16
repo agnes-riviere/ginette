@@ -55,39 +55,73 @@ dossier_actuel = Path(__file__).parent
 
 
 # Choix des parties à faire tourner dans le code
-thermique = True
+lancer_ginette = False
+thermique = False
 sismic = False
 electrique = False
 visualisation = True
-
 
 
 ######################## PARTIE I : INPUT DU MODÈLE ##########################################
 
 # Paramètres Généraux
 
-nbr_jour = 120 # nombre de jours de simulation au total
+nbr_jour =  62 # nombre de jours de simulation au total
 facies = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986)) 
 
 
 ###### Paramètre de simulation Hydro GINETTE-----------------------------------------------------------------------------------------------------------------------
-lancer_ginette = True
+
 # Maillage de GINETTE
 depth_top = 0 # (en m) haut du modèle
 depth_bottom = -4 # (en m) bas du modèle
 hauteur_WT_initial = -2 # (en m) Hauteur de la nappe à l'état initiale
 dz = 0.01 # (en m) largeur des mailles du modèle hydro
 
+
 # Paramètre hydro
 pas_hydro = 900 # En seconde, Pas de temps à utiliser pour ma simulation hydro
-k1 = 6.94E-14 #1E-11# Perméabilité
-soil = selectSoilType(facies) # Paramètre selon le facies et la distribution de Carsel and Parrish
-phi_soil = soil[3] # Porosité
-Swr_soil = soil[7] # Saturation résiduelle
+homogeneite = False # False = Prise en compte de l'hétérogénéité du sol
+sortie_hauteur_WT = True #True = Creation fichier S_wt_depth_t.dat qui donne la hauteur de la nappe en fonction du temps
 
-#Van genuchten parameter
-alpha_soil = soil[4]
-nvg_soil = soil[5]
+
+if homogeneite: # Paramètre de sol homogène
+    k1 = 6.94E-14 #1E-10#1E-11# Perméabilité
+    soil = selectSoilType(facies) # Paramètre selon le facies et la distribution de Carsel and Parrish
+    phi_soil = soil[3] #0.04# Porosité
+    Swr_soil = soil[7] #0.1325# Saturation résiduelle
+
+    #Van genuchten parameter
+    alpha_soil = soil[4]#14.5#
+    nvg_soil = soil[5]#2.68#
+
+else : # Paramètre de sol hétérogène
+    nbr_couches = 2
+    depth_boundary = -3 # (en m) Profondeur à laquelle on change de couche
+
+    #------ Couche 1------
+    facies1 = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986))
+
+    k1 = 6.94E-14 #1E-10#1E-11# Perméabilité
+    soil1 = selectSoilType(facies1) # Paramètre selon le facies et la distribution de Carsel and Parrish
+    phi_soil1 = soil1[3] #0.04# Porosité
+    Swr_soil1 = soil1[7] #0.1325# Saturation résiduelle
+
+    #Van genuchten parameter
+    alpha_soil1 = soil1[4]#14.5#
+    nvg_soil1 = soil1[5]#2.68#
+
+    #------ Couche 2------
+    facies2 = 'clay' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986))
+    k2 = 1E-14 # Perméabilité de la deuxième couche
+    soil2 = selectSoilType(facies2) # Paramètre selon le facies et la distribution de Carsel and Parrish
+    phi_soil2 = soil2[3] #0.04# Porosité
+    Swr_soil2 = soil2[7] #0.1325# Saturation résiduelle
+
+    #Van genuchten parameter
+    alpha_soil2 = soil2[4]#14.5#
+    nvg_soil2 = soil2[5]#2.68#
+
 
 
 
@@ -98,7 +132,7 @@ else:
 Dm.setup_ginette_DHARRMA(pas_hydro, ith, nbr_jour, depth_top, depth_bottom, abs(depth_top-depth_bottom), dz, pas_hydro,hauteur_WT_initial)
 
 # Création de fichier d'entrée pour GINETTE--------------------------------------------------------------------------------------------------------------------
-Creation_temp = True
+Creation_temp = False
 Creation_infiltation = True
 Evapo = False
 
@@ -127,8 +161,8 @@ if Creation_infiltation :
     if Evapo :
         max_evapo = 7E-8
         duree_transition_evapo = 0.125 # 1 # Jours
-        duree_max_evapo = 0.25 # 1 # Jours
-        debut_jour_evapo = [i+0.5 for i in range(1,120)]
+        duree_max_evapo = 0.5 # 1 # Jours
+        debut_jour_evapo = [i+0.5 for i in range(1,10)]
         fct.creation_infiltration_evapo(nbr_jour,pas_hydro,min_infiltration,max_infiltration,duree_transition,debut_jour_infiltration,duree_max_infiltration,0,max_evapo,duree_transition_evapo,debut_jour_evapo,duree_max_evapo)
     else :
         fct.creation_infiltration(nbr_jour,pas_hydro,min_infiltration,max_infiltration,duree_transition,debut_jour_infiltration,duree_max_infiltration)
@@ -139,7 +173,18 @@ lambda1 = 2.4
 C1 = 897
 rho1 = 2400
 
-Dm.generate_zone_parameters_DHARRMA(thermique,depth_bottom,depth_top, dz, k1, phi_soil, alpha_soil, nvg_soil, Swr_soil, lambda1, C1, rho1)
+if homogeneite == False:
+    lambda2 = 1.5
+    C2 = 800
+    rho2 = 2000
+
+
+if homogeneite:
+    Dm.generate_zone_parameters_DHARRMA(thermique,depth_bottom,depth_top, dz, k1, phi_soil, alpha_soil, nvg_soil, Swr_soil, lambda1, C1, rho1)
+else :
+    Dm.generate_zone_parameters_hetero_DHARRMA(thermique,depth_bottom,depth_top, dz,nbr_couches, depth_boundary, k1, phi_soil1, alpha_soil1, nvg_soil1, Swr_soil1, lambda1, C1, rho1,
+                                        k2, phi_soil2, alpha_soil2, nvg_soil2, Swr_soil2, lambda2, C2, rho2)
+
 
 ###### Paramètre de simulation Sismique (avec Geopsy) --------------------------------------------------------------------------------------------------------------
 ######### Parametre simulation #############
@@ -149,7 +194,7 @@ fin_sim_sis = nbr_jour # (compris) en jours
 
 dz_sis = 0.01 # Discrétisation verticale (en m)
 
-first_arrival_calcul = True
+first_arrival_calcul = False
 
 ######### ROCK PHYSICS PARAMETERS ##########
 # General physical constants
@@ -169,11 +214,16 @@ k_sand = 37.0
 rho_clay = 2580.0 # Density [kg/m3]
 rho_silt = 2600.0
 rho_sand = 2600.0
-soiltypes = [facies]
+
+if homogeneite:
+    soiltypes = [facies]
+else:
+    soiltypes = [facies1,facies2]
+    # soiltypes2 = [facies2]
 
 # Grains/agregate parameters per layer
-Ns = [9] # Coordination Number (number of contact per grain) | default = 8
-fracs = [0.3] # Fraction of non-slipping grains (helps making the soil less stiff) | default = 0.3
+Ns = [9,9] # Coordination Number (number of contact per grain) | default = 8
+fracs = [0.3,0.3] # Fraction of non-slipping grains (helps making the soil less stiff) | default = 0.3
 # Four possible RP models:
 # kk = 1 # Constant Pe (see the approach of Zyserman et al., 2017)
 # kk = 2 # Pe without suction
@@ -215,29 +265,54 @@ debut_sim_elec = 1 # en jours
 pas_sim_elec = 1 # en jours
 fin_sim_elec = nbr_jour # (compris) en jours 
 
-elec_static = True
+elec_static = False
 
 ### Resistivité Vrai : Loi Petrophysique
+
 #Parametre Loi d'Archie
 a_archie = 1.196 # Facteur de tortuosité ]0.5;1.5] #limon = 1.196, sable = 1.147
-rho_water_25 = 75 # Resistivité elec du fluide ici de l'eau à 25°C (en ohm.m)
-a_T = 0.02 # Compensateur de Température Hayashi 2004 et valeur de Matthes 1982
 m_archie = 1.929 # Exposant de concentration # limon = 1.929, sable = 2.135
 n_archie = 2.338 # Exposant de saturation # limon = 2.338, sable = 0.858
 # Parametre a,m et n calculé avec les techniques conventionelles.
 
+if homogeneite ==  False:
+     a_archie2 = 1.147 # Facteur de tortuosité ]0.5;1.5] #limon = 1.196, sable = 1.147
+     m_archie2 = 2.135 # Exposant de concentration # limon = 1.929, sable = 2.135
+     n_archie2 = 0.858 # Exposant de saturation # limon = 2.338, sable = 0.858
+
 beta_s = 5.2E-9
+
+#Corection thermique
+rho_water_25 = 75 # Resistivité elec du fluide ici de l'eau à 25°C (en ohm.m)
+a_T = 0.02 # Compensateur de Température Hayashi 2004 et valeur de Matthes 1982
 
 Waxman_smits = True
 if Waxman_smits:
-    # B_WS = Equation dans waxman smith
-    wsand = soil[0]
-    wclay = soil[1]
-    wsilt = soil[2]
-    CEC = wclay*19270 # illite Woodruff and Revil 2011
-    Q_v = rho1*((1-phi_soil)/phi_soil)*CEC
+    if homogeneite:
+        # B_WS = Equation dans waxman smith
+        wsand = soil[0]
+        wclay = soil[1]
+        wsilt = soil[2]
+        CEC = wclay*19270 # illite Woodruff and Revil 2011
+        Q_v = rho1*((1-phi_soil)/phi_soil)*CEC
 
-    print("Q_v =",Q_v)
+        print("Q_v =",Q_v)
+    else :
+        wsand1 = soil1[0]
+        wclay1 = soil1[1]
+        wsilt1 = soil1[2]
+        CEC1 = wclay1*19270 # illite Woodruff and Revil 2011
+        Q_v1 = rho1*((1-phi_soil1)/phi_soil1)*CEC1
+
+        wsand2 = soil2[0]
+        wclay2 = soil2[1]
+        wsilt2 = soil2[2]
+        CEC2 = wclay2*19270 # illite Woodruff and Revil 2011
+        Q_v2 = rho2*((1-phi_soil2)/phi_soil2)*CEC2
+
+        
+        print("Q_v1 =",Q_v1)
+        print("Q_v2 =",Q_v2)
 
 
 ### Resistivité mesurée : Problème direct
@@ -252,8 +327,8 @@ mn2 = 1.0 # en mètre, écartement des électrodes MN
 
 ###### Paramètre Visualisation -------------------------------------------------------------------------------------------------------------------------------------
 
-visualisation_temp = True
-visualisation_pluie = True
+visualisation_temp = False
+visualisation_pluie = False
 
 #### Visualisation 2D ####
 debut_representation = 1 # en jours
@@ -267,17 +342,29 @@ visualisation_output_ginette = True
 visualisation_propriete_geophy_2D = False
 visualisation_observable_geophy_2D = False
 
-#Profil jour
-jour_profil = [1,30,40,60] #[i for i in range(1,110,30)]#[10,50,110] #[1,30,60,90,119] # [1,5,10,15,20]#Jour où on plot les profils des différents modèles suivant ce qu'on veut.
+#Profil journalier
+jour_profil = [i for i in range (1,23,5)] #[i for i in range(1,110,30)]#[10,50,110] #[1,30,60,90,119] # [1,5,10,15,20]#Jour où on plot les profils des différents modèles suivant ce qu'on veut.
 representation = 1 # Représentation sur un seul graph
 # representation = 2 # Représentation sur plusieurs graph
-visualisation_propriete_geophy_profil = False
+visualisation_propriete_hydro_profil = False
+visualisation_propriete_geophy_profil = True
 visualisation_observable_geophy_profil = True
+visualisation_wt = True
+
+#Comparaison WT simulé avec un vrai piezomètre
+
+comparaison_wt_piezo = True
+path_xlsx = '/home/nradic/Documents/ginette/application/model_dharrma/save_data/pzps16.xlsx' #Chemin où se trouve le CSV du piezo à comparer
+cote_ngf_piezo = 80.02 # Cote en mNGF du piezo que l'on va comparer
 
 DEBUG = False
 
 #################### PARTIE II : MODÈLE HYDRO/THERMIQUE ######################################
+depth = depth_top-depth_bottom
+zs = -np.arange(dz, depth + dz, dz) # Depth positions (negative downward) [m]
+thks = np.diff(np.abs(zs)) # thickness vector [m]
 
+fct.creation_S_wt_depth(zs)
 # Compilation Ginette
 Info.compile_ginette_DHARRMA(DEBUG)
 
@@ -291,17 +378,20 @@ if lancer_ginette:
     #     print(f"Le fichier '{fichier}' existe et est accessible.")
     # else:
     #     print(f"Le fichier '{fichier}' n'existe pas ou n'est pas accessible.")
-    subprocess.call(["./ginette"])
+    subprocess.call(["./ginette"]) # Utilisation Linux
+    # subprocess.call(["ginette.exe"]) # Utilisation Windows
     # Revenez au répertoire précédent
     os.chdir('..')
     print('Run model hydro et thermique Ok')
 
+
+    if sortie_hauteur_WT:
+        # Récupération de la hauteur de la nappe
+        fct.creation_S_wt_depth(zs)
+
 ####################### PARTIE III : MODÈLE SISMIQUE #########################################
 
 if sismic:
-    depth = depth_top-depth_bottom
-    zs = -np.arange(dz, depth + dz, dz) # Depth positions (negative downward) [m]
-    thks = np.diff(np.abs(zs)) # thickness vector [m]
 
     # Modèle de physique des roches
     pressure = pd.read_csv("input_ginette/S_pressure_profil_t.dat", header=None, sep=r'\s+', names=['dt', 'Z', 'Pr','h'])
@@ -339,31 +429,46 @@ if sismic:
             
             hs.append(round(float(h_val),3))
         
-        for prof in range (len(hs)):
-            Swes_val = (saturation_profil[prof] - Swr_soil) / (1 - Swr_soil)
-        
-            Swes.append(Swes_val)
+        if homogeneite:
+            for prof in range (len(hs)):
+                Swes_val = (saturation_profil[prof] - Swr_soil) / (1 - Swr_soil)
+
+                Swes.append(Swes_val)
+            thicknesses = [depth]
+        else:
+            for prof in range (len(hs)):
+                if prof <= int(abs(depth_boundary/dz)) :
+                    Swes_val = (saturation_profil[prof] - Swr_soil1) / (1 - Swr_soil1)
+                else :
+                    Swes_val = (saturation_profil[prof] - Swr_soil2) / (1 - Swr_soil2)
+
+                Swes.append(Swes_val)
+            thicknesses = [abs(depth_boundary),abs(depth_top-depth_bottom)-abs(depth_boundary)]
+        if len(set(map(len, (soiltypes, thicknesses, Ns, fracs)))) != 1:
+            raise ValueError(f"Arrays are not the same size : {soiltypes = }, {thicknesses = }, {Ns = }, {fracs = }")
+
 
         # Effective Grain Properties (constant with depth)
         mus, ks, rhos, nus = hillsAverage(mu_clay, mu_silt, mu_sand, rho_clay,
-                                            rho_silt, rho_sand, k_clay, k_silt,
-                                            k_sand, soiltypes)
+                                                rho_silt, rho_sand, k_clay, k_silt,
+                                                k_sand, soiltypes)
         
-        thicknesses = [depth]
-        
+
         # Effective Fluid Properties
         kfs, rhofs, rhobs = effFluid(saturation_profil, kw, ka, rhow,
-                                    rhoa, rhos, soiltypes, thicknesses , dz) # Utilisation de la saturation total
-        
+                                        rhoa, rhos, soiltypes, thicknesses , dz) # Utilisation de la saturation total
+
+
         # Hertz Mindlin Frame Properties
         KHMs, muHMs = hertzMindlin_trans(Swes, zs, hs, rhobs, pression_profil,
-                                g, rhoa, rhow, Ns,
-                                mus, nus, fracs, kk,
-                                soiltypes, thicknesses) # Utilisation de la saturation effective
-        
+                                    g, rhoa, rhow, Ns,
+                                    mus, nus, fracs, kk,
+                                    soiltypes, thicknesses) # Utilisation de la saturation effective
+
         # Saturated Properties
         VPs, VSs = biotGassmann(KHMs, muHMs, ks, kfs,
-                                rhobs, soiltypes, thicknesses, dz)
+                                    rhobs, soiltypes, thicknesses, dz)
+            
 
     # SEISMIC FWD MODELING -----------------------------------------------------------------------------------------------------------------------
 
@@ -414,8 +519,13 @@ if sismic:
         print(f'Simulation sismique : {i+1}/{it_tot_simique+1}')
         ### SAUVEGARDE DES DONNEES #####
         if i == 0 :
-            path_vp_vs = f'sismique/{soiltypes[0]}/output_SL_kk{kk}_Vp_Vs.dat'
-            path_PS_v = f'sismique/{soiltypes[0]}/output_SL_kk{kk}_PS_v_Phase.dat'                
+            if homogeneite:
+                path_vp_vs = f'sismique/{soiltypes[0]}/output_SL_kk{kk}_Vp_Vs.dat'
+                path_PS_v = f'sismique/{soiltypes[0]}/output_SL_kk{kk}_PS_v_Phase.dat'
+            
+            else:
+                path_vp_vs = f'sismique/{soiltypes[0]}_{soiltypes[1]}/output_SL_kk{kk}_Vp_Vs.dat'
+                path_PS_v = f'sismique/{soiltypes[0]}_{soiltypes[1]}/output_SL_kk{kk}_PS_v_Phase.dat'
 
             if not os.path.exists(path_vp_vs):
                 os.makedirs(os.path.dirname(path_vp_vs), exist_ok=True)
@@ -495,9 +605,27 @@ if electrique:
             # kappa = (pow(sat_profil_array,n_archie)/(a_archie*pow(phi_soil,-m_archie)))*(1/rho_water_T+kappa_s/sat_profil_array)
             # rho_vrai = 1/kappa
 
-            kappa_s = beta_s*Q_v/sat_profil_array
-            kappa = (pow(sat_profil_array,n_archie)/(a_archie*pow(phi_soil,-m_archie)))*((1/rho_water_T)+kappa_s)
-            # kappa = (pow(sat_profil_array,n_archie)/(a_archie*pow(phi_soil,-m_archie)))*((1/25)+0.5)
+            if homogeneite :
+                kappa_s = beta_s*Q_v/sat_profil_array
+                kappa = (pow(sat_profil_array,n_archie)/(a_archie*pow(phi_soil,-m_archie)))*((1/rho_water_T)+kappa_s)
+            
+            else :
+                 # Creation array Q_v
+                kappa = np.zeros(abs(int((depth_bottom-depth_top)/dz)))
+
+                for maille in range (abs(int((depth_bottom-depth_top)/dz))):
+                    if maille <= abs(int ((depth_boundary-depth_top)/dz)) : # Test pour savoir dans quelle couche on est
+                        
+                        #Couche 1
+                        kappa[maille] = (pow(sat_profil_array[maille],n_archie)/
+                                         (a_archie*pow(phi_soil1,-m_archie)))*((1/rho_water_T[maille])+(beta_s*Q_v1/sat_profil_array[maille]))
+
+                    else :
+
+                        #Couche 2
+                        kappa[maille] = (pow(sat_profil_array[maille],n_archie2)/
+                                         (a_archie*pow(phi_soil2,-m_archie2)))*((1/rho_water_T[maille])+(beta_s*Q_v2/sat_profil_array[maille]))
+
             rho_vrai = 1/kappa
             
             # rho_vrai = a_archie*rho_water_T*pow(phi_soil,-m_archie)*pow(sat_profil_array,-n_archie)*((1+rho_water_T*B_WS*Qv_WS)/(1+(rho_water_T*B_WS*Qv_WS/sat_profil_array)))
@@ -505,7 +633,10 @@ if electrique:
 
 
         else : # Loi d'Archie 
-            rho_vrai = a_archie*rho_water_T*pow(phi_soil,-m_archie)*pow(sat_profil_array,-n_archie)
+            if homogeneite :
+                rho_vrai = a_archie*rho_water_T*pow(phi_soil,-m_archie)*pow(sat_profil_array,-n_archie)
+            else :
+                raise NotImplementedError("Loi d'Archie non implémentée pour le cas hétérogène")
 
     #### Problème direct (Utilisation de PyGimly)
     # Espacement AB/2
@@ -523,8 +654,12 @@ if electrique:
         # print(len(u))
     #### SAUVEGARDE DES DONNEES #####
         if i == 0 :
-            path_rho_vrai = f'elec/{soiltypes[0]}/rho_vrai.dat'
-            path_rho_app_AB2 = f'elec/{soiltypes[0]}/rho_app_AB2.dat'
+            if homogeneite :
+                path_rho_vrai = f'elec/{soiltypes[0]}/rho_vrai.dat'
+                path_rho_app_AB2 = f'elec/{soiltypes[0]}/rho_app_AB2.dat'
+            else :
+                path_rho_vrai = f'elec/{facies1}_{facies2}/rho_vrai.dat'
+                path_rho_app_AB2 = f'elec/{facies1}_{facies2}/rho_app_AB2.dat'
             if not os.path.exists(path_rho_vrai):
                 os.makedirs(os.path.dirname(path_rho_vrai), exist_ok=True)
                 with open(path_rho_vrai, "w") as f:
@@ -664,11 +799,25 @@ if visualisation :
         fct.three_plot_observable_geophy_dharrma(dossier_actuel,debut_representation,fin_representation,pas_representation, facies, 
                                                  barre_vertical=[25.5,35.4],lim_depth=abs(lim_depth),path_save_fig =None)
     if visualisation_observable_geophy_profil:
-        fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies,representation = representation ,path_fig = None)
+        if homogeneite:
+            fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies,representation = representation ,path_fig = None)
+        else:
+            fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies1,representation = representation ,path_fig = None,facies2 = facies2)
     if visualisation_propriete_geophy_profil:
-        fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies,representation = representation,path_fig = None)
+        if homogeneite:
+            fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies,representation = representation,path_fig = None,facies2 = None)
+        else:
+            fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies1,representation = representation,path_fig = None,facies2 = facies2)
+    if visualisation_propriete_hydro_profil:
+        fct.plot_sat_jours(dossier_actuel,jour_profil,lim_depth = -2.1)
+
+    if visualisation_wt:
+        fct.plot_wt_time(dossier_actuel,pas_jour_x=10)
+
+    if comparaison_wt_piezo:
+        fct.plot_comparaison_wt_piezo(dossier_actuel,path_xlsx,cote_ngf_piezo,pas_jour_x=10)
     
-    if True :
+    if False :
         fct.plot_only_sat(dossier_actuel,86400*8,86400*11,900*4*12,lim_depth=-3)
 
     plt.show()

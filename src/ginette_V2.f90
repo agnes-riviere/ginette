@@ -8153,6 +8153,12 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
                print *, "Profil saturée le flux d'infiltration en surface est nul. 100% ruisselement valcl(1, 3) = 0"
                ! stop
             end if
+            !ccc.....MODIF prbl evapotranspiration nicolas radic
+            if (swo .lt. 0.2 .and. qsurf(kimp) .lt. 0) then 
+               valcl(1,3) = 0
+               print *, "Seuil de reserve utile, plus d evapotranspiration dans le sol"
+               ! stop
+            end if
             !ccc....END MODIF
             !valcl(1, 3) = qsurf(kimp)
          end select
