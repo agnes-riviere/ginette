@@ -928,7 +928,10 @@ program pression_ecoulement_transport_thermique
 !CC....THERMIQUE
    amaxt = 0.D+00
    if (ith == 1) amaxt = 1D+05
-   if (ith == 0) amaxt = crconvt
+   if (ith == 0) then
+      amaxt = crconvt
+      icycle = 0
+   endif
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
@@ -1695,9 +1698,15 @@ program pression_ecoulement_transport_thermique
       allocate(cpmzone(nzone))
       allocate(anszone(nzone))
       allocate(swreszone(nzone))
+      allocate(aspzone(nzone))  
+      allocate(jzone(nzone))
+      allocate(akzone(nzone))
+      allocate(omzone(nzone))
+      allocate(rhomzone(nzone))
+      allocate(alandazone(nzone))
 
       do j = 1, nzone
-         read (321, *) jzone(j), akzone(j), omzone(j), anszone(j), aspzone(j), &
+         read (321, *) jzone(j), akzone(j), omzone(j), aspzone(j), anszone(j), &
             swreszone(j), alandazone(j), cpmzone(j), rhomzone(j)
       end do
       close(321)  ! ← garantit qu'on ne lira plus rien
@@ -1722,6 +1731,7 @@ program pression_ecoulement_transport_thermique
 
 
    CASE ('R2D')
+      nzone = 0
       do i = 1, nm
          read (32, *) izone(i)
          nzone = max(nzone, izone(i))
@@ -3057,7 +3067,7 @@ program pression_ecoulement_transport_thermique
          call variation_cdt_limites(nm, paso, itlecture, ytest, &
                                     ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
                                     icl, valcl, iclt, valclt, ivois, &
-                                    z, g, ntsortie, bm, irptha, &
+                                    z, g, ntsortie, bm, irp,irptha, &
                                     rho, qpluie, chgriver, &
                                     chgRD, chgRG, tempRD, tempRG, &
                                     tempriver, &
@@ -3132,10 +3142,13 @@ program pression_ecoulement_transport_thermique
             dto = dble(dt)
             dt = dble(dto)/10
             compteur_div=compteur_div+1
-            
-!            print *, 'ici on a dt ==========',dt,'et dta =============',dta
-!            print*,"dans la boucle picard ===================================", modulo(dta, dt) .ne. 0
-!            print*, 'et compteur div =', compteur_div
+
+            write(*,'(A,F8.2,A,I4,A,ES9.2,A,ES8.2,A,ES9.2,A,ES8.2,A,I5)') &
+               ' DIV j=', paso/86400d0, ' nk=', nk-1, &
+               ' P:', amaxp, '/', crconvp, &
+               ' T:', amaxt, '/', crconvt, &
+               ' cell=', ipb
+            call flush(6)
             if (dt>=1) then
                if (modulo(dta, dt) .ne. 0) dt = dble(dta)/10
             else 
@@ -3213,7 +3226,7 @@ program pression_ecoulement_transport_thermique
                call variation_cdt_limites(nm, paso, itlecture, ytest, &
                                     ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
                                     icl, valcl, iclt, valclt, ivois, &
-                                    z, g, ntsortie, bm, irptha, &
+                                    z, g, ntsortie, bm, irp, irptha, &
                                     rho, qpluie, chgriver, &
                                     chgRD, chgRG, tempRD, tempRG, &
                                     tempriver, &
@@ -5259,15 +5272,24 @@ subroutine bicg(x, b, n, k, val, icol_ind, irow_ptr, nmax, nmax1)
       k = k + 1
       if (k > 1) rhoo = rho
       rho = 0.D+00
-      tt = 1
+!      tt = 1
+!      do i = 1, n
+!      do j = irow_ptr(i), irow_ptr(i + 1) - 1
+!         if (i == j) tt = val(j)
+!      end do
+!      z(i) = r(i)/tt
+!      zt(i) = rt(i)/tt
+!      rho = rho + rt(i)*z(i)
+!      end do
+
       do i = 1, n
-      do j = irow_ptr(i), irow_ptr(i + 1) - 1
-         if (i == j) tt = val(j)
+         tt = val(irow_ptr(i))
+         z(i) = r(i)/tt
+         zt(i) = rt(i)/tt
+         rho = rho + rt(i)*z(i)
       end do
-      z(i) = r(i)/tt
-      zt(i) = rt(i)/tt
-      rho = rho + rt(i)*z(i)
-      end do
+
+
       if (rho == 0.) then
 !       print*,'attention rho=0'
 !       write (20,*) 'rho=0'
@@ -7947,7 +7969,7 @@ end
 subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
                                  ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
                                  icl, valcl, iclt, valclt, ivois, &
-                                 z, g, ntsortie, bm, irptha, &
+                                 z, g, ntsortie, bm, irpa, irptha, &
                                  rho, qpluie, chgriver, &
                                  chgRD, chgRG, tempRD, tempRG, &
                                  tempriver, &
@@ -8341,6 +8363,12 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
 !ccc.... 1 jour
       kjour = int(paso/86400) + 1
       if (kjour > ligne1) kjour = ligne1
+      if(irpa == 0) then
+      !steady state
+      kimp= 1
+      kheure=1
+      kjour=1
+      endif
       do i = 1, nm
 !ccc....CDT LIMITE SOL
          if (ivois(i, 3) == -99) then
@@ -8512,7 +8540,7 @@ end
 subroutine variation_cdt_limitesDTS(nm, paso, itlecture, ytest, &
                                  ligne, ligne1, ligne2, ligne3, ligne4, ligne5, ligne6, &
                                  icl, valcl, iclt, valclt, ivois, &
-                                 z, g, ntsortie, bm, irptha, &
+                                 z, g, ntsortie, bm, irpa, irptha, &
                                  rho, qpluie, chgriver, &
                                  chgRD, chgRG, tempRD, tempRG, &
                                  id_RD, id_RG, id_river, id_rivert, tempsurf, &
