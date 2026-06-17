@@ -13,7 +13,7 @@ GCChtmlFLAGS = --html --html-details
 GCCcompileFLAGS = -O0 --coverage
 
 # Peut-être modifié pour être plus pratique
-TARGET_PATH = application/2017_AVA_SENSI
+TARGET_PATH = application/2017_AVAV_SENSI
 
 # target
 

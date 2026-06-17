@@ -530,6 +530,9 @@ def three_plot_output_ginette_dharrma(path_result,debut_rp,jours_rp,pas_rp,path_
     pression = pression_txt[:,2]
     sat = sat_txt[:,2]
 
+    min_len = min(len(dt), len(pression), len(sat))
+    dt, z, vit, pression, sat = dt[:min_len], z[:min_len], vit[:min_len], pression[:min_len], sat[:min_len]
+
     temps_voulu = []
 
     df_tot = pd.DataFrame({'dt': dt,'z': z, 'vit': -vit, 'pression': pression, 'sat' : sat})
