@@ -55,7 +55,7 @@ dossier_actuel = Path(__file__).parent
 
 
 # Choix des parties à faire tourner dans le code
-lancer_ginette = False
+lancer_ginette = True
 thermique = False
 sismic = False
 electrique = False
