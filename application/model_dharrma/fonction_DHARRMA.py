@@ -808,17 +808,20 @@ def plot_profil_observable_dharrma(path_result,jour_profil,facies,representation
     if facies2 == None:
         path_PS_V = f'{path_result}/sismique/{facies}/output_SL_kk4_PS_v_Phase.dat'
         path_rho_app = f'{path_result}/elec/{facies}/rho_app_AB2.dat'
-    
-    else: 
+
+    else:
         path_PS_V = f'{path_result}/sismique/{facies}_{facies2}/output_SL_kk4_PS_v_Phase.dat'
         path_rho_app = f'{path_result}/elec/{facies}_{facies2}/rho_app_AB2.dat'
-    
 
-    # path_temp = path_transient + f'/temp/{facies}/pluie_{pluie}/S_temperature_t.dat'
-    # path_PS_V = path_transient + f'/sismique/pluie_{pluie}/{facies}/output_SL_kk4_PS_v_Phase.dat'
-    # path_rho_app = path_transient + f'/elec/{facies}/pluie_{pluie}/rho_app_AB2.dat'
-    # path_saturation = path_transient + f'/hydro/{facies}/pluie_{pluie}/S_saturation_profil_t.dat'
-
+    import os
+    if not os.path.exists(path_PS_V):
+        print(f"[plot_profil_observable_dharrma] fichier sismique absent : {path_PS_V}")
+        print("  -> relancer avec sismic=True ou desactiver visualisation_observable_geophy_profil")
+        return
+    if not os.path.exists(path_rho_app):
+        print(f"[plot_profil_observable_dharrma] fichier electrique absent : {path_rho_app}")
+        print("  -> relancer avec electrique=True ou desactiver visualisation_observable_geophy_profil")
+        return
 
     color_map = copper(np.linspace(0, 1, len(jour_profil)))
 
@@ -1028,13 +1031,22 @@ def plot_profil_propriete_dharrma(path_result,jour_profil,facies,representation 
     path_saturation = f'{path_result}/input_ginette/S_saturation_profil_t.dat'
 
     if facies2 == None:
-        
         path_Vs = f'{path_result}/sismique/{facies}/output_SL_kk4_Vp_Vs.dat'
         path_rho_vrai = f'{path_result}/elec/{facies}/rho_vrai.dat'
-    
-    else :
+
+    else:
         path_Vs = f'{path_result}/sismique/{facies}_{facies2}/output_SL_kk4_Vp_Vs.dat'
         path_rho_vrai = f'{path_result}/elec/{facies}_{facies2}/rho_vrai.dat'
+
+    import os
+    if not os.path.exists(path_Vs):
+        print(f"[plot_profil_propriete_dharrma] fichier sismique absent : {path_Vs}")
+        print("  -> relancer avec sismic=True ou desactiver visualisation_propriete_geophy_profil")
+        return
+    if not os.path.exists(path_rho_vrai):
+        print(f"[plot_profil_propriete_dharrma] fichier electrique absent : {path_rho_vrai}")
+        print("  -> relancer avec electrique=True ou desactiver visualisation_propriete_geophy_profil")
+        return
 
     temp_txt = np.loadtxt(path_temp)
     Vs_txt = np.loadtxt(path_Vs)
