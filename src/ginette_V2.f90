@@ -1523,6 +1523,7 @@ program pression_ecoulement_transport_thermique
    !CC...Calcul le nombre de zone
       end do
 
+!ccc....ZNS : 6 tableaux de zones (rhomzone non alloue : non lu ni utilise dans ce cas)
       allocate(jzone(nzone))
       allocate(akzone(nzone))
       allocate(omzone(nzone))
@@ -1563,6 +1564,7 @@ program pression_ecoulement_transport_thermique
    !CC...Calcul le nombre de zone
       end do
 
+!ccc....ZND : 6 tableaux de zones (rhomzone non alloue : non lu ni utilise dans ce cas)
       allocate(jzone(nzone))
       allocate(akzone(nzone))
       allocate(omzone(nzone))
@@ -1600,7 +1602,9 @@ program pression_ecoulement_transport_thermique
          nzone = max(nzone, izone(i))
    !CC...Calcul le nombre de zone
       end do
-      
+
+!ccc....1DS : 9 tableaux de zones dont alandazone, cpmzone, rhomzone (thermique)
+!ccc....Attention : un seul bloc d'allocation (le doublon precedent causait un crash Fortran)
       allocate(alandazone(nzone))
       allocate(cpmzone(nzone))
       allocate(rhomzone(nzone))
@@ -3719,6 +3723,7 @@ program pression_ecoulement_transport_thermique
                      vzp(i) = vzm(i)
                      vzm(ivois(i,3))=vzp(i)
                   end if
+!ccc....Free drainage -3 ZNS : vitesse de la face basse = -k*kr*rho*g/mu (flux gravitaire pur)
                   if (ytest == "ZNS" .and. icl(i, 4) == -3) then
                      vzm(i) = dble(-akv(i)*akrv(i)*rho(i)*g/amu)
                   end if
@@ -3775,8 +3780,8 @@ program pression_ecoulement_transport_thermique
                                                    + ixy*g*rho(i))
                   end if
                   if (icl(i, 4) == -1) vzm(i) = valcl(i, 4)
-!ccc....Free drainage -3 : vitesse face basse = k*kr*rho/amu (convention faces internes)
-                  if (icl(i, 4) == -3) vzm(i) = -akv(i)*akrv(i)*rho(i)/amu
+!ccc....Free drainage -3 : gradient hydraulique unitaire -> gradient de pression = 0 -> flux = -k*kr*rho*g/mu
+                  if (icl(i, 4) == -3) vzm(i) = -akv(i)*akrv(i)*rho(i)*g/amu
 !ccc....cacul vitesse face HAUT
                   if (icl(i, 3) == 1) then
                      rhom = (rho(i) + rho(ivois(i, 3)))/2
@@ -5112,6 +5117,7 @@ program pression_ecoulement_transport_thermique
 
    end if
 
+!ccc....Desallocation tableaux de zones communs (ZNS/ZND/1DS/1DJ ajoutes car omis initialement)
    if (ytest == "AVA" .or. ytest == "ZHZ"&
   &.or. ytest == "DTS" .or. ytest == "TEX"&
   &.or. ytest == "R2D" .or. ytest == "ZNS"&
@@ -5126,6 +5132,7 @@ program pression_ecoulement_transport_thermique
       if (allocated(omzone)) deallocate(omzone)
    end if
 
+!ccc....Desallocation tableaux riviere/BC (ZNS/ZND/1DS/1DJ ajoutes car omis initialement)
    if (ytest == "AVA" .or. ytest == "TEX"&
   &.or. ytest == "R2D" .or. ytest == "ZNS"&
   &.or. ytest == "ZND" .or. ytest == "1DS"&
