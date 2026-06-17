@@ -1529,8 +1529,7 @@ program pression_ecoulement_transport_thermique
       allocate(anszone(nzone))
       allocate(aspzone(nzone))
       allocate(swreszone(nzone))
-      allocate(rhomzone(nzone))
-   
+
 
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), aspzone(j), anszone(j), &
@@ -1570,7 +1569,6 @@ program pression_ecoulement_transport_thermique
       allocate(anszone(nzone))
       allocate(aspzone(nzone))
       allocate(swreszone(nzone))
-      allocate(rhomzone(nzone))
 
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), aspzone(j), anszone(j), &
@@ -1603,18 +1601,6 @@ program pression_ecoulement_transport_thermique
    !CC...Calcul le nombre de zone
       end do
       
-      allocate(alandazone(nzone))
-      allocate(rhomzone(nzone))
-      allocate(akzone(nzone))
-      allocate(omzone(nzone))
-      allocate(aspzone(nzone))
-      allocate(jzone(nzone))
-      do i = 1, nm
-         read (32, *) izone(i)
-         nzone = max(nzone, izone(i))
-!CC...Calcul le nombre de zone
-      end do
-
       allocate(alandazone(nzone))
       allocate(cpmzone(nzone))
       allocate(rhomzone(nzone))
@@ -3073,7 +3059,7 @@ program pression_ecoulement_transport_thermique
                                     tempriver, &
                                     id_RD, id_RG, id_river, id_rivert, tempsurf, &
                                     tempbot, chgsurf, chgbot, &
-                                    x, qsurf, qbot,iecriture_pluie,ak(nm),akr(nm),akr(1),ak(1),vzm(nm-1),swo,pro)
+                                    x, qsurf, qbot,iecriture_pluie,akr(nm),ak(nm),akr(1),ak(1),vzm(nm-1),swo,pro)
 
 
       end if
@@ -3233,7 +3219,7 @@ program pression_ecoulement_transport_thermique
                                     id_RD, id_RG, id_river, id_rivert, tempsurf, &
                                     tempbot, chgsurf, chgbot, &
                                     x,  &
-                                    qsurf, qbot,iecriture_pluie,ak(nm),akr(nm),akr(1),ak(1),vzm(nm-1),swo,pro)
+                                    qsurf, qbot,iecriture_pluie,akr(nm),ak(nm),akr(1),ak(1),vzm(nm-1),swo,pro)
 
             end if
 
@@ -3378,6 +3364,23 @@ program pression_ecoulement_transport_thermique
             end if
 
             end if
+
+!ccc....Free drainage -3 ZNS : correction zone saturee
+!ccc....En zone saturee (pr>=0), VG donne dswdp=0 -> diagonale nulle -> CGS echoue.
+!ccc....On impose le stockage elastique ss/(rho*g*n) pour les mailles saturees.
+!ccc....On force aussi kr=1 sur les 2 mailles basses (saturees sous la nappe).
+            if (ytest == "ZNS" .and. icl(nm, 4) == -3) then
+               do i = 1, nm
+                  if (pr(i) >= 0.0D0) dswpdp(i) = ss(i)/(rho1*g*om(i))
+               end do
+               swp(nm) = 1.0D0
+               swp(nm - 1) = 1.0D0
+               akr(nm) = 1.0D0
+               akr(nm - 1) = 1.0D0
+               akrv(nm) = 1.0D0
+               akrv(nm - 1) = 1.0D0
+            end if
+
          else if (yunconfined == "CAP" .and. ivg .ne. 1) then
             do i = 1, nm
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -3716,6 +3719,9 @@ program pression_ecoulement_transport_thermique
                      vzp(i) = vzm(i)
                      vzm(ivois(i,3))=vzp(i)
                   end if
+                  if (ytest == "ZNS" .and. icl(i, 4) == -3) then
+                     vzm(i) = dble(-akv(i)*akrv(i)*rho(i)*g/amu)
+                  end if
                end if
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -3769,6 +3775,8 @@ program pression_ecoulement_transport_thermique
                                                    + ixy*g*rho(i))
                   end if
                   if (icl(i, 4) == -1) vzm(i) = valcl(i, 4)
+!ccc....Free drainage -3 : vitesse face basse = k*kr*rho/amu (convention faces internes)
+                  if (icl(i, 4) == -3) vzm(i) = -akv(i)*akrv(i)*rho(i)/amu
 !ccc....cacul vitesse face HAUT
                   if (icl(i, 3) == 1) then
                      rhom = (rho(i) + rho(ivois(i, 3)))/2
@@ -3803,6 +3811,8 @@ program pression_ecoulement_transport_thermique
                if (abs(vzm(i)) < 1D-30) vzm(i) = 0D+00
                if (abs(vzp(i)) < 1D-30) vzp(i) = 0D+00
             end do
+!ccc....Free drainage ZNS -4 : mise a jour du flux sortant pour la prochaine iteration Picard
+            if (ytest == "ZNS" .and. icl(nm, 4) == -4) valcl(nm, 4) = vzp(nm)
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !          Fin alcul de vitesse           C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -5104,7 +5114,9 @@ program pression_ecoulement_transport_thermique
 
    if (ytest == "AVA" .or. ytest == "ZHZ"&
   &.or. ytest == "DTS" .or. ytest == "TEX"&
-  &.or. ytest == "R2D") then
+  &.or. ytest == "R2D" .or. ytest == "ZNS"&
+  &.or. ytest == "ZND" .or. ytest == "1DS"&
+  &.or. ytest == "1DJ") then
       if (allocated(alandazone)) deallocate(alandazone)
       if (allocated(cpmzone)) deallocate(cpmzone)
       if (allocated(rhomzone)) deallocate(rhomzone)
@@ -5115,7 +5127,9 @@ program pression_ecoulement_transport_thermique
    end if
 
    if (ytest == "AVA" .or. ytest == "TEX"&
-  &.or. ytest == "R2D") then
+  &.or. ytest == "R2D" .or. ytest == "ZNS"&
+  &.or. ytest == "ZND" .or. ytest == "1DS"&
+  &.or. ytest == "1DJ") then
       if (allocated(tempRD)) deallocate(tempRD)
       if (allocated(tempRG)) deallocate(tempRG)
       if (allocated(id_RD)) deallocate(id_RD)
@@ -5602,8 +5616,13 @@ subroutine matp(val, icol_ind, irow_ptr, x, z, b, am, ivois, &
       end if
 
       if (icl(ik, 4) == -3) then
-!ccc....Face basse a free drainage..
-         b(ik) = dble(b(ik) - rho(ik)*akv(ik)*akrv(ik)/amu/bm(ik)*rho(ik))
+!ccc....Face basse a free drainage : flux gravitaire sortant q = -K*kr*rho*g/mu (drainage vers le bas)
+         b(ik) = dble(b(ik) + rho(ik)*akv(ik)*akrv(ik)*g/amu/bm(ik)*rho(ik))
+      end if
+
+      if (icl(ik, 4) == -4) then
+!ccc....Face basse free drainage : flux sortant = vzp(nm) mis a jour chaque iteration Picard
+         b(ik) = dble(b(ik) - valcl(ik, 4)/bm(ik)*rho(ik))
       end if
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -8123,8 +8142,8 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
 !         print *, vzm_nm1,valcl(nm, 4), qbottom(kimp), akr_bottom, ak_bottom,'bottom'
 
 
-      case (-4) !cas où l'on prends la vitesse de la maille précédente pour calculer le débit
-         valcl(nm, 4) = pro(nm-1)-rho(nm)*g*(z(nm-1)-z(nm)) ! Le flux sortant correspond au à la vitesse  de la face du bas de l'avant dernière maille
+      case (-4) !free drainage : flux sortant = vitesse convergee de la face superieure du pas precedent
+         valcl(nm, 4) = vzm_nm1
          print *, valcl(nm, 4), akr_bottom, ak_bottom,'bottom'
 
       end select
