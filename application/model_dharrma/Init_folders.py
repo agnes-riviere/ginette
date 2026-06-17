@@ -85,9 +85,10 @@ def compile_ginette_maillage():
 
 def compile_ginette_DHARRMA(DEBUG):
     """
-    Compile Ginette si le fichier exécutable n'existe pas.
+    Compile Ginette systematiquement (toujours recompiler pour garantir
+    que l'executable est a jour avec les dernières modifications de src/).
     """
-    if os.path.isfile('input_ginette/ginette'):
+    if False:  # ancienne logique : ne compilait pas si l'exe existait deja
         print("ginette exists")
     else:
         print("ginette does not exist")
