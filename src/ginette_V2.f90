@@ -82,6 +82,8 @@ program pression_ecoulement_transport_thermique
    double precision, dimension(:), allocatable::qcondin_h, qcondin_hR
    double precision, dimension(:), allocatable::qad, qcondu
    integer           :: nm
+   double precision  :: c_pstep_zns, as_max, c_pstep_cur
+   integer           :: nprep
    LOGICAL           :: An_Error
    logical :: halted(5) = .false.
    type(ieee_flag_type) :: invalid_flag, denormal_flag
@@ -2459,7 +2461,7 @@ program pression_ecoulement_transport_thermique
 !CC....ZNS
    if (ivg == 1 .or. yunconfined == "UNS") then
       Call unsaturated(pr, swp, dswpdp, swresz, ans, akr, &
-                       nm, akrv, rho1, g, ansun, asun)
+                       nm, akrv, rho1, g, ansun, asun, 1.0D0)
 
 !CC....THERMIQUE CONDUCTIVITE MOYENNE SANS GEL AVEC ZONE NON SATUREE
       if (igelzns == 0 .and. ith == 1) then
@@ -3068,6 +3070,26 @@ program pression_ecoulement_transport_thermique
 
       end if
       !print*, "Rentrer dans la boucle de picard"
+
+!CC....Continuation VG : c_pstep adaptatif selon alpha (inspire de Metis iprnsat)
+!CC....Pour alpha eleve (sol sableux), on linearise la courbe VG sur nprep iterations
+      if (ytest == "ZNS" .and. ivg == 1) then
+         as_max = maxval(asun(1:nm))   ! alpha en m-1
+         if (as_max > 5.0D0) then
+            c_pstep_zns = min(1.0D0, 5.0D0 / as_max)
+            nprep = 5
+            if (it == 1) write(*,'(A,F6.2,A,F5.2,A,I3,A)') &
+               ' [c_pstep] alpha=', as_max, ' m-1  c_pstep=', c_pstep_zns, &
+               '  actif pour nk=1..', nprep, ' chaque pas de temps'
+         else
+            c_pstep_zns = 1.0D0
+            nprep = 0
+         end if
+      else
+         c_pstep_zns = 1.0D0
+         nprep = 0
+      end if
+
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                          C
 !       BOUCLE DE PICARD               C
@@ -3178,6 +3200,12 @@ program pression_ecoulement_transport_thermique
             paso = dble(dt) + dble(paso) - dble(dto)
             endif
             if (irp == 0 .and. irptha == 0 .and. it > 3) paso = nitt*unitsim
+            if (dt < 1D-5) then
+               write(*,'(A,ES10.3,A)') ' STOP : dt=', dt, &
+                  ' < 1e-5 s, convergence impossible, arret'
+               paso = nitt*unitsim
+               exit
+            end if
 
             if (iclchgt == 1) then
                select case (ytest)
@@ -3353,7 +3381,8 @@ program pression_ecoulement_transport_thermique
 
          if (ivg == 1 .or. yunconfined == "UNS") then
             Call unsaturated(pr, swp, dswpdp, swresz, ans, akr, &
-                             nm, akrv, rho1, g, ansun, asun)
+                             nm, akrv, rho1, g, ansun, asun, &
+                             merge(c_pstep_zns, 1.0D0, nk <= nprep))
             if (igelzns == 0 .and. ith == 1) then
             if (ymoycondtherm == "WOODS") then
                alanda(i) = DBLE(sqrt(alandae)*om(i)*sw(i) + &
@@ -3606,6 +3635,8 @@ program pression_ecoulement_transport_thermique
                call bicg(pr, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
             case("CGS")
                call cgs(pr, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
+            case("BIS")
+               call bicgstab(pr, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
          end select
 
 !     if (ysolv == "LIB") then
@@ -3924,6 +3955,9 @@ program pression_ecoulement_transport_thermique
 !               print*,'DEBUG: Using CGS solver'
                call cgs(temp, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
 !               print*,'DEBUG: CGS solver completed'
+            end if
+            if (ysolv == "BIS") then
+               call bicgstab(temp, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
             end if
 !            print*,'DEBUG: temp(1) AFTER solving =',temp(1)
 !     if (ysolv == "LIB") then
@@ -4259,11 +4293,6 @@ program pression_ecoulement_transport_thermique
       case ("ZNS") 
          print *, "out", paso/86400,"time", paso, "dt", dt,'prnm', pr(nm)/rho1/g + z(nm), &
             valcl(1, 3), sw(1), sw(50), sw(2), akr(1)
-         if (modulo(paso, itsortie*1.0) == 0) then
-            irecord = 1
-         else
-            print *, "############################### PAS D ECRITURE DE FICHIER##############################################"
-         end if
 !.... option debug
          if (irp == 1 .and. irecord == 1) then
                      ! if (modulo(int(paso), itsortie) .ne. 0) then
@@ -5496,6 +5525,143 @@ subroutine cgs(x, b, n, k, val, icol_ind, irow_ptr, nmax, nmax1)
 
 end
 
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!                         C
+!   BICGSTAB                     C
+!                         C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+subroutine bicgstab(x, b, n, k, val, icol_ind, irow_ptr, nmax, nmax1)
+   implicit double precision(A-H, O-Z), integer*4(I-N)
+   integer k
+   dimension val(nmax), icol_ind(nmax), irow_ptr(nmax1)
+   dimension x(n), b(n), r(n), p(n), ph(n), v(n), s(n), sh(n), t(n), rt(n)
+   double precision :: rho, rhoo, alfa, omega, beta, amaxr, sum1, sum2, tt
+   integer :: i, j
+
+   ! residual initial : r = b - A*x
+   do i = 1, n
+      sum1 = 0.D0
+      do j = irow_ptr(i), irow_ptr(i+1)-1
+         sum1 = sum1 + val(j) * x(icol_ind(j))
+      end do
+      r(i)  = b(i) - sum1
+      rt(i) = r(i)
+   end do
+
+   rho   = 1.D0
+   alfa  = 1.D0
+   omega = 1.D0
+   do i = 1, n
+      v(i) = 0.D0
+      p(i) = 0.D0
+   end do
+
+   amaxr = 1.D0
+   k = 0
+
+   do while (amaxr >= 1.e-10 .and. k <= 1000)
+      k = k + 1
+      rhoo = rho
+      rho  = 0.D0
+      do i = 1, n
+         rho = rho + rt(i) * r(i)
+      end do
+      if (rho == 0.D0) exit
+
+      beta = (rho / rhoo) * (alfa / omega)
+      do i = 1, n
+         p(i) = r(i) + beta * (p(i) - omega * v(i))
+      end do
+
+      ! preconditionneur diagonal : ph = M^-1 * p
+      do i = 1, n
+         tt = val(irow_ptr(i))
+         if (tt /= 0.D0) then
+            ph(i) = p(i) / tt
+         else
+            ph(i) = p(i)
+         end if
+      end do
+
+      ! v = A * ph
+      do i = 1, n
+         v(i) = 0.D0
+         do j = irow_ptr(i), irow_ptr(i+1)-1
+            v(i) = v(i) + val(j) * ph(icol_ind(j))
+         end do
+      end do
+
+      sum1 = 0.D0
+      do i = 1, n
+         sum1 = sum1 + rt(i) * v(i)
+      end do
+      if (sum1 == 0.D0) exit
+      alfa = rho / sum1
+
+      ! s = r - alfa * v
+      do i = 1, n
+         s(i) = r(i) - alfa * v(i)
+      end do
+
+      ! verification convergence intermediaire
+      amaxr = 0.D0
+      do i = 1, n
+         if (abs(s(i)) > amaxr) amaxr = abs(s(i))
+      end do
+      if (amaxr < 1.e-10) then
+         do i = 1, n
+            x(i) = x(i) + alfa * ph(i)
+         end do
+         exit
+      end if
+
+      ! preconditionneur diagonal : sh = M^-1 * s
+      do i = 1, n
+         tt = val(irow_ptr(i))
+         if (tt /= 0.D0) then
+            sh(i) = s(i) / tt
+         else
+            sh(i) = s(i)
+         end if
+      end do
+
+      ! t = A * sh
+      do i = 1, n
+         t(i) = 0.D0
+         do j = irow_ptr(i), irow_ptr(i+1)-1
+            t(i) = t(i) + val(j) * sh(icol_ind(j))
+         end do
+      end do
+
+      sum1 = 0.D0
+      sum2 = 0.D0
+      do i = 1, n
+         sum1 = sum1 + t(i) * s(i)
+         sum2 = sum2 + t(i) * t(i)
+      end do
+      if (sum2 == 0.D0) then
+         do i = 1, n
+            x(i) = x(i) + alfa * ph(i)
+         end do
+         exit
+      end if
+      omega = sum1 / sum2
+
+      do i = 1, n
+         x(i) = x(i) + alfa * ph(i) + omega * sh(i)
+         r(i)  = s(i) - omega * t(i)
+      end do
+
+      amaxr = 0.D0
+      do i = 1, n
+         if (abs(r(i)) > amaxr) amaxr = abs(r(i))
+      end do
+      if (omega == 0.D0) exit
+
+   end do
+
+end subroutine bicgstab
+
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                                                 C
@@ -6047,14 +6213,14 @@ end
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 subroutine unsaturated(pr, sw, dswdp, swresz, ans, akr, &
-                       nm, akrv, rho1, g, ansun, asun)
+                       nm, akrv, rho1, g, ansun, asun, c_pstep)
    implicit double precision(a - h, o - x, z), integer(I - N)
    implicit CHARACTER*5(y)
    dimension pr(nm), sw(nm)
    dimension akr(nm), dswdp(nm), akrv(nm)
    dimension ansun(nm), asun(nm), swresz(nm)
 
-   double precision :: prc, as, ans, swres, swt
+   double precision :: prc, as, ans, swres, swt, c_pstep
 
 !CCCC ZNS SSSSSSSSSSSSSSSS
 
@@ -6063,7 +6229,7 @@ subroutine unsaturated(pr, sw, dswdp, swresz, ans, akr, &
    do i = 1, nm
       ! Recalcul des parametres dependant de P
       prc = 0.D+00
-      if (pr(i) <= 0d+00) prc = -pr(i)
+      if (pr(i) <= 0d+00) prc = -pr(i) * c_pstep
 
       ! Calcul des paramètres de Van Genuchten
       as = asun(i) / (rho1 * g)

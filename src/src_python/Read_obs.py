@@ -6,6 +6,10 @@ Functions:
 ----------
 - read_csv_with_multiple_separators(file_path, separators=[',', ';', '\t']):
     Attempts to read a CSV file using a list of possible separators, returning a DataFrame if successful.
+- read_lomos_csv(file_path):
+    Reads a CSV file exported by a LOMOS-type multi-depth logger (e.g. lomos230.csv), with columns
+    'datetime', 'H_corrige_24h', 'temperature_eau' and four 'Temp., °C (... LBL: Tn)' columns.
+    Returns None if the file does not match this format.
 - convert_dates(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
     Converts a specified column of string dates in a DataFrame to datetime objects, trying multiple common formats.
 - process_obs_data(Obs_data, date_simul_bg, coef, ost, nb_day):
@@ -22,6 +26,7 @@ Functions:
 import pandas as pd
 import numpy as np
 import os
+import re
 from pathlib import Path
 import glob
 
@@ -44,6 +49,46 @@ def read_csv_with_multiple_separators(file_path, separators=[',', ';', '\t']):
         except pd.errors.ParserError:
             continue
     raise ValueError(f"Cannot read the file {file_path} with the provided separators.")
+
+
+def read_lomos_csv(file_path):
+    """
+    Read a CSV file exported by a LOMOS-type multi-depth logger (e.g. lomos230.csv).
+
+    Expected columns: 'datetime', 'H_corrige_24h', 'temperature_eau', and four
+    'Temp., °C (LGR S/N: ..., SEN S/N: ..., LBL: Tn)' columns for depths T1-T4.
+
+    Parameters:
+    - file_path: Path to the CSV file.
+
+    Returns:
+    - DataFrame with standardized columns ['dates', 'deltaP', 'TempMolo', 'Temp1',
+      'Temp2', 'Temp3', 'Temp4'], or None if the file does not match this format.
+    """
+    try:
+        df = pd.read_csv(file_path, sep=',')
+    except Exception:
+        return None
+
+    if 'datetime' not in df.columns or 'H_corrige_24h' not in df.columns:
+        return None
+
+    rename_map = {'datetime': 'dates', 'H_corrige_24h': 'deltaP', 'temperature_eau': 'TempMolo'}
+    for col in df.columns:
+        match = re.search(r'LBL:\s*T(\d+)', col)
+        if match:
+            rename_map[col] = f'Temp{match.group(1)}'
+    df = df.rename(columns=rename_map)
+
+    expected_columns = ['dates', 'deltaP', 'TempMolo', 'Temp1', 'Temp2', 'Temp3', 'Temp4']
+    if not all(col in df.columns for col in expected_columns):
+        return None
+
+    df = df[expected_columns]
+    # Different LOMOS exports use different date formats (ISO, jj/mm/aaaa, mm/jj/aaaa AM/PM, ...):
+    # parse them here so every file is normalized regardless of its export settings.
+    df = convert_dates(df, 'dates')
+    return df
 
 
 def convert_dates(df: pd.DataFrame, date_column: str) -> pd.DataFrame:
@@ -174,6 +219,11 @@ def process_obs_data(Obs_data, date_simul_bg, coef, ost, nb_day):
             elif 'Point' in fichier:
                 all_data = read_csv_with_multiple_separators(file_path)
                 print(f"Reading Point file: {fichier}")
+            else:
+                lomos_data = read_lomos_csv(file_path)
+                if lomos_data is not None:
+                    all_data = lomos_data
+                    print(f"Reading LOMOS-format file: {fichier}")
         except ValueError as e:
             print(f"Error processing file {fichier}: {e}")
     

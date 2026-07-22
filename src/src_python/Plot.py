@@ -572,6 +572,9 @@ def plot_obs_station(station,base_csv,start_date='2013-06-01',end_date='2016-09-
         df = pd.read_csv(fichier, sep=separateur, parse_dates=True, dayfirst=True, index_col=0)
         df.drop(columns=[' Conductivity [mS/cm]'], inplace=True, errors='ignore')
         df.index = pd.to_datetime(df.index)
+        if df.index.duplicated().any():
+            print(f"Attention : {df.index.duplicated().sum()} horodatages dupliques dans {nom_fichier}, on garde le premier")
+            df = df[~df.index.duplicated(keep='first')]
         dataframes[nom_capteur] = df
 
     for nom_capteur, df in dataframes.items():
@@ -709,8 +712,8 @@ def plot_initial_conditions(fontsize=15):
         ax2.set_ylim(coord['z'].min(), coord['z'].max())
         
         plt.tight_layout()
-        plt.show()
         plt.savefig('initial_conditions_profiles.png', dpi=300)
+        plt.show()
         
         # Print summary statistics
         print("Initial Conditions Summary:")
