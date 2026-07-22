@@ -4,7 +4,7 @@
 """
 Script de préparation des conditions initiales et aux limites pour une simulation Ginette (cas réel)
 ===============================================================================================
-
+22/07/2026
 Ce script automatise la création de tous les fichiers d'entrée nécessaires à une simulation hydrogéologique réaliste avec le code Ginette.
 Il s'appuie sur des données de terrain (température, pression) enregistrées dans un fichier CSV d'observations.
 
@@ -33,7 +33,7 @@ Il s'appuie sur des données de terrain (température, pression) enregistrées d
 - Ce script garantit la reproductibilité et la traçabilité de la préparation des cas réels.
 - Compatible Windows/Mac/Linux : tous les chemins sont construits avec pathlib, aucun chemin n'est codé en dur.
 
-@author: Agnès Rivière, Samuel Larance
+@author: Agnès Rivière, Samuel Larance, Alexandrine Gesret
 """
 
 
