@@ -284,7 +284,7 @@ def setup_ginette_no_date(dt, state, nb_day, z_top, z_bottom, az, dz,dz_obs,verb
      
 
 
-def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_obs,verbose=False):
+def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_obs,verbose=False,amu=1e-3):
     """
     Sets up the Ginette model parameters and writes them to the appropriate files in transient state.
     Parameters:
@@ -297,6 +297,11 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     dz (float): Cell height in the model domain.
     date_simul_bg (str): Start date of the simulation.
     dz_obs (float): Observation depth interval.
+    amu (float): Viscosité dynamique de l'eau [kg/m/s], substituée sur le
+        placeholder [amu] de E_parametre_bck.dat SI ce template en contient
+        un (sinon .replace() est un no-op, sans effet sur les applications
+        dont le template garde une valeur littérale codée en dur). Défaut =
+        1e-3 (~eau à 20°C), valeur historique de Ginette.
     Returns:
     list: A list of observation depths.
     """
@@ -314,6 +319,7 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
     setup_model = setup_model.replace('[state]', '%1i' % state)
     setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)
+    setup_model = setup_model.replace('[amu]', '%04.0fD-06' % (amu * 1e6))
     setup_model = setup_model.replace('[z_top]', '%7.3e' % z_top)
     setup_model = setup_model.replace('[z_bottom]', '%7.2e' % z_bottom)
     setup_model = setup_model.replace('[az]', '%7.3e' % az)
@@ -679,7 +685,7 @@ def boundary_conditions(all_data,dt):
     
     # Save charge boundary conditions
     all_data[['top', 'bot']].to_csv('E_charge_t.dat', sep=' ', index=False, header=False)
-    
+
     # Save temperature boundary conditions
     if 'T_top' in all_data.columns and 'T_bottom' in all_data.columns:
         all_data[['T_top', 'T_bottom']].to_csv('E_temp_t.dat', sep=' ', index=False, header=False)
@@ -806,11 +812,18 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     - REF_k: Intrinsic permeability for zone 1.
     - REF_n: Porosity for zone 1.
     - REF_l: Thermal conductivity for zone 1.
-    - REF_r: Density for zone 1.
+    - REF_r: 4th zone parameter for zone 1, written to the [r1] slot of
+      E_zone_parameter.dat. Its physical meaning depends on the Fortran
+      ytest case reading that file: for ytest=ZHZ (2026-07-22, see
+      CASE('ZHZ') in src/ginette_V2.f90) it is now the specific heat
+      capacity of the solid (cpm, J/kg/K) - NOT density. Density is fixed
+      globally via rhosi in E_p_therm.dat for ZHZ. For ytest=DTS it is still
+      density (rhomzone), unchanged. For ytest=1DS it is also density, read
+      alongside a separate cpmzone column.
     - REF_k2: Intrinsic permeability for zone 2 (if nb_zone == 2).
     - REF_n2: Porosity for zone 2 (if nb_zone == 2).
     - REF_l2: Thermal conductivity for zone 2 (if nb_zone == 2).
-    - REF_r2: Density for zone 2 (if nb_zone == 2).
+    - REF_r2: Same as REF_r but for zone 2 (if nb_zone == 2).
     """
     ########### Zone of parameters
     f_coor = open("E_coordonnee.dat", "w")
@@ -818,8 +831,19 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
 
     coord = pd.DataFrame()    
 
-    # Coodrinate  
-    zvalues = np.sort(np.arange(z_bottom + dz / 2, dz / 2, dz))
+    # Coodrinate
+    # IMPORTANT (2026-07-22) : ordre INVERSÉ (surface -> fond) par rapport à
+    # l'ordre naturel de np.arange (fond -> surface), pour que la maille id=1
+    # corresponde à la surface (z proche de 0), comme le fait le maillage
+    # automatique de Ginette (E_parametre.dat, imaille=1). Sans ce [::-1],
+    # E_zone.dat associe chaque zone à la maille dans l'ordre fond->surface,
+    # alors que Ginette applique ces zones à ses propres mailles dans l'ordre
+    # surface->fond : les zones se retrouvent inversées par rapport à
+    # l'intention (repéré via un contraste de conductivité thermique à 2
+    # zones qui n'avait AUCUN effet visible sur le profil simulé - voir
+    # application/heat_transport_analytical_validation/3_shan_bodvarsson_layered.py).
+    # Sans effet sur NB_ZONE=1 (mêmes paramètres partout, quel que soit l'ordre).
+    zvalues = np.sort(np.arange(z_bottom + dz / 2, dz / 2, dz))[::-1]
     xvalues = np.array([0.5])
     zz, xx = np.meshgrid(zvalues, xvalues)
     NT = np.prod(zz.shape)  # Remplacement de np.product par np.prod
@@ -832,7 +856,7 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     coord['id'] = coord['id'] + 1
     cols = coord.columns.tolist()
     cols = cols[-1:] + cols[:-1]
-    coord = coord[cols] 
+    coord = coord[cols]
     coord.to_csv(f_coor, index=False, sep=' ', header=False)
     
     # zone parameter by cell (homogenous domain = 1 zone)
@@ -1295,3 +1319,106 @@ def smooth_square_wave(x, period):
 
 def copy_file(source, destination):
     shutil.copy2(source, destination)
+
+
+def Direct_model_stallman(GINETTE_SENSI, REPO_ROOT, dt, nb_day, z_top, z_bottom, dz, dz_obs,
+                           date_simul_bg, log_k, poro, lam, cs_specific, target_uz,
+                           T_mean, A0, period_seconds, amp_bottom, phase_bottom,
+                           amu=1e-3, depths_obs=None):
+    """
+    Configure et lance une simulation Ginette pour la validation de la
+    solution TRANSITOIRE de Stallman (1965) - voir 1_stallman_transient.py
+    (application/heat_transport_analytical_validation) pour la théorie et la comparaison.
+
+    Impose le flux de Darcy `target_uz` via une CHARGE hydraulique
+    équivalente (h_top = target_uz*az/K, K = k*rho*g/amu, h_bottom=0),
+    PAS via une condition de Neumann directe (icl=-1) : essayé (2026-07-23),
+    mais `variation_cdt_limites` dans src/ginette_V2.f90, CASE("ZHR","ZHZ"),
+    FORCE icl(1,3)=-2/icl(nm,4)=-2 à chaque pas de temps quoi qu'on mette
+    dans E_cdt_aux_limites.dat - le flux imposé se retrouve alors interprété
+    comme une charge (quasi nulle), simulant un flux ~1e-12 m/s au lieu de
+    `target_uz`. Seuls les cas ytest="1DS"/"WAR"/"ZNS"/"ZND" supportent
+    icl=-1 dynamiquement ; ZHZ non - et on ne bascule PAS cette validation
+    sur un autre ytest (changerait le format de E_zone_parameter.dat, effort
+    disproportionné pour ce qui reste une histoire de calibration de `amu`,
+    déjà résolue par ailleurs). `amu` DOIT donc rester cohérent avec la
+    formule utilisée pour calculer K ici (voir 1_stallman_transient.py).
+
+    Paramètres
+    ----------
+    GINETTE_SENSI : Path, dossier de travail contenant les templates Ginette.
+    REPO_ROOT : Path ou str, racine du dépôt (pour compiler ginette si absent).
+    dt, nb_day, z_top, z_bottom, dz, dz_obs, date_simul_bg : géométrie/temps,
+        mêmes conventions que setup_ginette().
+    log_k, poro, lam, cs_specific : paramètres matériau (zone unique,
+        NB_ZONE=1), voir generate_zone_parameters (cs_specific = capacité
+        calorifique du solide, PAS la densité - voir CASE('ZHZ') dans
+        ginette_V2.f90, fix 2026-07-22).
+    target_uz : flux de Darcy visé [m/s], positif vers le bas (recharge) -
+        atteint via une charge imposée h_top=target_uz*az/K (K dérivé de
+        log_k et `amu`), PAS un flux imposé directement (voir ci-dessus).
+    T_mean, A0, period_seconds : signal de température sinusoïdal en surface.
+    amp_bottom, phase_bottom : condition de température au fond du domaine
+        (calculées par l'appelant à partir de la théorie de Stallman -
+        amortissement/déphasage exacts à cette profondeur, pour éviter un
+        biais de troncature de domaine).
+    amu : viscosité dynamique de l'eau [kg/m/s] - DOIT être cohérente avec
+        celle utilisée par l'appelant pour ses propres calculs théoriques
+        (K, Cv, etc.) puisqu'elle détermine ici directement `h_top` via
+        K=k*rho*g/amu. Substituée aussi dans E_parametre.dat (référence du
+        champ de pression interne). Défaut 1e-3.
+    depths_obs : dict {indice_maille: profondeur_m} des points de sortie à
+        lire (Sim_temperature_maille{i}_t.dat). Défaut {1: 0.1, 2: 0.2, 3: 0.3}.
+
+    Retourne
+    --------
+    pd.DataFrame avec colonnes Time, Temp1, Temp2, ... (une par profondeur
+    de depths_obs), fusionnées sur Time.
+    """
+    if depths_obs is None:
+        depths_obs = {1: 0.1, 2: 0.2, 3: 0.3}
+
+    az = abs(z_top - z_bottom)
+
+    # Charge hydraulique nécessaire pour obtenir target_uz avec log_k et amu
+    # choisis : uz = K*dh/L, K = k*rho*g/amu (on résout l'inverse : dh
+    # connaissant uz).
+    K = 10**log_k * 1000.0 * 9.81 / amu
+    h_top = target_uz * az / K
+    h_bottom = 0.0
+
+    n_steps = int(nb_day * 86400 / dt) + 1
+    time_vector = np.arange(n_steps) * dt
+    w = 2 * np.pi / period_seconds
+
+    obs_temp = pd.DataFrame({
+        "Time": time_vector,
+        "T_top": T_mean + A0 * np.cos(w * time_vector),
+        "T_bottom": T_mean + amp_bottom * np.cos(w * time_vector - phase_bottom),
+        "h_top": np.full(n_steps, h_top),
+        "h_bottom": np.full(n_steps, h_bottom),
+    })
+    obs_temp.index = date_simul_bg + pd.to_timedelta(time_vector, unit="s")
+
+    os.chdir(GINETTE_SENSI)
+    if not os.path.isfile("ginette"):
+        from Init_folders import compile_ginette_src
+        repo_root_str = REPO_ROOT.as_posix() if hasattr(REPO_ROOT, "as_posix") else str(REPO_ROOT)
+        compile_ginette_src(repo_root_str)
+
+    z_obs = setup_ginette(dt, 1, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs, amu=amu)
+    shutil.copy("E_cdt_initiale_bck.dat", "E_cdt_initiale.dat")
+    initial_conditions(obs_temp, z_top, z_bottom, dz, z_obs)
+    boundary_conditions(obs_temp, dt)
+    generate_zone_parameters(z_bottom, dz, 1, -0.05, log_k, poro, lam, cs_specific)
+
+    ret = subprocess.call(["./ginette"])
+    if ret != 0:
+        raise RuntimeError(f"ginette a échoué (code retour {ret}) - voir sortie ci-dessus.")
+
+    sim = None
+    for i, depth in depths_obs.items():
+        df = pd.read_csv(f"Sim_temperature_maille{i}_t.dat", sep=r"\s+", header=None,
+                          names=["Time", f"Temp{i}"])
+        sim = df if sim is None else sim.merge(df, on="Time")
+    return sim

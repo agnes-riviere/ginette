@@ -1816,14 +1816,14 @@ program pression_ecoulement_transport_thermique
    !CC...Calcul le nombre de zone
       end do
       if (allocated(alandazone)) deallocate(alandazone)
-      if (allocated(rhomzone)) deallocate(rhomzone)
-      if (allocated(akzone)) deallocate(akzone) 
+      if (allocated(cpmzone)) deallocate(cpmzone)
+      if (allocated(akzone)) deallocate(akzone)
       if (allocated(omzone)) deallocate(omzone)
       if (allocated(aspzone)) deallocate(aspzone)
       if (allocated(jzone)) deallocate(jzone)
 
       allocate(alandazone(nzone))
-      allocate(rhomzone(nzone))
+      allocate(cpmzone(nzone))
       allocate(akzone(nzone))
       allocate(omzone(nzone))
       allocate(aspzone(nzone))
@@ -1832,7 +1832,7 @@ program pression_ecoulement_transport_thermique
 
       do j = 1, nzone
          read (321, *) jzone(j), akzone(j), omzone(j), &
-            alandazone(j), rhomzone(j)
+            alandazone(j), cpmzone(j)
       end do
       close(321)  ! ← garantit qu'on ne lira plus rien
       do i = 1, nm
@@ -1843,7 +1843,7 @@ program pression_ecoulement_transport_thermique
          om(i) = omzone(j)
          ss(i) = omzone(j)
          alandas(i) = alandazone(j)
-         rhos(i) = rhomzone(j)
+         cps(i) = cpmzone(j)
       end if
 !cc test zone
       end do
@@ -4005,6 +4005,7 @@ program pression_ecoulement_transport_thermique
 !     ISOTHERMES                 C
 !                                                 C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+               ncmax = nc
                call interpol(nc, zs, nm, icol, temp, ivois, igel, &
                              bm, z, ncmax, valclt, ts, iclt, topo)
                call interpol(nc, zl, nm, icol, temp, ivois, igel, &
@@ -6520,20 +6521,53 @@ subroutine matt(val, icol_ind, irow_ptr, x, b, am, ivois, tempo, &
 !         TERME DISPERSIF          C
 !                         C
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      dlip = dble(bll*rho(i)*cpe*(vxp(i)**2 &
-                                  + (vzm(i) + vzp(i))**2/4)**0.5 + alanda(i))
-      dlim = dble(bll*rho(i)*cpe*(vxm(i)**2 &
-                                  + (vzm(i) + vzp(i))**2/4)**0.5 + alanda(i))
-      dtjp = dble(blt*rho(i)*cpe*(vzp(i)**2 &
-                                  + (vxm(i) + vxp(i))**2/4)**0.5 + alanda(i))
-      dtjm = dble(blt*rho(i)*cpe*(vzm(i)**2 &
-                                  + (vxm(i) + vxp(i))**2/4)**0.5 + alanda(i))
+!ccc....Moyenne harmonique de la conductivite thermique avec CHAQUE maille
+!ccc....voisine (meme principe que ak/akr pour l'ecoulement, ~ligne 3694) -
+!ccc....AVANT ce fix (2026-07-23), dlip/dlim/dtjp/dtjm utilisaient
+!ccc....uniquement alanda(i) (jamais celle du voisin) : la matrice de
+!ccc....conduction devenait ASYMETRIQUE des qu'un contraste de conductivite
+!ccc....existait entre deux mailles voisines (zones materiaux differentes
+!ccc....OU front de gel, alanda(i) peut differer entre mailles de meme zone
+!ccc....si l'une est gelee et l'autre pas) - correct seulement par
+!ccc....coincidence en milieu homogene sans gel. S'applique aussi au gel :
+!ccc....aucune condition sur icycle/igel ci-dessous, la formule ne distingue
+!ccc....pas la CAUSE de la difference alanda(i)/alanda(voisin), juste les
+!ccc....deux valeurs telles qu'elles sont a l'instant t. Repli sur alanda(i)
+!ccc....seul si pas de voisin (maille de bord, ivois=-99) - comportement
+!ccc....inchange la ou il n'y avait de toute facon pas de voisin.
+      if (ivois(i, 1) .ne. -99) then
+         alanda_droite = (am(i) + am(ivois(i, 1))) &
+                         /(am(i)/alanda(i) + am(ivois(i, 1))/alanda(ivois(i, 1)))
+      else
+         alanda_droite = alanda(i)
+      end if
+      if (ivois(i, 2) .ne. -99) then
+         alanda_gauche = (am(i) + am(ivois(i, 2))) &
+                         /(am(i)/alanda(i) + am(ivois(i, 2))/alanda(ivois(i, 2)))
+      else
+         alanda_gauche = alanda(i)
+      end if
+      if (ivois(i, 3) .ne. -99) then
+         alanda_haut = (bm(i) + bm(ivois(i, 3))) &
+                       /(bm(i)/alanda(i) + bm(ivois(i, 3))/alanda(ivois(i, 3)))
+      else
+         alanda_haut = alanda(i)
+      end if
+      if (ivois(i, 4) .ne. -99) then
+         alanda_bas = (bm(i) + bm(ivois(i, 4))) &
+                      /(bm(i)/alanda(i) + bm(ivois(i, 4))/alanda(ivois(i, 4)))
+      else
+         alanda_bas = alanda(i)
+      end if
+
       dlip = dble(bll*rho(i)*cpe*((vxm(i) + vxp(i))**2/4 &
-                                  + (vzm(i) + vzp(i))**2/4.)**0.5 + alanda(i))
-      dlim = dlip
+                                  + (vzm(i) + vzp(i))**2/4.)**0.5 + alanda_droite)
+      dlim = dble(bll*rho(i)*cpe*((vxm(i) + vxp(i))**2/4 &
+                                  + (vzm(i) + vzp(i))**2/4)**0.5 + alanda_gauche)
       dtjp = dble(blt*rho(i)*cpe*((vxm(i) + vxp(i))**2/4 &
-                                  + (vzm(i) + vzp(i))**2/4)**0.5 + alanda(i))
-      dtjm = dtjp
+                                  + (vzm(i) + vzp(i))**2/4)**0.5 + alanda_haut)
+      dtjm = dble(blt*rho(i)*cpe*((vxm(i) + vxp(i))**2/4 &
+                                  + (vzm(i) + vzp(i))**2/4)**0.5 + alanda_bas)
 
       il = il + 1
       ili = il
@@ -6963,9 +6997,13 @@ subroutine interpol(nc, zo, nm, icol, temp, ivois, igel, &
 
             end if
 !CCC cellule interpolation par le bas DEGEL
+!ccc....ivois(i,4).ne.-99 doit etre verifie AVANT temp(ivois(i,4)) : Fortran
+!ccc....ne garantit pas l'evaluation gauche-a-droite d'un .and. compose (a
+!ccc....la difference de C/Python), donc if imbrique plutot qu'une seule
+!ccc....expression logique (bug trouve 2026-07-23, crash temp(-99)).
             if (igel == 2 .and. zo(kkcol, 2) == -99 .and. &
-                temp(i) <= to .and. temp(ivois(i, 4)) > to .and. &
-                ivois(i, 4) .ne. -99) then
+                temp(i) <= to .and. ivois(i, 4) .ne. -99) then
+            if (temp(ivois(i, 4)) > to) then
                zo(kkcol, 2) = z(i) + &
                               ((z(i) - z(ivois(i, 4)))/(temp(i) - temp(ivois(i, 4))) &
                                *(to - temp(i)))
@@ -6974,30 +7012,36 @@ subroutine interpol(nc, zo, nm, icol, temp, ivois, igel, &
                   zo(kkcol, 2) = -99
                end if
             end if
+            end if
 !CC ISOTHERME 1
 !ccc cellule milieu modele VOISIN DU HAUT EXISTE  MILIEU MODELE CCCCCCCC
 !CCCC TEMPERATURE VOISIN SUP >0 CAS DEGEL
-            if (ivois(i, 3) .ne. -99 .and. temp(i) <= to .and. &
-                temp(ivois(i, 3)) > to .and. igel == 2) then
+!ccc....meme fix que ci-dessus : ivois(i,3).ne.-99 dans un if separe, AVANT
+!ccc....tout acces a temp(ivois(i,3)) (evaluation .and. non garantie).
+            if (ivois(i, 3) .ne. -99 .and. temp(i) <= to .and. igel == 2) then
+            if (temp(ivois(i, 3)) > to) then
                zo(kkcol, 1) = z(ivois(i, 3)) + &
                               ((z(ivois(i, 3)) - z(i))/(temp(ivois(i, 3)) - temp(i)) &
                                *(to - temp(ivois(i, 3))))
+            end if
 !CC FIN DE TEST VOISIN SUP >0
             end if
 !C ISOTHERME  1 Gel
 !CCCC TEMP VOISIN SUP<0 CAS DEGEL SOUS PERMAFROST / CAS GEL
-            if (igel == 1 .and. ivois(i, 3) .ne. -99 .and. temp(i) >= to .and. &
-                temp(ivois(i, 3)) < to) then
+            if (igel == 1 .and. ivois(i, 3) .ne. -99 .and. temp(i) >= to) then
+            if (temp(ivois(i, 3)) < to) then
                zo(kkcol, 1) = z(ivois(i, 3)) + &
                               ((z(ivois(i, 3)) - z(i))/(temp(ivois(i, 3)) - temp(i)) &
                                *(to - temp(ivois(i, 3))))
             end if
+            end if
 !C ISOTHERME  2 degel
-            if (igel == 2 .and. ivois(i, 3) .ne. -99 .and. temp(i) >= to .and. &
-                temp(ivois(i, 3)) < to) then
+            if (igel == 2 .and. ivois(i, 3) .ne. -99 .and. temp(i) >= to) then
+            if (temp(ivois(i, 3)) < to) then
                zo(kkcol, 2) = z(ivois(i, 3)) + &
                               ((z(ivois(i, 3)) - z(i))/(temp(ivois(i, 3)) - temp(i)) &
                                *(to - temp(ivois(i, 3))))
+            end if
             end if
 !CCC FIN DE test colonne
          end if
