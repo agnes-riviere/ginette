@@ -6523,7 +6523,7 @@ subroutine matt(val, icol_ind, irow_ptr, x, b, am, ivois, tempo, &
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !ccc....Moyenne harmonique de la conductivite thermique avec CHAQUE maille
 !ccc....voisine (meme principe que ak/akr pour l'ecoulement, ~ligne 3694) -
-!ccc....AVANT ce fix (2026-07-23), dlip/dlim/dtjp/dtjm utilisaient
+!ccc....AVANT ce fix, dlip/dlim/dtjp/dtjm utilisaient
 !ccc....uniquement alanda(i) (jamais celle du voisin) : la matrice de
 !ccc....conduction devenait ASYMETRIQUE des qu'un contraste de conductivite
 !ccc....existait entre deux mailles voisines (zones materiaux differentes
