@@ -10,9 +10,9 @@ cpe=4185D+00	       m2/s2/C	capacite calorifique specifique de l'eau
 ilanda=0		       ilanda=1 variation conductivite thermique	 E_conductivite_thermique
 alandam=7.70D+00 		kg.m/s-3/C	conductivite thermique solide 3.376722
 irhomi=0		       irhomi=1 variation de la densite du milieu poreux
-rhosi=2650D+00        kg/m3	solid density								CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE
+rhosi=1180D+00        kg/m3	solid density								CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE
 icpm=0			       icpm=1 variation spatiale capacite calorifique specifique du milieu poreux
-cpm=00001000	m2/s2/C	capacite calorifique specifique du solide			   CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE GEL
+cpm=00002000	m2/s2/C	capacite calorifique specifique du solide			   CCCCCCCCCCCCCCCCCCCCCCCCCCC THERMIQUE GEL
 ymoycondtherm=ARITH	   LUNAR,WOODS,GEOME,ARITH,NEUMA
 icycle=0		       icycle=1 gel/degel actif, icycle=0 transport de chaleur sans gel/degel	####### GEL/DEGEL
 igel=0                 indice gel=1 premiere iteration en gel igel=2 premiere iteration en degel ####### GEL/DEGE

@@ -103,7 +103,7 @@ def setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg
     setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
     setup_model = setup_model.replace('[state]', '%1i' % state)
     setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)
-    setup_model = setup_model.replace('[z_top]', '%7.3e' % z_top)
+    setup_model = setup_model.replace('[z_top]', '%7.2e' % z_top)
     setup_model = setup_model.replace('[z_bottom]', '%7.2e' % z_bottom)
     setup_model = setup_model.replace('[az]', '%7.3e' % az)
     setup_model = setup_model.replace('[dz]', '%6.2e' % dz)
@@ -237,7 +237,7 @@ def setup_ginette_no_date(dt, state, nb_day, z_top, z_bottom, az, dz,dz_obs,verb
     setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
     setup_model = setup_model.replace('[state]', '%1i' % state)
     setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)
-    setup_model = setup_model.replace('[z_top]', '%7.3e' % z_top)
+    setup_model = setup_model.replace('[z_top]', '%7.2e' % z_top)
     setup_model = setup_model.replace('[z_bottom]', '%7.2e' % z_bottom)
     setup_model = setup_model.replace('[az]', '%7.3e' % az)
     setup_model = setup_model.replace('[dz]', '%6.2e' % dz)
@@ -320,7 +320,10 @@ def setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_o
     setup_model = setup_model.replace('[state]', '%1i' % state)
     setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)
     setup_model = setup_model.replace('[amu]', '%04.0fD-06' % (amu * 1e6))
-    setup_model = setup_model.replace('[z_top]', '%7.3e' % z_top)
+    # z_top en %7.2e comme z_bottom, pas %7.3e : negatif ca deborde le champ
+    # Fortran (reptop lu en d9.0) et tronque l'exposant, reptop=-0.1 lu -1.0
+    # (trouve ce soir en testant Temp1 en CL haute)
+    setup_model = setup_model.replace('[z_top]', '%7.2e' % z_top)
     setup_model = setup_model.replace('[z_bottom]', '%7.2e' % z_bottom)
     setup_model = setup_model.replace('[az]', '%7.3e' % az)
     setup_model = setup_model.replace('[dz]', '%6.2e' % dz)
@@ -394,7 +397,7 @@ def setup_ginette2(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_
     setup_model = setup_model.replace('[dt]', '%06.0fD+00' % dt)
     setup_model = setup_model.replace('[state]', '%1i' % state)
     setup_model = setup_model.replace('[nb_day]', '%06.0f' % nb_day)
-    setup_model = setup_model.replace('[z_top]', '%7.3e' % z_top)
+    setup_model = setup_model.replace('[z_top]', '%7.2e' % z_top)
     setup_model = setup_model.replace('[z_bottom]', '%7.2e' % z_bottom)
     setup_model = setup_model.replace('[az]', '%7.3e' % az)
     setup_model = setup_model.replace('[dz]', '%6.2e' % dz)
@@ -800,6 +803,34 @@ def boundary_conditions_2D_tdirect():
     with open("E_cdt_aux_limites.dat", "w") as f_param_lec_new:
         f_param_lec_new.write(lec_bc)
    
+def write_coordonnee_file(z_bottom, dz):
+    """
+    Écrit E_coordonnee.dat (id, x, z) pour le domaine [z_bottom, 0] à pas dz -
+    dynamique à la taille du domaine (appelable seule pour régénérer ce fichier
+    à la bonne taille, pas seulement depuis generate_zone_parameters). Renvoie
+    le DataFrame coord (colonnes id, x, z) pour réutilisation.
+
+    IMPORTANT : ordre INVERSÉ (surface -> fond) par rapport à l'ordre naturel de
+    np.arange (fond -> surface), pour que la maille id=1 corresponde à la
+    surface (z proche de 0), comme le fait le maillage automatique de Ginette
+    (E_parametre.dat, imaille=1). Sans ce [::-1], les zones assignées par
+    generate_zone_parameters se retrouvent inversées par rapport à l'intention
+    (repéré via un contraste de conductivité thermique à 2 zones qui n'avait
+    AUCUN effet visible sur le profil simulé - voir
+    application/heat_transport_analytical_validation/3_shan_bodvarsson_layered.py).
+    Sans effet sur un domaine à 1 zone (mêmes paramètres partout).
+    """
+    zvalues = np.sort(np.arange(z_bottom + dz / 2, dz / 2, dz))[::-1]
+    xvalues = np.array([0.5])
+    zz, xx = np.meshgrid(zvalues, xvalues)
+    NT = np.prod(zz.shape)
+    coord = pd.DataFrame({"x": np.reshape(xx, NT), "z": np.reshape(zz, NT)})
+    coord['id'] = coord.index.values.astype(int) + 1
+    coord = coord[['id', 'x', 'z']]
+    coord.to_csv("E_coordonnee.dat", index=False, sep=' ', header=False)
+    return coord
+
+
 def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l, REF_r, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None):
     """
     Writes the zone parameter file based on the number of zones and parameter values.
@@ -826,39 +857,13 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     - REF_r2: Same as REF_r but for zone 2 (if nb_zone == 2).
     """
     ########### Zone of parameters
-    f_coor = open("E_coordonnee.dat", "w")
     f_zone = open("E_zone.dat", 'w')
 
-    coord = pd.DataFrame()    
+    # write_coordonnee_file() écrit E_coordonnee.dat à la taille du domaine
+    # courant (z_bottom, dz) et renvoie le même DataFrame coord (id, x, z),
+    # réutilisé ci-dessous pour l'assignation de zone.
+    coord = write_coordonnee_file(z_bottom, dz)
 
-    # Coodrinate
-    # IMPORTANT (2026-07-22) : ordre INVERSÉ (surface -> fond) par rapport à
-    # l'ordre naturel de np.arange (fond -> surface), pour que la maille id=1
-    # corresponde à la surface (z proche de 0), comme le fait le maillage
-    # automatique de Ginette (E_parametre.dat, imaille=1). Sans ce [::-1],
-    # E_zone.dat associe chaque zone à la maille dans l'ordre fond->surface,
-    # alors que Ginette applique ces zones à ses propres mailles dans l'ordre
-    # surface->fond : les zones se retrouvent inversées par rapport à
-    # l'intention (repéré via un contraste de conductivité thermique à 2
-    # zones qui n'avait AUCUN effet visible sur le profil simulé - voir
-    # application/heat_transport_analytical_validation/3_shan_bodvarsson_layered.py).
-    # Sans effet sur NB_ZONE=1 (mêmes paramètres partout, quel que soit l'ordre).
-    zvalues = np.sort(np.arange(z_bottom + dz / 2, dz / 2, dz))[::-1]
-    xvalues = np.array([0.5])
-    zz, xx = np.meshgrid(zvalues, xvalues)
-    NT = np.prod(zz.shape)  # Remplacement de np.product par np.prod
-    data = {
-        "x": np.reshape(xx, NT),
-        "z": np.reshape(zz, NT)
-    }
-    coord = pd.DataFrame(data=data)
-    coord['id'] = coord.index.values.astype(int)
-    coord['id'] = coord['id'] + 1
-    cols = coord.columns.tolist()
-    cols = cols[-1:] + cols[:-1]
-    coord = coord[cols]
-    coord.to_csv(f_coor, index=False, sep=' ', header=False)
-    
     # zone parameter by cell (homogenous domain = 1 zone)
     coord['zone'] = 1
 
@@ -870,10 +875,9 @@ def generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l
     # Write new ginette files
     coord.zone.to_csv(f_zone, index=False, header=False)
 
-    # close files    
+    # close files
     f_zone.close()
-    f_coor.close()
-    
+
     param_zone = None
  
     if nb_zone == 1:

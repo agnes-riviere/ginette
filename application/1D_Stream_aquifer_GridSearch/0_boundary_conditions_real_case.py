@@ -72,15 +72,17 @@ from src.src_python import Read_obs
 # =============================================================================
 # PARAMÈTRES UTILISATEUR — à modifier selon le cas d'étude
 # =============================================================================
-# Nom du point d'observation : doit correspondre à un dossier dans OBS_point/
-# (ex: "lomos230", "Point3_540_SOULTZ", "Point1Touques")
-POINT_NAME = "lomos230"
-
-# Date de début de la simulation (doit être dans la plage de données du point choisi)
-# Période de calage recommandée par l'analyse Stallman/Cheviron (voir
-# 0_stallman_diffusivity_lomos230.py) : la plus longue fenêtre continue où la
-# méthode thermique et le gradient de charge s'accordent sur le sens d'écoulement.
-date_simul_bg = pd.to_datetime("2026/05/15 04:00:00")
+# Point d'observation (doit correspondre à un dossier dans OBS_point/, ex:
+# "lomos230", "Point3_540_SOULTZ", "Point1Touques") : partagé via
+# config_lomos.py avec 2_run_real_case.py/3_misfit.py/4_plot_results.py, pour
+# que results/{POINT_NAME}/ reste cohérent partout et qu'un autre point ne
+# vienne pas écraser les résultats de celui-ci.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Date de début, durée et pas de temps de la simulation vivent dans
+# config_lomos.py (partagé avec 2_run_real_case.py) - période de calage
+# recommandée par stallman_diffusivity.py (42j, voir mémoire projet).
+from config_lomos import (POINT_NAME, DATE_SIMUL_BG as date_simul_bg,
+                           NB_DAY as nb_day, DT as dt)
 
 # État de la simulation : 0 = permanent, 1 = transitoire
 state = 1
@@ -91,32 +93,25 @@ state = 1
 coef = 0.01  # coefficient d'échelle pour la pression (cm -> m pour lomos230)
 offset = 0  # décalage (correction de référence)
 
-# Durée de simulation en jours
-nb_day = 42
+# TempMolo est en eau libre 1-2cm au-dessus du lit, pas dans le sédiment -
+# ce n'est pas la même grandeur physique que la T° du milieu poreux à z=0.
+# CL haute/basse = TOP_SENSOR/BOTTOM_SENSOR (config_lomos.py), à choisir
+# librement parmi SENSOR_DEPTHS. Deux presets déjà étudiés sur lomos230 :
+# - Config A (TOP_SENSOR='TempMolo', BOTTOM_SENSOR='Temp4') : TempMolo BRUT en
+#   CL haute, domaine naturel 0 à -40cm, calage sur Temp1/Temp2/Temp3.
+# - Config C (TOP_SENSOR='Temp1', BOTTOM_SENSOR='Temp4') : Temp1 ET Temp4 tels
+#   quels en CL (vraies mesures, aucune correction), calage sur Temp2/Temp3
+#   seulement, deltaP ramené au sous-domaine 10-40cm. Résultat le plus proche
+#   de l'analyse Stallman indépendante.
+# Tout vit dans config_lomos.py, partagé avec 2_run_real_case.py et
+# 3_misfit.py, pour ne plus avoir à le resynchroniser à la main partout.
+from config_lomos import (TOP_SENSOR, BOTTOM_SENSOR, COMPARISON_SENSORS, SENSOR_DEPTHS,
+                           DELTAP_SENSOR, Z_TOP, Z_BOTTOM, DOMAIN_LENGTH, DZ_OBS)
 
-# Pas de temps en secondes (900 s = 15 min, doit correspondre au pas des observations)
-dt = 900
-
-# TempMolo (capteur de "surface") est mesuré 1-2cm au-dessus du lit, pas au
-# contact du sédiment, ce qui sur-amplifie le cycle diurne imposé comme
-# condition de Dirichlet à z=0 pour lomos230/231. USE_TEMP1_AS_TOP_BC corrige
-# ça en décalant tout le schéma d'un cran de profondeur (Temp1 mesuré devient
-# la condition limite haute). Vérifier avec l'analyse Stallman avant de
-# l'activer pour un nouveau point : voir OBS_point/notes_points_obs.txt pour
-# le diagnostic complet, les alternatives écartées et les résultats de misfit
-# par point.
-USE_TEMP1_AS_TOP_BC = POINT_NAME in ("lomos230", "lomos231")
-CORRECT_TEMPMOLO_SURFACE = False
-DZ_ANCHOR_TO_SURFACE = 0.10  # distance (m) Temp1 -> surface du sédiment (z=0)
-
-# Géométrie du domaine 1D vertical (colonne)
-# Avec USE_TEMP1_AS_TOP_BC, le domaine est décalé de -10cm : le "haut" du
-# modèle correspond à la profondeur réelle de Temp1, pas à la surface du lit.
-_DEPTH_SHIFT = 0.10 if USE_TEMP1_AS_TOP_BC else 0.0
-z_top = 0.0 - _DEPTH_SHIFT       # altitude de la surface (lit de rivière) [m]
-z_bottom = -0.4 - _DEPTH_SHIFT   # bas du domaine [m]
+# Géométrie du domaine 1D vertical (colonne), dérivée de TOP_SENSOR/BOTTOM_SENSOR
+z_top, z_bottom = Z_TOP, Z_BOTTOM
 dz = 0.01        # taille de maille verticale [m] (résolution fine pour les gradients thermiques)
-dz_obs = 0.1     # espacement entre les capteurs de température [m]
+dz_obs = DZ_OBS  # espacement réel entre capteurs [m] (dérivé de SENSOR_DEPTHS)
 
 az = abs(z_top - z_bottom)  # hauteur totale de la colonne [m] (calculée automatiquement)
 # =============================================================================
@@ -233,8 +228,10 @@ if SRC_PY.is_dir() and str(SRC_PY) not in sys.path:
     sys.path.insert(0, str(SRC_PY))
 
 GINETTE_SENSI = BASE_APP_DIR / "GINETTE_SENSI"
-RESULTS_DIR = BASE_APP_DIR / "results"
-RESULTS_DIR.mkdir(exist_ok=True)
+# Un sous-dossier par point (results/{POINT_NAME}/) : un autre point lancé
+# ensuite n'écrase pas les résultats de celui-ci.
+RESULTS_DIR = BASE_APP_DIR / "results" / POINT_NAME
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Dossier des données d'observation (température, pression) du point choisi ci-dessus
 Obs_data = BASE_APP_DIR / "OBS_point" / POINT_NAME
@@ -253,18 +250,17 @@ try:
     from Direct_model import (setup_ginette2,setup_ginette,
                                initial_conditions,
                                boundary_conditions,
+                               write_coordonnee_file,
                                run_direct_model,
                                smooth_square_wave)
     from Read_obs import (process_obs_data, convert_dates,read_csv_with_multiple_separators,read_lomos_csv)
     from Plot import plot_initial_conditions
-    from Stallman_analysis import (fit_sinusoid, fit_local_attenuation_phase,
-                                    extrapolate_attenuation_phase, predict_true_surface_signal,
-                                    predict_deeper_signal)
 except Exception:
      # fallback to legacy module name if present
     from Direct_model import (setup_ginette2,
                                        initial_conditions,
                                        boundary_conditions,
+                                       write_coordonnee_file,
                                        run_direct_model,
                                        smooth_square_wave)
 
@@ -323,76 +319,42 @@ print(f"- Data shape: {obs_temp.shape}")
 time_vector = (obs_temp.index - date_simul_bg).total_seconds().to_numpy()
 obs_temp.insert(0, 'Time', time_vector)
 
-# === DÉCALAGE : TEMP1 COMME CONDITION LIMITE HAUTE (à la place de TempMolo) ===
-# Voir USE_TEMP1_AS_TOP_BC dans PARAMÈTRES UTILISATEUR et
-# OBS_point/notes_points_obs.txt pour le diagnostic complet. On décale toutes
-# les colonnes de température d'un cran de profondeur : Temp1 (mesure réelle)
-# devient la nouvelle "TempMolo" (condition de Dirichlet du haut), Temp2->Temp1,
-# Temp3->Temp2, Temp4->Temp3 (nouveaux points de comparaison, tous mesurés).
-# La nouvelle condition limite du bas (-50cm, 10cm sous Temp4) est prédite par
-# extrapolation physique (predict_deeper_signal) plutôt que réutilisée telle
-# quelle depuis Temp4 - la réutilisation brute rendait Temp3 et Temp4
-# rigoureusement identiques, un biais structurel (détail dans le fichier de
-# notes ci-dessus).
-if USE_TEMP1_AS_TOP_BC and all(c in obs_temp.columns for c in ['TempMolo', 'Temp1', 'Temp2', 'Temp3', 'Temp4']):
-    _orig = obs_temp[['Temp1', 'Temp2', 'Temp3', 'Temp4']].copy()
-    _depths_orig = {'Temp1': 0.10, 'Temp2': 0.20, 'Temp3': 0.30, 'Temp4': 0.40}
-    _fits_orig = {name: fit_sinusoid(time_vector, _orig[name].to_numpy(), 86400.0) for name in _depths_orig}
-    _local_deep = fit_local_attenuation_phase(_fits_orig, _depths_orig, 86400.0)
-    _z_target_deep = _depths_orig['Temp4'] + DZ_ANCHOR_TO_SURFACE / 2  # milieu Temp4 <-> nouvelle frontière
-    _a_deep, _b_deep = extrapolate_attenuation_phase(_local_deep, _z_target_deep)
-    _deep_pred = predict_deeper_signal(time_vector, _orig['Temp4'].to_numpy(), _fits_orig['Temp4'], 86400.0,
-                                        dz_deeper=DZ_ANCHOR_TO_SURFACE, a_pred=_a_deep, b_pred=_b_deep)
+# === CL HAUTE/BASSE = TOP_SENSOR/BOTTOM_SENSOR (config_lomos.py) ===
+# Toujours des vraies mesures, aucune correction/extrapolation. deltaP est
+# mesuré entre la rivière et DELTAP_SENSOR (profondeur fixe de l'installation) -
+# si le domaine simulé est plus court, on ne garde que la fraction du gradient
+# qui tombe dedans, gradient hydraulique supposé homogène sur toute la colonne
+# (pas d'autre mesure dispo).
+_needed_cols = set(COMPARISON_SENSORS) | {TOP_SENSOR, BOTTOM_SENSOR, 'deltaP'}
+if not _needed_cols.issubset(obs_temp.columns):
+    raise ValueError(f"Colonnes manquantes dans les données de {POINT_NAME} pour "
+                      f"TOP_SENSOR={TOP_SENSOR!r}/BOTTOM_SENSOR={BOTTOM_SENSOR!r} : "
+                      f"{_needed_cols - set(obs_temp.columns)}")
 
-    obs_temp['TempMolo_raw'] = obs_temp['TempMolo']  # conservé pour référence, non utilisé
-    obs_temp['TempMolo'] = _orig['Temp1']
-    obs_temp['Temp1'] = _orig['Temp2']
-    obs_temp['Temp2'] = _orig['Temp3']
-    obs_temp['Temp3'] = _orig['Temp4']
-    obs_temp['Temp4_raw'] = _orig['Temp4']  # conservé pour référence/diagnostic
-    obs_temp['Temp4'] = _deep_pred['predicted']
-    print("\n=== USE_TEMP1_AS_TOP_BC actif ===")
-    print("Condition limite haute = Temp1 mesuré (plus d'extrapolation/correction).")
-    print("Points de comparaison (nouveaux Temp1/2/3) = anciens Temp2/Temp3/Temp4, tous mesurés.")
-    print(f"Condition limite basse (-50cm) prédite par extrapolation depuis Temp4 : "
-          f"amplitude diurne {_deep_pred['amplitude_raw']:.4f} -> {_deep_pred['amplitude_pred']:.4f} degC")
+obs_temp['T_top'] = obs_temp[TOP_SENSOR]
+obs_temp['T_bottom'] = obs_temp[BOTTOM_SENSOR]
+# boundary_conditions() (Direct_model.py) teste 'deltaP' EN PREMIER, avant
+# 'h_top'/'h_bottom' - écrire h_top/h_bottom seuls ne suffit pas, ça reste
+# ignoré tant que la colonne 'deltaP' existe. On écrase donc deltaP
+# directement (bug trouvé le 2026-07-24 : la config C a tourné toute une
+# grille avec le deltaP brut, pas le x0.75, avant ce fix).
+_deltap_scale = DOMAIN_LENGTH / SENSOR_DEPTHS[DELTAP_SENSOR]
+obs_temp['deltaP'] = obs_temp['deltaP'] * _deltap_scale
+obs_temp['h_top'] = obs_temp['deltaP']
+obs_temp['h_bottom'] = 0.0
+# maille1/2/3 de Ginette tombent sur les vraies profondeurs de COMPARISON_SENSORS
+# (TOP_SENSOR est consommé comme CL) - il faut renommer AVANT d'écrire
+# observed_data.txt sinon 3_misfit.py compare des profondeurs différentes
+# entre simulé et observé. Identité si TOP_SENSOR='TempMolo' (Config A).
+_orig = obs_temp[COMPARISON_SENSORS].copy()
+for _i, _sensor in enumerate(COMPARISON_SENSORS, start=1):
+    obs_temp[f'Temp{_i}'] = _orig[_sensor]
 
-# === CORRECTION DU SIGNAL DE SURFACE (TempMolo) ===
-# Voir le commentaire de CORRECT_TEMPMOLO_SURFACE dans PARAMÈTRES UTILISATEUR.
-if CORRECT_TEMPMOLO_SURFACE and 'TempMolo' in obs_temp.columns and 'Temp1' in obs_temp.columns:
-    depths_interior = {'Temp1': 0.10, 'Temp2': 0.20, 'Temp3': 0.30, 'Temp4': 0.40}
-    fits_interior = {name: fit_sinusoid(time_vector, obs_temp[name].to_numpy(), 86400.0)
-                     for name in depths_interior if name in obs_temp.columns}
-
-    local_att_phase = fit_local_attenuation_phase(fits_interior, depths_interior, 86400.0)
-    z_target = depths_interior['Temp1'] - DZ_ANCHOR_TO_SURFACE / 2  # milieu de la paire surface-Temp1
-    a_pred, b_pred = extrapolate_attenuation_phase(local_att_phase, z_target)
-
-    correction = predict_true_surface_signal(
-        time_vector, obs_temp['TempMolo'].to_numpy(), fits_interior['Temp1'], 86400.0,
-        dz_to_surface=DZ_ANCHOR_TO_SURFACE, a_pred=a_pred, b_pred=b_pred)
-
-    print("\n=== Correction du signal de surface (TempMolo) ===")
-    print(local_att_phase.to_string(index=False))
-    print(f"a_pred (extrapolé à z={z_target:.2f}m): {a_pred:.2f} /m")
-    print(f"b_pred (extrapolé à z={z_target:.2f}m): {b_pred:.2f} rad/m")
-    print(f"Amplitude diurne TempMolo brute : {correction['amplitude_raw']:.4f} degC")
-    print(f"Amplitude diurne surface prédite: {correction['amplitude_pred']:.4f} degC "
-          f"(ratio {correction['amplitude_pred']/correction['amplitude_raw']:.3f})")
-
-    obs_temp['TempMolo_raw'] = obs_temp['TempMolo'].copy()
-    obs_temp['TempMolo'] = correction['corrected']
-
-    fig_corr, ax_corr = plt.subplots(figsize=(10, 4))
-    ax_corr.plot(obs_temp.index, obs_temp['TempMolo_raw'], label='TempMolo brut (1-2cm au-dessus du lit)',
-                 color='tab:blue', alpha=0.6)
-    ax_corr.plot(obs_temp.index, obs_temp['TempMolo'], label='TempMolo corrigé (surface du sédiment, z=0)',
-                 color='tab:red', linestyle='--')
-    ax_corr.set_ylabel('Température (°C)')
-    ax_corr.set_title('Correction du signal de surface utilisé comme condition limite')
-    ax_corr.legend()
-    fig_corr.tight_layout()
-    fig_corr.savefig(RESULTS_DIR / "tempmolo_correction.png")
+print(f"\nCL haute = {TOP_SENSOR}, CL basse = {BOTTOM_SENSOR} (mesures brutes).")
+print(f"Calage sur {COMPARISON_SENSORS} (renommés Temp1/Temp2/Temp3 dans observed_data.txt).")
+if _deltap_scale != 1.0:
+    print(f"deltaP ramené au sous-domaine ({DOMAIN_LENGTH*100:.0f}cm, x{_deltap_scale:.2f}, "
+          "gradient homogène supposé).")
 
 # On prépare un DataFrame simplifié pour sauvegarder les données traitées (utile pour vérification ou post-traitement)
 data = pd.DataFrame()
@@ -463,6 +425,13 @@ print("- Time-varying surface conditions from observational data")
 
 
 
+
+# E_coordonnee.dat n'est normalement écrit que par generate_zone_parameters()
+# (2_run_real_case.py) : régénéré ici à la taille du domaine courant
+# (z_bottom, dz) avant le plot, sinon plot_initial_conditions() peut lire un
+# fichier resté à la taille d'un run précédent (ex: Config A 40 mailles vs
+# Config C 30) et planter sur un mismatch de forme entre temp_init et coord.
+write_coordonnee_file(z_bottom, dz)
 
 # Plot the initial temperature and pressure profiles
 # This visualization helps verify that the initial conditions are realistic

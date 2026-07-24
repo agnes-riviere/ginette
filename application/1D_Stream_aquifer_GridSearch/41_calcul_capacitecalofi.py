@@ -94,11 +94,11 @@ def main():
         results_df = read_results_data(results_file)
         
         # Convert columns to numeric types to avoid string/sequence errors
-        results_df['poro'] = pd.to_numeric(results_df['poro'], errors='coerce')
+        results_df['n'] = pd.to_numeric(results_df['n'], errors='coerce')
         results_df['cap'] = pd.to_numeric(results_df['cap'], errors='coerce')
-        
+
         print(f"   Grid search results loaded: {len(results_df)} simulations")
-        print(f"   Porosity range: {results_df['poro'].min():.3f} to {results_df['poro'].max():.3f}")
+        print(f"   Porosity range: {results_df['n'].min():.3f} to {results_df['n'].max():.3f}")
         print(f"   Cap range: {results_df['cap'].min():.1f} to {results_df['cap'].max():.1f}")
         
         # Calculate volumetric calorific capacity
@@ -112,7 +112,7 @@ def main():
         
         for i in range(len(results_df)):
             # Get values for this line and ensure they are numeric
-            porosity = float(results_df.iloc[i]['poro'])
+            porosity = float(results_df.iloc[i]['n'])
             rhos = float(results_df.iloc[i]['cap'])
             
             # Calculate C_vol for this line

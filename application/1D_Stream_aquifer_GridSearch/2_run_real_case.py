@@ -29,7 +29,7 @@ sys.path.insert(0, str(project_root))
 # Import your modules directly from src_python
 sys.path.insert(0, str(project_root / "src" / "src_python"))
 from src.src_python.Direct_model import setup_ginette,run_direct_model,setup_ginette2,generate_zone_parameters,reuse_end_in_initial,setup_ginette_perm
-from src.src_python.Init_folders import compile_ginette,prepare_ginette_directories
+from src.src_python.Init_folders import compile_ginette,compile_ginette_src,prepare_ginette_directories
 # Get current script directory
 SCRIPT_DIR = Path(__file__).resolve().parent
 BASE_DIR = str(SCRIPT_DIR)
@@ -45,25 +45,29 @@ Delete_sim="True"
 # =============================================================================
 # Set up directories and data paths
 # This path contains the observational data (temperature sensors, pressure measurements)
-Obs_data = os.path.join(BASE_DIR,'OBS_point/Point3_540_SOULTZ/')
-# Start date and time for the simulation
-# This corresponds to when field measurements began
-date_simul_bg = pd.to_datetime("2022/04/21 14:00:00")
-
-
-# TEMPORAL DISCRETIZATION
-# Time step in seconds (900s = 15 minutes)
-# This matches the measurement frequency and ensures numerical stability
-dt = 900
-nb_day = 30      # Simulation duration in days
+# POINT_NAME vient de config_lomos.py (partagé avec 0_boundary_conditions_real_case.py) -
+# DOIT rester identique au point/à la période utilisés là-bas : les fichiers copiés
+# depuis GINETTE_SENSI/ (E_temp_t.dat, E_charge_t.dat, ...) ont été générés pour CE
+# point et CETTE période précis, un décalage ici les rendrait incohérents avec les
+# métadonnées (date, durée) écrites dans E_parametre.dat.
+sys.path.insert(0, str(SCRIPT_DIR))
+from config_lomos import (POINT_NAME, RUN_GRID_SEARCH, RUN_MISFIT, RUN_PLOTS,
+                           SAVE_VELOCITY_PROFILES,
+                           DATE_SIMUL_BG as date_simul_bg,
+                           NB_DAY as nb_day, DT as dt, MAX_WORKERS)
+Obs_data = os.path.join(BASE_DIR, 'OBS_point', POINT_NAME)
 # Simulation state configuration:
 # 0 = steady state (time-independent, equilibrium conditions)
 # 1 = transient state (time-dependent, dynamic evolution)
 # We use transient state to capture temporal variations in temperature and flow
 state = 1
 # SPATIAL DOMAIN DEFINITION (1D vertical column)
-z_top = 0.0      # Surface elevation (stream bed) [m]
-z_bottom = -0.4  # Bottom of model domain [m] (40 cm below streambed)
+# TOP_SENSOR/BOTTOM_SENSOR (Config A/C, voir README.md) vivent dans
+# config_lomos.py, partagés avec 0_boundary_conditions_real_case.py et
+# 3_misfit.py - sinon E_temp_t.dat/E_charge_t.dat ne correspondent plus à la
+# géométrie régénérée ici à chaque point de la grille.
+from config_lomos import Z_TOP, Z_BOTTOM, DZ_OBS
+z_top, z_bottom = Z_TOP, Z_BOTTOM
 az = abs(z_top - z_bottom)  # Total column height [m]
 
 # GRID DISCRETIZATION
@@ -71,8 +75,7 @@ dz = 0.01        # Vertical cell size [m] (1 cm resolution)
                  # Fine discretization needed to capture thermal gradients
 
 # OBSERVATION DEPTHS
-dz_obs = 0.1     # Spacing between temperature sensors [m] (10 cm)
-                 # Sensors at -10, -20, -30, -40 cm depths
+dz_obs = DZ_OBS  # Spacing between temperature sensors [m], derived from SENSOR_DEPTHS
 
 
 
@@ -82,16 +85,31 @@ dz_obs = 0.1     # Spacing between temperature sensors [m] (10 cm)
 # =============================================================================
 # HYDROGEOLOGICAL PARAMETER DEFINITION
 # =============================================================================
+# nb_zone et alt_thk ne sont PAS fixés ici : ils sont lus depuis les colonnes
+# "nb_zone"/"alt_thk" de grid_search.csv (écrites par 1_define_grid_search.py),
+# pour n'avoir qu'une seule source de vérité sur la configuration de zones.
 
-# GEOLOGICAL HETEROGENEITY
-# Number of geological facies (material zones) in the column
-# nb_zone = 1: Homogeneous porous medium
-# nb_zone = 2: Two-layer system (typical for streambed environments)
-nb_zone = 1
+# Densité de la fraction solide : n'est plus passée via E_zone_parameter.dat
+# (2026-07-22 : CASE('ZHZ') dans src/ginette_V2.f90 lit désormais cpmzone à la
+# place de rhomzone sur cette colonne - voir capacité calorifique ci-dessous).
+# Ginette utilise donc directement rhosi de E_p_therm.dat (1180 kg/m3, fixe,
+# irhomi=0 => jamais spatialisée ; sédiment riche en matière organique plutôt
+# que quartz pur, baissé depuis 2650 le 2026-07-24 pour rester cohérent avec
+# c=2000 J/kg/K - voir config_lomos.py), sans qu'on ait besoin de la repasser ici.
 
-# Boundary between geological zones [m]
-# Negative value indicates depth below streambed surface
-alt_thk = -0.32  # Interface at 32 cm depth
+# Valeurs de repli pour log_k/lam/n/c : utilisées UNIQUEMENT si le paramètre
+# correspondant n'est pas dans Name_parameters de 1_define_grid_search.py (donc
+# pas de colonne dans grid_search.csv - grid search à 1, 2, 3 ou 4 paramètres).
+# REF_LOG_K/REF_LAM/REF_N = meilleur point trouvé sur lomos230 (voir mémoire
+# projet "TempMolo mal positionné lomos230/231", misfit_tot=2201.3) - à changer
+# si on fixe un paramètre pour un autre point ou avec une autre valeur de
+# référence. REF_HEAT_CAPACITY (capacité calorifique du solide [J/kg/K],
+# colonne cpmzone côté Fortran pour ytest=ZHZ) = valeur par défaut de
+# 1_define_grid_search.py (c=[2000]).
+REF_LOG_K = -15.86
+REF_LAM = 1.57
+REF_N = 0.51
+REF_HEAT_CAPACITY = 2000.0
 
 # Initialize Ginette model files and return observation depths
 # This function creates all necessary input files for the Ginette model:
@@ -184,8 +202,9 @@ if os.path.isdir(SRC_PY) and SRC_PY not in sys.path:
 if BASE_APP_DIR is None:
     BASE_APP_DIR = os.path.join(REPO_ROOT, "application", "1D_Stream_aquifer_GridSearch")
 
-# --- Ajout: dossier de sortie local à l'application (modifiable) ---
-RESULTS_DIR = os.path.join(BASE_APP_DIR, "results")
+# --- Dossier de sortie, un sous-dossier par point (results/{POINT_NAME}/) :
+# un autre point lancé ensuite n'écrase pas les résultats de celui-ci. ---
+RESULTS_DIR = os.path.join(BASE_APP_DIR, "results", POINT_NAME)
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 # debug listing to verify (non-blocking)
@@ -228,7 +247,8 @@ except Exception:
             raise FileNotFoundError(f"Source not found: {src}")
         shutil.copy(src, os.path.join(dst_dir, os.path.basename(src)))
 
-def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az ,dz ,dz_obs  ,nb_zone ,alt_thk):
+def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az ,dz ,dz_obs  ,nb_zone ,alt_thk,
+                k2=None, n2=None, lam2=None, c2=None):
     # Temp dir:
     temp_dir = os.path.join(BASE_APP_DIR, "temp", f"temp_{ID}")
     os.makedirs(temp_dir, exist_ok=True)
@@ -255,6 +275,7 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
         "E_p_therm_bck.dat",
         "E_cdt_aux_limites_bck.dat",
         "E_zone_parameter_bck.dat",
+        "E_zone_parameter_bck_2zones.dat",
         "ginette",
         "E_cdt_initiale.dat",
         "E_charge_initiale.dat",
@@ -276,7 +297,8 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
 
     state=0
     setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs)
-    generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, k, n, lam, c, REF_k2=None, REF_n2=None, REF_l2=None, REF_r2=None)
+    generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, k, n, lam, c,
+                              REF_k2=k2, REF_n2=n2, REF_l2=lam2, REF_r2=c2)
     subprocess.call(["./ginette"])
     # reuse end of steady state in initial conditions for transient
     source_file="S_pression_charge_temperature.dat"
@@ -297,10 +319,21 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
                                 n,
                                 lam,
                                 c,
-                                REF_k2=None,
-                                REF_n2=None,
-                                REF_l2=None,
-                                REF_r2=None)
+                                REF_k2=k2,
+                                REF_n2=n2,
+                                REF_l2=lam2,
+                                REF_r2=c2)
+
+    # Vitesse de Darcy réellement calculée par Ginette (résolution numérique
+    # complète, pas juste k*gradient) - sauvée pour le diagnostic de Péclet de
+    # 3_misfit.py (qui ne s'en sert que pour la meilleure simulation, avec repli
+    # analytique sinon) plutôt que de la recalculer après coup. SAVE_VELOCITY_PROFILES
+    # (config_lomos.py) : False par défaut, ~9.5 Mo/simulation sinon.
+    if SAVE_VELOCITY_PROFILES:
+        vel_src = os.path.join(os.getcwd(), "Sim_velocity_profil_t.dat")
+        if os.path.exists(vel_src):
+            shutil.copy(vel_src, os.path.join(RESULTS_DIR, f"sim_velocity_{ID}.txt"))
+
     os.chdir(os.path.join(os.getcwd(), temp_dir))
 
 
@@ -312,45 +345,107 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
     sim_temp.to_csv(os.path.join(RESULTS_DIR,
                                  f"sim_temp_{ID}.txt"), sep=" ")
 
-    # Del temp
-     #    shutil.rmtree(temp_dir)
+    # Nettoyage du répertoire scratch temp_{ID} (2026-07-22) : jamais supprimé
+    # auparavant (ligne laissée en commentaire) - sur un grand balayage (512
+    # combinaisons), l'accumulation de tous les temp_{ID} a rempli le disque
+    # (100% plein, 0 octet libre) et fait échouer ~15% des simulations. Les
+    # échecs sont restés silencieux car pool.starmap_async(...).join() (voir
+    # plus bas) n'appelle jamais .get() sur le résultat, donc n'importe quelle
+    # exception dans un worker est avalée sans remonter au process principal.
+    # shutil.rmtree ici évite la récidive sur un balayage encore plus grand.
+    shutil.rmtree(temp_dir, ignore_errors=True)
     return
 
 
+def _n_worker_processes():
+    """Nombre de processus à lancer en parallèle, plafonné à MAX_WORKERS."""
+    try:
+        n_available = len(os.sched_getaffinity(0))
+    except AttributeError:
+        n_available = os.cpu_count() or 1
+    return max(1, min(MAX_WORKERS, n_available - 2))
 
 
 if __name__ == "__main__":
-    import os 
-    grid = pd.read_csv(os.path.join(RESULTS_DIR,"grid_search.csv"), delimiter=";")
- #   os.makedirs("results", exist_ok=True)
- #   os.makedirs("temp", exist_ok=True)
+    import os
 
-    
-    os.makedirs(os.path.join(BASE_APP_DIR, "temp"), exist_ok=True)
-    os.makedirs(os.path.join(BASE_APP_DIR, "results"), exist_ok=True)
-    if (Delete_sim=="True"):
-        delete_sim_temp(os.path.join(BASE_APP_DIR, "results"),os.path.join(BASE_APP_DIR, "temp"))
-    # grid search in results/grid_search.csv
-    grid = pd.read_csv(os.path.join(BASE_APP_DIR, "results", "grid_search.csv"), delimiter=";")
+    # RUN_GRID_SEARCH=False (config_lomos.py) : on saute les simulations et on
+    # réutilise les sim_temp_*.txt déjà présents, pour juste relancer le misfit
+    # et/ou les plots sur un calage déjà terminé.
+    if RUN_GRID_SEARCH:
+        os.makedirs(os.path.join(BASE_APP_DIR, "temp"), exist_ok=True)
+        os.makedirs(os.path.join(BASE_APP_DIR, "results"), exist_ok=True)
 
-    # find which simulations are already done
-    # if file sim_temp_ID.txt exists in results/, consider it done
-    if (Delete_sim!="True"):
-        done = sorted([int(f.split("_")[-1].split(".")[0])
-                   for f in os.listdir(os.path.join(BASE_APP_DIR, "results"))])[1:]
-        remains = [i for i in grid.ID if i not in done]
+        # Compile le binaire "ginette" s'il n'existe pas encore (2026-07-22) :
+        # GINETTE_SENSI/ginette est dans .gitignore (binaire compilé, dépendant de
+        # l'OS/l'architecture/la glibc - ne doit pas être versionné), donc absent
+        # après un git clone frais sur une autre machine/cluster/compte. Sans ce
+        # bloc, _copy_from_app("ginette") plus bas échoue avec un FileNotFoundError
+        # sans indication de comment le résoudre. On compile une seule fois ici
+        # (processus principal, avant le pool) plutôt que dans chaque worker, pour
+        # éviter une recompilation redondante par simulation.
+        _ginette_sensi_dir = os.path.join(BASE_APP_DIR, "GINETTE_SENSI")
+        os.makedirs(_ginette_sensi_dir, exist_ok=True)
+        if not os.path.isfile(os.path.join(_ginette_sensi_dir, "ginette")):
+            print(f"Binaire 'ginette' absent de {_ginette_sensi_dir}, compilation...")
+            _cwd_before_compile = os.getcwd()
+            os.chdir(_ginette_sensi_dir)
+            try:
+                compile_ginette_src(REPO_ROOT)
+            finally:
+                os.chdir(_cwd_before_compile)
+
+        if (Delete_sim=="True"):
+            delete_sim_temp(RESULTS_DIR, os.path.join(BASE_APP_DIR, "temp"))
+        # grid search in results/{POINT_NAME}/grid_search.csv
+        grid = pd.read_csv(os.path.join(RESULTS_DIR, "grid_search.csv"), delimiter=";")
+
+        # find which simulations are already done
+        # if file sim_temp_ID.txt exists in results/{POINT_NAME}/, consider it done
+        if (Delete_sim!="True"):
+            done = sorted([int(f.split("_")[-1].split(".")[0])
+                       for f in os.listdir(RESULTS_DIR)])[1:]
+            remains = [i for i in grid.ID if i not in done]
+        else:
+            remains = grid.ID.tolist()
+
+        # log_k/n/lam/c : lus depuis la grille s'ils sont calibrés (colonne présente
+        # dans grid_search.csv), sinon repli sur REF_LOG_K/REF_N/REF_LAM/
+        # REF_HEAT_CAPACITY (grid search à 1, 2, 3 ou 4 paramètres, voir
+        # 1_define_grid_search.py). nb_zone et alt_thk sont lus PAR LIGNE depuis la
+        # grille (colonnes écrites par 1_define_grid_search.py), pas depuis une
+        # constante fixée ici.
+        # log_k2/lam2/n2 (zone de surface) : lus depuis la grille s'ils existent
+        # (grid search à 2 zones), sinon None (grid search homogène à 1 zone).
+        params = [[r.ID,
+                   getattr(r, 'log_k', REF_LOG_K),
+                   getattr(r, 'n', REF_N),
+                   getattr(r, 'lam', REF_LAM),
+                   getattr(r, 'c', REF_HEAT_CAPACITY),
+                   date_simul_bg, dt, nb_day, state, z_top, z_bottom, az, dz, dz_obs,
+                   r.nb_zone, r.alt_thk,
+                   getattr(r, 'log_k2', None), getattr(r, 'n2', None),
+                   getattr(r, 'lam2', None), getattr(r, 'c', REF_HEAT_CAPACITY)]
+                  for r in grid.itertuples() if r.ID in remains]
+        to = time()
+        with mp.Pool(processes=_n_worker_processes()) as pool:
+            result = pool.starmap_async(run_ginette, params)
+            pool.close()
+            pool.join()
+            # result.get() est INDISPENSABLE (pas juste pool.join()) : sans lui,
+            # une exception levée dans un worker (ex: disque plein) est avalée
+            # silencieusement et le script se termine comme si tout avait
+            # réussi, avec des sim_temp_ID.txt manquants sans aucun message
+            # d'erreur (découvert 2026-07-22 sur un balayage à 512 combinaisons).
+            result.get()
+        tf = time()
+        print(f"Run time for {len(params)} simulations: {round(tf-to, 2)} s")
     else:
-        remains = grid.ID.tolist()
+        print("RUN_GRID_SEARCH=False : simulations non relancées, réutilisation des résultats existants.")
 
-    params = [[r.ID, r.log_k,r.poro, r.lam,r.cap] for r in grid.itertuples()
-              if r.ID in remains]
-    params_setup=[date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az ,dz ,dz_obs  ,nb_zone ,alt_thk] 
-    params=[p + params_setup for p in params]
-    to = time()
-    with mp.Pool(processes=mp.cpu_count()-2) as pool:
-        result = pool.starmap_async(run_ginette, params)
-        pool.close()
-        pool.join()
-    tf = time()
-    print(f"Run time for {len(params)} simulations: {round(tf-to, 2)} s")
+    # Chaînage vers les étapes suivantes (flags dans config_lomos.py) : chaque
+    # script ne déclenche que le suivant, pour ne pas dupliquer la logique
+    # d'enchaînement (3_misfit.py se charge lui-même de RUN_PLOTS).
+    if RUN_MISFIT:
+        subprocess.run([sys.executable, str(SCRIPT_DIR / "3_misfit.py")], check=True)
 

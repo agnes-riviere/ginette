@@ -194,3 +194,18 @@ application/model_dharrma/save_data
 application/model_dharrma/elec
 application/model_dharrma/sismique
 application/model_dharrma/input_ginette/Z_*
+
+# application/1D_Stream_aquifer_GridSearch : sorties de grid search (résultats,
+# scratch, backups ponctuels) - jamais de source, ne doivent pas être versionnées.
+application/1D_Stream_aquifer_GridSearch/results/
+application/1D_Stream_aquifer_GridSearch/results_configB/
+application/1D_Stream_aquifer_GridSearch/results_configC/
+application/1D_Stream_aquifer_GridSearch/results_configC.txt
+application/1D_Stream_aquifer_GridSearch/results_configC_fixed.txt
+application/1D_Stream_aquifer_GridSearch/temp/
+application/1D_Stream_aquifer_GridSearch/GINETTE_SENSI/*.png
+application/1D_Stream_aquifer_GridSearch/.history/
+application/1D_Stream_aquifer_GridSearch/test/
+application/1D_Stream_aquifer_GridSearch/INVERSION_GINETTE_1D/
+application/1D_Stream_aquifer_GridSearch/OBS_point/
+application/1D_Stream_aquifer_GridSearch/methods.tex

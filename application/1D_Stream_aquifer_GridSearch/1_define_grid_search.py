@@ -29,48 +29,11 @@ sys.path.insert(0, str(project_root / "src" / "src_python"))
 # %% =============================================================================
 # PARAMÈTRES UTILISATEUR
 # =============================================================================
-# NOMBRE DE ZONES GÉOLOGIQUES DE LA COLONNE
-#   1 = milieu homogène
-#   2 = deux couches séparées par une interface à ALT_THK. NB : dans
-#       generate_zone_parameters, la ZONE 2 est la couche DU HAUT (entre la
-#       surface et ALT_THK) et la ZONE 1 est la couche DU BAS (entre ALT_THK et
-#       le fond) — voir coord['zone']=np.where(z>=alt_thk,2,1) dans Direct_model.py.
-# NB_ZONE=1 retenu suite au diagnostic TempMolo (sur-amplification de Temp1,
-# non liée à une hétérogénéité de matériau) - historique complet dans la
-# mémoire projet "TempMolo mal positionné lomos230/231".
-NB_ZONE = 1
-
-# Profondeur de l'interface [m], négative = sous la surface du lit du ru.
-# Sans effet tant que NB_ZONE=1 (conservée pour repasser à 2 zones facilement).
-ALT_THK = -0.05
-
-# Nombre de valeurs testées par paramètre : sert uniquement de repli
-# (np.linspace) pour tout paramètre absent de PARAM_STEP ci-dessous.
-N = 8
-
-# Pas fixe (résolution) par paramètre, comme dans 1_define_grid_search_tris.py
-# (script de l'étudiant) : {nom: (pas, décimales d'arrondi)}. Remplace le N
-# unique ci-dessus pour les paramètres listés ici - la grille est alors
-# np.arange(min, max+pas, pas) (le +pas inclut la borne max, que arange exclut
-# sinon), arrondie à `décimales` pour éviter les valeurs parasites du type
-# 0.300000000000004 dues aux erreurs de floating point de np.arange. Un
-# paramètre de Name_parameters absent d'ici retombe sur N/np.linspace.
-PARAM_STEP = {
-    "log_k": (1, 1),
-    "lam": (1, 1),
-    "n": (0.05, 3),
-}
-
-# Parameters ranges [min, max]:
-log_k = [-18,-11]  #  # log10(perméabilité intrinsèque k [m2])
-lam = [1,6]   # conductivité thermique de la fraction SOLIDE [W/m/K]
-n=[5e-2, 0.6 ]  # porosité [-]
-c=[2000]   # capacité thermique volumique de la fraction solide [J/m3/K]
-# PARAMÈTRES RÉELLEMENT TESTÉS DANS LE GRID SEARCH : chaque nom doit correspondre
-# à une variable [min, max] définie ci-dessus. Ajouter ou retirer un paramètre ne
-# demande de modifier que cette liste (la construction de la grille plus bas est
-# générique et lit les bornes via globals()).
-Name_parameters = ["log_k", "lam", "n", "c"]
+# NB_ZONE, ALT_THK, N, Name_parameters, les bornes [min, max] de chaque
+# paramètre et PARAM_STEP vivent tous dans config_lomos.py (un seul endroit à
+# changer, partagé avec 2_run_real_case.py/3_misfit.py/4_plot_results.py).
+sys.path.insert(0, str(project_root / "application" / "1D_Stream_aquifer_GridSearch"))
+from config_lomos import NB_ZONE, ALT_THK, N, Name_parameters, PARAM_STEP, log_k, lam, n, c
 
 NB_parameters = len(Name_parameters)
 if NB_ZONE == 2 and not any(p.endswith("2") for p in Name_parameters):
@@ -121,8 +84,13 @@ if BASE_APP_DIR is None:
 if SRC_PY.is_dir() and str(SRC_PY) not in sys.path:
     sys.path.insert(0, str(SRC_PY))
 
-RESULTS_DIR = BASE_APP_DIR / "results"
-RESULTS_DIR.mkdir(exist_ok=True)
+# Un sous-dossier par point (results/{POINT_NAME}/, config_lomos.py partagé
+# avec les autres scripts) : un autre point lancé ensuite n'écrase pas la
+# grille/les résultats de celui-ci.
+sys.path.insert(0, str(BASE_APP_DIR))
+from config_lomos import POINT_NAME
+RESULTS_DIR = BASE_APP_DIR / "results" / POINT_NAME
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 if SRC_PY.is_dir():
     try:

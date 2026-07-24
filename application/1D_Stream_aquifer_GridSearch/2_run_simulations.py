@@ -301,7 +301,7 @@ if __name__ == "__main__":
     else:
         remains = grid.ID.tolist()
 
-    params = [[r.ID, r.log_k,r.poro, r.lam,r.cap] for r in grid.itertuples()
+    params = [[r.ID, r.log_k,r.n, r.lam,r.cap] for r in grid.itertuples()
               if r.ID in remains]
     to = time()
     with mp.Pool(processes=mp.cpu_count()-2) as pool:
