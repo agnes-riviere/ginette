@@ -197,7 +197,9 @@ done = sorted([
 print("dans done il y a :", done)
 
 # Misfit by simulations:
-err = 1
+err = 5  # erreur totale estimée (mesure + representativite du modele 1D),
+# pas juste la precision instrumentale (0.25 degC) - laissee a 1 dans le
+# code depuis, remise a la valeur estimee le 2026-07-25.
 results["err_misfit"] = err
 
 # Index par ID pour un lookup rapide de la ligne grid_search dans
@@ -250,6 +252,11 @@ def ginette_velocity_for_row(i, spin_up_days):
     return vel_f["vzm"].mean() if not vel_f.empty else None
 
 
+SPIN_UP_TAU_MULTIPLIER = 3  # exp(-3) ~ 5% - un seul tau (exp(-1)~37%) laisse
+# encore une trace notable de l'etat initial dans les residus utilises ensuite
+# pour le misfit/RMS.
+
+
 def spin_up_days_for_row(i):
     """Jours de spin-up nécessaires pour la simulation i, dérivés du temps
     caractéristique de diffusion thermique sur la colonne (tau = L^2/Gamma,
@@ -257,7 +264,11 @@ def spin_up_days_for_row(i):
     stallman_diffusivity.py : tau ~ 0.4^2/0.25e-6 ~ 640000s ~ 7-8j)
     au lieu d'une valeur fixe pour toutes les simulations - un matériau moins
     diffusif (lam bas, n haut) a besoin de plus de jours pour "oublier" un
-    état initial imparfait, un matériau très diffusif de moins."""
+    état initial imparfait, un matériau très diffusif de moins.
+
+    Le seuil retenu est SPIN_UP_TAU_MULTIPLIER x tau, pas 1x tau : un modèle de
+    relaxation exponentielle n'a perdu qu'environ 37% de son état initial après
+    1 tau, contre ~95% après 3 tau."""
     row = results_by_id.loc[i]
     lam = getattr(row, "lam", REF_LAM)
     n = getattr(row, "n", REF_N)
@@ -266,7 +277,7 @@ def spin_up_days_for_row(i):
     Cv = volumetric_heat_capacity(n, REF_DENSITY, cs_specific=c)
     gamma = k_bulk / Cv
     tau_seconds = DOMAIN_LENGTH**2 / gamma
-    return max(1, int(np.ceil(tau_seconds / 86400)))
+    return max(1, int(np.ceil(SPIN_UP_TAU_MULTIPLIER * tau_seconds / 86400)))
 
 
 def compute_misfit(i):

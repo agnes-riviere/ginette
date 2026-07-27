@@ -183,8 +183,12 @@ c = [2000]          # capacité thermique spécifique de la fraction solide [J/k
 # Pas fixe (résolution) par paramètre : {nom: (pas, décimales d'arrondi)}.
 # La grille est alors np.arange(min, max+pas, pas) arrondie à `décimales`. Un
 # paramètre de Name_parameters absent d'ici retombe sur N/np.linspace.
+# Pas resserrés à un moment (log_k=0.5, lam=0.1) sans revérifier la taille
+# totale -> 9180 combinaisons, très au-dessus de la limite de 500 sur ce
+# poste (voir mémoire feedback_grid_search_cpu_limit). Remis à une résolution
+# plus grossière (proche des pas d'origine) : 8x6x7x1 = 336 combinaisons.
 PARAM_STEP = {
-    "log_k": (0.5, 1),
-    "lam": (0.1, 1),
-    "n": (0.05, 3),
+    "log_k": (1, 1),
+    "lam": (1, 1),
+    "n": (0.1, 3),
 }
