@@ -55,6 +55,7 @@ DHARRMA couples the Ginette hydro-thermal model to forward geophysical models fo
 - Riviere, Agnes, agnes.riviere@mines_paristech.fr
 - Goncalves, Julio, goncalves@cerege.fr 
 - Jost, Anne, anne.jost@upmc.fr
+- Radic, Nicolas, nicolas.radic@minesparis.psl.eu
 
 
 ## Contributions by:
@@ -86,6 +87,7 @@ authors:
     orcid: https://orcid.org/0000-0003-0047-4233
   - Jost Anne
     orcid: https://orcid.org/0000-0002-0925-3376
+  - Radic Nicolas
     
     
 title: agnes-riviere/ginette: Ginette-2020-09
