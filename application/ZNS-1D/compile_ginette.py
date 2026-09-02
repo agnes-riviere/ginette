@@ -10,9 +10,8 @@ import matplotlib as mpl
 from IPython.display import display
 import subprocess
 libs_gfortran = ['gfortran']
-# please compile ginette in the folder 1D_col
-# path of the 1D_col directory
-os.chdir('/home/ariviere/Programmes/ginette/application/ZNS-1D/')
+# please compile ginette in the folder ZNS-1D
+os.chdir(Path(__file__).resolve().parent)
 # Print the current working directory
 print("Current working directory: {0}".format(os.getcwd()))
 
@@ -22,8 +21,8 @@ if os.path.isfile('ginette'):
 else:
     print ("ginette not exist")
     print("you must compile ginette in the current directory")
-    print(" gfortran -o ginette ../../src/ginette_V2.f")
-    subprocess.call(["gfortran","-o","ginette","../../src/ginette_V2.f"])  #creat
+    print(" gfortran -o ginette ../../src/ginette_V3.f")
+    subprocess.call(["gfortran","-o","ginette","../../src/ginette_V3.f"])  #creat
 
 
 ########### Setup
@@ -166,6 +165,9 @@ subprocess.call(["./ginette"])
 saturation_profile = pd.read_table('S_saturation_profil_t.dat',delim_whitespace=True,header=None)
 saturation_profile.columns=[ "time",  "z","sat"]
 #print(saturation_profile.head())
+# NOTE: external reference dataset, not part of this repository (thesis
+# supervision data outside the project tree) - update this path to point to
+# your own copy, or comment out this comparison, before running elsewhere.
 saturation_profile_s = pd.read_table('/home/ariviere/Documents/Encadrements/2021_These_Ramon/data/data_fig_4_5_6/sandyclay_WT25_prop_model2.txt',delim_whitespace=True,header=None,skiprows=[0,1,2])
 saturation_profile_s.columns=[ "z",  "sat","rho","vp","vs"]
 saturation_profile_s.z=saturation_profile_s.z+40

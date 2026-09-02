@@ -1,5 +1,18 @@
-# set working directory
-path_mini_lomos = '/home/ariviere/Programmes/ginette/application/mini-LOMOS/'
+# set working directory (auto-detected: works with Rscript, and with RStudio
+# when the rstudioapi package is installed; falls back to the current
+# working directory otherwise)
+find_script_dir <- function() {
+  cmd_args <- commandArgs(trailingOnly = FALSE)
+  file_arg <- sub("^--file=", "", cmd_args[grepl("^--file=", cmd_args)])
+  if (length(file_arg) > 0) {
+    return(dirname(normalizePath(file_arg)))
+  }
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    return(dirname(rstudioapi::getSourceEditorContext()$path))
+  }
+  getwd()
+}
+path_mini_lomos = paste0(find_script_dir(), "/")
 setwd(path_mini_lomos)
 
 # set plot directory

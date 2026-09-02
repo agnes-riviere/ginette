@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import subprocess
 import os
+from pathlib import Path
 
 def setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg,dz_obs):
     def setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs):
@@ -504,7 +505,7 @@ def run_direct_model(date_simul_bg,z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n,
     # Lire et stocker les DataFrames
     for i in range(1, 4):
         file_path = f'Sim_temperature_maille{i}_t.dat'
-        df = pd.read_csv(file_path, sep='\s+', header=None, names=['Time', f'Temp{i}'])
+        df = pd.read_csv(file_path, sep=r'\s+', header=None, names=['Time', f'Temp{i}'])
         all_dfs.append(df)
 
     # Fusionner les DataFrames sur la colonne 'Time'
@@ -579,8 +580,9 @@ def reuse_end_in_inital():
     
     
         # copy the colum 5 of the S_pression_charge_temperature.dat file in the E_charge_initiale.dat file
-    source_file = '/home/ariviere/Programmes/ginette/application/2024_TD_ENS/SYNTHETIC_CASES/S_pression_charge_temperature.dat'
-    destination_file = '/home/ariviere/Programmes/ginette/application/2024_TD_ENS/SYNTHETIC_CASES/E_charge_initiale.dat'
+    synthetic_cases_dir = Path(__file__).resolve().parent.parent / 'SYNTHETIC_CASES'
+    source_file = str(synthetic_cases_dir / 'S_pression_charge_temperature.dat')
+    destination_file = str(synthetic_cases_dir / 'E_charge_initiale.dat')
 
     # Read the source file
     source_data = np.loadtxt(source_file)

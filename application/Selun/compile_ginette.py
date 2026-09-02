@@ -10,9 +10,8 @@ from IPython.display import display
 import subprocess
 import shutil
 libs_gfortran = ['gfortran']
-# please compile ginette in the folder 1D_col
-# path of the 1D_col directory
-path_mini_lomos='/home/ariviere/Programmes/ginette/application/mini-LOMOS/'
+# please compile ginette in the folder Selun
+path_mini_lomos = str(Path(__file__).resolve().parent)
 os.chdir(path_mini_lomos)
 # Print the current working directory
 print("Current working directory: {0}".format(os.getcwd()))

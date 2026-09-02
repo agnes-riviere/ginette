@@ -3,7 +3,7 @@
 library(ggplot2)
 library(reshape2)
 library(akima)
-path_output <-'/home/ariviere/Programmes/ginette/application/1D_col/'
+path_output <- "./"
 path_plot <- "./"
 
 #sim_name=1

@@ -229,7 +229,7 @@ def run_ginette(ID, k, n,lam,c):
     # Set boundary conditions in temperature:
     boundary_conditions(obs_temp, dt)
 
-    # Save initial and boundary conditions file in /home/ariviere/Programmes/ginette/application/1D_Stream_aquifer_GridSearch/SYNTHETIC_CASES:
+    # Save initial and boundary conditions file in SYNTHETIC_CASES:
     # E_charge_initiale.dat, E_charge_t.dat, E_temp_t.dat, E_temperature_initiale.dat
     for fname in [ 
         "E_charge_t.dat",

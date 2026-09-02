@@ -221,9 +221,8 @@ ________________________________________________________________________________
 ## PLOTS
 ### Python users
 open the script LOMOS_ginette_plot.py
-Fill the information
+Fill the information (path_mini_lomos is detected automatically, no need to edit it)
 ```
-path_mini_lomos = '/home/ariviere/Programmes/ginette/application/mini-LOMOS/'
 namePointT='T3_Point3Nelly_14_04_22.csv'
 namePointP='P2_Point3Nelly_14_04_22.csv'
 date_begin='14/04/2022 17:45:00'
@@ -234,9 +233,8 @@ sim_name is the number of the simulation that you want plot
 run the script LOMOS_ginette_plot.py
 ### Batch users
 open the script LOMOS_ginette_plot.R
-Fill the information
+Fill the information (path_mini_lomos is detected automatically, no need to edit it)
 ```
-path_mini_lomos = '/home/ariviere/Programmes/ginette/application/mini-LOMOS/'
 namePointT='T3_Point3Nelly_14_04_22.csv'
 namePointP='P2_Point3Nelly_14_04_22.csv'
 date_begin='14/04/2022 17:45:00'

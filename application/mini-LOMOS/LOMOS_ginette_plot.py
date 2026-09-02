@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy import interpolate
@@ -8,7 +9,7 @@ import matplotlib.pyplot as plt
 import subprocess
 import rpy2.robjects as robjects
 
-path_mini_lomos='/home/ariviere/Programmes/ginette/application/mini-LOMOS/'
+path_mini_lomos = str(Path(__file__).resolve().parent)
 os.chdir(path_mini_lomos)
 
 path_plot='PLOT'

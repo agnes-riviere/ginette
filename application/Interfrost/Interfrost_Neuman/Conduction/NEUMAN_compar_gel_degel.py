@@ -6,15 +6,19 @@ Script Python pour comparer les résultats de gel et dégel
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+from pathlib import Path
 import numpy as np
 
 def main():
     # Définition des chemins
-    # path_anal = "~/run/media/ariviere/Commun/INTERFROST/Neuman-fichiers-anne/script_R_neuman/"
-    # Répertoire de travail
-    script_dir = os.path.expanduser("~/Programmes/ginette/application/Interfrost/Neuman/script_R_neuman")
+    # Ce script vit dans application/Interfrost/Interfrost_Neuman/Conduction/,
+    # mais lit ses données dans application/Interfrost/Neuman/, un dossier qui
+    # n'est pas suivi par git (absent chez tout autre utilisateur du dépôt).
+    this_dir = Path(__file__).resolve().parent
+    interfrost_dir = this_dir.parents[1]  # application/Interfrost
+    script_dir = interfrost_dir / "Neuman" / "script_R_neuman"
     os.chdir(script_dir)
-    
+
     path_gel = "../test-neuman-gel/"
     path_degel = "../test-neuman/"
     
@@ -27,8 +31,8 @@ def main():
     # Lecture des données CSV
     try:
         D_anal = pd.read_csv('sol_anal.csv', header=None, sep=';', decimal='.')
-        D_gel = pd.read_csv("/home/ariviere/Programmes/ginette/application/Interfrost/Neuman/test-neuman-gel/S_bound_permaf_1_t.csv", header=None, sep=';', decimal='.')
-        D_degel = pd.read_csv("/home/ariviere/Programmes/ginette/application/Interfrost/Interfrost_Neuman/Conduction/S_bound_permaf_1_t.dat", header=None, sep='\s+', decimal='.')
+        D_gel = pd.read_csv(os.path.join(path_gel, "S_bound_permaf_1_t.csv"), header=None, sep=';', decimal='.')
+        D_degel = pd.read_csv(str(this_dir / "S_bound_permaf_1_t.dat"), header=None, sep=r'\s+', decimal='.')
     except FileNotFoundError as e:
         print(f"Erreur: Fichier non trouvé - {e}")
         return

@@ -2,15 +2,15 @@
 
 import os
 import sys
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy import interpolate
 import matplotlib.pyplot as plt
 import subprocess
 libs_gfortran = ['gfortran']
-# please compile ginette in the folder 1D_col
-# path of the 1D_col directory
-path_mini_lomos='/home/ariviere/Programmes/ginette/application/mini-LOMOS/'
+# please compile ginette in the folder mini-LOMOS
+path_mini_lomos = str(Path(__file__).resolve().parent)
 os.chdir(path_mini_lomos)
 
 path_one_sim='GINETTE_SENSI'
@@ -104,7 +104,7 @@ with open(inversion_parameter) as parameter_com:
         # remove whitespace at the start and the newline at the end
         line = line.strip()
         # split each column on whitespace
-        col_param = re.split('\s+', line, maxsplit=5)
+        col_param = re.split(r'\s+', line, maxsplit=5)
         df_parameter.append(col_param)
 
 import pandas as pd

@@ -11,7 +11,7 @@ import subprocess
 libs_gfortran = ['gfortran']
 # please compile ginette in the folder 1D_col
 # path of the 1D_col directory
-os.chdir('/home/ariviere/Programmes/ginette/application/1D_col/')
+os.chdir(Path(__file__).resolve().parent)
 # Print the current working directory
 print("Current working directory: {0}".format(os.getcwd()))
 

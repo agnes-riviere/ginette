@@ -8,9 +8,18 @@ library(stringr)
 library(RColorBrewer)
 library(data.table)
 library(readr)
-setwd(dir = ".")
-getwd()
-path_mini_lomos = '/home/ariviere/Programmes/ginette/application/Selun/'
+find_script_dir <- function() {
+  cmd_args <- commandArgs(trailingOnly = FALSE)
+  file_arg <- sub("^--file=", "", cmd_args[grepl("^--file=", cmd_args)])
+  if (length(file_arg) > 0) {
+    return(dirname(normalizePath(file_arg)))
+  }
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    return(dirname(rstudioapi::getSourceEditorContext()$path))
+  }
+  getwd()
+}
+path_mini_lomos = paste0(find_script_dir(), "/")
 setwd(path_mini_lomos)
 
 # read comm

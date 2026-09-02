@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -8,7 +9,7 @@ import math
 import importlib
 
 # Configuration: Set the main directory and station
-dir_ginette = "/home/ariviere/Programmes/ginette"
+dir_ginette = str(Path(__file__).resolve().parents[2])  # repo root (application/RIV2D/../..)
 Station = "AmB"  # Example station, replace with actual station name
 sys.path.append(dir_ginette)  # Add parent folder to Python path
 

@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from pathlib import Path
 
-os.chdir('/home/ariviere/Programmes/ginette/application/1D_col')
+os.chdir(Path(__file__).resolve().parent)
 
 # Charger les données depuis le fichier "Sim_pressure_profil_t.dat"
 data = np.loadtxt("Sim_pressure_profil_t.dat")
