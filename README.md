@@ -9,14 +9,46 @@ The code is applied to estimate the hydraulic and thermal properties of the hypo
 
 Ginette strives to provide the user with complete simulation control. The command files can be created using either a Python or a R script.
 
-Different applications are available in the application directory. 
-1) The test cases of the interfrost group benchmark.
- The Interfrost group proposes a benchmark exercise dealing with "subsurface thermal hydrologic processes" as presented by (Painter et al., 2012) or within the field of cryohydrogeology (McKenzie et al. 2020). In the first phase of the project, we first limit our efforts to the more simple set of equations involving Darcy flow (fully saturated porous medium) coupled with heat transfer with advection and phase change. Extensions of the benchmark to Richard equations or including the air phase are considered for later phases of the project. The benchmark consists of some test cases inspired by existing literature (e.g., Mc Kenzie et al., 2007) as well as new ones. Some experimental cases in the cold room will complement the validation approach. In view of a second phase, the benchmark project is open as well to new or alternative cases reflecting a numerical or process oriented interest or answering a more general concern among the cold region community. 
+## Code organization
 
-2) Different test cases in the unsaturated zone are available.
+The numerical engine is written in Fortran ([src/ginette_V2.f90](src/ginette_V2.f90)), which solves the coupled flow and heat-transport equations described above. It is driven by a Python layer, [src/src_python/](src/src_python/), providing compilation of the Fortran binary, generation of initial and boundary conditions, a generic parameter grid search, comparison to observations, and analytical-solution validation (`Analytical_validation.py`, `Stallman_analysis.py`); this layer is imported by most applications in the `application` directory.
 
-3) The chain of estimation of the hydraulic and thermal hyporheic zone properties from LOMOS-mini sensor data ( Cucchi et al. 2018 (⟨10.1016/j.jhydrol.2017.10.074⟩. ⟨hal-01656455⟩). 
+Within `application`, individual studies are implemented in one of two styles:
 
+- **Numbered Python script pipelines**, for reproducible, command-line-driven workflows, typically centered on a single configuration file (e.g., `application/1D_Stream_aquifer_GridSearch`, `application/heat_transport_analytical_validation`, `application/model_dharrma`).
+- **Jupyter notebooks**, for interactive exploration, teaching material, or case studies combining simulation and visualization (e.g., `application/RIV2D`, `application/2024_TD_ENS`, `application/2026_TD_ENS`, `application/1D_Diffusive`).
+
+Some applications, such as `application/mini-LOMOS`, combine both Python and R.
+
+Different applications are available in the `application` directory. The most actively maintained ones are described below; each has its own `README.md` with full usage instructions.
+
+### Benchmarking and code verification
+
+**Interfrost benchmark** (`application/Interfrost`)
+The Interfrost group proposes a benchmark exercise dealing with subsurface thermo-hydrologic processes involving freezing and thawing, as presented by Painter et al. (2012) and situated within the field of cryohydrogeology (McKenzie et al., 2020). The first phase of the project is limited to Darcy flow in a fully saturated porous medium coupled with heat transfer, advection, and phase change; extensions to the Richards equation and to the air phase are considered for later phases. The benchmark combines test cases inspired by the existing literature (e.g., McKenzie et al., 2007) with new ones, complemented by experimental cases run in a cold room. The project remains open to new or alternative cases of numerical or process-oriented interest to the cold-region community.
+
+**Verification against analytical solutions** (`application/heat_transport_analytical_validation`)
+This application verifies the heat transport engine of Ginette against four analytical solutions of reference from the hydrogeological literature, of increasing complexity: Stallman (1965, transient sinusoidal surface temperature signal, homogeneous medium), Bredehoeft and Papadopulos (1965, steady-state temperature profile, homogeneous medium), Shan and Bodvarsson (2004, steady-state profile across a two-layer medium), and Kurylyk et al. (2017, steady-state profile across one to four layers, reproducing their Figure 2). Each case runs Ginette under conditions for which an exact mathematical solution exists and reports the discrepancy between the simulated and the analytical temperature. Across the four cases, Ginette reproduces the reference solutions with errors of a few hundredths to a few tenths of a degree Celsius, including for the most demanding configuration (layered media with strong thermal-conductivity contrasts).
+
+### Unsaturated zone
+
+Several test cases in the unsaturated zone are available (e.g., `application/ZNS-1D`, `application/ZNS_rain`, `application/GINETTE_ZNS`, `application/Warrick`).
+
+### Hyporheic zone characterization from field data (LOMOS-mini)
+
+Two related applications estimate the hydraulic and thermal properties of the hyporheic zone (stream-aquifer interface) from LOMOS-mini sensor data: four temperature probes at 10/20/30/40 cm depth in the streambed together with a pressure-differential sensor (Cucchi et al., 2018, doi:10.1016/j.jhydrol.2017.10.074, hal-01656455).
+
+- `application/mini-LOMOS`: the original inversion pipeline (R and batch-driven), configured through command files (`inversion.COMM`, `inversion_PT100.COMM`, `inversion_parameter.COMM`).
+- `application/1D_Stream_aquifer_GridSearch`: a Python re-implementation built around a parameter grid search (permeability, porosity, thermal conductivity, heat capacity), with automated misfit computation (L2, MAE, KGE, PBIAS) and a parameter-identifiability diagnostic based on the thermal Péclet number (Kurylyk et al., 2017), following the approach of Cucchi et al. (2021). It specifically addresses the choice of the upper boundary condition, since the free-water temperature sensor does not measure the same physical quantity as the sediment temperature at the streambed surface.
+
+### Coupled hydro-geophysical modeling
+
+**DHARRMA** (`application/model_dharrma`, Direct HydrogeophysicAl Resistivity and Refraction Modeling Application)
+DHARRMA couples the Ginette hydro-thermal model to forward geophysical models for a given infiltration/evaporation scenario and soil facies: electrical resistivity, via Archie's law and the Waxman-Smits model (solved with pyGIMLi), and seismic refraction, via a Hertz-Mindlin rock-physics model (solved with Geopsy). It was developed by N. Radic, A. Rivière, L. Bodet, M. Gautier, A. Gesret, and R. Martin (2025).
+
+### Teaching material
+
+`application/1D_Diffusive` provides a documented notebook illustrating the Ginette energy-transport equation on a simple one-dimensional heat-diffusion case (vertical column, cyclic surface temperature, negligible flow). `application/2024_TD_ENS` and `application/2026_TD_ENS` contain the notebooks (direct model, synthetic cases, MCMC calibration) used for practical sessions at the École Normale Supérieure.
 
 
 ## Authors:
