@@ -119,9 +119,7 @@ obs_temp.index = date_simul_bg + pd.to_timedelta(time_vector, unit="s")
 
 # %% LANCEMENT DE GINETTE (régime permanent, state=0)
 os.chdir(GINETTE_SENSI)
-if not os.path.isfile("ginette"):
-    print("Binaire 'ginette' absent, compilation...")
-    compile_ginette_src(REPO_ROOT.as_posix())
+compile_ginette_src(REPO_ROOT.as_posix())
 
 z_obs = setup_ginette(dt, 0, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs, amu=mu)
 import shutil as _shutil

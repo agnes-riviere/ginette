@@ -386,14 +386,12 @@ if __name__ == "__main__":
         # éviter une recompilation redondante par simulation.
         _ginette_sensi_dir = os.path.join(BASE_APP_DIR, "GINETTE_SENSI")
         os.makedirs(_ginette_sensi_dir, exist_ok=True)
-        if not os.path.isfile(os.path.join(_ginette_sensi_dir, "ginette")):
-            print(f"Binaire 'ginette' absent de {_ginette_sensi_dir}, compilation...")
-            _cwd_before_compile = os.getcwd()
-            os.chdir(_ginette_sensi_dir)
-            try:
-                compile_ginette_src(REPO_ROOT)
-            finally:
-                os.chdir(_cwd_before_compile)
+        _cwd_before_compile = os.getcwd()
+        os.chdir(_ginette_sensi_dir)
+        try:
+            compile_ginette_src(REPO_ROOT)
+        finally:
+            os.chdir(_cwd_before_compile)
 
         if (Delete_sim=="True"):
             delete_sim_temp(RESULTS_DIR, os.path.join(BASE_APP_DIR, "temp"))

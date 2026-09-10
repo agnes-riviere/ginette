@@ -145,9 +145,7 @@ def write_multilayer_zones(b, lam_bulk, poro_layers, log_k):
 
 # %% BOUCLE SUR LES 4 SCÉNARIOS x 2 VALEURS DE PÉCLET
 os.chdir(GINETTE_SENSI)
-if not os.path.isfile("ginette"):
-    print("Binaire 'ginette' absent, compilation...")
-    compile_ginette_src(REPO_ROOT.as_posix())
+compile_ginette_src(REPO_ROOT.as_posix())
 
 results = {}  # (n_layers, pe_idx) -> dict(depth_ginette, T_ginette, T_theorie, q, Pe_actual, b, lam_bulk)
 

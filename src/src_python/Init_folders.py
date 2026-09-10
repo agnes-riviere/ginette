@@ -12,6 +12,36 @@ Functions:
 import subprocess
 import os
 import glob
+import platform
+
+# Magic numbers (premiers octets du fichier) identifiant le format natif de
+# chaque plateforme - sert à détecter un binaire ginette compilé pour une
+# AUTRE plateforme (typiquement Linux ELF copié tel quel sur macOS) avant de
+# tenter de l'exécuter, ce qui échoue silencieusement en "Exec format error"
+# plutôt que de déclencher la recompilation attendue.
+_ELF_MAGIC = b'\x7fELF'
+_MACHO_MAGICS = (b'\xcf\xfa\xed\xfe', b'\xce\xfa\xed\xfe', b'\xca\xfe\xba\xbe', b'\xbe\xba\xfe\xca')
+
+
+def _ginette_binary_matches_host(path='ginette'):
+    """
+    True si le binaire ginette existe et que ses premiers octets
+    correspondent au format natif de la plateforme hôte (ELF sur Linux,
+    Mach-O sur macOS) - ne l'exécute pas, se contente de lire son en-tête.
+    """
+    if not os.path.isfile(path):
+        return False
+    try:
+        with open(path, 'rb') as f:
+            magic = f.read(4)
+    except OSError:
+        return False
+    system = platform.system()
+    if system == 'Linux':
+        return magic == _ELF_MAGIC
+    if system == 'Darwin':
+        return magic in _MACHO_MAGICS
+    return True  # plateforme non reconnue : on ne bloque pas, laisse échouer à l'exécution
 
 def prepare_ginette_directories(base_path, subdirectories=['SENSI', 'OUTPUT']):
     """
@@ -42,32 +72,30 @@ def prepare_ginette_directories(base_path, subdirectories=['SENSI', 'OUTPUT']):
         print("file deleted",f)        
             
 def compile_ginette():
-    import shutil
-    import subprocess
     """
-    Compile Ginette if the executable does not exist.
-    This function uses Meson for building the project.
+    (Re)compile Ginette si l'exécutable est absent OU incompatible avec la
+    plateforme hôte (voir _ginette_binary_matches_host).
     """
-    if os.path.isfile('ginette'):
+    if _ginette_binary_matches_host('ginette'):
         print("ginette exists")
     else:
-        print("ginette does not exist")
+        print("ginette does not exist or does not match this platform - (re)compiling")
         subprocess.run(['gfortran', '-o', 'ginette', '../../src/ginette_V2.f90'])
         if os.path.isfile('ginette'):
             print("ginette compiled")
 
 
 def compile_ginette_src(dir_ginette):
-    import shutil
-    import subprocess
     """
-    Compile Ginette if the executable does not exist.
-    This function uses Meson for building the project.
+    (Re)compile Ginette si l'exécutable est absent OU incompatible avec la
+    plateforme hôte - typiquement un binaire Linux ELF copié tel quel sur
+    macOS, qui échoue silencieusement en "Exec format error" à l'exécution
+    si on se contente de tester sa présence (voir _ginette_binary_matches_host).
     """
-    if os.path.isfile('ginette'):
+    if _ginette_binary_matches_host('ginette'):
         print("ginette exists")
     else:
-        print("ginette does not exist")
+        print("ginette does not exist or does not match this platform - (re)compiling")
         subprocess.run(['gfortran', '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
         if os.path.isfile('ginette'):
             print("ginette compiled")
