@@ -21,13 +21,22 @@ import platform
 # plutôt que de déclencher la recompilation attendue.
 _ELF_MAGIC = b'\x7fELF'
 _MACHO_MAGICS = (b'\xcf\xfa\xed\xfe', b'\xce\xfa\xed\xfe', b'\xca\xfe\xba\xbe', b'\xbe\xba\xfe\xca')
+_PE_MAGIC = b'MZ'
 
 
 def _ginette_binary_matches_host(path='ginette'):
     """
     True si le binaire ginette existe et que ses premiers octets
-    correspondent au format natif de la plateforme hôte (ELF sur Linux,
-    Mach-O sur macOS) - ne l'exécute pas, se contente de lire son en-tête.
+    correspondent au format natif de la plateforme hôte - ne l'exécute pas,
+    se contente de lire son en-tête :
+    - macOS (Darwin) : Mach-O
+    - Windows : PE ("MZ") - la compilation gfortran produit en réalité
+      "ginette.exe" (pas "ginette") sur Windows, donc ce chemin ne sert que
+      si un ginette.exe a été renommé sans l'extension ; non testé en
+      pratique, ce projet n'étant pas utilisé sous Windows à notre
+      connaissance.
+    - tout le reste (Linux et autres Unix - BSD, etc.) : ELF, format
+      produit par gfortran sur toutes ces plateformes.
     """
     if not os.path.isfile(path):
         return False
@@ -37,11 +46,12 @@ def _ginette_binary_matches_host(path='ginette'):
     except OSError:
         return False
     system = platform.system()
-    if system == 'Linux':
-        return magic == _ELF_MAGIC
     if system == 'Darwin':
         return magic in _MACHO_MAGICS
-    return True  # plateforme non reconnue : on ne bloque pas, laisse échouer à l'exécution
+    if system == 'Windows':
+        return magic[:2] == _PE_MAGIC
+    return magic == _ELF_MAGIC  # Linux et autres Unix
+
 
 def prepare_ginette_directories(base_path, subdirectories=['SENSI', 'OUTPUT']):
     """
