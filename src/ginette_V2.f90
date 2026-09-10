@@ -2952,6 +2952,23 @@ program pression_ecoulement_transport_thermique
       do i = 1, nm
          if (temp(i) + 1 .ne. temp(i)) siceo(i) = sice(i)
       end do
+!ccc....EXTRAPOLATION DU POINT DE DEPART DE PICARD (nouveau pas de temps)
+!ccc....tempo/tempoo viennent d'etre decales juste au-dessus (ith==1) : a
+!ccc....ce stade tempo(i)=temp(i) (valeur convergee du pas precedent) et
+!ccc....tempoo(i) est la temperature du pas d'avant. Sans extrapolation,
+!ccc....Picard repart de tempo(i) (extrapolation d'ordre 0) ; ici on lui
+!ccc....donne un point de depart tenant compte de la tendance recente
+!ccc....(mi-chemin entre ordre 0 et extrapolation lineaire complete,
+!ccc....meme principe que le "predictor" de SUTRA (sutra_4_0.f, BDELP/
+!ccc....BDELU ~l.19310) - reduit le nombre d'iterations Picard necessaires
+!ccc....pres du front de gel, notamment juste apres une reduction de dt.
+!ccc....Limite au cas icycle==1 (gel/degel) : aucun effet sur les autres
+!ccc....simulations (transport de chaleur seul, ecoulement...).
+      do i = 1, nm
+         if (temp(i) + 1 .ne. temp(i)) then
+            temp(i) = tempo(i) + 0.5d0*(tempo(i) - tempoo(i))
+         end if
+      end do
       do kcol = 1, nc
       do iiso = 1, 2
          zloo(kcol, iiso) = zlo(kcol, iiso)
