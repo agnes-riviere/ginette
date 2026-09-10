@@ -1943,7 +1943,7 @@ program pression_ecoulement_transport_thermique
    end do
    end do
 
-   if (icycke == 1) then
+   if (icycle == 1) then
    do kkcol = 1, nc
       dl(kkcol) = 0.D00
       def(kkcol) = 0.D00
