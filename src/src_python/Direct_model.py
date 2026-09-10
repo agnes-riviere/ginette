@@ -525,7 +525,7 @@ def initial_conditions(all_data, z_top, z_bottom, dz, z_obs):
         interpolated_temp = pd.DataFrame({'z': z_values, 'T': Temp_init})
         interpolated_temp_sorted = interpolated_temp.sort_values(by='z', ascending=False)
 
-        interpolated_temp_sorted['T'].to_csv(f_temp_IC, index=False, sep='\n', header=False)
+        interpolated_temp_sorted['T'].to_csv(f_temp_IC, index=False, header=False)
 
 
 
@@ -559,7 +559,7 @@ def initial_conditions(all_data, z_top, z_bottom, dz, z_obs):
         interpolated_chg = pd.DataFrame({'z': z_values, 'chg': chg_init})
         interpolated_chg_sorted = interpolated_chg.sort_values(by='z', ascending=False)
 
-        interpolated_chg_sorted['chg'].to_csv(f_chg_IC, index=False, sep='\n', header=False)
+        interpolated_chg_sorted['chg'].to_csv(f_chg_IC, index=False, header=False)
 
 
 def format_value(value):
