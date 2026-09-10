@@ -2845,6 +2845,42 @@ program pression_ecoulement_transport_thermique
 !     OPEN(331,FILE='S_Hd_P_month3.dat')
       end select
 
+!ccc....FILET DE SECURITE ALLOCATION : variation_cdt_limites (appelee plus
+!ccc....bas, a chaque pas de temps) recoit sans condition qpluie, tempsol,
+!ccc....chgRD/chgRG/tempRD/tempRG, chgriver/tempriver, id_RD/id_RG/
+!ccc....id_river/id_rivert et qsurf/qbot comme arguments effectifs - or ce
+!ccc....sont tous des tableaux ALLOCATABLE, chacun alloue seulement dans
+!ccc....SA branche de SELECT CASE(ytest) ci-dessus (pluie, riviere, DTS...).
+!ccc....Pour un ytest qui n'utilise aucun de ces mecanismes (ex: ZHZ),
+!ccc....certains restent non alloues, ce qui est un comportement indefini
+!ccc....au sens Fortran des qu'ils sont passes en argument (meme sans etre
+!ccc....utilises dans le corps de la subroutine) - trouve le 2026-09-10 via
+!ccc....un SIGBUS dans variation_cdt_limites (argument qpluie non alloue),
+!ccc....dont le declenchement dependait par chance de la disposition
+!ccc....memoire (un simple changement de code ailleurs, meme jamais
+!ccc....execute, suffisait a le faire apparaitre ou disparaitre). On les
+!ccc....alloue ici a defaut, avec une taille minimale (1) : ils ne sont de
+!ccc....toute facon jamais lus/ecrits par les branches de ytest qui ne les
+!ccc....ont pas alloues elles-memes.
+      if (.not. allocated(qpluie)) allocate(qpluie(1))
+      if (.not. allocated(tempsol)) allocate(tempsol(1))
+      if (.not. allocated(chgRD)) allocate(chgRD(1))
+      if (.not. allocated(chgRG)) allocate(chgRG(1))
+      if (.not. allocated(tempRD)) allocate(tempRD(1))
+      if (.not. allocated(tempRG)) allocate(tempRG(1))
+      if (.not. allocated(chgriver)) allocate(chgriver(1))
+      if (.not. allocated(tempriver)) allocate(tempriver(1))
+      if (.not. allocated(id_RD)) allocate(id_RD(1))
+      if (.not. allocated(id_RG)) allocate(id_RG(1))
+      if (.not. allocated(id_river)) allocate(id_river(1))
+      if (.not. allocated(id_rivert)) allocate(id_rivert(1))
+      if (.not. allocated(qsurf)) allocate(qsurf(1))
+      if (.not. allocated(qbot)) allocate(qbot(1))
+      if (.not. allocated(chgbot)) allocate(chgbot(1))
+      if (.not. allocated(chgsurf)) allocate(chgsurf(1))
+      if (.not. allocated(tempbot)) allocate(tempbot(1))
+      if (.not. allocated(tempsurf)) allocate(tempsurf(1))
+
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 !                          C
 !          BOUCLE TEMPS               C
@@ -8254,9 +8290,16 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
 
    kimp = int(paso/itlecture)
    if (kimp >= ntsortie) kimp = ntsortie
-   
+!ccc....borne basse manquante : au tout premier appel (paso=0), kimp=0,
+!ccc....hors bornes pour des tableaux 1-indexes (trouve le 2026-09-10 via
+!ccc....un acces tempsurf(0) hors bornes, une fois le bug d'allocation de
+!ccc....qpluie corrige juste au-dessus dans le code appelant). La
+!ccc....subroutine soeur variation_cdt_limitesDTS gere deja ce cas avec un
+!ccc...."+1" (voir kimp = int(paso/itlecture) + 1 ~l.7998).
+   if (kimp < 1) kimp = 1
+
    select case (ytest)
-   case ("R2D") 
+   case ("R2D")
 
 
 
