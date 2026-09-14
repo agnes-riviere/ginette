@@ -1,0 +1,11 @@
+# Notes de developpement, pas destinees aux utilisateurs du cas de test
+NOTES_LOCALES.md
+
+# Recoupement avec SUTRA : necessite une version de SUTRA modifiee localement,
+# non reproductible en l'etat
+sutra/
+
+# Test fonctionnel gel/degel (pas de solution analytique de reference)
+freeze_thaw_cycle.py
+
+__pycache__/
