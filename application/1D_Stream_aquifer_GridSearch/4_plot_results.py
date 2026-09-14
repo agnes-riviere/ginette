@@ -27,7 +27,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 
-cmap = matplotlib.colormaps['nipy_spectral'].resampled(256).reversed()
+# matplotlib.colormaps[...] n'existe qu'à partir de matplotlib 3.5 - repli sur
+# plt.cm.get_cmap pour les versions plus anciennes (ex: cluster en Python 3.6).
+try:
+    cmap = matplotlib.colormaps['nipy_spectral'].resampled(256).reversed()
+except AttributeError:
+    cmap = plt.cm.get_cmap('nipy_spectral', 256).reversed()
 plt.rcParams["font.size"] = 12
 
 BASE_APP_DIR = Path(__file__).resolve().parent
