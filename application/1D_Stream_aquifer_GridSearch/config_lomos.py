@@ -127,7 +127,10 @@ DT = 900  # pas de temps [s], doit correspondre au pas des observations
 # =============================================================================
 # RESSOURCES CALCUL
 # =============================================================================
-MAX_WORKERS = 6  # poste local, pas un cluster - laisser de la marge
+MAX_WORKERS = "auto"  # nombre fixe (ex: 6), ou "auto" = tous les coeurs
+# disponibles sur la machine qui lance le run, moins 2 (voir
+# _n_worker_processes() dans 2_run_real_case.py) - pratique si on change
+# souvent de poste/cluster sans repasser ici à chaque fois.
 
 # Sauvegarde de sim_velocity_{ID}.txt (vitesse Ginette réelle, ~9.5 Mo/simulation,
 # ~5.4 Go pour un grid search à 576 points) : 3_misfit.py ne s'en sert que pour la

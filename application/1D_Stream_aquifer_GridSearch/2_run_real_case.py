@@ -358,11 +358,14 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
 
 
 def _n_worker_processes():
-    """Nombre de processus à lancer en parallèle, plafonné à MAX_WORKERS."""
+    """Nombre de processus à lancer en parallèle, plafonné à MAX_WORKERS
+    (sauf si MAX_WORKERS="auto" : alors coeurs disponibles - 2, sans plafond)."""
     try:
         n_available = len(os.sched_getaffinity(0))
     except AttributeError:
         n_available = os.cpu_count() or 1
+    if MAX_WORKERS == "auto":
+        return max(1, n_available - 2)
     return max(1, min(MAX_WORKERS, n_available - 2))
 
 
