@@ -195,3 +195,11 @@ PARAM_STEP = {
     "lam": (1, 1),
     "n": (0.1, 3),
 }
+
+# =============================================================================
+# MISFIT (3_misfit.py)
+# =============================================================================
+# Erreur totale estimée sur la température (mesure + representativite du
+# modele 1D), utilisée pour pondérer misfit_L2/misfit_L1 - pas juste la
+# precision instrumentale (0.25 degC).
+ERR_MISFIT = 5

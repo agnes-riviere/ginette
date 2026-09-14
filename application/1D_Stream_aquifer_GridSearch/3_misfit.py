@@ -13,7 +13,6 @@ import os
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 import sys
 from time import time
 import shutil
@@ -63,7 +62,7 @@ if BASE_APP_DIR is None:
 # Config partagée avec 0_boundary_conditions_real_case.py / 2_run_real_case.py
 # via config_lomos.py (voir README.md) : point d'observation, config BC (A/C)
 # et géométrie du domaine, pour ne plus avoir à les resynchroniser à la main.
-from config_lomos import POINT_NAME, BOTTOM_SENSOR_TRIVIAL_INDEX, DOMAIN_LENGTH, MAX_WORKERS, RUN_PLOTS
+from config_lomos import POINT_NAME, BOTTOM_SENSOR_TRIVIAL_INDEX, DOMAIN_LENGTH, MAX_WORKERS, RUN_PLOTS, ERR_MISFIT
 
 # --- Dossier de sortie, un sous-dossier par point (results/{POINT_NAME}/) :
 # un autre point lancé ensuite n'écrase pas les résultats de celui-ci. ---
@@ -197,9 +196,7 @@ done = sorted([
 print("dans done il y a :", done)
 
 # Misfit by simulations:
-err = 5  # erreur totale estimée (mesure + representativite du modele 1D),
-# pas juste la precision instrumentale (0.25 degC) - laissee a 1 dans le
-# code depuis, remise a la valeur estimee le 2026-07-25.
+err = ERR_MISFIT  # voir config_lomos.py (ERR_MISFIT)
 results["err_misfit"] = err
 
 # Index par ID pour un lookup rapide de la ligne grid_search dans
