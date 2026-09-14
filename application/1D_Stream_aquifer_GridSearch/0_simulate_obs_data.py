@@ -262,8 +262,9 @@ def run_ginette(ID, k, n,lam,c):
     sim_temp.to_csv(os.path.join(RESULTS_DIR,
                                  f"sim_temp_{ID}.txt"), sep=" ")
 
-    # Del temp
-    shutil.rmtree(temp_dir)
+    # Del temp (leave the directory first: we're currently chdir'd into it)
+    os.chdir(BASE_APP_DIR)
+    shutil.rmtree(temp_dir, ignore_errors=True)
     return
 
 run_ginette(-1, k,n,lam,c)

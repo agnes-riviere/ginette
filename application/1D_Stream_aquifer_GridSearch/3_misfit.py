@@ -453,5 +453,11 @@ if __name__ == "__main__":
 
     # Chaînage vers 4_plot_results.py (flag RUN_PLOTS dans config_lomos.py) -
     # ne se déclenche que si ce script est lancé seul ou par 2_run_real_case.py.
+    # MPLBACKEND=Agg : 4_plot_results.py ne fait qu'enregistrer des PNG dans ce
+    # contexte (pipeline batch) - le backend interactif natif macOS/Cocoa
+    # ("macosx") plante en SIGSEGV quand il est sollicité depuis un subprocess
+    # non-interactif comme celui-ci.
     if RUN_PLOTS:
-        subprocess.run([sys.executable, os.path.join(BASE_APP_DIR, "4_plot_results.py")], check=True)
+        plot_env = dict(os.environ, MPLBACKEND="Agg")
+        subprocess.run([sys.executable, os.path.join(BASE_APP_DIR, "4_plot_results.py")],
+                       check=True, env=plot_env)

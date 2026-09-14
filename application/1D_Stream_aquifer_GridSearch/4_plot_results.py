@@ -110,6 +110,7 @@ for assess_var in ASSESS_VARS:
         fig.tight_layout()
         fig.savefig(RESULTS_DIR / f"marginal_{param}_{assess_var}.png", dpi=150)
         plt.show()
+        plt.close(fig)
 
     # --- Cartes 2D du misfit (une figure par paire de paramètres) ---
     for p1, p2 in pairs:
@@ -126,6 +127,7 @@ for assess_var in ASSESS_VARS:
         fig.tight_layout()
         fig.savefig(RESULTS_DIR / f"misfit2d_{p1}_{p2}_{assess_var}.png", dpi=150)
         plt.show()
+        plt.close(fig)
 
     # --- Série temporelle : observations vs meilleure simulation (une figure par profondeur) ---
     # obs_data couvre toute la période disponible (observed_data.txt), qui s'étend souvent
@@ -149,6 +151,7 @@ for assess_var in ASSESS_VARS:
         fig.tight_layout()
         fig.savefig(RESULTS_DIR / f"timeseries_{col}_best_{assess_var}.png", dpi=150)
         plt.show()
+        plt.close(fig)
 
     # --- Toutes les simulations superposées, colorées par le misfit (une
     # figure, un sous-graphique par profondeur) : donne une vue d'ensemble de
@@ -180,3 +183,4 @@ for assess_var in ASSESS_VARS:
     fig.suptitle(f"Toutes les simulations ({len(order)}) colorées par {assess_var}")
     fig.savefig(RESULTS_DIR / f"spaghetti_{assess_var}.png", dpi=150)
     plt.show()
+    plt.close(fig)

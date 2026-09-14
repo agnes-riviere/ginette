@@ -90,9 +90,10 @@ def compile_ginette():
         print("ginette exists")
     else:
         print("ginette does not exist or does not match this platform - (re)compiling")
-        subprocess.run(['gfortran', '-o', 'ginette', '../../src/ginette_V2.f90'])
-        if os.path.isfile('ginette'):
-            print("ginette compiled")
+        result = subprocess.run(['gfortran', '-o', 'ginette', '../../src/ginette_V2.f90'])
+        if result.returncode != 0:
+            raise RuntimeError(f"gfortran compilation of ginette failed (exit code {result.returncode})")
+        print("ginette compiled")
 
 
 def compile_ginette_src(dir_ginette):
@@ -106,7 +107,8 @@ def compile_ginette_src(dir_ginette):
         print("ginette exists")
     else:
         print("ginette does not exist or does not match this platform - (re)compiling")
-        subprocess.run(['gfortran', '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
-        if os.path.isfile('ginette'):
-            print("ginette compiled")
+        result = subprocess.run(['gfortran', '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
+        if result.returncode != 0:
+            raise RuntimeError(f"gfortran compilation of ginette failed (exit code {result.returncode})")
+        print("ginette compiled")
 
