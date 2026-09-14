@@ -1162,19 +1162,26 @@ def remove_first_two_days_time_based(sim_temp, obs_temp, date_begin=None, days=2
     obs = obs[obs['Time'] >= cutoff]
 
     if sim.empty or obs.empty:
-        return sim, obs
-
-    # Chevauchement commun en secondes
-    left  = max(sim['Time'].min(), obs['Time'].min())
-    right = min(sim['Time'].max(), obs['Time'].max())
-
-    if left > right:
         return sim.iloc[0:0], obs.iloc[0:0]
 
-    sim = sim[(sim['Time'] >= left) & (sim['Time'] <= right)]
-    obs = obs[(obs['Time'] >= left) & (obs['Time'] <= right)]
+    # Alignement STRICT sur les temps communs aux deux séries (pas juste un
+    # même intervalle [left, right]) : la grille de sim est parfaitement
+    # régulière (pas fixe DT), mais obs (données de terrain) peut avoir des
+    # trous. Filtrer chacune séparément sur le même intervalle produisait des
+    # séries de longueurs différentes dès qu'un trou d'obs tombait dans la
+    # fenêtre pour une combinaison de paramètres donnée -> plantage de kge()
+    # (np.corrcoef exige des tableaux de même taille, vu sur le cluster,
+    # 2026-09) et misfit_L2/L1 faussés silencieusement ailleurs (soustraction
+    # de Series alignées par index, NaN sur les temps non communs).
+    sim = sim.drop_duplicates(subset='Time')
+    obs = obs.drop_duplicates(subset='Time')
+    common_time = pd.Index(sim['Time']).intersection(obs['Time'])
 
+    if len(common_time) == 0:
+        return sim.iloc[0:0], obs.iloc[0:0]
 
+    sim = sim[sim['Time'].isin(common_time)].sort_values('Time').reset_index(drop=True)
+    obs = obs[obs['Time'].isin(common_time)].sort_values('Time').reset_index(drop=True)
 
     return sim, obs
 
