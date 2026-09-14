@@ -18,6 +18,20 @@ program pression_ecoulement_transport_thermique
    double precision tempriv, elit, akdrain, edrain, crconvp, crconvc
    double precision pas
    integer :: compteur_div
+   integer :: ndtlevel
+   integer :: nstable_dt
+   integer, parameter :: nstable_dt_required = 5
+   double precision :: ratio_chk
+!ccc....Relaxation dynamique d'Aitken (Irons & Tuck 1969) sur la boucle de
+!ccc....Picard thermique - voir le bloc de calcul apres la resolution du
+!ccc....systeme thermique. omega_aitken est RECALCULE a chaque iteration
+!ccc....Picard a partir du comportement observe des residus (pas de facteur
+!ccc....fixe a regler a la main) ; aitken_fresh=1 marque un demarrage de
+!ccc....sequence Picard (nouveau pas de temps ou nouveau dt apres coupure),
+!ccc....ou l'historique des residus n'est pas encore exploitable.
+   double precision :: omega_aitken, aitken_num, aitken_den, aitken_dr
+   integer :: aitken_fresh
+   double precision, parameter :: omega_aitken_min = 0.05d0
    integer nc, nr, n, iec, irp, ith, nitt, ixy, ii
    integer imaille, itopo, ibuilt, icolone
    integer nci, nri, nclog, ilog, irho
@@ -48,6 +62,9 @@ program pression_ecoulement_transport_thermique
    double precision, dimension(:), allocatable::alph, dsidtempoo
    double precision, dimension(:), allocatable::vxm, vxp, vzp, vzm
    double precision, dimension(:), allocatable::prk, tempk, conck, conc
+!ccc....residu de Picard thermique (temp_solveur - temp_iteration_precedente)
+!ccc....de l'iteration PRECEDENTE, necessaire a la relaxation d'Aitken
+   double precision, dimension(:), allocatable::r_aitken_prev
    double precision, dimension(:), allocatable::chg, alandas, ss, topo, bot
    integer, dimension(:), allocatable :: irow
    double precision, dimension(:), allocatable::sice, rhoi, siceo, siceoo
@@ -1307,6 +1324,8 @@ program pression_ecoulement_transport_thermique
    allocate(temp(nm))
    allocate(tempo(nm))
    allocate(tempk(nm))
+   allocate(r_aitken_prev(nm))
+   r_aitken_prev = 0.0d0
    allocate(tempoo(nm))
    allocate(valcl(nm, 4))
    allocate(icl(nm, 4))
@@ -2890,6 +2909,10 @@ program pression_ecoulement_transport_thermique
 
    icpt = 0
    it = 0
+   ndtlevel = 0
+   nstable_dt = 0
+   aitken_fresh = 1
+   omega_aitken = 1.0d0
 !CC....indice regime permanant thermique
    irptha = irpth
 !CC....Boucle temps jusqu a fin de simulation
@@ -2898,8 +2921,53 @@ program pression_ecoulement_transport_thermique
       it = it + 1
 !CC....Compteur iteration calcul PICARD
      nk = 0
-!CC...Retour pas de temps initial impose par l utilisateur
-      dt = dble(dta)
+!ccc....Nouveau pas de temps = nouvelle sequence de Picard : l'historique des
+!ccc....residus de la sequence precedente ne decrit plus le meme probleme
+!ccc....non lineaire (second membre et dt differents), on repart donc neutre
+!ccc....(omega=1, aucun amortissement impose a priori) et Aitken redecouvre
+!ccc....l'amortissement necessaire des la 2e iteration.
+     aitken_fresh = 1
+!CC...Retour pas de temps initial impose par l utilisateur, sauf en
+!ccc....gel/degel (icycle==1) : la ou repartir a chaque pas de temps du
+!ccc....dt nominal dta force a redecouvrir par coupures successives
+!ccc....(dt/10, cf. boucle Picard plus bas, "ndtlevel = ndtlevel + 1")
+!ccc....le petit pas de temps necessaire pres du front de gel -
+!ccc....potentiellement a CHAQUE pas de temps si le front reste difficile
+!ccc....plusieurs pas de suite (observe sur le cas Lunardini Tm=-4degC,
+!ccc....qui ne progressait quasiment plus). On repart plutot du dernier
+!ccc....niveau de coupure qui a converge (ndtlevel), et on ne remonte que
+!ccc....d'un cran (dt*10) par pas de temps reussi - meme principe que le
+!ccc....calendrier de pas de temps croissant "TIME CYCLE"/TCMULT de
+!ccc....SUTRA (sutra_4_0.f) : redemarrer petit et croitre progressivement
+!ccc....plutot que retenter en aveugle le pas nominal a chaque fois.
+!ccc....ndtlevel reste un multiple entier de puissances de 10 de dta, pour
+!ccc....rester compatible avec le garde-fou modulo(dta,dt) de la boucle de
+!ccc....coupure plus bas (un facteur de croissance continu, teste d'abord,
+!ccc....produisait des dt qui n'etaient plus diviseurs de dta et se
+!ccc....faisaient reinitialiser a dta/10 par ce garde-fou : blocage).
+!ccc....Limite a icycle==1 : aucun effet sur les autres simulations
+!ccc....(ecoulement seul, transport seul, thermique sans gel...).
+!ccc....2026-09-14 : la remontee d'un cran a CHAQUE pas de temps reussi
+!ccc....(qu'il ait ete facile ou tout juste convergé) faisait osciller le
+!ccc....solveur pile sur les mailles difficiles du front (observe sur le
+!ccc....cas Lunardini Tm=-4degC : dt remonte, reechoue, recoupe, remonte,
+!ccc....reechoue... sans jamais progresser) - meme principe que
+!ccc....thermalFOAM (Omonigbehin et al. 2026, Supplementary Text S2) qui
+!ccc....exige plusieurs pas consecutifs faciles avant d'augmenter le pas
+!ccc....de temps. On n'autorise donc la remontee (ndtlevel-1) qu'apres
+!ccc....nstable_dt_required pas de temps consecutifs reussis SANS aucune
+!ccc....coupure DIV entre-temps (nstable_dt remis a 0 a chaque DIV,
+!ccc....cf. plus bas "ndtlevel = ndtlevel + 1").
+      if (icycle == 1) then
+         nstable_dt = nstable_dt + 1
+         if (ndtlevel > 0 .and. nstable_dt >= nstable_dt_required) then
+            ndtlevel = ndtlevel - 1
+            nstable_dt = 0
+         end if
+         dt = dble(dta)/10.0d0**ndtlevel
+      else
+         dt = dble(dta)
+      end if
       dtreco = dble(dtrecord)
     
 !      print*, "on recommence dans la boucle while avec dt =", int(dt),"paso=",int(paso), "et dtreco =", dtreco!, "et irecord =", irecord
@@ -2987,6 +3055,26 @@ program pression_ecoulement_transport_thermique
       if (icycle == 1) then
       do i = 1, nm
          if (temp(i) + 1 .ne. temp(i)) siceo(i) = sice(i)
+      end do
+!ccc....EXTRAPOLATION DU POINT DE DEPART DE PICARD (nouveau pas de temps)
+!ccc....tempo/tempoo viennent d'etre decales juste au-dessus (ith==1) : a
+!ccc....ce stade tempo(i)=temp(i) (valeur convergee du pas precedent) et
+!ccc....tempoo(i) est la temperature du pas d'avant. Sans extrapolation,
+!ccc....Picard repart de tempo(i) (extrapolation d'ordre 0) ; ici on lui
+!ccc....donne un point de depart tenant compte de la tendance recente
+!ccc....(mi-chemin entre ordre 0 et extrapolation lineaire complete,
+!ccc....meme principe que le "predictor" de SUTRA (sutra_4_0.f, BDELP/
+!ccc....BDELU ~l.19310) - reduit le nombre d'iterations Picard necessaires
+!ccc....pres du front de gel, notamment juste apres une reduction de dt.
+!ccc....Limite au cas icycle==1 (gel/degel) : aucun effet sur les autres
+!ccc....simulations (transport de chaleur seul, ecoulement...). Retente
+!ccc....apres correction des bugs memoire de variation_cdt_limites
+!ccc....(commit precedent) qui avaient cause un SIGBUS sans rapport avec
+!ccc....cette extrapolation lors d'un premier essai.
+      do i = 1, nm
+         if (temp(i) + 1 .ne. temp(i)) then
+            temp(i) = tempo(i) + 0.5d0*(tempo(i) - tempoo(i))
+         end if
       end do
       do kcol = 1, nc
       do iiso = 1, 2
@@ -3181,6 +3269,26 @@ program pression_ecoulement_transport_thermique
                irecord = 0
             end if
             if (dt<=0) then
+!ccc....dt<=0 signifie un sous-flot numerique (dt a ete divise par 10 tant
+!ccc....de fois d'affilee, sans jamais converger, qu'il a fini par
+!ccc....atteindre 0 en double precision) : le filet de securite historique
+!ccc....(dt=dta/100) masquait ce cas en relancant Picard avec un pas de
+!ccc....temps "normal", qui avait deja echoue de nombreuses fois avant
+!ccc....d'en arriver la - boucle infinie silencieuse (observe sur le cas
+!ccc....Lunardini Tm=-4degC : plus de 100 coupures consecutives sans
+!ccc....converger, dt reinitialise a dta/100 a chaque fois sans jamais
+!ccc....dexlencher le controle "dt<1e-5" plus bas). On traite desormais ce
+!ccc....cas comme un arret propre (icycle==1 uniquement : aucun effet sur
+!ccc....les autres simulations, qui n'ont jamais ete observees a
+!ccc....atteindre ce sous-flot).
+            if (icycle == 1) then
+               write(*,'(A,I6,A)') &
+                  ' STOP : sous-flot numerique de dt apres', ndtlevel, &
+                  ' coupures consecutives, convergence impossible, arret'
+               call flush(6)
+               paso = nitt*unitsim
+               exit
+            end if
             dt=dta/100
             endif
 
@@ -3190,19 +3298,40 @@ program pression_ecoulement_transport_thermique
             dto = dble(dt)
             dt = dble(dto)/10
             compteur_div=compteur_div+1
+!ccc....suit le niveau de coupure atteint (icycle==1), pour que le pas de
+!ccc....temps reparte de la au prochain pas au lieu de dta (cf. plus haut)
+            if (icycle == 1) then
+               ndtlevel = ndtlevel + 1
+               nstable_dt = 0
+            end if
 
-            write(*,'(A,F8.2,A,I4,A,ES9.2,A,ES8.2,A,ES9.2,A,ES8.2,A,I5)') &
+            write(*,'(A,F8.2,A,I4,A,ES9.2,A,ES8.2,A,ES9.2,A,ES8.2,A,I5,A,F6.3)') &
                ' DIV j=', paso/86400d0, ' nk=', nk-1, &
                ' P:', amaxp, '/', crconvp, &
                ' T:', amaxt, '/', crconvt, &
-               ' cell=', ipb
+               ' cell=', ipb, ' omega=', omega_aitken
             call flush(6)
+!ccc....2026-09-14 : le test de divisibilite ci-dessous utilisait modulo()
+!ccc....directement sur des flottants (dt, dta) pour verifier que dt est un
+!ccc....diviseur exact (puissance de 10) de dta - or des valeurs comme 0.05
+!ccc....n'ont pas de representation binaire exacte, et modulo(0.5d0,0.05d0)
+!ccc....ne rend PAS ~0 mais ~0.05 (quasiment le diviseur entier), largement
+!ccc....au-dessus du seuil 1e-15 : le garde-fou se declenchait a CHAQUE
+!ccc....tentative des que dt atteignait ce palier, remettant dt=dta/10 en
+!ccc....boucle infinie sans jamais laisser la vraie coupure (dt plus petit)
+!ccc....s'appliquer - ndtlevel grimpait sans fin pendant que dt restait
+!ccc....bloque (observe sur le cas Lunardini Tm=-1, cellule 1, t~12s).
+!ccc....Fix : tester si dta/dt est proche d'un entier a une tolerance
+!ccc....RELATIVE (1e-6), robuste quelle que soit la representation binaire
+!ccc....de dt, au lieu du modulo flottant absolu.
             if (dt>=1) then
-               if (modulo(dta, dt) .ne. 0) dt = dble(dta)/10
-            else 
+               ratio_chk = dble(dta)/dt
+               if (abs(ratio_chk - nint(ratio_chk)) > 1.0d-6*max(1.0d0, abs(ratio_chk))) &
+                  dt = dble(dta)/10
+            else
                if (dta > 0.0d0 .and. dta > 1.0d-15) then
-                  if (modulo(dta/10**CEILING(log10(dta)),dt) > 1.0d-15) then
-                     
+                  ratio_chk = (dble(dta)/10**CEILING(log10(dta)))/dt
+                  if (abs(ratio_chk - nint(ratio_chk)) > 1.0d-6*max(1.0d0, abs(ratio_chk))) then
                      dt = dble(dta)/10 ! Ajout de ce if car sinon ginette tourne dans le vide quand dt<1
                   end if
                else
@@ -3232,6 +3361,10 @@ program pression_ecoulement_transport_thermique
             !print*, "ici dtreco = ", dtreco, "et dtrecord =", dtrecord
             it = it + 1
             nk = 1
+!ccc....Coupure de dt = le probleme non lineaire resolu par Picard change
+!ccc....(dt different) : l'historique des residus d'Aitken accumule avant la
+!ccc....coupure ne le decrit plus, on redemarre la sequence a neutre.
+            aitken_fresh = 1
             if (paso>dto) then
             paso = dble(dt) + dble(paso) - dble(dto)
             endif
@@ -4008,6 +4141,96 @@ program pression_ecoulement_transport_thermique
 ! C         call GC_solve (val,irow_ptr(nmax1),b,n1,temp,temp,sw_int,sw_reel)
 !       k=0
 !     endif
+
+!ccc....2026-09-14 : sous-relaxation de Picard sur la temperature en
+!ccc....gel/degel (icycle==1), avec facteur calcule dynamiquement par la
+!ccc....methode d'Aitken delta-2 (Irons & Tuck 1969 ; formulation "dynamic
+!ccc....relaxation" de Kuettler & Wall 2008, Comput Mech 43:61-72).
+!ccc....
+!ccc....POURQUOI : pres du seuil de phase, la capacite calorifique
+!ccc....apparente varie brutalement (elle est NON MONOTONE, pic au point de
+!ccc....fusion) ; un pas de Picard complet fait alors osciller une maille
+!ccc....de part et d'autre du seuil d'une iteration a l'autre, et la boucle
+!ccc....ne converge jamais (observe en direct sur le cas Lunardini : meme
+!ccc....DIV repete a l'identique sur une meme maille).
+!ccc....
+!ccc....CONVENTIONS : r_k = temp_solveur(x_k) - x_k est le residu de point
+!ccc....fixe (ici temp(i) juste apres resolution, moins tempk(i) qui est
+!ccc....l'itere precedent), et la mise a jour relaxee s'ecrit
+!ccc....   x_(k+1) = x_k + omega_k * r_k.
+!ccc....Aitken donne alors
+!ccc....   omega_k = -omega_(k-1) * <r_(k-1), r_k - r_(k-1)> / ||r_k - r_(k-1)||^2
+!ccc....Le SIGNE MOINS est indispensable avec ces conventions : verifie en
+!ccc....redevivant la formule sur le modele lineaire temp_solveur = a*x + b,
+!ccc....dont le facteur ideal (solution atteinte en un pas) vaut 1/(1-a) ;
+!ccc....en injectant r_k = r_(k-1)*[1 + omega_(k-1)*(a-1)], la formule
+!ccc....ci-dessus redonne exactement 1/(1-a). Sans le signe moins on
+!ccc....obtiendrait l'oppose, c'est-a-dire de l'ANTI-amortissement.
+!ccc....Les produits scalaires sont GLOBAUX (sommes sur toutes les mailles) :
+!ccc....la derivation d'Aitken vectoriel projette le probleme sur la
+!ccc....direction r_k - r_(k-1) et fournit UN SEUL omega par iteration, pas
+!ccc....un facteur par maille.
+!ccc....
+!ccc....BORNES ET PHYSIQUE : omega est borne a [omega_aitken_min, 1].
+!ccc....Avec omega dans (0,1], la mise a jour est une COMBINAISON CONVEXE
+!ccc....   temp = (1-omega)*tempk + omega*temp_solveur,
+!ccc....donc chaque temperature reste encadree par l'itere precedent et la
+!ccc....proposition du solveur : la relaxation ne peut creer aucun nouvel
+!ccc....extremum (principe du maximum discret preserve), et ne peut donc pas
+!ccc....faire franchir le seuil de phase a une maille artificiellement.
+!ccc....La sur-relaxation (omega>1, extrapolation au-dela du pas propose)
+!ccc....casserait cette garantie - elle est mathematiquement licite pour une
+!ccc....iteration monotone lente, mais c'est exactement le sur-depassement
+!ccc....qu'on cherche a supprimer ici : on la refuse. Le plancher > 0 evite
+!ccc....qu'un omega nul ou negatif (cas pathologique de la formule quand la
+!ccc....suite diverge de facon monotone) ne fige la temperature.
+!ccc....
+!ccc....amaxt (residu de convergence de Picard, calcule juste apres) porte
+!ccc....donc sur le pas DEJA relaxe - comportement standard.
+!ccc....
+!ccc....NB nommage : ne pas confondre omega_aitken avec les deux autres
+!ccc...."omega" du code, qui n'ont aucun rapport : (1) omega, lu dans
+!ccc....E_p_therm.dat (l38), est le facteur d'impedance de permeabilite
+!ccc....relative (le Omega de McKenzie et al. 2007, blocage de l'ecoulement
+!ccc....par la glace) ; (2) omega local de la subroutine bicgstab, qui est
+!ccc....le parametre interne de l'algorithme BiCGSTAB.
+            if (icycle == 1 .and. ith == 1) then
+               if (aitken_fresh == 1) then
+!ccc....Premiere iteration d'une sequence : l'historique des residus n'est
+!ccc....pas exploitable (il decrivait un autre probleme non lineaire), mais
+!ccc....l'AMORTISSEMENT lui reste pertinent - d'ou la distinction entre les
+!ccc....deux etats : r_aitken_prev est invalide, omega_aitken est conserve.
+!ccc....C'est le "warm start" recommande par Kuettler & Wall : on demarre le
+!ccc....pas de temps avec le omega du pas precedent au lieu de repartir a 1.
+!ccc....Repartir a omega=1 a chaque pas (teste : beaucoup plus lent) laisse
+!ccc....la 1ere iteration Picard NON amortie - or c'est justement elle qui
+!ccc....declenche l'oscillation au front, qu'Aitken ne peut alors que
+!ccc....constater apres coup. La raideur du probleme variant peu d'un pas au
+!ccc....suivant, le omega precedent est une bien meilleure estimation ;
+!ccc....Aitken le reajuste de toute facon des l'iteration 2.
+                  aitken_fresh = 0
+               else
+                  aitken_num = 0.0d0
+                  aitken_den = 0.0d0
+                  do i = 1, nm
+                     aitken_dr = (temp(i) - tempk(i)) - r_aitken_prev(i)
+                     aitken_num = aitken_num + r_aitken_prev(i)*aitken_dr
+                     aitken_den = aitken_den + aitken_dr*aitken_dr
+                  end do
+!ccc....Denominateur quasi nul = les deux residus successifs sont presque
+!ccc....identiques (quasi-convergence ou stagnation) : la formule degenere
+!ccc....en 0/0, on conserve alors l'omega courant.
+                  if (aitken_den > 1.0d-30) then
+                     omega_aitken = -omega_aitken*aitken_num/aitken_den
+                  end if
+                  if (omega_aitken > 1.0d0) omega_aitken = 1.0d0
+                  if (omega_aitken < omega_aitken_min) omega_aitken = omega_aitken_min
+               end if
+               do i = 1, nm
+                  r_aitken_prev(i) = temp(i) - tempk(i)
+                  temp(i) = tempk(i) + omega_aitken*r_aitken_prev(i)
+               end do
+            end if
 
 !CC....Test du Picard thermique
             if (iriv == 1 .or. iqriv == 0 .or. &
@@ -5167,6 +5390,7 @@ program pression_ecoulement_transport_thermique
    if (allocated(temp)) deallocate(temp)
    if (allocated(tempo)) deallocate(tempo)
    if (allocated(tempk)) deallocate(tempk)
+   if (allocated(r_aitken_prev)) deallocate(r_aitken_prev)
    if (ith == 1) then
       if (allocated(valclt)) deallocate(valclt)
       if (allocated(rhos)) deallocate(rhos)
@@ -6528,11 +6752,11 @@ subroutine matt(val, icol_ind, irow_ptr, x, b, am, ivois, tempo, &
 !      if(temp(i) <= ts) alanda(i)=3.462696D+00
 !      if(temp(i) >= ts.and.temp(i) < tl) then
 !      alanda(i)=293994600.D-08
-         if (temp(i) <= ts) alanda(i) = 3.4644D+00
+         if (temp(i) <= ts) alanda(i) = 3.464352D+00
          if (temp(i) >= ts .and. temp(i) < tl) then
-            alanda(i) = 294110000.D-08
+            alanda(i) = 294135200.D-08
          end if
-         if (temp(i) >= tl) alanda(i) = 2.4184D+00
+         if (temp(i) >= tl) alanda(i) = 2.418352D+00
 !    if(i.ne.1.and.ap.ne.0) print*,dsidtemp(i),ap,temp(i),i
 !    if(i.ne.1.and.ap.ne.0) print*,"pb",alanda(i)
       else

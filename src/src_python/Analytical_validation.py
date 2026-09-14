@@ -60,6 +60,8 @@ Convention commune aux cas 2 et 3 (reprise directement des deux papiers) :
   différentes.
 """
 import numpy as np
+from scipy.special import erf, erfc
+from scipy.optimize import least_squares
 
 # Constantes reprises EXACTEMENT des valeurs codées en dur dans le template
 # Ginette E_p_therm_bck.dat (alandae, cpe, cpm - voir
@@ -213,6 +215,110 @@ def thermal_peclet_number(q, layer_thicknesses, layer_conductivities, Cw_vol=CW_
     lam = np.asarray(layer_conductivities, dtype=float)
     gamma = lam / Cw_vol
     return q * np.sum(b / gamma)
+
+
+def lunardini_freezing_profile(x, t, Tm, T0=4.0, Ts=-6.0, Tf=0.0,
+                                k1=3.4644, k2=2.9414, k3=2.4184,
+                                C=690360.0, gammad=1680.0, xif=0.0782, xi0=0.2000,
+                                Lf=334720.0):
+    """
+    Solution analytique de Lunardini (1988, CRREL Report 82-2) pour la
+    propagation d'un front de gel en régime TRANSITOIRE dans un milieu
+    poreux semi-infini initialement non gelé - cas dit "exact" (valeurs
+    non physiques choisies pour coller exactement aux hypothèses
+    mathématiques de Lunardini - conductivités k1/k2/k3 et capacité
+    volumique C CONSTANTE dans les 3 zones, voir docstring de
+    ymoycondtherm="LUNAR"/ytest="THL" dans ginette_V2.f90, qui implémentent
+    directement ce cas particulier).
+
+    3 zones (x = profondeur depuis la surface, positive vers le bas) :
+    - zone 1 (gelée)      : 0 <= x <= X1,   T1(x) = Ts + (Tm-Ts)*erf(psi*x/X1)/erf(psi)
+    - zone 2 ('mushy')    : X1 <= x <= X2,  cf. ci-dessous (erf ou erfc selon gamma)
+    - zone 3 (non gelée)  : x >= X2,        T3(x) = T0 - (T0-Tf)*erfc(beta*x/X2)/erfc(beta)
+
+    ATTENTION au signe de la 1ère équation du système non-linéaire : c'est
+    bien un MOINS devant a1*c1*erf(psi)/(...). Certaines versions publiées
+    de cette solution (dont McKenzie et al. 2007) y mettent un PLUS, ce qui
+    ne redonne pas les valeurs de référence. Vérifié en reproduisant
+    psi/gamma/beta/X1/X2 pour Tm=-4°C et Tm=-1°C à 1e-5 près avec le signe
+    MOINS ci-dessous - la 2nde équation, elle, est correcte telle quelle.
+
+    Parameters:
+    - x: profondeur(s) [m], positive vers le bas, où évaluer T - scalaire ou array.
+    - t: temps [s] depuis le changement brutal de température en surface.
+    - Tm: température solidus (limite bas de la zone mushy - haut de la zone
+      gelée) [°C] - PARAMÈTRE VARIABLE du cas test (Tableau 1/2/4 : -0.1,
+      -1.0 ou -4.0°C). Correspond à tsg/tsd dans E_p_therm.dat.
+    - T0, Ts, Tf: températures initiale (loin de la surface), imposée en
+      surface, et liquidus (haut de la zone mushy = 0°C par convention
+      Lunardini) [°C]. Tf correspond à tlg/tld dans E_p_therm.dat.
+    - k1, k2, k3: conductivités thermiques BULK des 3 zones [W/m/K]
+      (gelée/mushy/non gelée) - valeurs par défaut = celles hardcodées dans
+      ginette_V2.f90 pour ymoycondtherm="LUNAR".
+    - C: capacité calorifique volumique (identique dans les 3 zones, avant
+      ajout du terme de chaleur latente apparente dans la zone mushy)
+      [J/m3/K] - valeur par défaut = celle hardcodée dans ginette_V2.f90
+      pour ytest="THL" (690360).
+    - gammad: densité sèche du solide [kg/m3].
+    - xif, xi0: ratio massique eau non gelée/solide sec, zones gelée et non
+      gelée respectivement (xif < xi0).
+    - Lf: chaleur latente de fusion PAR KG D'EAU [J/kg] (convention
+      Lunardini - PAS la même que le paramètre "lat" de E_p_therm.dat, qui
+      attend la chaleur latente par kg de GLACE : lat = Lf*rho_eau/rho_glace,
+      soit 334720 J/kg (eau) -> 363826 J/kg (glace) pour
+      rho_glace=920 kg/m3).
+
+    Returns:
+    - (T, X1, X2): T de même forme que x, et les profondeurs du front gel/mushy
+      (X1) et mushy/non-gelé (X2) [m] à l'instant t.
+    """
+    alpha1 = k1 / C
+    alpha3 = k3 / C
+    alpha4 = k2 / (C + gammad * Lf * (xif - xi0) / (Tm - Tf))
+
+    a1 = np.sqrt(alpha1 / alpha4)
+    a2 = np.sqrt(alpha4 / alpha3)
+    b1 = (Tm - Ts) / (Tf - Tm)
+    b2 = (Tm - Tf) / (T0 - Tf)
+    c1 = k2 / k1
+    c2 = k3 / k2
+
+    def eqs(v):
+        psi, gamma = v
+        F1 = b1 * np.exp(-(psi**2) * (1 - a1**2)) - a1 * c1 * erf(psi) / (erf(gamma) - erf(a1 * psi))
+        F2 = b2 * np.exp(-(gamma**2) * (1 - a2**2)) + a2 * c2 * (erf(gamma) - erf(a1 * psi)) / (1 - erf(a2 * gamma))
+        return [F1, F2]
+
+    best = None
+    for psi0 in (0.02, 0.05, 0.1, 0.2, 0.3, 0.5):
+        for gamma0 in (0.3, 0.6, 1.0, 1.5, 2.0, 3.0):
+            res = least_squares(eqs, [psi0, gamma0], bounds=([1e-8, 1e-8], [15, 15]), xtol=1e-14, ftol=1e-14)
+            if best is None or res.cost < best.cost:
+                best = res
+    psi, gamma = best.x
+    beta = gamma * np.sqrt(alpha4 / alpha3)
+
+    X1 = psi * np.sqrt(4 * alpha1 * t)
+    X2 = gamma * np.sqrt(4 * alpha4 * t)
+
+    x_arr = np.atleast_1d(np.asarray(x, dtype=float))
+    T = np.empty_like(x_arr)
+
+    frozen = x_arr <= X1
+    thawed = x_arr >= X2
+    mushy = ~frozen & ~thawed
+
+    T[frozen] = Ts + (Tm - Ts) * erf(psi * x_arr[frozen] / X1) / erf(psi)
+    T[thawed] = T0 - (T0 - Tf) * erfc(beta * x_arr[thawed] / X2) / erfc(beta)
+    if gamma > 1:
+        T[mushy] = Tf + (Tm - Tf) * (erfc(gamma * x_arr[mushy] / X2) - erfc(gamma)) / \
+            (erfc(gamma * X1 / X2) - erfc(gamma))
+    else:
+        T[mushy] = Tf + (Tm - Tf) * (erf(gamma * x_arr[mushy] / X2) - erf(gamma)) / \
+            (erf(gamma * X1 / X2) - erf(gamma))
+
+    T = T if hasattr(x, "__len__") else T[0]
+    return T, X1, X2
 
 
 def bredehoeft_papadopulos_profile(z, q, k_bulk, L, T0, TB, Cw_vol=CW_VOL):

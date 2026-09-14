@@ -211,3 +211,7 @@ application/1D_Stream_aquifer_GridSearch/test/
 application/1D_Stream_aquifer_GridSearch/INVERSION_GINETTE_1D/
 application/1D_Stream_aquifer_GridSearch/OBS_point/
 application/1D_Stream_aquifer_GridSearch/methods.tex
+# Documentation de reference (articles, rapports, actes) : consultee en local,
+# pas redistribuee avec le code
+application/Interfrost/**/*.pdf
+application/Interfrost/*.pdf
