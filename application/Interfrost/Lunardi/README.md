@@ -138,8 +138,8 @@ Domaine 3 m / 600 mailles, dt=5 s, 1 jour simulé :
 
 | Tm | RMSE | Erreur max | X1 (m) | X2 (m) |
 |---|---|---|---|---|
-| -1.0°C | 0.0532°C | 0.3044°C | 0.1809 | 0.2497 |
-| -4.0°C | 0.0560°C | 0.1949°C | 0.0813 | 0.3338 |
+| -1.0°C | 0.0520°C | 0.2998°C | 0.1809 | 0.2497 |
+| -4.0°C | 0.0540°C | 0.1906°C | 0.0813 | 0.3338 |
 
 Seuil de validation : 0.5°C → **validé sur les deux valeurs de Tm**. Les positions de front
 simulées (X1, X2) correspondent bien à celles de la solution analytique données plus haut.
