@@ -6,7 +6,7 @@ tags: []
 
 # Vérification et validation du moteur de transport de chaleur de Ginette contre 4 solutions analytiques de référence
 
-Comme pour tout code de simulation utilisé en recherche (MODFLOW, PFLOTRAN, SUTRA...), la
+Comme pour tout code de simulation utilisé en recherche (MODFLOW, PFLOTRAN...), la
 crédibilité du moteur de transport de chaleur de Ginette repose sur sa capacité à reproduire des
 solutions connues avant d'être appliqué à des cas réels où aucune solution de référence
 n'existe. Ce dossier rassemble 4 cas de **vérification et validation (V&V)** qui comparent la
@@ -134,14 +134,13 @@ par configuration (8 simulations Ginette au total).
 Processes* 31, 2648-2661) re-présentent et corrigent la solution de Shan & Bodvarsson (2004)
 déjà utilisée au cas 3 (c'est en fait la version implémentée dans
 `src/src_python/Analytical_validation.py` — voir la note "gamma" dans le code). Leur papier
-compare cette solution à des simulations SUTRA (un code éléments finis de l'USGS) pour des
+compare cette solution à des simulations numériques pour des
 empilements de 1, 2, 3 et 4 couches de conductivité thermique différente (leur Table 1), à 2
 flux d'eau par empilement. Leur Figure 2 montre que plus il y a de couches, plus le profil de
 température s'écarte de la simple courbe concave du cas homogène — avec un changement net de
 pente à chaque interface.
 
-**Ce que fait le script** : reproduit cette Figure 2 en utilisant **Ginette à la place de
-SUTRA**. Les conductivités et les épaisseurs relatives des couches sont reprises exactement de
+**Ce que fait le script** : reproduit cette Figure 2 avec **Ginette**. Les conductivités et les épaisseurs relatives des couches sont reprises exactement de
 leur Table 1 ; le domaine total est réduit de 100 m à 1 m (comme au cas 2/3 : sur 100 m, le
 temps de mise en régime permanent se compterait en siècles), mais le flux d'eau de chaque
 scénario est recalculé pour conserver **exactement les mêmes nombres de Péclet thermiques**

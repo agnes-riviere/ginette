@@ -90,26 +90,25 @@ Pas d'effet de la glace sur la perméabilité (k_rel off) ; gravité sans effet 
 ```
 
 Les solutions analytiques supposent un changement de phase en échelon à Tf = 0°C. Un code
-numérique a besoin d'une courbe de gel continue : Kurylyk et al. utilisent dans SUTRA une
-courbe linéaire par morceaux entre T_res et 0°C, et c'est aussi ce que fait Ginette (voir
-ci-dessous).
+numérique a besoin d'une courbe de gel continue : le benchmark prévoit une courbe linéaire par
+morceaux entre une température résiduelle T_res et 0°C, ce que Ginette reproduit avec
+`ytypsice=LINEA` et une fenêtre de phase [−0.01°C, 0°C] (voir ci-dessous).
 
-<img src="figures/kurylyk2014_courbe_gel.png" width="380" alt="Courbe de gel : saturation en eau liquide en fonction de la température, échelon (solutions analytiques) et linéaire par morceaux (modèles numériques)">
+<img src="figures/courbe_gel.png" width="420" alt="Courbe de gel : saturation en eau liquide en fonction de la température, échelon (solutions analytiques) et linéaire par morceaux (Ginette)">
 
-*Courbe de gel en échelon (solutions analytiques) et linéaire par morceaux (SUTRA, Ginette),
-d'après Kurylyk et al. (2014).*
+*Courbe de gel en échelon (solutions analytiques) et linéaire par morceaux (Ginette,
+fenêtre de phase −0.01°C / 0°C).*
 
 ## Configuration de Ginette
 
-Le domaine numérique reprend celui du papier : colonne de 2 m, maille de 1 mm, température
-imposée en surface, extrémité basse maintenue à Ti (assez loin du front pour approximer le
-milieu semi-infini sur la durée simulée).
+Le domaine numérique reprend celui recommandé par le benchmark : colonne de 2 m, maille de
+1 mm, température imposée en surface, extrémité basse maintenue à Ti (assez loin du front pour
+approximer le milieu semi-infini sur la durée simulée). Dans les cas avec écoulement, la
+vitesse de Darcy est obtenue par deux charges imposées aux extrémités.
 
-<img src="figures/kurylyk2014_domaine.png" width="380" alt="Domaine numérique : colonne de 2 m discrétisée en 2000 mailles, température imposée en haut, vitesse de Darcy imposée en haut et en bas, parois latérales isolées">
+<img src="figures/domaine_ginette.png" width="400" alt="Domaine Ginette : colonne de 2 m discrétisée en 2000 mailles de 1 mm, température imposée en haut et en bas, charges imposées aux deux extrémités dans les cas avec écoulement, parois latérales isolées et imperméables">
 
-*Domaine numérique utilisé par Kurylyk et al. (2014) avec SUTRA ; Ginette utilise la même
-colonne, avec des charges imposées aux deux extrémités pour obtenir la vitesse de Darcy et une
-température initiale de −0.02°C dans les cas avec écoulement (voir ci-dessous).*
+*Colonne Ginette et conditions aux limites des trois benchmarks.*
 
 Le cas s'active dans `GINETTE_SENSI/E_p_therm_bck.dat` avec deux mots-clés :
 
@@ -134,7 +133,7 @@ Tout le reste est reproduit par les fichiers d'entrée (générés par le script
 - **Écoulement (benchmarks 2-3)** : `iec=1`, `ithec=1`, `g=9.81`, charges imposées en haut et
   en bas telles que v = K·Δh/L avec K = k·ρ_w·g/μ (k = 1e-12 m²), et charge initiale
   linéaire pour partir directement en régime permanent. Comme un milieu à Ti = 0°C exactement
-  serait déjà dégelé pour Ginette (comme pour SUTRA), on part de Ti = −0.02°C, juste sous la
+  serait déjà dégelé pour Ginette, on part de Ti = −0.02°C, juste sous la
   fenêtre de phase (écart négligeable devant la chaleur latente : C_f × 0.02 / L ≈ 3·10⁻⁴).
 - `ysolv=BIS` (BiCGSTAB préconditionné), recommandé pour tous les cas gel/dégel.
 
@@ -200,6 +199,6 @@ au-delà de 3-4 jours.
 neumann_thawing.py               script de validation (génère les entrées, lance Ginette, compare, trace)
 GINETTE_SENSI/                   templates d'entrée Ginette (E_*_bck.dat) et répertoire de calcul
 reference/kurylyk2014_tableS1.csv  positions du front publiées (Table S1)
-figures/                         schémas (d'après Kurylyk et al. 2014) et figures de résultats du README
+figures/                         schéma du problème (d'après Kurylyk et al. 2014), courbe de gel, domaine et figures de résultats
 results/                         sorties du script (régénérées à chaque exécution)
 ```
