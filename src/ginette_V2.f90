@@ -30,6 +30,7 @@ program pression_ecoulement_transport_thermique
 !ccc....sequence Picard (nouveau pas de temps ou nouveau dt apres coupure),
 !ccc....ou l'historique des residus n'est pas encore exploitable.
    double precision :: omega_aitken, aitken_num, aitken_den, aitken_dr
+   double precision :: hlat_cell, cap_k, dh_cell, smax_ice, hs_ice, hl_ice, a_ice
    integer :: aitken_fresh
    double precision, parameter :: omega_aitken_min = 0.05d0
    integer nc, nr, n, iec, irp, ith, nitt, ixy, ii
@@ -2653,6 +2654,12 @@ program pression_ecoulement_transport_thermique
       end if
       if (irp == 0) dswdp(i) = 0D+00
 
+!ccc....etat de glace "precedent" coherent avec l'etat initial (sinon siceo
+!ccc....et siceoo restent non initialises jusqu'au 1er pas de temps, et une
+!ccc....coupure de dt pendant ce 1er pas les restaurerait a une valeur
+!ccc....arbitraire) - sauf pour TH2/TH3 qui fixent siceo eux-memes plus haut.
+      if (ytest .ne. "TH2" .and. ytest .ne. "TH3") siceo(i) = sice(i)
+      siceoo(i) = siceo(i)
    end do
    else
    do i = 1, nm
@@ -3054,6 +3061,13 @@ program pression_ecoulement_transport_thermique
 
       if (icycle == 1) then
       do i = 1, nm
+!ccc....siceoo = sice du pas d'avant, restauree dans siceo par le bloc de
+!ccc....reprise DIV (comme tempoo/tempo juste au-dessus). N'etait jamais
+!ccc....affectee avant le 2026-09-15 : apres une coupure de dt, siceo valait
+!ccc....0 (tableau alloue non initialise), sans effet tant que LINEA
+!ccc....n'utilisait pas siceo, mais faux depuis la corde/projection
+!ccc....enthalpique (une maille gelee a -5C se retrouvait "fondue a 9%").
+         if (temp(i) + 1 .ne. temp(i)) siceoo(i) = siceo(i)
          if (temp(i) + 1 .ne. temp(i)) siceo(i) = sice(i)
       end do
 !ccc....EXTRAPOLATION DU POINT DE DEPART DE PICARD (nouveau pas de temps)
@@ -4127,6 +4141,56 @@ program pression_ecoulement_transport_thermique
             end if
             if (ysolv == "BIS") then
                call bicgstab(temp, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
+            end if
+
+!ccc....2026-09-15 : RE-PROJECTION ENTHALPIQUE de l'itere de Picard en
+!ccc....gel/degel sature (icycle==1, ytypsice=LINEA). Le systeme lineaire a
+!ccc....ete assemble (matt) avec la capacite apparente de l'itere precedent,
+!ccc....C_k + L*|dsidtemp_k| ; il a donc injecte dans chaque maille l'energie
+!ccc....   dH = (C_k + L*|dsidtemp_k|) * (temp_solveur - tempo).
+!ccc....Cette energie est la seule information fiable du pas : on en deduit
+!ccc....la temperature COHERENTE avec la courbe de gel en inversant l'enthalpie
+!ccc....   H(T) - H(tempo) = C_k*(T - tempo) + L*(siceo - sice(T)),
+!ccc....fonction monotone croissante, affine par morceaux (LINEA), donc a
+!ccc....inversion exacte. Une maille qui recoit assez d'energie pour fondre
+!ccc....partiellement est ainsi placee DANS la fenetre [ts,tl] au lieu de la
+!ccc....sauter (capacite tangente nulle hors fenetre -> chaleur latente
+!ccc....jamais comptee -> front ~2x trop rapide sur le cas Neumann/InterFrost
+!ccc....TH1), et une maille au bord de la fenetre ne ping-pongue plus entre
+!ccc...."capacite gelee" et "capacite apparente" (2-cycle observe sur TH1 a
+!ccc....Ts=1C : DIV repetes a l'identique sur la maille 1). Au point fixe,
+!ccc....temp_solveur = T et la corde de icesatperm (LINEA) rend l'egalite
+!ccc....|dsidtemp|*(T-tempo) = siceo - sice(T) exacte : le bilan de chaleur
+!ccc....latente est conserve quel que soit dt. La relaxation d'Aitken
+!ccc....ci-dessous s'applique ensuite a l'itere projete (combinaison convexe
+!ccc....de deux etats coherents). Formulation identique a celle de matt()
+!ccc....pour C_k et pour la densite portant la chaleur latente (rhoi en
+!ccc....degel, rho en gel). Hors perimetre : ytest=THL (capacite fixee a
+!ccc....690360), igelzns=1 (gel non sature), igel=0, regime permanent.
+            if (icycle == 1 .and. ith == 1 .and. irpth == 1 .and. igelzns == 0 &
+                .and. ytypsice == "LINEA" .and. ytest .ne. "THL" .and. igel .ne. 0) then
+               do i = 1, nm
+                  if (igel == 2) then
+                     hlat_cell = rhoi(i)*om(i)*chlat
+                  else
+                     hlat_cell = rho(i)*om(i)*chlat
+                  end if
+                  cap_k = om(i)*sw(i)*rho(i)*cpe + om(i)*sice(i)*rhoi(i)*cpice + &
+                          om(i)*(1.D0 - sw(i) - sice(i))*rhog*cpg + (1.D0 - om(i))*rhos(i)*cps(i)
+                  dh_cell = (cap_k + hlat_cell*abs(dsidtemp(i)))*(temp(i) - tempo(i))
+                  smax_ice = 1.D0 - swressi
+                  hs_ice = cap_k*(ts - tempo(i)) + hlat_cell*(siceo(i) - smax_ice)
+                  hl_ice = cap_k*(tl - tempo(i)) + hlat_cell*siceo(i)
+                  if (dh_cell <= hs_ice) then
+                     temp(i) = tempo(i) + (dh_cell - hlat_cell*(siceo(i) - smax_ice))/cap_k
+                  else if (dh_cell >= hl_ice) then
+                     temp(i) = tempo(i) + (dh_cell - hlat_cell*siceo(i))/cap_k
+                  else
+                     a_ice = smax_ice/(ts - tl)
+                     temp(i) = (dh_cell + cap_k*tempo(i) - hlat_cell*siceo(i) - hlat_cell*a_ice*tl) &
+                               /(cap_k - hlat_cell*a_ice)
+                  end if
+               end do
             end if
 !            print*,'DEBUG: temp(1) AFTER solving =',temp(1)
 !     if (ysolv == "LIB") then
@@ -7399,12 +7463,6 @@ subroutine icesatperm(nm, tl, ts, akr, akrv, dk, temp, &
 !     ---------------------------------------------              !
       else if (ytypsice == "LINEA") then
 
-!     if(tempo(i) < tl.and.temp(i) > tl) then
-!     dsidtemp(i)=(1.D0-swressi)/(ts-tl)
-!     endif
-!     if(tempo(i) > tl.and.temp(i) < tl) then
-!     dsidtemp(i)=(1.D0-swressi)/(ts-tl)
-!     endif
          if (temp(i) < ts) then
             sice(i) = 1.D0 - swressi
             dsidtemp(i) = 0.D0
@@ -7414,6 +7472,18 @@ subroutine icesatperm(nm, tl, ts, akr, akrv, dk, temp, &
          else if (temp(i) >= ts .and. temp(i) <= tl) then
             sice(i) = (1.D0 - swressi)/(ts - tl)*(temp(i) - tl)
             dsidtemp(i) = (1.D0 - swressi)/(ts - tl)
+         end if
+!ccc....Capacite apparente "corde" (Morgan, Lewis & Zienkiewicz 1978) : la
+!ccc....tangente ci-dessus est nulle hors de la fenetre [ts,tl], donc une
+!ccc....maille qui traverse toute la fenetre en un seul pas de temps ne
+!ccc....liberait aucune chaleur latente (front de degel ~2x trop rapide sur le
+!ccc....cas Neumann/InterFrost TH1 avec ts=-0.01 et dt=5s). La corde entre le
+!ccc....pas precedent (tempo, siceo) et l'itere courant rend le bilan exact :
+!ccc....rhoi*om*chlat*|dsidtemp|*(temp-tempo) = rhoi*om*chlat*(siceo-sice).
+!ccc....Meme principe que le modele POWER ci-dessus. Si temp=tempo (1ere
+!ccc....iteration de Picard, ou maille loin du front) on garde la tangente.
+         if (abs(temp(i) - tempo(i)) > 1.D-12) then
+            dsidtemp(i) = (sice(i) - siceo(i))/(temp(i) - tempo(i))
          end if
 
 !--------------------------

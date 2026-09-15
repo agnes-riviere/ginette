@@ -61,7 +61,7 @@ Convention commune aux cas 2 et 3 (reprise directement des deux papiers) :
 """
 import numpy as np
 from scipy.special import erf, erfc
-from scipy.optimize import least_squares
+from scipy.optimize import least_squares, brentq
 
 # Constantes reprises EXACTEMENT des valeurs codées en dur dans le template
 # Ginette E_p_therm_bck.dat (alandae, cpe, cpm - voir
@@ -319,6 +319,173 @@ def lunardini_freezing_profile(x, t, Tm, T0=4.0, Ts=-6.0, Tf=0.0,
 
     T = T if hasattr(x, "__len__") else T[0]
     return T, X1, X2
+
+
+def neumann_thaw_profile(x, t, Ts=5.0, Ti=-5.0, Tf=0.0,
+                         k_u=1.839, k_f=2.619, C_u=3.201e6, C_f=2.169e6,
+                         L=1.67e8):
+    """
+    Solution de Neumann (Carslaw & Jaeger 1959, §11.2 ; Lunardini 1981) pour
+    le DÉGEL d'un milieu semi-infini initialement gelé à Ti < Tf, dont la
+    surface est portée à Ts > Tf à t=0+. Conduction pure, deux zones à
+    propriétés constantes, front de changement de phase FRANC (toute la
+    chaleur latente libérée à T=Tf). C'est le benchmark 1 ("Run 15")
+    recommandé par Kurylyk, McKenzie, MacQuarrie & Voss (2014), "Analytical
+    solutions for benchmarking cold regions subsurface water flow and energy
+    transport models: One-dimensional soil thaw with conduction and
+    advection", Advances in Water Resources 70, 172-184 - cas InterFrost TH1
+    sans écoulement.
+
+    x = profondeur depuis la surface, positive vers le bas :
+    - zone dégelée 0 <= x <= X : T = Ts - (Ts-Tf) * erf(x/(2*sqrt(a_u*t))) / erf(lam)
+    - zone gelée   x >= X      : T = Ti + (Tf-Ti) * erfc(x/(2*sqrt(a_f*t))) / erfc(lam*sqrt(a_u/a_f))
+    - front                    : X(t) = 2 * lam * sqrt(a_u * t)
+    avec a_u = k_u/C_u, a_f = k_f/C_f et lam racine de l'équation de Stefan
+    (bilan d'énergie au front, -k_u dT_u/dx + k_f dT_f/dx = L dX/dt) :
+
+        k_u (Ts-Tf) exp(-lam^2) / (sqrt(a_u) erf(lam))
+        - k_f (Tf-Ti) exp(-lam^2 a_u/a_f) / (sqrt(a_f) erfc(lam sqrt(a_u/a_f)))
+        = lam * L * sqrt(pi * a_u)
+
+    résolue par dichotomie (brentq), la fonction étant strictement
+    décroissante en lam.
+
+    Valeurs par défaut = Table des paramètres InterFrost TH1 (Kurylyk et al.
+    2014, Table 1/A1) : porosité 0.5, lambda dégelé/gelé 1.839/2.619 W/m/K,
+    C dégelé 3.201e6 J/m3/K (0.5*4182*1000 + 0.5*2500*889), C gelé 2.169e6
+    (0.5*2300*920 + 0.5*2500*889), L = Swf*eps*rho_w*Lf = 1*0.5*1000*334000
+    = 1.67e8 J/m3, Ts=+5°C, Ti=-5°C. Avec ces valeurs, X(t) reproduit la
+    colonne "benchmark 1" de la Table S1 du même papier à 1e-4 m près
+    (0.0084 / 0.0118 / 0.0145 / 0.0168 m à 0.01 / 0.02 / 0.03 / 0.04 j).
+
+    ATTENTION à la convention de Ti : ici Ti est la vraie température
+    initiale (NÉGATIVE, -5°C). Kurylyk et al. (2014) écrivent la même
+    formule avec Ti = "nombre de degrés sous 0°C" (positif) - c'est la note
+    du readme InterFrost sur le signe de Ti.
+
+    Parameters:
+    - x: profondeur(s) [m] où évaluer T - scalaire ou array.
+    - t: temps [s] depuis le palier de température en surface (> 0).
+    - Ts, Ti, Tf: températures de surface, initiale et de fusion [°C].
+    - k_u, k_f: conductivités thermiques bulk dégelée / gelée [W/m/K].
+    - C_u, C_f: capacités calorifiques volumiques dégelée / gelée [J/m3/K].
+    - L: chaleur latente VOLUMIQUE du milieu [J/m3] (= Swf*eps*rho_w*Lf).
+
+    Returns:
+    - (T, X, lam): T de même forme que x, profondeur du front X [m], et la
+      racine lam (sans dimension) de l'équation de Stefan.
+    """
+    a_u = k_u / C_u
+    a_f = k_f / C_f
+    r = np.sqrt(a_u / a_f)
+
+    def stefan(lam):
+        return (k_u * (Ts - Tf) * np.exp(-lam**2) / (np.sqrt(a_u) * erf(lam))
+                - k_f * (Tf - Ti) * np.exp(-(lam * r)**2) / (np.sqrt(a_f) * erfc(lam * r))
+                - lam * L * np.sqrt(np.pi * a_u))
+
+    lam = brentq(stefan, 1e-8, 5.0, xtol=1e-14, rtol=1e-14)
+    X = 2.0 * lam * np.sqrt(a_u * t)
+
+    x_arr = np.atleast_1d(np.asarray(x, dtype=float))
+    T = np.empty_like(x_arr)
+    thawed = x_arr <= X
+    T[thawed] = Ts - (Ts - Tf) * erf(x_arr[thawed] / (2.0 * np.sqrt(a_u * t))) / erf(lam)
+    T[~thawed] = Ti + (Tf - Ti) * erfc(x_arr[~thawed] / (2.0 * np.sqrt(a_f * t))) / erfc(lam * r)
+
+    T = T if hasattr(x, "__len__") else T[0]
+    return T, X, lam
+
+
+def kurylyk_advective_thaw_front(t, v, Ts=1.0, Tf=0.0, k_u=1.839, C_u=3.201e6,
+                                 L=1.67e8, Cw_vol=4.182e6):
+    """
+    Position du front de dégel X(t) avec conduction ET advection, solution
+    quasi-stationnaire de Lunardini (1998, Proc. 7th Int. Conf. Permafrost,
+    "solution 3") telle que re-dérivée et recommandée par Kurylyk, McKenzie,
+    MacQuarrie & Voss (2014, Adv. Water Resour. 70, 172-184, eq. 19-21) -
+    benchmarks 2 (v=10 m/an) et 3 (v=100 m/an), cas InterFrost TH1.
+
+    Hypothèses : milieu initialement à T=Tf (pas de gradient sous le front,
+    donc pas de flux conductif depuis la zone gelée), surface à Ts > Tf,
+    vitesse de Darcy v constante vers le bas dans TOUT le domaine (y compris
+    la zone gelée - non physique, assumé par les auteurs : "lack of fidelity
+    to physical processes does not limit ability to serve as a benchmark"),
+    profil de température dans la zone dégelée en équilibre instantané avec
+    la surface (quasi-stationnaire). Relation implicite :
+
+        X + (a/v_t) * (exp(-v_t X / a) - 1) = v_t * S_T * t
+
+    avec a = k_u/C_u la diffusivité dégelée, v_t = v*Cw_vol/C_u la vitesse
+    du "panache" thermique, et S_T = C_u*(Ts-Tf)/L le nombre de Stefan.
+    Pour v -> 0, elle tend vers le problème de Stefan à un phase X^2 = 2 a S_T t.
+    Kurylyk et al. montrent que l'erreur de l'hypothèse quasi-stationnaire
+    par rapport à Neumann (sans écoulement) vaut ~15.8*S_T (%) : d'où le
+    choix Ts=1°C (S_T ~ 0.019, erreur ~0.3 %).
+
+    Valeurs par défaut = Table des paramètres InterFrost TH1 : avec v=10 m/an
+    on retrouve la colonne "benchmark 2" de la Table S1 (0.0044 / 0.0062 /
+    0.0076 / 0.0087 m à 0.01 / 0.02 / 0.03 / 0.04 j).
+
+    Parameters:
+    - t: temps [s] - scalaire ou array.
+    - v: vitesse de Darcy [m/s], positive vers le bas (10 m/an = 10/365.25/86400).
+    - Ts, Tf: températures de surface et de fusion [°C].
+    - k_u, C_u: conductivité [W/m/K] et capacité volumique [J/m3/K] dégelées.
+    - L: chaleur latente VOLUMIQUE du milieu [J/m3] (= Swf*eps*rho_w*Lf).
+    - Cw_vol: capacité volumique de l'eau [J/m3/K] (rho_w*c_w).
+
+    Returns:
+    - X de même forme que t [m].
+    """
+    a = k_u / C_u
+    v_t = v * Cw_vol / C_u
+    S_T = C_u * (Ts - Tf) / L
+    t_arr = np.atleast_1d(np.asarray(t, dtype=float))
+    X = np.empty_like(t_arr)
+    for i, ti in enumerate(t_arr):
+        rhs = v_t * S_T * ti
+        if rhs <= 0:
+            X[i] = 0.0
+            continue
+        # borne haute : la solution advective est plus profonde que Stefan pur
+        X_stefan = np.sqrt(2.0 * a * S_T * ti)
+        hi = 2.0 * X_stefan + 10.0 * rhs
+        X[i] = brentq(lambda X_: X_ + (a / v_t) * (np.exp(-v_t * X_ / a) - 1.0) - rhs,
+                      0.0, hi, xtol=1e-14)
+    return X if hasattr(t, "__len__") else X[0]
+
+
+def kurylyk_advective_thaw_profile(x, t, v, Ts=1.0, Tf=0.0, k_u=1.839, C_u=3.201e6,
+                                   L=1.67e8, Cw_vol=4.182e6):
+    """
+    Profil de température associé à kurylyk_advective_thaw_front (Kurylyk et
+    al. 2014, eq. 17) : dans la zone dégelée 0 <= x <= X(t), profil
+    quasi-stationnaire de conduction-advection avec T(0)=Ts et T(X)=Tf,
+    solution de a*T'' = v_t*T' (ecoulement descendant, x positif vers le bas) :
+
+        T(x) = Ts + (Tf-Ts) * (exp(v_t x/a) - 1) / (exp(v_t X/a) - 1),
+
+    et T = Tf (uniforme, pas de gradient) sous le front. L'exposant est bien
+    POSITIF (profil concave : l'eau chaude qui descend rechauffe la zone
+    degelee au-dessus du profil lineaire) ; c'est le seul signe pour lequel la
+    condition de Stefan au front, L*dX/dt = k_u*(-T'(X)), redonne la relation
+    implicite de kurylyk_advective_thaw_front. Mêmes paramètres et
+    conventions que cette fonction.
+
+    Returns:
+    - (T, X): T de même forme que x, et la profondeur du front X [m] à t.
+    """
+    a = k_u / C_u
+    v_t = v * Cw_vol / C_u
+    X = kurylyk_advective_thaw_front(t, v, Ts=Ts, Tf=Tf, k_u=k_u, C_u=C_u, L=L, Cw_vol=Cw_vol)
+    x_arr = np.atleast_1d(np.asarray(x, dtype=float))
+    T = np.full_like(x_arr, Tf)
+    thawed = x_arr <= X
+    eX = np.exp(v_t * X / a)
+    T[thawed] = Ts + (Tf - Ts) * (np.exp(v_t * x_arr[thawed] / a) - 1.0) / (eX - 1.0)
+    T = T if hasattr(x, "__len__") else T[0]
+    return T, X
 
 
 def bredehoeft_papadopulos_profile(z, q, k_bulk, L, T0, TB, Cw_vol=CW_VOL):
