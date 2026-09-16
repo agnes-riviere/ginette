@@ -993,11 +993,8 @@ program pression_ecoulement_transport_thermique
 !cccc....Premiere possibilite maillage a pas d espace dx variable
 !cccc....Progression logarithmique --> plus de precision au contact
 !cccc....reseau de surface
-!CC....INTERFROST TEST TH2
-      if (ytest == "TH2") then
-         dx = dble(0.1D+00/12D+00)
-         dz = dble(0.1D+00/12D+00)
-      end if
+!CC....INTERFROST TEST TH2 : dx/dz viennent de E_parametre.dat (avant le
+!ccc....2026-09-15, dx=dz=0.1/12 etait impose ici quel que soit le fichier)
 
 !cccc....Progression log du pas d espace en X ILOG+1
       select case (ilog)
@@ -3820,6 +3817,8 @@ program pression_ecoulement_transport_thermique
                call cgs(pr, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
             case("BIS")
                call bicgstab(pr, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
+            case("ILU")
+               call bicgstab_ilu(pr, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
          end select
 
 !     if (ysolv == "LIB") then
@@ -4141,6 +4140,9 @@ program pression_ecoulement_transport_thermique
             end if
             if (ysolv == "BIS") then
                call bicgstab(temp, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
+            end if
+            if (ysolv == "ILU") then
+               call bicgstab_ilu(temp, b, n1, k, val, icol_ind, irow_ptr, nmaxz, nmaxzz)
             end if
 
 !ccc....2026-09-15 : RE-PROJECTION ENTHALPIQUE de l'itere de Picard en
@@ -4510,7 +4512,12 @@ program pression_ecoulement_transport_thermique
          qthermtot = 0D+00
          swtotal = 0D+00
          sicetotal = 0D+00
-         tempmin = temp(1924)
+         tempmin = temp(1)
+!ccc....Mesures de performance InterFrost (Grenier et al. 2018) : le domaine
+!ccc....de reference fait 1 m de haut ; on ne modelise que la moitie (az) par
+!ccc....symetrie, d'ou le facteur symf (=2 pour az=0.5, =1 pour le domaine
+!ccc....complet). Epaisseur transverse = 1 m.
+         symf = 1D0/az
 !CC....BILAN THERMIQUE
          do i = 1, nm
             if (ivois(i, 2) == -99) then
@@ -4528,7 +4535,11 @@ program pression_ecoulement_transport_thermique
             sicetotal = dble(sice(i)*om(i)*am(i)*bm(i) + sicetotal)
             tempmin = Min(tempmin, temp(i))
          end do
-         PF2 = (qtout - qtin)/az
+!ccc....TH2_PM2 : flux de chaleur net sortant (W), TH2_PM3 : volume d'eau
+!ccc....liquide (m3), tous deux pour le domaine complet
+         PF2 = (qtout - qtin)*symf
+         swtotal = swtotal*symf
+         sicetotal = sicetotal*symf
 
       end if
 !CC....Critere performance Interfrost
@@ -4560,11 +4571,16 @@ program pression_ecoulement_transport_thermique
                qeout = qeout + vxp(i)*bm(i)
             end if
          end do
-         qthermtot = qthermtot*2
-!     grad=0.06D+00
-         grad = valcl_gauche
-         akeq = (qeout/grad)*2
-         qtcol = qtcol/al*2
+!ccc....Domaine complet = 1 m de haut, on modelise la moitie (az) : facteur
+!ccc....symf (cf. TH2). TH3_PM1 : Keq = Q/(dH/Lx) avec Q le debit total
+!ccc....sortant a droite ; TH3_PM2 : flux conductif a travers les frontieres
+!ccc....haut et bas (W) ; TH3_PM3 : chaleur sensible totale (J, T en K) ;
+!ccc....TH3_PM4 : T aux points Pt1 (nmaille1-2) et Pt2 (nmaille5-8).
+         symf = 1D0/az
+         qthermtot = qthermtot*symf
+         grad = (valcl_gauche - valcl_droite)/al
+         akeq = (qeout/grad)*symf
+         qtcol = qtcol*symf
          pt1 = (temp(nmaille1) + temp(nmaille2))/2.
          pt2 = (temp(nmaille5) + temp(nmaille6) + &
                 temp(nmaille7) + temp(nmaille8))/4.
@@ -5133,6 +5149,7 @@ program pression_ecoulement_transport_thermique
          call flush (181818)
          open (75, file='S_pts', position='rewind', &
                form='unformatted')
+         write (75) real(paso/unitsortie)
          do i = 1, nm
             write (75) real(pr(i)), real(temp(i)), real(sw(i))
          end do
@@ -5986,6 +6003,211 @@ subroutine bicgstab(x, b, n, k, val, icol_ind, irow_ptr, nmax, nmax1)
    end do
 
 end subroutine bicgstab
+
+
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!                                                 C
+!         BiCGSTAB preconditionne ILU(0)  (ysolv=ILU)           C
+!                                                 C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CC...PURPOSE :
+!ccc...Meme algorithme que bicgstab, mais avec une factorisation LU incomplete
+!ccc...sans remplissage (ILU(0), variante IKJ) comme preconditionneur, a la
+!ccc...place du preconditionneur diagonal. Ajoute le 2026-09-16 pour les cas
+!ccc...2D a fort contraste de permeabilite (InterFrost TH2/TH3 : kr = 1e-6
+!ccc...dans la zone gelee), sur lesquels bicgstab stagne (residu constant
+!ccc...apres 1000 iterations). La diagonale est localisee par son indice de
+!ccc...colonne (icol_ind(j) == i) et non supposee en tete de ligne : matp trie
+!ccc...toujours les colonnes de chaque ligne, matt les trie pour BIC/CGS/ILU.
+!ccc...Option strictement additive : BIC, CGS et BIS sont inchanges.
+!ccc...Critere d'arret identique a bicgstab (residu max < 1e-10, k <= 1000).
+subroutine bicgstab_ilu(x, b, n, k, val, icol_ind, irow_ptr, nmax, nmax1)
+   implicit double precision(A-H, O-Z), integer*4(I-N)
+   integer k
+   dimension val(nmax), icol_ind(nmax), irow_ptr(nmax1)
+   dimension x(n), b(n), r(n), p(n), ph(n), v(n), s(n), sh(n), t(n), rt(n)
+   double precision, allocatable :: w(:)
+   integer, allocatable :: idiag(:)
+   double precision :: rho, rhoo, alfa, omega, beta, amaxr, sum1, sum2, tt
+   integer :: i, j, jj, kk, jcol, ip
+
+   nnz = irow_ptr(n + 1) - 1
+   allocate (w(nnz), idiag(n))
+
+!ccc....position de la diagonale de chaque ligne
+   do i = 1, n
+      idiag(i) = 0
+      do j = irow_ptr(i), irow_ptr(i + 1) - 1
+         if (icol_ind(j) == i) idiag(i) = j
+      end do
+      if (idiag(i) == 0) then
+         print *, 'bicgstab_ilu : pas de terme diagonal sur la ligne', i
+         stop
+      end if
+   end do
+
+!ccc....factorisation ILU(0) en place dans w (les colonnes de chaque ligne
+!ccc....sont triees par ordre croissant : les termes k < i sont donc traites
+!ccc....dans l'ordre requis par la variante IKJ)
+   do j = 1, nnz
+      w(j) = val(j)
+   end do
+   do i = 2, n
+      do j = irow_ptr(i), irow_ptr(i + 1) - 1
+         kk = icol_ind(j)
+         if (kk >= i) cycle
+         w(j) = w(j)/w(idiag(kk))
+!ccc....a(i,:) -= l(i,k) * u(k,:) sur le motif existant de la ligne i
+         do jj = irow_ptr(kk), irow_ptr(kk + 1) - 1
+            jcol = icol_ind(jj)
+            if (jcol <= kk) cycle
+            do ip = irow_ptr(i), irow_ptr(i + 1) - 1
+               if (icol_ind(ip) == jcol) then
+                  w(ip) = w(ip) - w(j)*w(jj)
+                  exit
+               end if
+            end do
+         end do
+      end do
+   end do
+
+   ! residual initial : r = b - A*x
+   do i = 1, n
+      sum1 = 0.D0
+      do j = irow_ptr(i), irow_ptr(i+1)-1
+         sum1 = sum1 + val(j) * x(icol_ind(j))
+      end do
+      r(i)  = b(i) - sum1
+      rt(i) = r(i)
+   end do
+
+   rho   = 1.D0
+   alfa  = 1.D0
+   omega = 1.D0
+   do i = 1, n
+      v(i) = 0.D0
+      p(i) = 0.D0
+   end do
+
+   amaxr = 0.D0
+   do i = 1, n
+      if (abs(r(i)) > amaxr) amaxr = abs(r(i))
+   end do
+   k = 0
+
+   do while (amaxr >= 1.e-10 .and. k <= 1000)
+      k = k + 1
+      rhoo = rho
+      rho  = 0.D0
+      do i = 1, n
+         rho = rho + rt(i) * r(i)
+      end do
+      if (rho == 0.D0) exit
+
+      beta = (rho / rhoo) * (alfa / omega)
+      do i = 1, n
+         p(i) = r(i) + beta * (p(i) - omega * v(i))
+      end do
+
+      ! preconditionneur : ph = (LU)^-1 * p
+      call ilu0_solve(ph, p, n, w, icol_ind, irow_ptr, idiag, nmax, nmax1)
+
+      ! v = A * ph
+      do i = 1, n
+         v(i) = 0.D0
+         do j = irow_ptr(i), irow_ptr(i+1)-1
+            v(i) = v(i) + val(j) * ph(icol_ind(j))
+         end do
+      end do
+
+      sum1 = 0.D0
+      do i = 1, n
+         sum1 = sum1 + rt(i) * v(i)
+      end do
+      if (sum1 == 0.D0) exit
+      alfa = rho / sum1
+
+      ! s = r - alfa * v
+      do i = 1, n
+         s(i) = r(i) - alfa * v(i)
+      end do
+
+      ! verification convergence intermediaire
+      amaxr = 0.D0
+      do i = 1, n
+         if (abs(s(i)) > amaxr) amaxr = abs(s(i))
+      end do
+      if (amaxr < 1.e-10) then
+         do i = 1, n
+            x(i) = x(i) + alfa * ph(i)
+         end do
+         exit
+      end if
+
+      ! preconditionneur : sh = (LU)^-1 * s
+      call ilu0_solve(sh, s, n, w, icol_ind, irow_ptr, idiag, nmax, nmax1)
+
+      ! t = A * sh
+      do i = 1, n
+         t(i) = 0.D0
+         do j = irow_ptr(i), irow_ptr(i+1)-1
+            t(i) = t(i) + val(j) * sh(icol_ind(j))
+         end do
+      end do
+
+      sum1 = 0.D0
+      sum2 = 0.D0
+      do i = 1, n
+         sum1 = sum1 + t(i) * s(i)
+         sum2 = sum2 + t(i) * t(i)
+      end do
+      if (sum2 == 0.D0) then
+         do i = 1, n
+            x(i) = x(i) + alfa * ph(i)
+         end do
+         exit
+      end if
+      omega = sum1 / sum2
+
+      do i = 1, n
+         x(i) = x(i) + alfa * ph(i) + omega * sh(i)
+         r(i)  = s(i) - omega * t(i)
+      end do
+
+      amaxr = 0.D0
+      do i = 1, n
+         if (abs(r(i)) > amaxr) amaxr = abs(r(i))
+      end do
+      if (omega == 0.D0) exit
+
+   end do
+
+   deallocate (w, idiag)
+
+end subroutine bicgstab_ilu
+
+
+!ccc...Resolution (L U) z = r pour la factorisation ILU(0) stockee dans w
+!ccc...(L unitaire : termes de colonne < i ; U : diagonale et colonnes > i).
+subroutine ilu0_solve(z, r, n, w, icol_ind, irow_ptr, idiag, nmax, nmax1)
+   implicit double precision(A-H, O-Z), integer*4(I-N)
+   dimension z(n), r(n), w(nmax), icol_ind(nmax), irow_ptr(nmax1), idiag(n)
+   integer :: i, j
+!ccc....descente : z = L^-1 r
+   do i = 1, n
+      z(i) = r(i)
+      do j = irow_ptr(i), irow_ptr(i + 1) - 1
+         if (icol_ind(j) < i) z(i) = z(i) - w(j)*z(icol_ind(j))
+      end do
+   end do
+!ccc....remontee : z = U^-1 z
+   do i = n, 1, -1
+      do j = irow_ptr(i), irow_ptr(i + 1) - 1
+         if (icol_ind(j) > i) z(i) = z(i) - w(j)*z(icol_ind(j))
+      end do
+      z(i) = z(i)/w(idiag(i))
+   end do
+end subroutine ilu0_solve
 
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -6996,7 +7218,7 @@ subroutine matt(val, icol_ind, irow_ptr, x, b, am, ivois, tempo, &
       ifin = irow_ptr(i + 1) - 1
 
       if (ifin == ideb) goto 11
-      if (ysolv == "BIC" .or. ysolv == "CGS") then
+      if (ysolv == "BIC" .or. ysolv == "CGS" .or. ysolv == "ILU") then
 10       continue
          do ii = ideb, ifin - 1
          if (icol_ind(ii) > icol_ind(ii + 1)) then
@@ -7527,6 +7749,16 @@ subroutine icesatperm(nm, tl, ts, akr, akrv, dk, temp, &
             akr(i) = 1.D1**(-1*omega*om(i)*sice(i))
 !ccc         limitation de la permeabilite relative pour eviter les valeurs nulles
 !c        if(akr(i) <= dk) akr(i)=dk
+!ccc      ---------------------------------------------
+!ccc         Facteur d'impedance de McKenzie et al. (2007), tel qu'ecrit dans
+!ccc         les fiches InterFrost TH2/TH3 : kr = 10**(-omega*Si), plancher dk
+!ccc         (1e-6 dans la fiche). Si = saturation en glace de l'espace poral
+!ccc         (sice/(sice+sw) = sice en milieu sature). Sans le facteur om de
+!ccc         IMPED, qui est un choix propre a Ginette conserve tel quel.
+!ccc      ---------------------------------------------
+         elseif (ytypakrice == "MCKEN") then
+            akr(i) = 1.D1**(-omega*sice(i)/max(sice(i) + sw(i), 1D-12))
+            if (akr(i) < dk) akr(i) = dk
 !ccc      ---------------------------------------------
 !ccc         Fonction lineaire brutale en fonction de la temperature
 !ccc      ---------------------------------------------

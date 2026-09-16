@@ -96,18 +96,22 @@ def compile_ginette():
         print("ginette compiled")
 
 
-def compile_ginette_src(dir_ginette):
+def compile_ginette_src(dir_ginette, flags=()):
     """
     (Re)compile Ginette si l'exécutable est absent OU incompatible avec la
     plateforme hôte - typiquement un binaire Linux ELF copié tel quel sur
     macOS, qui échoue silencieusement en "Exec format error" à l'exécution
     si on se contente de tester sa présence (voir _ginette_binary_matches_host).
+
+    flags : options supplémentaires passées à gfortran (ex. ("-O2",) pour les
+    cas 2D longs). Sans effet si l'exécutable existe déjà : le supprimer pour
+    forcer la recompilation.
     """
     if _ginette_binary_matches_host('ginette'):
         print("ginette exists")
     else:
         print("ginette does not exist or does not match this platform - (re)compiling")
-        result = subprocess.run(['gfortran', '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
+        result = subprocess.run(['gfortran', *flags, '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
         if result.returncode != 0:
             raise RuntimeError(f"gfortran compilation of ginette failed (exit code {result.returncode})")
         print("ginette compiled")
