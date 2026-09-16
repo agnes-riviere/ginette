@@ -1,0 +1,54 @@
+rpth=1                	           rpth=1 regime transitoire ; rpth=0 regime permanent  format : i1      Rgime
+crconvt=0001D-04         Critere de convergence temperature (C)
+ithec=1                =0 annule terme advectif en thermique, =1 avec terme advectif
+idecouplage=0                       decouplage code  =1 utilisation des pression n-1 pour le terme adveectif format : i1
+ysupdp=ANNUL            	   SPWAC systeme multicouche Wang ,SPWAL Wang  multimaille,SPWAM wang monocouche,SPMCK surpression McKenzie, ANNUL annule
+bll=0000D+00                m	dispersivite thermique longitudinale (=0 dans la table InterFrost TH1)		d8.0
+blt=0000D+00                m	dispersivite thermique transversale		d8.0
+alandae=0600D-03         kg.m/s-3/C	conductivite thermique eau (fiche InterFrost : 0.6 W/m/K)
+cpe=4182D+00         m2/s2/C	capacite calorifique specifique de l'eau (fiche : 4182)
+ilanda=0                	       ilanda=1 variation conductivite thermique	 E_conductivite_thermique
+alandam=0009D+00         kg.m/s-3/C	conductivite thermique solide (fiche : 9 W/m/K)
+irhomi=0                	       irhomi=1 variation de la densite du milieu poreux
+rhosi=2650D+00         kg/m3	densite du solide (fiche : 2650)
+icpm=0                		       icpm=1 variation spatiale capacite calorifique specifique du milieu poreux
+cpm=0835D+00         m2/s2/C	capacite calorifique specifique du solide (fiche : 835)
+ymoycondtherm=ARITH            LUNAR,WOODS,GEOME,ARITH,NEUMA - ARITH : lambda_eq = eps*(Sw*lw + Si*li) + (1-eps)*ls, comme la fiche InterFrost
+icycle=1                	       icycle=1 gel/degel actif, icycle=0 transport de chaleur sans gel/degel	####### GEL/DEGEL
+igel=2                 indice gel=1 premiere iteration en gel igel=2 premiere iteration en degel (force a 2 par ytest=TH1) ####### GEL/DEGE
+igelzns=0                	        igelzns=1 gel zone non saturee				 ####### GEL/DEGE
+iomdegel=0              zone non gelee nappe libre                              ####### GEL/DEGE
+ytypakrice=MCKEN            Fully saturated : LINET,LINES,IMPED,MCKEN,ANNUL,UDEF - MCKEN : kr = max(10^(-omega*Si), dk), fiche InterFrost (McKenzie et al. 2007)
+ytypsice=EXPON            EXPON,LINEA,UDEF - EXPON : Sw = Sres + (1-Sres)*exp(-(T/W)^2), W = cimp (fiche InterFrost)
+ibigridice=0                		i1                                     ####### GEL/DEGE
+alandai=2140D-03         kg.m/s-3/C      conductivite thermique glace (fiche : 2.14 W/m/K)
+rhoi=0920D+00         kg/m3   densite glace (fiche : 920)
+cpice=002060D+00       m2/s2/C capacite calorifique specifique glace (fiche : 2060)
+lat=334000D+00       m2/s2	    J/kg chaleur latente de fusion (fiche : 3.34e5)
+rhog=0012D-01           densite de l'air (sans effet, milieu sature)                                     ####### GEL/DEGEL OU ZNS
+alandag=0025D-03        conductivite thermique de l'air                      ####### GEL/DEGEL OU ZNS
+cpg=1010D+00            capacite calorifique specifique de l'air             ####### GEL/DEGEL OU ZNS
+dk=0001D-06         plancher de la permeabilite relative (fiche InterFrost : kr >= 1e-6)
+tsg=-001D+00         temperature eau solide GEL (sans effet avec EXPON, sauf conductivite NEUMA)
+tlg=0000D+00         temperature eau liquide GEL (= Tf = 0)
+tsd=-001D+00         temperature eau solide DEGEL (idem tsg)
+tld=0000D+00         temperature eau liquide DEGEL (= Tf = 0)
+cimp=0005D-01         W (K) de la courbe de gel exponentielle (fiche InterFrost : 0.5)
+cimp=0005D-01         (cette 2e ligne "cimp" est lue comme cimpt, second facteur d impedance sans effet ici ; le mot-cle doit faire 5 caracteres)
+omega=0005D+01         Impedance factor omega de la permeabilite relative (fiche InterFrost : 50)
+rlamb=0664D-02         	    parametre de Brook and Corey 			####### GEL/DEGEL ZNS
+swressi=0.0500           saturation residuelle en eau liquide Sres (fiche InterFrost : 0.05) ; f6.4
+iaquitard=0             iaquitard=1 petit bassin		####### GEL/DEGEL	 AQUITARD
+aktardx=0001D-13                                        ####### GEL/DEGEL        AQUITARD
+aktardz=0001D-13         					                ####### GEL/DEGEL	 AQUITARD
+omptard=0.400            										####### GEL/DEGEL	 AQUITARD
+alandatard=2000D-03         									####### GEL/DEGEL	 AQUITARD
+sstard=0001D-04         										####### GEL/DEGEL	 AQUITARD
+nrowtard=00011            					  					####### GEL/DEGEL	 AQUITARD
+nmailleaqui=00001                                      ####### GEL/DEGEL         AQUITARD
+iexutoire=0                						####### GEL/DEGEL			 EXUTOIRE SURPRESSION
+xexutoire=0014D+04         				####### GEL/DEGEL			 EXUTOIRE SURPRESSION
+tempexutoire=0005D+00         			####### GEL/DEGEL			 EXUTOIRE SURPRESSION
+iinfil=0                			iinfil=1 ecretage recharge et routage excedent dans riviere		     RECHARGE
+itopomch=0                			itopomch=1 marche escalier topo				 Maille bord model marche escalier c
+ytest=TH2              cas test InterFrost TH2 (inclusion gelee, Grenier et al. 2018) : initialise l'inclusion a -5C et ecrit les mesures de performance dans S_TH2.dat
