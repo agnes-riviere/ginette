@@ -20,6 +20,32 @@ Within `application`, individual studies are implemented in one of two styles:
 
 Some applications, such as `application/mini-LOMOS`, combine both Python and R.
 
+### Linear solvers
+
+The linear systems for flow and heat transport are solved by an iterative Krylov
+solver selected in `E_parametre.dat` with the `ysolv` parameter:
+
+- `BIC`: BiConjugate Gradient. It is available for compatibility with older
+  input files, but is generally less robust than BiCGSTAB for nonsymmetric
+  systems.
+- `CGS`: Conjugate Gradient Squared. This is the default choice in most
+  applications and is appropriate for the small 1D systems used by the
+  LOMOS stream-aquifer grid search.
+- `BIS`: BiCGSTAB with the diagonal preconditioner used by Ginette. It is a
+  useful alternative for nonsymmetric systems when CGS converges slowly.
+- `ILU`: BiCGSTAB with an ILU(0) preconditioner. It is intended for larger or
+  more difficult systems, especially systems with strong contrasts in
+  permeability or thermal properties, but the extra preconditioning cost is
+  unnecessary for small 1D systems.
+
+There is no universally best solver: the choice depends on the matrix and must
+be checked against convergence diagnostics and, where possible, an analytical
+benchmark. For the 30-cell 1D stream-aquifer case, `CGS`, `BIS`, and `ILU`
+reproduced the same analytical reference result after a clean compilation;
+`CGS` is therefore retained as the practical default. The compiled `ginette`
+binary must be rebuilt after changing `src/ginette_V2.f90`, otherwise an older
+solver implementation may still be executed.
+
 Different applications are available in the `application` directory. The most actively maintained ones are described below; each has its own `README.md` with full usage instructions.
 
 ### Benchmarking and code verification
