@@ -36,6 +36,14 @@ recommandation de `stallman_diffusivity.py` (`FORCE_DATE_SIMUL_BG=False` : relit
 `results/stallman_recommended_period.txt` ; si ce fichier n'existe pas encore, `config_lomos.py`
 lance lui-même `stallman_diffusivity.py` pour le générer).
 
+`DATE_SIMUL_BG`/`NB_DAY` désignent la fenêtre **comparée aux observations**. Un spin-up
+(`SPIN_UP_DAYS`, en jours, ou `"auto"` = `SPIN_UP_TAU_MULTIPLIER` × temps de diffusion
+thermique du matériau le moins diffusif de la grille) est simulé *avant* `DATE_SIMUL_BG` puis
+exclu du misfit, pour que le modèle ait le temps d'oublier son état initial (profil interpolé
+sur un seul instant). La simulation démarre donc `SPIN_UP_DAYS` jours avant `DATE_SIMUL_BG`,
+et les observations doivent couvrir cette période. Sur les figures de séries temporelles, le
+spin-up apparaît en jours négatifs, grisé.
+
 `stallman_diffusivity.py` lit `POINT_NAME` depuis `config_lomos.py` comme les autres scripts et
 marche donc sur n'importe quel point au format LOMOS-mini (lomos230, lomos231, ...) ; seules les
 profondeurs de capteurs (10/20/30/40cm) restent codées en dur, propres au dispositif LOMOS-mini.
@@ -48,6 +56,28 @@ profondeurs de capteurs (10/20/30/40cm) restent codées en dur, propres au dispo
 
 Chaque script ne déclenche que l'étape suivante (2→3→4), donc lancer `3_misfit.py` seul avec
 `RUN_PLOTS=True` régénère aussi les figures, sans repasser par `2_run_real_case.py`.
+
+## Lancement Mac, Unix et cluster
+
+Le pipeline fonctionne par défaut en mode non interactif : les figures sont enregistrées
+dans `results/{POINT_NAME}/` sans ouvrir de fenêtre graphique. Cela évite les crashes des
+backends Matplotlib macOS dans les jobs batch et les workers parallèles. Pour afficher les
+figures lors d'un lancement local interactif, utiliser `GINETTE_SHOW_PLOTS=1`.
+
+Le nombre de processus peut être contrôlé sans modifier les fichiers :
+
+```bash
+GINETTE_MAX_WORKERS=1 python 2_run_real_case.py
+```
+
+`GINETTE_MAX_WORKERS=auto` utilise les coeurs disponibles, en retirant deux coeurs pour
+laisser de la marge au système. Sur un cluster, l'affinité CPU allouée au job est respectée
+quand elle est fournie par l'ordonnanceur. Pour un lancement batch reproductible, on peut
+donc utiliser :
+
+```bash
+MPLBACKEND=Agg GINETTE_SHOW_PLOTS=0 GINETTE_MAX_WORKERS=1 python 2_run_real_case.py
+```
 
 ## Le problème de la condition limite haute : TempMolo n'est pas la température du sédiment
 
@@ -104,9 +134,9 @@ Temp2/Temp3 = 0.94/0.96 pour C contre 0.84/0.93 pour les mêmes profondeurs en A
 de Config C est cohérent avec l'estimation Stallman indépendante (analyse spectrale pure, sans
 Ginette) : -13.4 à -12.1 (`stallman_diffusivity.py`).
 
-*Chiffres recalculés après les corrections du 2026-07-24 (voir section suivante) ; à
-reconfirmer si tu relances un grid search complet, notamment `log_k` best-fit qui dépend
-indirectement de Cv via le spin-up automatique.*
+*Chiffres recalculés après les corrections du 2026-07-24 (voir section suivante), avec le
+spin-up automatique par simulation de l'époque ; à reconfirmer si tu relances un grid search
+complet (spin-up désormais fixé par `SPIN_UP_DAYS` et simulé avant `DATE_SIMUL_BG`).*
 
 **Config C est recommandée par défaut sur ce site.** Config A reste disponible mais son log_k
 doit être lu comme une borne, pas une estimation. lam et n restent mal contraints

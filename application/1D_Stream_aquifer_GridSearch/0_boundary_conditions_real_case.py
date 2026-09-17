@@ -53,14 +53,10 @@ from time import time
 import shutil
 import multiprocessing as mp
 
-# Bascule automatique vers un backend non interactif (Agg) si aucun affichage
-# n'est disponible (job cluster/SLURM lancé en batch, sans X11) - sinon
-# plt.show() plante avec "no display name and no $DISPLAY environment
-# variable" au lieu de simplement ne rien afficher. Restreint à Linux : sur
-# Mac/Windows l'absence de DISPLAY ne veut pas dire l'absence d'écran (backend
-# natif différent), donc on ne veut pas désactiver l'affichage local à tort.
+# Le mode graphique est opt-in pour éviter les crashes des backends natifs
+# macOS dans les jobs batch et multiprocessing.
 import matplotlib
-if not os.environ.get("MPLBACKEND") and not os.environ.get("DISPLAY") and sys.platform.startswith("linux"):
+if not os.environ.get("MPLBACKEND") and not os.environ.get("GINETTE_SHOW_PLOTS"):
     matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -81,8 +77,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # Date de début, durée et pas de temps de la simulation vivent dans
 # config_lomos.py (partagé avec 2_run_real_case.py) - période de calage
 # recommandée par stallman_diffusivity.py (42j, voir mémoire projet).
-from config_lomos import (POINT_NAME, DATE_SIMUL_BG as date_simul_bg,
-                           NB_DAY as nb_day, DT as dt)
+from config_lomos import (POINT_NAME, RUN_DATE_BG as date_simul_bg,
+                           RUN_NB_DAY as nb_day, DT as dt,
+                           DATE_SIMUL_BG, NB_DAY, SPIN_UP_RUN_DAYS)
+# PLOT_BC=False : pas de figures de contrôle en fin de script (batch/balayage)
+from config_lomos import PLOT_BC
 
 # État de la simulation : 0 = permanent, 1 = transitoire
 state = 1
@@ -91,7 +90,6 @@ state = 1
 # deltaP (H_corrige_24h) pour lomos230 est enregistré en CENTIMÈTRES, pas en mètres :
 # coef=0.01 convertit vers les mètres attendus par initial_conditions/boundary_conditions.
 coef = 0.01  # coefficient d'échelle pour la pression (cm -> m pour lomos230)
-offset = 0  # décalage (correction de référence)
 
 # TempMolo est en eau libre 1-2cm au-dessus du lit, pas dans le sédiment -
 # ce n'est pas la même grandeur physique que la T° du milieu poreux à z=0.
@@ -105,8 +103,11 @@ offset = 0  # décalage (correction de référence)
 #   de l'analyse Stallman indépendante.
 # Tout vit dans config_lomos.py, partagé avec 2_run_real_case.py et
 # 3_misfit.py, pour ne plus avoir à le resynchroniser à la main partout.
-from config_lomos import (TOP_SENSOR, BOTTOM_SENSOR, COMPARISON_SENSORS, SENSOR_DEPTHS,
-                           DELTAP_SENSOR, Z_TOP, Z_BOTTOM, DOMAIN_LENGTH, DZ_OBS)
+from config_lomos import (TOP_SENSOR, BOTTOM_SENSOR, CALIB_SENSORS, SENSOR_DEPTHS,
+                           DELTAP_SENSOR, DELTAP_DEPTH, DELTAP_OFFSET, DELTAP_CONST_CM,
+                           Z_TOP, Z_BOTTOM,
+                           DOMAIN_LENGTH, DZ_OBS)
+offset = DELTAP_OFFSET  # décalage de zéro du capteur de pression [m] (config_lomos.py)
 
 # Géométrie du domaine 1D vertical (colonne), dérivée de TOP_SENSOR/BOTTOM_SENSOR
 z_top, z_bottom = Z_TOP, Z_BOTTOM
@@ -309,7 +310,16 @@ for file in Obs_data.glob('*.csv'):
 #   - retourne un DataFrame synchronisé prêt à être utilisé pour les conditions initiales et aux limites.
 obs_temp = process_obs_data(Obs_data, date_simul_bg, coef, offset, nb_day)
 # (Remarque : pour changer le pas de temps, modifier la variable dt plus haut)
+# Le spin-up est ajouté AVANT DATE_SIMUL_BG (config_lomos.py) : les
+# observations doivent donc couvrir aussi cette période.
+if obs_temp.index.min() > date_simul_bg + pd.Timedelta(seconds=dt):
+    raise ValueError(
+        f"Les observations commencent le {obs_temp.index.min()}, après le début de "
+        f"simulation {date_simul_bg} (= DATE_SIMUL_BG {DATE_SIMUL_BG} - {SPIN_UP_RUN_DAYS} j "
+        "de spin-up) : réduire SPIN_UP_DAYS ou décaler DATE_SIMUL_BG.")
 print(f"\nObservational data loaded successfully:")
+print(f"- Simulated period: {date_simul_bg} to {date_simul_bg + pd.Timedelta(days=nb_day)} "
+      f"({nb_day} d = {SPIN_UP_RUN_DAYS} d spin-up + {NB_DAY} d compared from {DATE_SIMUL_BG})")
 print(f"- Time period: {obs_temp.index.min()} to {obs_temp.index.max()}")
 print(f"- Number of time steps: {len(obs_temp)}")
 print(f"- Available measurements: {list(obs_temp.columns)}")
@@ -325,7 +335,7 @@ obs_temp.insert(0, 'Time', time_vector)
 # si le domaine simulé est plus court, on ne garde que la fraction du gradient
 # qui tombe dedans, gradient hydraulique supposé homogène sur toute la colonne
 # (pas d'autre mesure dispo).
-_needed_cols = set(COMPARISON_SENSORS) | {TOP_SENSOR, BOTTOM_SENSOR, 'deltaP'}
+_needed_cols = set(CALIB_SENSORS) | {TOP_SENSOR, BOTTOM_SENSOR, 'deltaP'}
 if not _needed_cols.issubset(obs_temp.columns):
     raise ValueError(f"Colonnes manquantes dans les données de {POINT_NAME} pour "
                       f"TOP_SENSOR={TOP_SENSOR!r}/BOTTOM_SENSOR={BOTTOM_SENSOR!r} : "
@@ -338,30 +348,39 @@ obs_temp['T_bottom'] = obs_temp[BOTTOM_SENSOR]
 # ignoré tant que la colonne 'deltaP' existe. On écrase donc deltaP
 # directement (bug trouvé le 2026-07-24 : la config C a tourné toute une
 # grille avec le deltaP brut, pas le x0.75, avant ce fix).
-_deltap_scale = DOMAIN_LENGTH / SENSOR_DEPTHS[DELTAP_SENSOR]
+# DELTAP_DEPTH = profondeur VERTICALE de la crépine (tube incliné : x cos(angle))
+_deltap_scale = DOMAIN_LENGTH / DELTAP_DEPTH
 obs_temp['deltaP'] = obs_temp['deltaP'] * _deltap_scale
-obs_temp['h_top'] = obs_temp['deltaP']
+# h_top = dp signé, h_bottom = 0 : dp < 0 = exfiltration. Le milieu est
+# toujours saturé sous la rivière (E_parametre.dat : ivg=0, iunconfined=CAP ->
+# branche "nappe captive" du Fortran, sw=1 sans test sur le signe de la
+# pression), une charge négative au bord est donc une charge comme une autre.
+# La colonne 'deltaP' doit disparaître ensuite, sinon boundary_conditions()
+# la lit en premier et ignore h_top/h_bottom.
+_dp = obs_temp['deltaP']
+if DELTAP_CONST_CM is not None:   # test : Δh constant (config_lomos.py)
+    _dp = pd.Series(DELTAP_CONST_CM / 100.0, index=obs_temp.index)
+obs_temp['h_top'] = _dp
 obs_temp['h_bottom'] = 0.0
-# maille1/2/3 de Ginette tombent sur les vraies profondeurs de COMPARISON_SENSORS
-# (TOP_SENSOR est consommé comme CL) - il faut renommer AVANT d'écrire
-# observed_data.txt sinon 3_misfit.py compare des profondeurs différentes
-# entre simulé et observé. Identité si TOP_SENSOR='TempMolo' (Config A).
-_orig = obs_temp[COMPARISON_SENSORS].copy()
-for _i, _sensor in enumerate(COMPARISON_SENSORS, start=1):
-    obs_temp[f'Temp{_i}'] = _orig[_sensor]
-
+obs_temp = obs_temp.drop(columns='deltaP')
 print(f"\nCL haute = {TOP_SENSOR}, CL basse = {BOTTOM_SENSOR} (mesures brutes).")
-print(f"Calage sur {COMPARISON_SENSORS} (renommés Temp1/Temp2/Temp3 dans observed_data.txt).")
+print(f"Calage sur {list(CALIB_SENSORS)} (noms physiques conservés dans observed_data.txt).")
 if _deltap_scale != 1.0:
     print(f"deltaP ramené au sous-domaine ({DOMAIN_LENGTH*100:.0f}cm, x{_deltap_scale:.2f}, "
           "gradient homogène supposé).")
+if DELTAP_CONST_CM is not None:
+    print(f"ATTENTION : Δh CONSTANT = {DELTAP_CONST_CM:+.2f} cm imposé (DELTAP_CONST_CM), série dp mesurée ignorée.")
+if DELTAP_OFFSET != 0.0:
+    print(f"ATTENTION : offset capteur de pression DELTAP_OFFSET={DELTAP_OFFSET*100:+.1f} cm appliqué à deltaP.")
+print(f"Δh (h_top - h_bottom) imposé : moyenne {(obs_temp['h_top']-obs_temp['h_bottom']).mean()*100:+.2f} cm, "
+      f"min {(obs_temp['h_top']-obs_temp['h_bottom']).min()*100:+.2f}, max {(obs_temp['h_top']-obs_temp['h_bottom']).max()*100:+.2f} "
+      f"(>0 = infiltration).")
 
 # On prépare un DataFrame simplifié pour sauvegarder les données traitées (utile pour vérification ou post-traitement)
 data = pd.DataFrame()
 data['Time'] = time_vector
-data['Temp1'] = obs_temp['Temp1'].to_numpy()
-data['Temp2'] = obs_temp['Temp2'].to_numpy()
-data['Temp3'] = obs_temp['Temp3'].to_numpy()
+for _sensor in CALIB_SENSORS:          # colonnes = noms PHYSIQUES des capteurs de calage
+    data[_sensor] = obs_temp[_sensor].to_numpy()
 data['dates'] = obs_temp['dates'].to_numpy()
 # Sauvegarde dans le dossier results
 data.to_csv(RESULTS_DIR / "observed_data.txt", sep=" ")
@@ -432,6 +451,17 @@ print("- Time-varying surface conditions from observational data")
 # fichier resté à la taille d'un run précédent (ex: Config A 40 mailles vs
 # Config C 30) et planter sur un mismatch de forme entre temp_init et coord.
 write_coordonnee_file(z_bottom, dz)
+
+# Signature des CL générées (voir bc_manifest() dans config_lomos.py) :
+# 2_run_real_case.py refuse de lancer si elle ne correspond plus à la config.
+from config_lomos import bc_manifest
+with open("bc_manifest.txt", "w") as _f:
+    for _k, _v in bc_manifest().items():
+        _f.write(f"{_k} {_v}\n")
+
+if not PLOT_BC:
+    print("PLOT_BC=False (config_lomos.py) : figures de contrôle non affichées.")
+    sys.exit(0)
 
 # Plot the initial temperature and pressure profiles
 # This visualization helps verify that the initial conditions are realistic

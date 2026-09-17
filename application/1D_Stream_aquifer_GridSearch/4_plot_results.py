@@ -23,7 +23,10 @@ project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
+import os
 import matplotlib
+if not os.environ.get("MPLBACKEND") and not os.environ.get("GINETTE_SHOW_PLOTS"):
+    matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -40,7 +43,7 @@ sys.path.insert(0, str(BASE_APP_DIR))
 # POINT_NAME partagé via config_lomos.py avec les autres scripts (0_/2_/3_) -
 # avant ce fix, ce script gardait son propre POINT_NAME="lomos231" en dur,
 # désynchronisé de celui utilisé pour générer les résultats ("lomos230").
-from config_lomos import POINT_NAME
+from config_lomos import POINT_NAME, SPIN_UP_RUN_DAYS, CALIB_SENSORS, SHOW_PLOTS
 RESULTS_DIR = BASE_APP_DIR / "results" / POINT_NAME
 
 # %% PARAMÈTRES UTILISATEUR
@@ -114,7 +117,8 @@ for assess_var in ASSESS_VARS:
         ax.legend(fontsize=9)
         fig.tight_layout()
         fig.savefig(RESULTS_DIR / f"marginal_{param}_{assess_var}.png", dpi=150)
-        plt.show()
+        if SHOW_PLOTS:
+            plt.show()
         plt.close(fig)
 
     # --- Cartes 2D du misfit (une figure par paire de paramètres) ---
@@ -131,7 +135,8 @@ for assess_var in ASSESS_VARS:
         ax.legend(fontsize=9)
         fig.tight_layout()
         fig.savefig(RESULTS_DIR / f"misfit2d_{p1}_{p2}_{assess_var}.png", dpi=150)
-        plt.show()
+        if SHOW_PLOTS:
+            plt.show()
         plt.close(fig)
 
     # --- Série temporelle : observations vs meilleure simulation (une figure par profondeur) ---
@@ -141,21 +146,27 @@ for assess_var in ASSESS_VARS:
     # la fin de la simulation donne l'illusion trompeuse d'une dérive/divergence du modèle.
     t_max_sim_days = sim_data.Time.max() / 86400
     obs_plot = obs_data[obs_data.Time / 86400 <= t_max_sim_days]
+    # Axe des temps : 0 = DATE_SIMUL_BG (début de la fenêtre comparée), le
+    # spin-up simulé avant apparaît en jours négatifs, grisé.
+    t0 = SPIN_UP_RUN_DAYS
 
-    temp_cols = [c for c in ["Temp1", "Temp2", "Temp3"] if c in obs_plot.columns and c in sim_data.columns]
+    # capteurs de calage (noms physiques, config_lomos.py) présents dans les deux fichiers
+    temp_cols = [c for c in CALIB_SENSORS if c in obs_plot.columns and c in sim_data.columns]
     for col in temp_cols:
         fig, ax = plt.subplots(figsize=(10, 4), dpi=110)
-        ax.plot(obs_plot.Time / 86400, obs_plot[col], ls="-", lw=2, color="tab:blue", label=f"Observé {col}")
-        ax.plot(sim_data.Time / 86400, sim_data[col], ls="--", lw=1.5, color="tab:red",
+        ax.axvspan(-t0, 0, color="0.85", alpha=0.6, lw=0, label=f"spin-up ({t0} j)")
+        ax.plot(obs_plot.Time / 86400 - t0, obs_plot[col], ls="-", lw=2, color="tab:blue", label=f"Observé {col}")
+        ax.plot(sim_data.Time / 86400 - t0, sim_data[col], ls="--", lw=1.5, color="tab:red",
                 label=f"Simulé {col} (best ID={int(best)}, {assess_var})")
-        ax.set_xlabel("Temps depuis le début de la simulation [jours]")
+        ax.set_xlabel("Temps depuis DATE_SIMUL_BG [jours] (spin-up en négatif)")
         ax.set_ylabel("Température [°C]")
         ax.grid(alpha=0.3)
         ax.legend(fontsize=9)
         ax.set_title(f"Meilleure simulation vs observations : {col} ({POINT_NAME}, {assess_var})")
         fig.tight_layout()
         fig.savefig(RESULTS_DIR / f"timeseries_{col}_best_{assess_var}.png", dpi=150)
-        plt.show()
+        if SHOW_PLOTS:
+            plt.show()
         plt.close(fig)
 
     # --- Toutes les simulations superposées, colorées par le misfit (une
@@ -174,18 +185,20 @@ for assess_var in ASSESS_VARS:
         sim_i = sim_cache[sid]
         color = cmap(norm(results.loc[results['ID'] == sid, assess_var].values[0]))
         for ax, col in zip(axs, temp_cols):
-            ax.plot(sim_i.Time / 86400, sim_i[col], color=color, lw=0.6, alpha=0.7)
+            ax.plot(sim_i.Time / 86400 - t0, sim_i[col], color=color, lw=0.6, alpha=0.7)
     for ax, col in zip(axs, temp_cols):
-        ax.plot(obs_plot.Time / 86400, obs_plot[col], color="black", lw=2.2, label="Observé", zorder=10)
+        ax.axvspan(-t0, 0, color="0.85", alpha=0.6, lw=0, label=f"spin-up ({t0} j)")
+        ax.plot(obs_plot.Time / 86400 - t0, obs_plot[col], color="black", lw=2.2, label="Observé", zorder=10)
         ax.set_ylabel("Température [°C]")
         ax.set_title(col)
         ax.grid(alpha=0.3)
         ax.legend(fontsize=9, loc="upper left")
-    axs[-1].set_xlabel("Temps depuis le début de la simulation [jours]")
+    axs[-1].set_xlabel("Temps depuis DATE_SIMUL_BG [jours] (spin-up en négatif)")
     sm = matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap)
     sm.set_array([])
     fig.colorbar(sm, ax=axs, label=assess_var, shrink=0.8)
     fig.suptitle(f"Toutes les simulations ({len(order)}) colorées par {assess_var}")
     fig.savefig(RESULTS_DIR / f"spaghetti_{assess_var}.png", dpi=150)
-    plt.show()
+    if SHOW_PLOTS:
+        plt.show()
     plt.close(fig)
