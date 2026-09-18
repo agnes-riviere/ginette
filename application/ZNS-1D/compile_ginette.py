@@ -174,7 +174,7 @@ saturation_profile_s = pd.read_table('/home/ariviere/Documents/Encadrements/2021
 saturation_profile_s.columns=[ "z",  "sat","rho","vp","vs"]
 saturation_profile_s.z=saturation_profile_s.z+40
 plt.figure()
-plt.style.use('seaborn')
+plt.style.use('seaborn-v0_8' if 'seaborn-v0_8' in plt.style.available else 'seaborn' if 'seaborn' in plt.style.available else 'default')
 
 plt.scatter(saturation_profile.sat, saturation_profile.z, s=10, alpha=1, color='mediumblue',marker='.')
 plt.scatter(saturation_profile_s.sat,saturation_profile_s.z, s=5, c='r', marker=",")

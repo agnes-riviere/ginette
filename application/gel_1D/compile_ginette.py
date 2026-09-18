@@ -12,20 +12,20 @@ import subprocess
 libs_gfortran = ['gfortran']
 # please compile ginette in the folder 1D_col
 # path of the 1D_col directory
-os.chdir('/home/ariviere/Programmes/ginette/application/ZNS-1D/')
+os.chdir(Path(__file__).resolve().parent)
 # Print the current working directory
 print("Current working directory: {0}".format(os.getcwd()))
 
 
-_source = "../../src/ginette_V3.f"
+_source = "../../src/ginette_V2.f90"
 if os.path.isfile('ginette') and (not os.path.isfile(_source)
                                     or os.path.getmtime('ginette') >= os.path.getmtime(_source)):
     print ("ginette exist")
 else:
     print ("ginette not exist or is older than", _source)
     print("you must compile ginette in the current directory")
-    print(" gfortran -o ginette ../../src/ginette_V3.f")
-    subprocess.call(["gfortran","-o","ginette","../../src/ginette_V3.f"])  #creat
+    print(" gfortran -o ginette ../../src/ginette_V2.f90")
+    subprocess.call(["gfortran","-o","ginette","../../src/ginette_V2.f90"])  #creat
 
 
 ########### Setup
@@ -112,7 +112,7 @@ f_bc_new = open("E_cdt_aux_limites.dat", 'w')
 f_IC_new=open("E_cdt_initiale.dat","w")
 param_zone=f_paramZ_bck.read()
 coord=pd.DataFrame()    
-#coord = pd.read_csv(f_coor, names=["id", "x", "z"], header=None, delim_whitespace=True)
+#coord = pd.read_csv(f_coor, names=["id", "x", "z"], header=None, sep=r'\s+')
 
 
 
@@ -128,7 +128,7 @@ param_zone=param_zone.replace('[swres1]','%6.2f' % val_swres)
 zvalues = np.arange(dz/2, z_top,dz );
 xvalues = np.array([0.5]);
 zz, xx = np.meshgrid(zvalues, xvalues)
-NT = np.product(zz.shape)
+NT = np.prod(zz.shape)
 
 data = {
     "x": np.reshape(xx,NT),
@@ -165,32 +165,25 @@ f_coor.close()
 
 subprocess.call(["./ginette"])   
 
-saturation_profile = pd.read_table('S_saturation_profil_t.dat',delim_whitespace=True,header=None)
-saturation_profile.columns=[ "time",  "z","sat"]
-#print(saturation_profile.head())
-saturation_profile_s = pd.read_table('/home/ariviere/Documents/Encadrements/2021_These_Ramon/data/data_fig_4_5_6/sandyclay_WT25_prop_model2.txt',delim_whitespace=True,header=None,skiprows=[0,1,2])
-saturation_profile_s.columns=[ "z",  "sat","rho","vp","vs"]
-saturation_profile_s.z=saturation_profile_s.z+40
-plt.figure()
-plt.style.use('seaborn')
+# gel_1D est un cas gel/degel (icycle=1, E_p_therm.dat) : la sortie
+# pertinente en fin de simulation est S_pression_charge_temperature.dat
+# (unite 74, "FICHIER FIN DE SIMULATION" dans ginette_V2.f90, ecrite en
+# FMT='(i6,...)' avec i,x,z,pr,charge,temp,vxm,vzm,vxp,vzp - voir le write(74,...)
+# pres de la ligne 5295) - pas S_saturation_profil_t.dat/S_pressure_profil_t.dat
+# (vides ici : ce sont des sorties du cas ZNS, pas du cas gel/degel).
+profile = pd.read_table('S_pression_charge_temperature.dat', sep=r'\s+', header=None,
+                         names=["id", "x", "z", "p", "h", "T", "vxm", "vzm", "vxp", "vzp"])
 
-plt.scatter(saturation_profile.sat, saturation_profile.z, s=10, alpha=1, color='mediumblue',marker='.')
-plt.scatter(saturation_profile_s.sat,saturation_profile_s.z, s=5, c='r', marker=",")
-plt.xlabel('Saturation')
+plt.figure()
+plt.style.use('seaborn-v0_8' if 'seaborn-v0_8' in plt.style.available else 'seaborn' if 'seaborn' in plt.style.available else 'default')
+plt.scatter(profile['T'], profile.z, s=10, alpha=1, color='mediumblue', marker='.')
+plt.xlabel('Temperature (C)')
 plt.ylabel('z (m)')
 plt.show()
 
-
-
-
-pressure_profile = pd.read_table('S_pressure_profil_t.dat',delim_whitespace=True,header=None)
-pressure_profile.columns=[ "time",  "z","p","h"]
-print(saturation_profile_s)
-
-#plt.figure()
-#plt.style.use('seaborn')
-
-#plt.scatter(pressure_profile.p,pressure_profile.z, s=10, alpha=1, color='mediumblue',marker='.')
-#plt.xlabel('Pressure (Pa)')
-#plt.ylabel('z (m)')
-#plt.show()
+plt.figure()
+plt.style.use('seaborn-v0_8' if 'seaborn-v0_8' in plt.style.available else 'seaborn' if 'seaborn' in plt.style.available else 'default')
+plt.scatter(profile.p, profile.z, s=10, alpha=1, color='mediumblue', marker='.')
+plt.xlabel('Pressure (Pa)')
+plt.ylabel('z (m)')
+plt.show()
