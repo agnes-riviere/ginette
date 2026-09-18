@@ -16,15 +16,15 @@ os.chdir(Path(__file__).resolve().parent)
 print("Current working directory: {0}".format(os.getcwd()))
 
 
-_source = "../../src/ginette_V3.f"
+_source = "../../src/ginette_V2.f90"
 if os.path.isfile('ginette') and (not os.path.isfile(_source)
                                     or os.path.getmtime('ginette') >= os.path.getmtime(_source)):
     print ("ginette exist")
 else:
     print ("ginette not exist or is older than", _source)
     print("you must compile ginette in the current directory")
-    print(" gfortran -o ginette ../../src/ginette_V3.f")
-    subprocess.call(["gfortran","-o","ginette","../../src/ginette_V3.f"])  #creat
+    print(" gfortran -o ginette ../../src/ginette_V2.f90")
+    subprocess.call(["gfortran","-o","ginette","../../src/ginette_V2.f90"])  #creat
 
 
 ########### Setup
@@ -111,7 +111,7 @@ f_bc_new = open("E_cdt_aux_limites.dat", 'w')
 f_IC_new=open("E_cdt_initiale.dat","w")
 param_zone=f_paramZ_bck.read()
 coord=pd.DataFrame()    
-#coord = pd.read_csv(f_coor, names=["id", "x", "z"], header=None, delim_whitespace=True)
+#coord = pd.read_csv(f_coor, names=["id", "x", "z"], header=None, sep=r'\s+')
 
 
 
@@ -127,7 +127,7 @@ param_zone=param_zone.replace('[swres1]','%6.2f' % val_swres)
 zvalues = np.arange(dz/2, z_top,dz );
 xvalues = np.array([0.5]);
 zz, xx = np.meshgrid(zvalues, xvalues)
-NT = np.product(zz.shape)
+NT = np.prod(zz.shape)
 
 data = {
     "x": np.reshape(xx,NT),
@@ -164,13 +164,13 @@ f_coor.close()
 
 subprocess.call(["./ginette"])   
 
-saturation_profile = pd.read_table('S_saturation_profil_t.dat',delim_whitespace=True,header=None)
+saturation_profile = pd.read_table('S_saturation_profil_t.dat',sep=r'\s+',header=None)
 saturation_profile.columns=[ "time",  "z","sat"]
 #print(saturation_profile.head())
 # NOTE: external reference dataset, not part of this repository (thesis
 # supervision data outside the project tree) - update this path to point to
 # your own copy, or comment out this comparison, before running elsewhere.
-saturation_profile_s = pd.read_table('/home/ariviere/Documents/Encadrements/2021_These_Ramon/data/data_fig_4_5_6/sandyclay_WT25_prop_model2.txt',delim_whitespace=True,header=None,skiprows=[0,1,2])
+saturation_profile_s = pd.read_table('/home/ariviere/Documents/Encadrements/2021_These_Ramon/data/data_fig_4_5_6/sandyclay_WT25_prop_model2.txt',sep=r'\s+',header=None,skiprows=[0,1,2])
 saturation_profile_s.columns=[ "z",  "sat","rho","vp","vs"]
 saturation_profile_s.z=saturation_profile_s.z+40
 plt.figure()
@@ -185,7 +185,7 @@ plt.show()
 
 
 
-pressure_profile = pd.read_table('S_pressure_profil_t.dat',delim_whitespace=True,header=None)
+pressure_profile = pd.read_table('S_pressure_profil_t.dat',sep=r'\s+',header=None)
 pressure_profile.columns=[ "time",  "z","p","h"]
 print(saturation_profile_s)
 

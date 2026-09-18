@@ -16,14 +16,14 @@ os.chdir(Path(__file__).resolve().parent)
 print("Current working directory: {0}".format(os.getcwd()))
 
 
-_source = "../../src/ginette_V3.f"
+_source = "../../src/ginette_V2.f90"
 if os.path.isfile('ginette') and (not os.path.isfile(_source)
                                     or os.path.getmtime('ginette') >= os.path.getmtime(_source)):
     print ("ginette exist")
 else:
     print ("ginette not exist or is older than", _source)
     print("you must compile ginette in the current directory")
-    print(" gfortran -o ginette ../../src/ginette_V3.f")
+    print(" gfortran -o ginette ../../src/ginette_V2.f90")
 
 
 ########### Setup
@@ -35,7 +35,13 @@ dt=900
 #duration of the simulation in days
 nb_day=2
 
+# state
+## 0 steady state
+# 1 transient state (dynamic state)
+state=1
+
 #in meter
+z_top=0.0
 z_bottom=-0.55
 dz=0.01
 
@@ -126,6 +132,8 @@ cell4=-Obs4/dz
 
 setup_model=setup_model.replace('[dt]','%06.0fD+00' % dt)
 setup_model=setup_model.replace('[nb_day]','%06.0f' % nb_day)
+setup_model=setup_model.replace('[state]','%1i' % state)
+setup_model=setup_model.replace('[z_top]','%6.2e' % z_top)
 setup_model=setup_model.replace('[z_bottom]','%6.2e' % z_bottom)
 setup_model=setup_model.replace('[az]','%7.3e' % -z_bottom)
 setup_model=setup_model.replace('[dz]','%6.2e' % dz)
@@ -135,6 +143,12 @@ setup_model=setup_model.replace('[cell1]','%05d' % cell1)
 setup_model=setup_model.replace('[cell2]','%05d' % cell2)
 setup_model=setup_model.replace('[cell3]','%05d' % cell3)
 setup_model=setup_model.replace('[cell4]','%05d' % cell4)
+# nmaille5..10 : seuls 4 points d'observation sont definis (Obs1..4) mais
+# E_parametre.dat en attend 10 (voir ginette_V2.f90, lecture_parametre) ;
+# on reutilise cell4 pour les emplacements inutilises, comme le fait deja
+# ZNS-1D/gel_1D avec une valeur unique repetee sur les 10 champs.
+for _i in range(5, 11):
+    setup_model=setup_model.replace('[cell%d]' % _i, '%05d' % cell4)
 
 ########### Zone
 f_coor=open("E_coordonnee.dat", "r")
@@ -144,41 +158,7 @@ f_paramZ_new = open("E_zone_parameter.dat", 'w')
 f_param_new = open("E_parametre.dat", 'w')
 param_zone=f_paramZ_bck.read()
 coord=pd.DataFrame()
-coord = pd.read_csv(f_coor, names=["id", "x", "z"], header=None, delim_whitespace=True)
-
-
-
-param_zone=param_zone.replace('[k1]','%8.2e' % val_k)
-param_zone=param_zone.replace('[n1]','%6.2f' % val_n)
-param_zone=param_zone.replace('[l1]','%6.2f' % val_l)
-param_zone=param_zone.replace('[c1]','%6.2f' % val_c)
-param_zone=param_zone.replace('[r1]','%6.2f' % val_r)
-param_zone=param_zone.replace('[a1]','%6.2f' % val_a)
-param_zone=param_zone.replace('[nVG1]','%6.2f' % val_nVG)
-param_zone=param_zone.replace('[swres1]','%6.2f' % val_swres)
-
-
-
-
-param_zone=param_zone.replace('[k2]','%8.2e' % val_k2)
-param_zone=param_zone.replace('[n2]','%6.2f' % val_n2)
-param_zone=param_zone.replace('[l2]','%6.2f' % val_l2)
-param_zone=param_zone.replace('[c2]','%6.2f' % val_c2)
-param_zone=param_zone.replace('[r2]','%6.2f' % val_r2)
-param_zone=param_zone.replace('[a2]','%6.2f' % val_a2)
-param_zone=param_zone.replace('[nVG2]','%6.2f' % val_nVG2)
-param_zone=param_zone.replace('[swres2]','%6.2f' % val_swres2)
-
-param_zone=param_zone.replace('[k3]','%8.2e' % val_k3)
-param_zone=param_zone.replace('[n3]','%6.2f' % val_n3)
-param_zone=param_zone.replace('[l3]','%6.2f' % val_l3)
-param_zone=param_zone.replace('[c3]','%6.2f' % val_c3)
-param_zone=param_zone.replace('[r3]','%6.2f' % val_r3)
-param_zone=param_zone.replace('[a3]','%6.2f' % val_a3)
-param_zone=param_zone.replace('[nVG3]','%6.2f' % val_nVG3)
-param_zone=param_zone.replace('[swres3]','%6.2f' % val_swres3)
-
-
+coord = pd.read_csv(f_coor, names=["id", "x", "z"], header=None, sep=r'\s+')
 
 
 
@@ -187,6 +167,23 @@ coord['zone'] =1
 if nb_zone >= 2:
     coord['zone'] = np.where(coord['z'] <= thk2, 2,coord['zone'])
     coord['zone'] = np.where(coord['z'] <= thk3, 3,coord['zone'])
+
+# Ginette (CASE('1DS'), ginette_V2.f90) lit UNE ligne de E_zone_parameter.dat
+# par zone reellement presente dans E_zone.dat (nzone = max des zones
+# utilisees), format "zone_id k n a nVG swres l c r" - le template ne
+# fournissait qu'une ligne (zone 1), d'ou un "End of file" des que le
+# maillage touchait la zone 2 (val_k2/val_n2/... etaient deja definis mais
+# jamais ecrits nulle part).
+_zone_props = {
+    1: (val_k, val_n, val_a, val_nVG, val_swres, val_l, val_c, val_r),
+    2: (val_k2, val_n2, val_a2, val_nVG2, val_swres2, val_l2, val_c2, val_r2),
+    3: (val_k3, val_n3, val_a3, val_nVG3, val_swres3, val_l3, val_c3, val_r3),
+}
+nzone_used = int(coord['zone'].max())
+param_zone = "".join(
+    "%d\t%8.2e\t%6.2f %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n" % ((z,) + _zone_props[z])
+    for z in range(1, nzone_used + 1)
+)
 
 display(coord)
 
