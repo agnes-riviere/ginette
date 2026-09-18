@@ -53,6 +53,24 @@ def _ginette_binary_matches_host(path='ginette'):
     return magic == _ELF_MAGIC  # Linux et autres Unix
 
 
+def _ginette_binary_is_fresh(path, source_path):
+    """
+    True si le binaire ginette correspond à la plateforme hôte ET a été
+    compilé APRES la dernière modification du source Fortran. Sans ce
+    deuxième test, un exécutable laissé sur un poste ou un cluster (session
+    précédente, `git pull` qui met à jour ginette_V2.f90 sans toucher au
+    binaire déjà présent) n'est jamais recompilé : on tourne alors avec une
+    version figée du code sans le savoir, ce qui peut ressembler à du bruit
+    numérique alors que c'est une simple exécution obsolète.
+    """
+    if not _ginette_binary_matches_host(path):
+        return False
+    try:
+        return os.path.getmtime(path) >= os.path.getmtime(source_path)
+    except OSError:
+        return False  # source introuvable : on laisse (re)compiler échouer plus loin avec un message clair
+
+
 def prepare_ginette_directories(base_path, subdirectories=['SENSI', 'OUTPUT']):
     """
     Change le répertoire de travail pour le modèle Ginette et crée les répertoires de sortie nécessaires.
@@ -83,14 +101,16 @@ def prepare_ginette_directories(base_path, subdirectories=['SENSI', 'OUTPUT']):
             
 def compile_ginette():
     """
-    (Re)compile Ginette si l'exécutable est absent OU incompatible avec la
-    plateforme hôte (voir _ginette_binary_matches_host).
+    (Re)compile Ginette si l'exécutable est absent, incompatible avec la
+    plateforme hôte, ou plus ancien que ginette_V2.f90 (voir
+    _ginette_binary_is_fresh).
     """
-    if _ginette_binary_matches_host('ginette'):
+    source = '../../src/ginette_V2.f90'
+    if _ginette_binary_is_fresh('ginette', source):
         print("ginette exists")
     else:
-        print("ginette does not exist or does not match this platform - (re)compiling")
-        result = subprocess.run(['gfortran', '-o', 'ginette', '../../src/ginette_V2.f90'])
+        print("ginette does not exist, does not match this platform, or is older than the source - (re)compiling")
+        result = subprocess.run(['gfortran', '-o', 'ginette', source])
         if result.returncode != 0:
             raise RuntimeError(f"gfortran compilation of ginette failed (exit code {result.returncode})")
         print("ginette compiled")
@@ -98,20 +118,21 @@ def compile_ginette():
 
 def compile_ginette_src(dir_ginette, flags=()):
     """
-    (Re)compile Ginette si l'exécutable est absent OU incompatible avec la
+    (Re)compile Ginette si l'exécutable est absent, incompatible avec la
     plateforme hôte - typiquement un binaire Linux ELF copié tel quel sur
-    macOS, qui échoue silencieusement en "Exec format error" à l'exécution
-    si on se contente de tester sa présence (voir _ginette_binary_matches_host).
+    macOS, qui échoue silencieusement en "Exec format error" à l'exécution -
+    ou plus ancien que ginette_V2.f90 (voir _ginette_binary_is_fresh).
 
     flags : options supplémentaires passées à gfortran (ex. ("-O2",) pour les
-    cas 2D longs). Sans effet si l'exécutable existe déjà : le supprimer pour
-    forcer la recompilation.
+    cas 2D longs). Sans effet si l'exécutable existe déjà et est à jour : le
+    supprimer pour forcer la recompilation avec d'autres flags.
     """
-    if _ginette_binary_matches_host('ginette'):
+    source = dir_ginette + '/src/ginette_V2.f90'
+    if _ginette_binary_is_fresh('ginette', source):
         print("ginette exists")
     else:
-        print("ginette does not exist or does not match this platform - (re)compiling")
-        result = subprocess.run(['gfortran', *flags, '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
+        print("ginette does not exist, does not match this platform, or is older than the source - (re)compiling")
+        result = subprocess.run(['gfortran', *flags, '-o', 'ginette', source])
         if result.returncode != 0:
             raise RuntimeError(f"gfortran compilation of ginette failed (exit code {result.returncode})")
         print("ginette compiled")

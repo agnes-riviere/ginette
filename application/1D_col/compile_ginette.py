@@ -16,10 +16,12 @@ os.chdir(Path(__file__).resolve().parent)
 print("Current working directory: {0}".format(os.getcwd()))
 
 
-if os.path.isfile('ginette'):
+_source = "../../src/ginette_V3.f"
+if os.path.isfile('ginette') and (not os.path.isfile(_source)
+                                    or os.path.getmtime('ginette') >= os.path.getmtime(_source)):
     print ("ginette exist")
 else:
-    print ("ginette not exist")
+    print ("ginette not exist or is older than", _source)
     print("you must compile ginette in the current directory")
     print(" gfortran -o ginette ../../src/ginette_V3.f")
 

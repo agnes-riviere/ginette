@@ -1429,10 +1429,9 @@ def Direct_model_stallman(GINETTE_SENSI, REPO_ROOT, dt, nb_day, z_top, z_bottom,
     obs_temp.index = date_simul_bg + pd.to_timedelta(time_vector, unit="s")
 
     os.chdir(GINETTE_SENSI)
-    if not os.path.isfile("ginette"):
-        from Init_folders import compile_ginette_src
-        repo_root_str = REPO_ROOT.as_posix() if hasattr(REPO_ROOT, "as_posix") else str(REPO_ROOT)
-        compile_ginette_src(repo_root_str)
+    from Init_folders import compile_ginette_src
+    repo_root_str = REPO_ROOT.as_posix() if hasattr(REPO_ROOT, "as_posix") else str(REPO_ROOT)
+    compile_ginette_src(repo_root_str)  # no-op si l'exécutable existe déjà, correspond à la plateforme et est à jour
 
     z_obs = setup_ginette(dt, 1, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs, amu=amu)
     shutil.copy("E_cdt_initiale_bck.dat", "E_cdt_initiale.dat")
