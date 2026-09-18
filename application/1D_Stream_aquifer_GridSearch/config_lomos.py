@@ -263,11 +263,25 @@ N = 8
 # correspondre à une variable [min, max] définie ci-dessous.
 Name_parameters = ["log_k", "lam", "n", "c"]
 
-# Bornes [min, max] - large par défaut (>= 4 ordres de grandeur sur log_k)
-# pour ne pas présupposer la valeur calée et pouvoir estimer l'incertitude.
-log_k = [-15, -11]  # log10(perméabilité intrinsèque k [m2])
-lam = [2.5, 4.0]    # granite fracturé: conductivité de la fraction solide [W/m/K]
-n = [0.20, 0.40]    # porosité totale plausible pour un lit granitique fracturé [-]
+# Bornes [min, max] par point - large par défaut (>= 4 ordres de grandeur sur
+# log_k) pour ne pas présupposer la valeur calée et pouvoir estimer
+# l'incertitude. lomos230 : sable gréseux. lomos231 : hypothèse d'un lit
+# granitique fracturé (bornes plus resserrées).
+LOG_K_BY_POINT = {
+    "lomos230": [-13, -11],  # sable gréseux : log10(perméabilité intrinsèque k [m2])
+    "lomos231": [-15, -11],  # granite fracturé
+}
+LAM_BY_POINT = {
+    "lomos230": [2, 6],      # sable gréseux : conductivité de la fraction solide [W/m/K]
+    "lomos231": [2.5, 4.0],  # granite fracturé
+}
+N_BY_POINT = {
+    "lomos230": [0.15, 0.65],  # sable gréseux : porosité totale plausible [-]
+    "lomos231": [0.20, 0.40],  # granite fracturé
+}
+log_k = LOG_K_BY_POINT.get(POINT_NAME, LOG_K_BY_POINT["lomos230"])
+lam = LAM_BY_POINT.get(POINT_NAME, LAM_BY_POINT["lomos230"])
+n = N_BY_POINT.get(POINT_NAME, N_BY_POINT["lomos230"])
 # c = capacité calorifique SPÉCIFIQUE (pas volumique) du solide [J/kg/K],
 # combinée à rhosi (E_p_therm.dat, fixe) via CASE('ZHZ'). rhosi a été baissé à
 # 1180 kg/m3 (sédiment riche en matière organique, pas du quartz pur) pour que
