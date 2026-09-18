@@ -115,6 +115,9 @@ for param_name in Name_parameters:
         step, decimals = PARAM_STEP[param_name]
         param_grids[param_name] = np.round(
             np.arange(param_range[0], param_range[1] + step, step), decimals)
+    elif np.isscalar(param_range):
+        # Une propriété fixe (par exemple C_SOLID) forme une grille à une valeur.
+        param_grids[param_name] = np.array([param_range])
     elif len(param_range) == 2:
         param_grids[param_name] = np.linspace(param_range[0], param_range[1], N)
     else:

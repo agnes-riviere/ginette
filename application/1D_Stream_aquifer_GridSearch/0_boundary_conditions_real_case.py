@@ -79,7 +79,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # recommandée par stallman_diffusivity.py (42j, voir mémoire projet).
 from config_lomos import (POINT_NAME, RUN_DATE_BG as date_simul_bg,
                            RUN_NB_DAY as nb_day, DT as dt,
-                           DATE_SIMUL_BG, NB_DAY, SPIN_UP_RUN_DAYS)
+                           DATE_SIMUL_BG, NB_DAY, SPIN_UP_RUN_DAYS,
+                           RHO_SOLID, C_SOLID)
 # PLOT_BC=False : pas de figures de contrôle en fin de script (batch/balayage)
 from config_lomos import PLOT_BC
 
@@ -249,6 +250,7 @@ if SRC_PY.is_dir():
 try:
     # preferred: modules as they appear in src/src_python
     from Direct_model import (setup_ginette2,setup_ginette,
+                               configure_thermal_parameters,
                                initial_conditions,
                                boundary_conditions,
                                write_coordonnee_file,
@@ -392,6 +394,7 @@ os.chdir(GINETTE_SENSI)
 # La fonction setup_ginette crée les fichiers de paramètres principaux du modèle (maillage, paramètres physiques, etc.)
 # Elle retourne aussi la liste des profondeurs d'observation utilisées.
 z_obs = setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs)
+configure_thermal_parameters(RHO_SOLID, C_SOLID)
 
 print(f"Model domain setup:")
 print(f"- Vertical extent: {z_top} to {z_bottom} m")

@@ -65,6 +65,7 @@ import time
 import pandas as pd
 import numpy as np
 import shutil
+import re
 
 def format_value(value):
     """
@@ -72,6 +73,22 @@ def format_value(value):
     """
     return "{:0=12.2e}".format(value).replace('e', 'd')    
     #-----------------------------------------------------------------
+
+def configure_thermal_parameters(rho_solid, c_solid):
+    """Apply the configured solid properties to the generated thermal input."""
+    with open("E_p_therm.dat", "r") as thermal_file:
+        lines = thermal_file.readlines()
+    replacements = {
+        "rhosi": f"rhosi={rho_solid:.0f}D+00",
+        "cpm": f"cpm={c_solid:08.0f}",
+    }
+    with open("E_p_therm.dat", "w") as thermal_file:
+        for line in lines:
+            key = line.split("=", 1)[0].strip()
+            if key in replacements:
+                parts = line.split(None, 1)
+                line = replacements[key] + (" " + parts[1] if len(parts) > 1 else "\n")
+            thermal_file.write(line)
 
 def setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs):
     """

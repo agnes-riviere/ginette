@@ -62,7 +62,14 @@ if BASE_APP_DIR is None:
 # Config partagée avec 0_boundary_conditions_real_case.py / 2_run_real_case.py
 # via config_lomos.py (voir README.md) : point d'observation, config BC (A/C)
 # et géométrie du domaine, pour ne plus avoir à les resynchroniser à la main.
-from config_lomos import POINT_NAME, BOTTOM_SENSOR_TRIVIAL_INDEX, DOMAIN_LENGTH, MAX_WORKERS, RUN_PLOTS, ERR_MISFIT
+from config_lomos import (POINT_NAME, CALIB_SENSORS, sensor_index, DOMAIN_LENGTH, MAX_WORKERS,
+                          RUN_PLOTS, ERR_MISFIT, SPIN_UP_RUN_DAYS)
+
+# Capteurs de calage (noms physiques, ex. ['Temp2', 'Temp3'] en config C) et
+# indices des colonnes de results.txt (misfit_2, misfit_3, ...). Les deux
+# capteurs de CL ne sont jamais comparés (voir CALIB_SENSORS, config_lomos.py).
+SENSORS = list(CALIB_SENSORS)
+IDX = [sensor_index(sn) for sn in SENSORS]
 
 # --- Dossier de sortie, un sous-dossier par point (results/{POINT_NAME}/) :
 # un autre point lancé ensuite n'écrase pas les résultats de celui-ci. ---
@@ -94,8 +101,7 @@ except Exception:
     print("Error importing Init_folders from src_python.")
 
 try:
-    from Analytical_validation import (bulk_thermal_conductivity, volumetric_heat_capacity,
-                                        darcy_velocity_from_head, CW_VOL)
+    from Analytical_validation import darcy_velocity_from_head, CW_VOL
 except Exception:
     print("Error importing Analytical_validation from src_python.")
 
@@ -158,11 +164,14 @@ def log_likelyhood(m):
 
 
 def _n_worker_processes():
-    """Nombre de processus à lancer en parallèle, plafonné à MAX_WORKERS."""
+    """Nombre de processus à lancer en parallèle, plafonné à MAX_WORKERS
+    (sauf si MAX_WORKERS="auto" : alors coeurs disponibles - 2, sans plafond)."""
     try:
         n_available = len(os.sched_getaffinity(0))
     except AttributeError:
         n_available = os.cpu_count() or 1
+    if MAX_WORKERS == "auto":
+        return max(1, n_available - 2)
     return max(1, min(MAX_WORKERS, n_available - 2))
 
 # %% MISFIT:
@@ -173,18 +182,9 @@ obs_data = pd.read_csv(os.path.join(RESULTS_DIR,"observed_data.txt"), delimiter=
 
 
 
-results["misfit_1"] = np.nan
-results["misfit_2"] = np.nan
-results["misfit_3"] = np.nan
-results["mae_1"] = np.nan
-results["mae_2"] = np.nan
-results["mae_3"] = np.nan
-results["pbias_1"] = np.nan
-results["pbias_2"] = np.nan
-results["pbias_3"] = np.nan
-results["kge_1"] = np.nan
-results["kge_2"] = np.nan
-results["kge_3"] = np.nan
+for _metric in ("misfit", "mae", "pbias", "kge"):
+    for _i in IDX:
+        results[f"{_metric}_{_i}"] = np.nan
 results["spin_up_days"] = np.nan
 
 done = sorted([
@@ -198,23 +198,6 @@ print("dans done il y a :", done)
 # Misfit by simulations:
 err = ERR_MISFIT  # voir config_lomos.py (ERR_MISFIT)
 results["err_misfit"] = err
-
-# Index par ID pour un lookup rapide de la ligne grid_search dans
-# spin_up_days_for_row (appelée une fois par simulation, dans chaque worker).
-results_by_id = results.set_index("ID", drop=False)
-
-# Densité fixe (E_p_therm.dat, rhosi=1180 - sédiment riche en matière
-# organique, baissé depuis 2650/quartz pur le 2026-07-24 pour que c=2000
-# J/kg/K donne une capacité volumique saturée cohérente avec la littérature
-# streambed ; CASE('ZHZ') dans src/ginette_V2.f90 ne la spatialise jamais -
-# voir 2_run_real_case.py). Repli si lam/n/c ne sont pas calibrés pour ce grid
-# search (mêmes valeurs de référence que 2_run_real_case.py, meilleur point
-# lomos230) : à garder synchronisé si ces défauts changent là-bas.
-REF_DENSITY = 1180.0
-REF_LAM = 1.57
-REF_N = 0.51
-REF_HEAT_CAPACITY = 2000.0
-
 
 def mean_hydraulic_gradient():
     """Gradient de charge moyen (m/m) réellement appliqué comme CL, lu dans
@@ -249,32 +232,16 @@ def ginette_velocity_for_row(i, spin_up_days):
     return vel_f["vzm"].mean() if not vel_f.empty else None
 
 
-SPIN_UP_TAU_MULTIPLIER = 3  # exp(-3) ~ 5% - un seul tau (exp(-1)~37%) laisse
-# encore une trace notable de l'etat initial dans les residus utilises ensuite
-# pour le misfit/RMS.
-
-
 def spin_up_days_for_row(i):
-    """Jours de spin-up nécessaires pour la simulation i, dérivés du temps
-    caractéristique de diffusion thermique sur la colonne (tau = L^2/Gamma,
-    même raisonnement que l'analyse Stallman dans
-    stallman_diffusivity.py : tau ~ 0.4^2/0.25e-6 ~ 640000s ~ 7-8j)
-    au lieu d'une valeur fixe pour toutes les simulations - un matériau moins
-    diffusif (lam bas, n haut) a besoin de plus de jours pour "oublier" un
-    état initial imparfait, un matériau très diffusif de moins.
+    """Jours de spin-up exclus du misfit pour la simulation i.
 
-    Le seuil retenu est SPIN_UP_TAU_MULTIPLIER x tau, pas 1x tau : un modèle de
-    relaxation exponentielle n'a perdu qu'environ 37% de son état initial après
-    1 tau, contre ~95% après 3 tau."""
-    row = results_by_id.loc[i]
-    lam = getattr(row, "lam", REF_LAM)
-    n = getattr(row, "n", REF_N)
-    c = getattr(row, "c", REF_HEAT_CAPACITY)
-    k_bulk = bulk_thermal_conductivity(lam, n)
-    Cv = volumetric_heat_capacity(n, REF_DENSITY, cs_specific=c)
-    gamma = k_bulk / Cv
-    tau_seconds = DOMAIN_LENGTH**2 / gamma
-    return max(1, int(np.ceil(SPIN_UP_TAU_MULTIPLIER * tau_seconds / 86400)))
+    Le spin-up est ajouté AVANT DATE_SIMUL_BG (config_lomos.py : la simulation
+    démarre SPIN_UP_RUN_DAYS jours plus tôt), donc on exclut exactement ces
+    jours-là pour toutes les simulations : la fenêtre comparée est la même
+    pour toute la grille (DATE_SIMUL_BG -> DATE_SIMUL_BG + NB_DAY). Le
+    dimensionnement du spin-up (fixe ou "auto" = SPIN_UP_TAU_MULTIPLIER x tau
+    du matériau le moins diffusif de la grille) vit dans config_lomos.py."""
+    return SPIN_UP_RUN_DAYS
 
 
 def compute_misfit(i):
@@ -287,27 +254,24 @@ def compute_misfit(i):
     """
     sim = pd.read_csv(os.path.join(RESULTS_DIR, f"sim_temp_{i}.txt"),
                       delimiter=" ", index_col=[0])
-    # Spin-up automatique (spin_up_days_for_row, dérivé de lam/n/c de CETTE
-    # simulation) pendant lequel le modèle "oublie" un état initial imparfait :
-    # on l'exclut de la comparaison plutôt que de biaiser le misfit avec la
-    # transition. NB : remove_first_two_days_time_based renvoie des COPIES
+    # Spin-up (SPIN_UP_RUN_DAYS, config_lomos.py) pendant lequel le modèle
+    # "oublie" un état initial imparfait : on l'exclut de la comparaison plutôt
+    # que de biaiser le misfit avec la transition. NB :
+    # remove_first_two_days_time_based renvoie des COPIES
     # filtrées, il faut donc bien récupérer sa valeur de retour (sinon le
     # filtrage n'a aucun effet).
     spin_up_days = spin_up_days_for_row(i)
     sim_f, obs_f = remove_first_two_days_time_based(sim, obs_data, days=spin_up_days)
-    m1 = misfit_L2(obs_f.Temp1, sim_f.Temp1, err=err)
-    m2 = misfit_L2(obs_f.Temp2, sim_f.Temp2, err=err)
-    m3 = misfit_L2(obs_f.Temp3, sim_f.Temp3, err=err)
-    a1 = misfit_L1(obs_f.Temp1, sim_f.Temp1, err=err)
-    a2 = misfit_L1(obs_f.Temp2, sim_f.Temp2, err=err)
-    a3 = misfit_L1(obs_f.Temp3, sim_f.Temp3, err=err)
-    p1 = misfit_pbias(obs_f.Temp1, sim_f.Temp1)
-    p2 = misfit_pbias(obs_f.Temp2, sim_f.Temp2)
-    p3 = misfit_pbias(obs_f.Temp3, sim_f.Temp3)
-    k1 = kge(obs_f.Temp1, sim_f.Temp1)
-    k2 = kge(obs_f.Temp2, sim_f.Temp2)
-    k3 = kge(obs_f.Temp3, sim_f.Temp3)
-    return i, m1, m2, m3, a1, a2, a3, p1, p2, p3, k1, k2, k3, spin_up_days
+    # Une valeur par capteur de calage ; sim_f et obs_f ont les mêmes noms de
+    # colonnes (noms physiques des capteurs, ex. Temp2/Temp3 en config C).
+    out = {}
+    for sn, idx in zip(SENSORS, IDX):
+        out[f"misfit_{idx}"] = misfit_L2(obs_f[sn], sim_f[sn], err=err)
+        out[f"mae_{idx}"] = misfit_L1(obs_f[sn], sim_f[sn], err=err)
+        out[f"pbias_{idx}"] = misfit_pbias(obs_f[sn], sim_f[sn])
+        out[f"kge_{idx}"] = kge(obs_f[sn], sim_f[sn])
+    out["spin_up_days"] = spin_up_days
+    return i, out
 
 
 # ==============================
@@ -321,52 +285,29 @@ if __name__ == "__main__":
         results_list = list(tqdm(pool.imap(compute_misfit, done),
                                   total=len(done), desc="Compute misfit"))
 
-    for i, m1, m2, m3, a1, a2, a3, p1, p2, p3, k1, k2, k3, spin_up_days in results_list:
-        results.loc[results["ID"] == i, "misfit_1"] = m1
-        results.loc[results["ID"] == i, "misfit_2"] = m2
-        results.loc[results["ID"] == i, "misfit_3"] = m3
-        results.loc[results["ID"] == i, "mae_1"] = a1
-        results.loc[results["ID"] == i, "mae_2"] = a2
-        results.loc[results["ID"] == i, "mae_3"] = a3
-        results.loc[results["ID"] == i, "pbias_1"] = p1
-        results.loc[results["ID"] == i, "pbias_2"] = p2
-        results.loc[results["ID"] == i, "pbias_3"] = p3
-        results.loc[results["ID"] == i, "kge_1"] = k1
-        results.loc[results["ID"] == i, "kge_2"] = k2
-        results.loc[results["ID"] == i, "kge_3"] = k3
-        results.loc[results["ID"] == i, "spin_up_days"] = spin_up_days
+    for i, out in results_list:
+        for col, val in out.items():
+            results.loc[results["ID"] == i, col] = val
 
-    # Total misfit (quadratique) et likelihood
-    results["misfit_tot"] = (results["misfit_1"] + results["misfit_2"] +
-                             results["misfit_3"])
-
-    results["Lik1"] = likelyhood(results["misfit_1"])
-    results["Lik2"] = likelyhood(results["misfit_2"])
-    results["Lik3"] = likelyhood(results["misfit_3"])
+    # Totaux sur les seuls capteurs de calage (les CL ne sont pas comparées, il
+    # n'y a donc rien de trivial à retirer : misfit_tot est LE critère de
+    # classement). Sommes pour misfit (L2) et mae (L1) : toutes les simulations
+    # sont comparées sur la même fenêtre et le même nombre de points (spin-up
+    # fixe avant DATE_SIMUL_BG), les sommes sont donc comparables entre elles.
+    results["misfit_tot"] = sum(results[f"misfit_{_i}"] for _i in IDX)
+    for _i in IDX:
+        results[f"Lik{_i}"] = likelyhood(results[f"misfit_{_i}"])
 
     # Total MAE : critère alternatif, moins sensible aux décalages de phase
     # (cf. Cognac & Ronayne 2023) - les deux sont disponibles pour comparaison,
     # ils ne désignent pas nécessairement la même combinaison comme "meilleure".
-    results["mae_tot"] = results["mae_1"] + results["mae_2"] + results["mae_3"]
+    results["mae_tot"] = sum(results[f"mae_{_i}"] for _i in IDX)
 
     # PBIAS et KGE moyennés (pas sommés comme misfit_tot/mae_tot) : ce sont des
     # métriques déjà normalisées (% et score borné à 1), pas des erreurs
     # cumulables entre profondeurs.
-    results["pbias_mean"] = (results["pbias_1"] + results["pbias_2"] +
-                             results["pbias_3"]) / 3
-    results["kge_mean"] = (results["kge_1"] + results["kge_2"] +
-                           results["kge_3"]) / 3
-
-    # Si BOTTOM_SENSOR (config_lomos.py) tombe sur l'un des 3 capteurs de
-    # comparaison (ex: config C), la maille correspondante compare à sa propre
-    # condition limite - trivial, presque parfait par construction. Ça fausse
-    # misfit_tot/kge_mean vers le haut si on ne l'exclut pas. misfit_fair est
-    # le critère à regarder pour classer les simulations entre elles.
-    if BOTTOM_SENSOR_TRIVIAL_INDEX is not None:
-        _trivial_col = f"misfit_{BOTTOM_SENSOR_TRIVIAL_INDEX + 1}"
-        results["misfit_fair"] = results["misfit_tot"] - results[_trivial_col]
-    else:
-        results["misfit_fair"] = results["misfit_tot"]
+    results["pbias_mean"] = sum(results[f"pbias_{_i}"] for _i in IDX) / len(IDX)
+    results["kge_mean"] = sum(results[f"kge_{_i}"] for _i in IDX) / len(IDX)
 
     # Diagnostic d'identifiabilité (nombre de Péclet + largeur du plateau de
     # misfit sur log_k, voir README.md) : un bon misfit ne veut pas dire un
@@ -394,7 +335,7 @@ if __name__ == "__main__":
         # pour la meilleure simulation : sim_velocity_{ID}.txt fait ~9.5 Mo chacun,
         # les lire pour les 576 lignes (~5.4 Go, séquentiel) a fait planter la machine
         # (2026-07-24). Le reste des lignes garde le calcul analytique, déjà vectorisé.
-        best_id = results.loc[results["misfit_fair"].idxmin(), "ID"]
+        best_id = results.loc[results["misfit_tot"].idxmin(), "ID"]
         q_ginette_best = ginette_velocity_for_row(best_id, spin_up_days_for_row(best_id))
         if q_ginette_best is not None:
             results.loc[results["ID"] == best_id, "darcy_flux_m_s"] = q_ginette_best
@@ -409,9 +350,9 @@ if __name__ == "__main__":
         print(f"\nVitesse Ginette lue pour la meilleure simulation uniquement (ID={int(best_id)}) "
               "- le reste utilise le calcul Darcy analytique.")
 
-        thresh = results["misfit_fair"].min() * 1.05
-        plateau = results[results["misfit_fair"] <= thresh]
-        best = results.loc[results["misfit_fair"].idxmin()]
+        thresh = results["misfit_tot"].min() * 1.05
+        plateau = results[results["misfit_tot"] <= thresh]
+        best = results.loc[results["misfit_tot"].idxmin()]
 
         print("\n=== Diagnostic d'identifiabilité ===")
         print(f"Gradient de charge moyen : {grad:.4f} m/m")

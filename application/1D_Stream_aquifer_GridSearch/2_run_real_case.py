@@ -22,13 +22,16 @@ import pandas as pd
 from time import time
 import shutil
 import subprocess
+import re
 import multiprocessing as mp
 # Add project root to path
 project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 # Import your modules directly from src_python
 sys.path.insert(0, str(project_root / "src" / "src_python"))
-from src.src_python.Direct_model import setup_ginette,run_direct_model,setup_ginette2,generate_zone_parameters,reuse_end_in_initial,setup_ginette_perm
+from src.src_python.Direct_model import (setup_ginette, run_direct_model, setup_ginette2,
+                                         configure_thermal_parameters, generate_zone_parameters,
+                                         reuse_end_in_initial, setup_ginette_perm)
 from src.src_python.Init_folders import compile_ginette,compile_ginette_src,prepare_ginette_directories
 # Get current script directory
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -40,6 +43,9 @@ BASE_DIR = str(SCRIPT_DIR)
 #==============================================================================
 # Delete temp folder after simulation   
 Delete_sim="True"
+# GINETTE_DELETE_SIM=False : reprise d'un grid search interrompu (ne relance
+# que les ID sans sim_temp_ID.txt dans results/{POINT_NAME}/).
+Delete_sim = os.environ.get("GINETTE_DELETE_SIM", Delete_sim)
 # =============================================================================
 # MODEL GEOMETRY AND DISCRETIZATION SETUP
 # =============================================================================
@@ -53,8 +59,9 @@ Delete_sim="True"
 sys.path.insert(0, str(SCRIPT_DIR))
 from config_lomos import (POINT_NAME, RUN_GRID_SEARCH, RUN_MISFIT, RUN_PLOTS,
                            SAVE_VELOCITY_PROFILES,
-                           DATE_SIMUL_BG as date_simul_bg,
-                           NB_DAY as nb_day, DT as dt, MAX_WORKERS)
+                           RUN_DATE_BG as date_simul_bg,
+                           RUN_NB_DAY as nb_day, DT as dt, MAX_WORKERS,
+                           RHO_SOLID, C_SOLID)
 Obs_data = os.path.join(BASE_DIR, 'OBS_point', POINT_NAME)
 # Simulation state configuration:
 # 0 = steady state (time-independent, equilibrium conditions)
@@ -66,7 +73,7 @@ state = 1
 # config_lomos.py, partagés avec 0_boundary_conditions_real_case.py et
 # 3_misfit.py - sinon E_temp_t.dat/E_charge_t.dat ne correspondent plus à la
 # géométrie régénérée ici à chaque point de la grille.
-from config_lomos import Z_TOP, Z_BOTTOM, DZ_OBS
+from config_lomos import Z_TOP, Z_BOTTOM, DZ_OBS, CALIB_SENSORS
 z_top, z_bottom = Z_TOP, Z_BOTTOM
 az = abs(z_top - z_bottom)  # Total column height [m]
 
@@ -104,12 +111,12 @@ dz_obs = DZ_OBS  # Spacing between temperature sensors [m], derived from SENSOR_
 # projet "TempMolo mal positionné lomos230/231", misfit_tot=2201.3) - à changer
 # si on fixe un paramètre pour un autre point ou avec une autre valeur de
 # référence. REF_HEAT_CAPACITY (capacité calorifique du solide [J/kg/K],
-# colonne cpmzone côté Fortran pour ytest=ZHZ) = valeur par défaut de
-# 1_define_grid_search.py (c=[2000]).
+# colonne cpmzone côté Fortran pour ytest=ZHZ) = C_SOLID (config_lomos.py,
+# par point), pour ne pas dupliquer cette valeur une 3e fois ici.
 REF_LOG_K = -15.86
 REF_LAM = 1.57
 REF_N = 0.51
-REF_HEAT_CAPACITY = 2000.0
+REF_HEAT_CAPACITY = C_SOLID
 
 # Initialize Ginette model files and return observation depths
 # This function creates all necessary input files for the Ginette model:
@@ -297,6 +304,7 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
 
     state=0
     setup_ginette_perm(dt, state, nb_day, z_top, z_bottom, az, dz, date_simul_bg, dz_obs)
+    configure_thermal_parameters(RHO_SOLID, C_SOLID)
     generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, k, n, lam, c,
                               REF_k2=k2, REF_n2=n2, REF_l2=lam2, REF_r2=c2)
     subprocess.call(["./ginette"])
@@ -309,6 +317,7 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
     state=1
     z_obs=setup_ginette(dt, state, nb_day, z_top, z_bottom, az, dz,
                  date_simul_bg, dz_obs)
+    configure_thermal_parameters(RHO_SOLID, C_SOLID)
     # 4) RUN SIMULATION
     sim_temp = run_direct_model(date_simul_bg,
                                 z_bottom,
@@ -340,10 +349,18 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
 
 
 
-    # Save results:
+    # Save results : run_direct_model() renvoie les 3 points d'observation
+    # Ginette sous les noms Temp1/Temp2/Temp3 (= mailles 1, 2, 3 sous la CL
+    # haute). On ne garde que ceux qui correspondent à un capteur de CALAGE
+    # (CALIB_SENSORS, config_lomos.py) et on les renomme avec le nom PHYSIQUE
+    # du capteur, pour que sim_temp_ID.txt ait exactement les mêmes colonnes
+    # que observed_data.txt (Temp2/Temp3 en config C, Temp1/2/3 en config A).
     os.chdir(os.path.join("..", ".."))
-    sim_temp.to_csv(os.path.join(RESULTS_DIR,
-                                 f"sim_temp_{ID}.txt"), sep=" ")
+    sim_out = sim_temp[["Time", "dates"]].copy()
+    for _sensor, _k in CALIB_SENSORS.items():
+        sim_out[_sensor] = sim_temp[f"Temp{_k}"].to_numpy()
+    sim_out = sim_out[["Time"] + list(CALIB_SENSORS) + ["dates"]]
+    sim_out.to_csv(os.path.join(RESULTS_DIR, f"sim_temp_{ID}.txt"), sep=" ")
 
     # Nettoyage du répertoire scratch temp_{ID} (2026-07-22) : jamais supprimé
     # auparavant (ligne laissée en commentaire) - sur un grand balayage (512
@@ -355,6 +372,23 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
     # shutil.rmtree ici évite la récidive sur un balayage encore plus grand.
     shutil.rmtree(temp_dir, ignore_errors=True)
     return
+
+
+def _run_ginette_safe(ID, *args):
+    """run_ginette, mais un plantage de Ginette sur UNE combinaison (ex: pas de
+    S_pression_charge_temperature.dat en régime permanent pour des paramètres
+    extrêmes) ne tue plus tout le pool : l'ID et les paramètres sont
+    journalisés dans results/{POINT_NAME}/failed_simulations.txt et le grid
+    search continue (3_misfit.py ignore les sim_temp_ID.txt absents)."""
+    try:
+        return run_ginette(ID, *args)
+    except Exception as exc:  # noqa: BLE001 - on veut tout attraper ici
+        k, n, lam, c = args[0], args[1], args[2], args[3]
+        msg = f"ID={ID} log_k={k} n={n} lam={lam} c={c} : {type(exc).__name__}: {exc}"
+        print("ECHEC Ginette", msg, flush=True)
+        with open(os.path.join(RESULTS_DIR, "failed_simulations.txt"), "a") as f:
+            f.write(msg + "\n")
+        return None
 
 
 def _n_worker_processes():
@@ -376,6 +410,23 @@ if __name__ == "__main__":
     # réutilise les sim_temp_*.txt déjà présents, pour juste relancer le misfit
     # et/ou les plots sur un calage déjà terminé.
     if RUN_GRID_SEARCH:
+        # Les CL dans GINETTE_SENSI/ doivent avoir été générées pour CE point,
+        # CETTE période et CET offset (voir bc_manifest() dans config_lomos.py).
+        from config_lomos import bc_manifest
+        _manifest_path = os.path.join(BASE_APP_DIR, "GINETTE_SENSI", "bc_manifest.txt")
+        if not os.path.exists(_manifest_path):
+            raise RuntimeError("GINETTE_SENSI/bc_manifest.txt absent : lancer "
+                               "0_boundary_conditions_real_case.py avant 2_run_real_case.py.")
+        with open(_manifest_path) as _f:
+            _written = dict(line.rstrip("\n").split(" ", 1) for line in _f if line.strip())
+        _expected = bc_manifest()
+        _diff = {k: (_written.get(k), v) for k, v in _expected.items() if _written.get(k) != v}
+        if _diff:
+            raise RuntimeError(
+                "Les CL de GINETTE_SENSI/ ne correspondent pas à la config courante "
+                "(GINETTE_SENSI -> config) : "
+                + ", ".join(f"{k}: {a} -> {b}" for k, (a, b) in _diff.items())
+                + ". Relancer 0_boundary_conditions_real_case.py.")
         os.makedirs(os.path.join(BASE_APP_DIR, "temp"), exist_ok=True)
         os.makedirs(os.path.join(BASE_APP_DIR, "results"), exist_ok=True)
 
@@ -404,9 +455,12 @@ if __name__ == "__main__":
         # find which simulations are already done
         # if file sim_temp_ID.txt exists in results/{POINT_NAME}/, consider it done
         if (Delete_sim!="True"):
-            done = sorted([int(f.split("_")[-1].split(".")[0])
-                       for f in os.listdir(RESULTS_DIR)])[1:]
+            # uniquement les sim_temp_ID.txt : results/ contient aussi des png,
+            # csv, sous-dossiers... qui faisaient planter int() (2026-09-15)
+            done = {int(m.group(1)) for f in os.listdir(RESULTS_DIR)
+                    for m in [re.match(r"sim_temp_(\d+)\.txt$", f)] if m}
             remains = [i for i in grid.ID if i not in done]
+            print(f"Reprise : {len(done)} simulations déjà faites, {len(remains)} à lancer.")
         else:
             remains = grid.ID.tolist()
 
@@ -430,7 +484,7 @@ if __name__ == "__main__":
                   for r in grid.itertuples() if r.ID in remains]
         to = time()
         with mp.Pool(processes=_n_worker_processes()) as pool:
-            result = pool.starmap_async(run_ginette, params)
+            result = pool.starmap_async(_run_ginette_safe, params)
             pool.close()
             pool.join()
             # result.get() est INDISPENSABLE (pas juste pool.join()) : sans lui,

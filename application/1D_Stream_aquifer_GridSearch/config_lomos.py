@@ -62,7 +62,7 @@ DELTAP_DEPTH = SENSOR_DEPTHS[DELTAP_SENSOR] * np.cos(np.radians(DELTAP_TUBE_ANGL
 # Par point : les autres points (ex: lomos230, tube vertical) restent à 0 -
 # le même balayage sur lomos230 (3 périodes) ne réclame aucun offset et
 # rejette celui du 231 (misfit dégradé dès -4 cm).
-DELTAP_OFFSET_CM = {'lomos231': -4.5}
+DELTAP_OFFSET_CM = {'lomos231': -3.8}
 DELTAP_OFFSET = DELTAP_OFFSET_CM.get(POINT_NAME, 0.0) / 100.0
 # Surcharge temporaire par 5_offset_sweep.py (balayage de l'offset, lance le
 # pipeline une fois par valeur) - ne rien changer ici pour un balayage.
@@ -265,17 +265,33 @@ Name_parameters = ["log_k", "lam", "n", "c"]
 
 # Bornes [min, max] - large par défaut (>= 4 ordres de grandeur sur log_k)
 # pour ne pas présupposer la valeur calée et pouvoir estimer l'incertitude.
-log_k = [-13, -11]  # log10(perméabilité intrinsèque k [m2])
-lam = [2, 6]        # conductivité thermique de la fraction solide [W/m/K]
-n = [0.15, 0.65]    # porosité [-]
+log_k = [-15, -11]  # log10(perméabilité intrinsèque k [m2])
+lam = [2.5, 4.0]    # granite fracturé: conductivité de la fraction solide [W/m/K]
+n = [0.20, 0.40]    # porosité totale plausible pour un lit granitique fracturé [-]
 # c = capacité calorifique SPÉCIFIQUE (pas volumique) du solide [J/kg/K],
 # combinée à rhosi (E_p_therm.dat, fixe) via CASE('ZHZ'). rhosi a été baissé à
 # 1180 kg/m3 (sédiment riche en matière organique, pas du quartz pur) pour que
 # c=2000, mélangé à l'eau selon la porosité (Cv = n*Cw_vol + (1-n)*rhos*c),
 # donne une capacité volumique du milieu SATURÉ cohérente avec la littérature
 # streambed (~2-3.5 MJ/m3/K, Stallman/Lapham/Constantz) - voir E_p_therm_bck.dat.
-c = [2000]          # capacité thermique spécifique de la fraction solide [J/kg/K]
 
+# Propriétés du solide, définies au même endroit que les bornes de calibration.
+# lomos230 : sable gréseux riche en matière organique -> rhosi=1180 et c=2000
+# J/kg/K déjà retenus lors du calage précédent (donnent une capacité volumique
+# du milieu saturé cohérente avec la littérature streambed, ~2-3.5 MJ/m3/K,
+# Stallman/Lapham/Constantz - voir E_p_therm_bck.dat). lomos231 : hypothèse
+# d'un lit granitique fracturé.
+RHO_SOLID_BY_POINT = {
+    "lomos230": 1180.0,  # sable gréseux [kg/m3]
+    "lomos231": 2650.0,  # granite [kg/m3]
+}
+C_SOLID_BY_POINT = {
+    "lomos230": 2000.0,  # sable gréseux [J/kg/K]
+    "lomos231": 800.0,   # granite [J/kg/K]
+}
+RHO_SOLID = RHO_SOLID_BY_POINT.get(POINT_NAME, RHO_SOLID_BY_POINT["lomos230"])
+C_SOLID = C_SOLID_BY_POINT.get(POINT_NAME, C_SOLID_BY_POINT["lomos230"])
+c = [C_SOLID]        # capacité thermique spécifique de la fraction solide [J/kg/K] (valeur fixe, pas calée)
 # Pas fixe (résolution) par paramètre : {nom: (pas, décimales d'arrondi)}.
 # La grille est alors np.arange(min, max+pas, pas) arrondie à `décimales`. Un
 # paramètre de Name_parameters absent d'ici retombe sur N/np.linspace.
@@ -314,9 +330,6 @@ SPIN_UP_MIN_DAYS = 0
 
 # Densité du solide [kg/m3], fixe (E_p_therm_bck.dat, rhosi) - voir le
 # commentaire de `c` plus haut. Utilisée pour Cv dans 3_misfit.py et ici pour tau.
-RHO_SOLID = 1180.0
-
-
 def _spin_up_run_days():
     if SPIN_UP_DAYS != "auto":
         return max(1, int(SPIN_UP_DAYS))
