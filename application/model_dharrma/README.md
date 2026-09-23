@@ -89,6 +89,8 @@ All plots are shown
 
 
 ## References:
+
+- Radic, N., Rivière, A., Bodet, L., Pasquet, S., Martin, R., Gautier, M., Gesret, A. (in prep) : Novel transient hydrogeophysical process-based model tointerpret the geophysical data in the vadose zone. Vadose Zone Journal. This article will be published using this model, and all the figures presented in the article were generated using the figure_article.py script.
 - Rücker, C., Günther, T., & Wagner, F. M. (2017). pyGIMLi: An open-source library for modelling and inversion in geophysics. Computers & Geosciences, 109, 106-123. https://doi.org/10.1016/j.cageo.2017.07.011
 - Solazzi, S. G., Bodet, L., Holliger, K., & Jougnot, D. (2021). Surface‐wave dispersion in partially saturated soils: The role of capillary forces. Journal of Geophysical Research: Solid Earth, 126(12), e2021JB022074. https://doi.org/10.1029/2021JB022074
 
