@@ -8942,9 +8942,8 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
             valcl(1, 3) = rho(1)*g*(chgsurf(kimp) - zhaut)
          case (-1)
             !Ajouter le ruisselement
-            !ccc.....MODIF AVEC PLUIE nicolas radic
-!ccc....flux max = K_sat*kr = (k*rho*g/mu)*kr ; ak_surf=k [m2], akr_surf=kr [-]
-            qpossible = ak_surf*akr_surf*1000D+00*9.81D+00/0.001D+00
+            !ccc.....MODIF AVEC PLUIE
+            qpossible = akr_surf*1000*9.81/0.001            !akr_surf*ak_surf*1000*9.81/0.001 ! Calcul du flux max possible à l'aide de la permeabilité relative.
             if (qpossible <= qsurf(kimp)) then ! Le débit de pluie est plus grand que le debit max possible dans le sol
                  valcl(1,3) = qpossible ! L'infiltration est plafonné par la permeabilté relative
                  print *, "ON A DIMINUE LE FLUX EN SURFACE en passant de ", qsurf(kimp), qpossible, akr_surf
@@ -8954,7 +8953,7 @@ subroutine variation_cdt_limites(nm, paso, itlecture, ytest, &
             else ! Dans le cas ou la pluie est plus faible que la permabilité relative 
             valcl(1, 3) = qsurf(kimp)
             end if 
-            if (swo .gt. 0.985) then
+            if (swo .gt. 0.99) then
                valcl(1,3) = 0
                print *, "Profil saturée le flux d'infiltration en surface est nul. 100% ruisselement valcl(1, 3) = 0"
                ! stop
