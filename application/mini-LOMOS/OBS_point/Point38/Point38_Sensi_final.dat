@@ -1,3 +1,0 @@
-ID,ak,n,ss,l,r,temp1_rmse,temp1_bias,temp1_rbias,temp1_correlation,temp2_rmse,temp2_bias,temp2_rbias,temp2_correlation,temp3_rmse,temp3_bias,temp3_rbias,temp3_correlation
-1,0.10D-13,0.010,0.25D+01,0.30D+04,1.339475,1.255304,0.138566,0.949999,0.642737,0.616087,0.065172,0.992787
-2,0.10D-13,0.010,0.25D+01,0.45D+04,1.335264,1.243658,0.137104,0.944788,0.619336,0.601473,0.063528,0.995701
