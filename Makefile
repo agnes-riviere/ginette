@@ -49,13 +49,23 @@ GCC : $(GIN_F90_DIR)
 
 #Spécialement pour l'application Dharrma
 DHARRMA_PATH = application/model_dharrma
-init_dharrma : 
-	cd $(DHARRMA_PATH) && python3 setup.py build_ext --inplace && touch lib/__init__.py
+DHARRMA_VENV = $(DHARRMA_PATH)/venv
+DHARRMA_PYTHON = venv/bin/python3
 
-run_dharrma :
-	cd $(DHARRMA_PATH) && python3 main_DHARRMA.py
+# Crée le venv et installe les paquets nécessaires (build + exécution) seulement s'il n'existe pas déjà
+$(DHARRMA_VENV)/bin/python3 :
+	python3 -m venv $(DHARRMA_VENV)
+	$(DHARRMA_VENV)/bin/pip install --upgrade pip
+	$(DHARRMA_VENV)/bin/pip install "Cython==3.3.0" "numpy==2.2.6" "pandas==2.3.3" "matplotlib==3.10.9" "pgcore==1.5.5" "pygimli==1.5.5"
 
-sup_run_dharrma :
+init_dharrma : $(DHARRMA_VENV)/bin/python3
+	cd $(DHARRMA_PATH) && $(DHARRMA_PYTHON) setup.py build_ext --inplace && touch lib/__init__.py
+
+run_dharrma : $(DHARRMA_VENV)/bin/python3
+	cd $(DHARRMA_PATH) && $(DHARRMA_PYTHON) main_DHARRMA.py
+
+sup_run_dharrma : $(DHARRMA_VENV)/bin/python3
 	cd $(DHARRMA_PATH)/input_ginette && rm -f $(EXECUTABLE) S_* Sim* *.gcno *.gcda *.html *.css
-	cd $(DHARRMA_PATH) && python3 main_DHARRMA.py
+	cd $(DHARRMA_PATH) && $(DHARRMA_PYTHON) main_DHARRMA.py
+
 
