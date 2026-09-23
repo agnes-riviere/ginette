@@ -1,5 +1,8 @@
 message: "If you use this software, please cite it as below."
 authors:
+  - family-names: Radic
+    given-names: Nicolas
+    orcid: https://orcid.org/0009-0009-9275-294X
   - family-names: Rivière
     given-names: Agnès
     orcid: https://orcid.org/0000-0002-6002-3189
@@ -9,11 +12,10 @@ authors:
   - family-names: Jost
     given-names: Anne
     orcid: https://orcid.org/0000-0002-0925-3376
-  - family-names: Radic
-    given-names: Nicolas
 
 
 
-title: agnes-riviere/ginette: Ginette-2020-09
-version: 2020-09
-date-released: 2017-12-18
+
+title: agnes-riviere/ginette: Ginette-application-Dharrma-2026-09
+version: 2026-09
+date-released: 2026-09-23
