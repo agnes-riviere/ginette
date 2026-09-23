@@ -2,7 +2,7 @@
 Modèle DHARRMA (Direct HydrogeophysicAl Resistivity and Refraction Modeling Application)
 
 
-Code permettant de lancer le modèle direct transitoire hydrogéophysique développé par N. RADIC, A. RIVIERE, L. BODET, M. GAUTIER, A. GESRET, R. MARTIN en 2025
+Code permettant de lancer le modèle direct transitoire hydrogéophysique développé par N. RADIC, A. RIVIERE, L. BODET, S. PASQUET M. GAUTIER, A. GESRET, R. MARTIN en 2025
 Input à renseigner : Détail de la simulation (jours, pas), Faciès,parametre sol/thermique/ert/sismique, scénario d'infiltration/evaporation, configuration ERT/sismique...
 
 
@@ -30,7 +30,7 @@ Constitué de 6 partie :
 # =====================================================================================
 
 
-##################### PARTIE 0 : PARAMETRE DU MODÈLE #########################################
+##################### PART 0 : Running code section #########################################
 
 import fonction_DHARRMA as fct
 import Direct_model as Dm
@@ -54,73 +54,72 @@ from lib.TTDSPfunctions import firstArrival, writeVelocityModel, readDispersion
 dossier_actuel = Path(__file__).parent
 
 
-# Choix des parties à faire tourner dans le code
+# Selection of code sections to run
 lancer_ginette = True
-thermique = False
-sismic = False
+thermique = True
+sismique = False
 electrique = False
 visualisation = True
 
 
-######################## PARTIE I : INPUT DU MODÈLE ##########################################
+######################## PART I : MODEL INPUT ##########################################
 
-# Paramètres Généraux
+# General Parameters
 
-nbr_jour =  62 # nombre de jours de simulation au total
-facies = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986)) 
+nbr_jour =  120 # total number of days to simulate
+facies = 'silt' # Facies for the homogeneus simulation (cf Carsel and Parish (1986)) 
 
 
-###### Paramètre de simulation Hydro GINETTE-----------------------------------------------------------------------------------------------------------------------
+###### GINETTE Hydro Simulation Parameters -----------------------------------------------------------------------------------------------------------------------
 
-# Maillage de GINETTE
-depth_top = 0 # (en m) haut du modèle
-depth_bottom = -4 # (en m) bas du modèle
-hauteur_WT_initial = -2 # (en m) Hauteur de la nappe à l'état initiale
-dz = 0.01 # (en m) largeur des mailles du modèle hydro
-
+# GINETTE Mesh
+depth_top = 0 # (m) top of the model
+depth_bottom = -4 # (m) bottom of the model
+hauteur_WT_initial = -2 # (m) initial water table height
+dz = 0.01 # (m) length of the hydrological model cells
 
 # Paramètre hydro
-pas_hydro = 900 # En seconde, Pas de temps à utiliser pour ma simulation hydro
-homogeneite = False # False = Prise en compte de l'hétérogénéité du sol
-sortie_hauteur_WT = True #True = Creation fichier S_wt_depth_t.dat qui donne la hauteur de la nappe en fonction du temps
+pas_hydro = 900 # (s) Time step use for hydro simulation (also for output files)
+homogeneite = True # False = Account for soil heterogeneity (work in progress)
+sortie_hauteur_WT = False #True = Create S_wt_depth_t.dat file giving water table height over time
 
 
-if homogeneite: # Paramètre de sol homogène
-    k1 = 6.94E-14 #1E-10#1E-11# Perméabilité
-    soil = selectSoilType(facies) # Paramètre selon le facies et la distribution de Carsel and Parrish
-    phi_soil = soil[3] #0.04# Porosité
-    Swr_soil = soil[7] #0.1325# Saturation résiduelle
+if homogeneite: #  Homogeneus soil parameters
+    k1 = 6.94E-14 # Permeability (m2)
+    soil = selectSoilType(facies) # Carsel and Parrish's distribution for the selected facies
+    phi_soil = soil[3] # Porosity
+    Swr_soil = soil[7] # Residual saturation
 
     #Van genuchten parameter
-    alpha_soil = soil[4]#14.5#
-    nvg_soil = soil[5]#2.68#
+    alpha_soil = soil[4]
+    nvg_soil = soil[5]
 
-else : # Paramètre de sol hétérogène
+else : # Heterogeneous soil parameters (work in progress)
     nbr_couches = 2
-    depth_boundary = -3 # (en m) Profondeur à laquelle on change de couche
+    depth_boundary = -3 # (m) depth of the boundary
 
     #------ Couche 1------
-    facies1 = 'silt' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986))
+    facies1 = 'sand' #(cf Carsel and Parish (1986))
 
-    k1 = 6.94E-14 #1E-10#1E-11# Perméabilité
-    soil1 = selectSoilType(facies1) # Paramètre selon le facies et la distribution de Carsel and Parrish
-    phi_soil1 = soil1[3] #0.04# Porosité
-    Swr_soil1 = soil1[7] #0.1325# Saturation résiduelle
+    k1 = 6.94E-14 # Permeability (m2)
+    soil1 = selectSoilType(facies1) # Carsel and Parrish's distribution for the selected facies
+    phi_soil1 = soil1[3] # Porosity
+    Swr_soil1 = soil1[7] # Residual saturation
 
     #Van genuchten parameter
-    alpha_soil1 = soil1[4]#14.5#
-    nvg_soil1 = soil1[5]#2.68#
+    alpha_soil1 = soil1[4]
+    nvg_soil1 = soil1[5]
 
     #------ Couche 2------
     facies2 = 'clay' # Faciès utilisé dans la simulation (cf Carsel and Parish (1986))
-    k2 = 1E-14 # Perméabilité de la deuxième couche
-    soil2 = selectSoilType(facies2) # Paramètre selon le facies et la distribution de Carsel and Parrish
-    phi_soil2 = soil2[3] #0.04# Porosité
-    Swr_soil2 = soil2[7] #0.1325# Saturation résiduelle
+    k2 = 1E-14 # Permeability (m2) of the second layer
+    soil2 = selectSoilType(facies2) # Carsel and Parrish's distribution for the selected facies
+    phi_soil2 = soil2[3] # Porosity
+    Swr_soil2 = soil2[7] # Residual saturation
 
     #Van genuchten parameter
-    alpha_soil2 = soil2[4]#14.5#
-    nvg_soil2 = soil2[5]#2.68#
+    alpha_soil2 = soil2[4]
+    nvg_soil2 = soil2[5]
 
 
 
@@ -131,16 +130,16 @@ else:
     ith=0
 Dm.setup_ginette_DHARRMA(pas_hydro, ith, nbr_jour, depth_top, depth_bottom, abs(depth_top-depth_bottom), dz, pas_hydro,hauteur_WT_initial)
 
-# Création de fichier d'entrée pour GINETTE--------------------------------------------------------------------------------------------------------------------
+# Creating input file for GINETTE--------------------------------------------------------------------------------------------------------------------
 Creation_temp = False
 Creation_infiltation = True
 Evapo = False
 
-# Création du fichier de température
-# Si un fichier de température existe déjà il est possible de le mettre dans le fichier E_temp_t.dat
+# Creating the temperature file
+# If a temperature file already exists, it can be placed in the E_temp_t.dat file
 if Creation_temp :
 
-    bottom_temp = 10 #(°C) Temp stable en bas du modèle
+    bottom_temp = 10 #(°C) stable temp at the bottom of the model
     deg_per_day = 0.2 #0#(°C) Linear temperature increase over time
     daily_fluctuation = 5
     weekly_fluctuation = 3
@@ -148,20 +147,20 @@ if Creation_temp :
 
     fct.creation_temp(nbr_jour,pas_hydro,bottom_temp,deg_per_day,daily_fluctuation,weekly_fluctuation,temp_offset)
 
-# Création du fichier d'infiltration
-# Si un fichier d'infiltration existe déjà il est possible de le mettre dans le fichier E_debit_haut_t.dat
+# Creating the infiltration file
+# If an infiltration file already exists, it can be placed in the E_debit_haut_t.dat file
 if Creation_infiltation :
     min_infiltration = 0
-    max_infiltration = 4E-08#8 # m/s
-    duree_transition = 1 #0.125 #  Jours
-    duree_max_infiltration= 1 #0.25#100 # Jours
-    debut_jour_infiltration = [7,12,17,22,30,87,92,97,102] #[30,102]#[30,87,95,110]#[i for i in range(1,120)]#[5,35,65,95] #[1]#
+    max_infiltration = 4E-08 # m/s
+    duree_transition = 1#  Days
+    duree_max_infiltration= 1 # Days
+    debut_jour_infiltration = [7,12,17,22,30,87,92,97,102] #[30,102] #Starting days of infiltration events
 
 
     if Evapo :
         max_evapo = 7E-8
-        duree_transition_evapo = 0.125 # 1 # Jours
-        duree_max_evapo = 0.5 # 1 # Jours
+        duree_transition_evapo = 0.125 # Days
+        duree_max_evapo = 0.5 # Days
         debut_jour_evapo = [i+0.5 for i in range(1,10)]
         fct.creation_infiltration_evapo(nbr_jour,pas_hydro,min_infiltration,max_infiltration,duree_transition,debut_jour_infiltration,duree_max_infiltration,0,max_evapo,duree_transition_evapo,debut_jour_evapo,duree_max_evapo)
     else :
@@ -186,13 +185,13 @@ else :
                                         k2, phi_soil2, alpha_soil2, nvg_soil2, Swr_soil2, lambda2, C2, rho2)
 
 
-###### Paramètre de simulation Sismique (avec Geopsy) --------------------------------------------------------------------------------------------------------------
+###### Seismic simulation (with Geopsy) --------------------------------------------------------------------------------------------------------------
 ######### Parametre simulation #############
-debut_sim_sis = 1 # en jours
-pas_sim_sis = 1 # en jours
-fin_sim_sis = nbr_jour # (compris) en jours 
+debut_sim_sis = 1 # (day) start of the simulation
+pas_sim_sis = 1 # (day) step
+fin_sim_sis = 120#(day inclued) end
 
-dz_sis = 0.01 # Discrétisation verticale (en m)
+dz_sis = 0.01 # (m) vertical discretization
 
 first_arrival_calcul = False
 
@@ -209,8 +208,8 @@ mu_clay = 6.8 # Shear moduli [GPa]
 mu_silt = 45.0
 mu_sand = 45.0
 k_clay = 25.0 # Bulk moduli [GPa]
-k_silt = 37.0
-k_sand = 37.0
+k_silt = 37.0 
+k_sand = 37.0 
 rho_clay = 2580.0 # Density [kg/m3]
 rho_silt = 2600.0
 rho_sand = 2600.0
@@ -222,13 +221,17 @@ else:
     # soiltypes2 = [facies2]
 
 # Grains/agregate parameters per layer
-Ns = [9,9] # Coordination Number (number of contact per grain) | default = 8
-fracs = [0.3,0.3] # Fraction of non-slipping grains (helps making the soil less stiff) | default = 0.3
+if homogeneite:
+    Ns = [9] # Coordination Number (number of contact per grain) | default = 8
+    fracs = [0.3] # Fraction of non-slipping grains (helps making the soil less stiff) | default = 0.3
+else:
+    Ns = [9,9] # Coordination Number (number of contact per grain) | default = 8
+    fracs = [0.3,0.3] # Fraction of non-slipping grains (helps making the soil less stiff) | default = 0.3
 # Four possible RP models:
 # kk = 1 # Constant Pe (see the approach of Zyserman et al., 2017)
 # kk = 2 # Pe without suction
 # kk = 3 # Pe with suction (cf. Solazzi et al. 2021)
-kk = 4 # Données de pression externe
+kk = 4 # External pression data (From ginette output)
 
 ######### Parametre modèle direct geopsy ##############
 # In GPDC format : [thickness Vp Vs rho]
@@ -259,20 +262,20 @@ s = 'frequency' # Over frequencies mode
 wave = 'R' # Rayleigh (PSV) fundamental mode
 
 
-###### Paramètre de simulation Electrique (avec PyGImly) -----------------------------------------------------------------------------------------------------------
+###### Electrical simulation(with PyGImly) -----------------------------------------------------------------------------------------------------------
 ######### Parametre simulation #############
-debut_sim_elec = 1 # en jours
-pas_sim_elec = 1 # en jours
-fin_sim_elec = nbr_jour # (compris) en jours 
+debut_sim_elec = 1 # (day) start of the simulation
+pas_sim_elec = 1 # (day) step
+fin_sim_elec = 120#(day inclued) end
 
-elec_static = False
+elec_static = True # Simulation of an hydrostatic model
 
-### Resistivité Vrai : Loi Petrophysique
+### Petrophysical parameters/law
 
 #Parametre Loi d'Archie
-a_archie = 1.196 # Facteur de tortuosité ]0.5;1.5] #limon = 1.196, sable = 1.147
-m_archie = 1.929 # Exposant de concentration # limon = 1.929, sable = 2.135
-n_archie = 2.338 # Exposant de saturation # limon = 2.338, sable = 0.858
+a_archie = 1.196 # Facteur de tortuosité ]0.5;1.5] 
+m_archie = 1.929 # Exposant de concentration
+n_archie = 2.338 # Exposant de saturation
 # Parametre a,m et n calculé avec les techniques conventionelles.
 
 if homogeneite ==  False:
@@ -282,14 +285,13 @@ if homogeneite ==  False:
 
 beta_s = 5.2E-9
 
-#Corection thermique
+#Thermal correction 
 rho_water_25 = 75 # Resistivité elec du fluide ici de l'eau à 25°C (en ohm.m)
 a_T = 0.02 # Compensateur de Température Hayashi 2004 et valeur de Matthes 1982
 
 Waxman_smits = True
 if Waxman_smits:
     if homogeneite:
-        # B_WS = Equation dans waxman smith
         wsand = soil[0]
         wclay = soil[1]
         wsilt = soil[2]
@@ -315,46 +317,47 @@ if Waxman_smits:
         print("Q_v2 =",Q_v2)
 
 
-### Resistivité mesurée : Problème direct
+### FWD model : apparent resistivity
 
-ab2_scale = 'log' # Recommandée
+ab2_scale = 'log' # Recommanded
 # ab2_scale = 'linear' 
-ab2_min = 1.5 # en mètre
-ab2_max = 100 # en mètre
+ab2_min = 1.5 # m
+ab2_max = 100 # m
 ab2_nbr_pt = 100 # Nombre d'écartement des électrodes AB
 
-mn2 = 1.0 # en mètre, écartement des électrodes MN
+mn2 = 1.0 # m, écartement des électrodes MN
 
 ###### Paramètre Visualisation -------------------------------------------------------------------------------------------------------------------------------------
 
-visualisation_temp = False
-visualisation_pluie = False
+visualisation_temp = True   # Visualisation of the temperature scenario
+visualisation_pluie = True # Visualisation of the infiltration scenario
 
 #### Visualisation 2D ####
-debut_representation = 1 # en jours
-fin_representation = nbr_jour # en jours
-pas_representation = 1 # en jours
+debut_representation = 1 # (day) Start of the representation
+fin_representation = nbr_jour # (day) End of the representation
+pas_representation = 1 # (day) Step of the representation
 
-lim_depth = 2.1 # (en mètre) Profondeur jusqu'à laquelle on représente le sol
-#Sortie ginette 2D
-visualisation_output_ginette = True
-#Sortie FWD model
-visualisation_propriete_geophy_2D = False
-visualisation_observable_geophy_2D = False
+lim_depth = 2.1 # (m) Depth up to which the soil is represented
+#ginette output 2D
+visualisation_output_ginette = True # Visualisation of hydrological parameters in 2D
 
-#Profil journalier
-jour_profil = [i for i in range (1,23,5)] #[i for i in range(1,110,30)]#[10,50,110] #[1,30,60,90,119] # [1,5,10,15,20]#Jour où on plot les profils des différents modèles suivant ce qu'on veut.
-representation = 1 # Représentation sur un seul graph
-# representation = 2 # Représentation sur plusieurs graph
-visualisation_propriete_hydro_profil = False
-visualisation_propriete_geophy_profil = True
-visualisation_observable_geophy_profil = True
-visualisation_wt = True
+#FWD model
+visualisation_propriete_geophy_2D = False   # Visualisation of geophysical properties in 2D
+visualisation_observable_geophy_2D = False # Visualisation of geophysical observables in 2D
 
-#Comparaison WT simulé avec un vrai piezomètre
+#Daily profile representation
+jour_profil = [1,30,40,60] # Day of the profile representation
+representation = 1 # All representations on the same graph
+# representation = 2 # One representation per graph
+visualisation_propriete_hydro_profil = True # Profile of hydrological properties (saturation, pressure, temperature)
+visualisation_propriete_geophy_profil = True # Profile of geophysical properties (Vp, Vs, rho)
+visualisation_observable_geophy_profil = True # Profile of geophysical observables (dispersion curves, apparent resistivity)
+visualisation_wt = False
 
-comparaison_wt_piezo = True
-path_xlsx = '/home/nradic/Documents/ginette/application/model_dharrma/save_data/pzps16.xlsx' #Chemin où se trouve le CSV du piezo à comparer
+#Comparaison WT simulé avec un vrai piezomètre (work in progress)
+
+comparaison_wt_piezo = False
+path_xlsx = '' #Chemin où se trouve le CSV du piezo à comparer
 cote_ngf_piezo = 80.02 # Cote en mNGF du piezo que l'on va comparer
 
 DEBUG = False
@@ -364,7 +367,7 @@ depth = depth_top-depth_bottom
 zs = -np.arange(dz, depth + dz, dz) # Depth positions (negative downward) [m]
 thks = np.diff(np.abs(zs)) # thickness vector [m]
 
-fct.creation_S_wt_depth(zs)
+
 # Compilation Ginette
 Info.compile_ginette_DHARRMA(DEBUG)
 
@@ -391,7 +394,7 @@ if lancer_ginette:
 
 ####################### PARTIE III : MODÈLE SISMIQUE #########################################
 
-if sismic:
+if sismique:
 
     # Modèle de physique des roches
     pressure = pd.read_csv("input_ginette/S_pressure_profil_t.dat", header=None, sep=r'\s+', names=['dt', 'Z', 'Pr','h'])
@@ -695,9 +698,9 @@ if elec_static:
     zs = -np.arange(dz, depth + dz, dz) # Depth positions (negative downward) [m]
     thks = np.diff(np.abs(zs)) # thickness vector [m]
     # path_saturation =  '/home/nradic/Documents/ginette/application/model_dharrma/save_data/data_article_1/scenario_5_pluies/input_ginette/S_saturation_profil_t.dat'
-    path_saturation = '/home/nradic/Documents/ginette/application/model_dharrma/input_ginette/S_saturation_profil_t.dat'
+    path_saturation = 'input_ginette/S_saturation_profil_t.dat'
     # path_temp = '/home/nradic/Documents/ginette/application/model_dharrma/save_data/data_article_1/scenario_5_pluies/input_ginette/S_temperature_t.dat'
-    path_temp = '/home/nradic/Documents/ginette/application/model_dharrma/input_ginette/S_temperature_t.dat'
+    path_temp = 'input_ginette/S_temperature_t.dat'
     saturation = pd.read_csv(path_saturation, header=None, sep='\s+', names=['dt', 'Z', 'Sw'])
     temperature = pd.read_csv(path_temp, header=None, sep='\s+', names=['dt', 'Z', 'temp'])
 
@@ -722,7 +725,8 @@ if elec_static:
         hs, Sws, Swes = vanGen(zs, -z_sat, soiltypes, thicknesses)
         Sws_array = np.array(Sws)
 
-        path_sat_static = '/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/saturation_profil.dat'
+        # path_sat_static = '/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/saturation_profil.dat'
+        path_sat_static = 'hydrostatic_model/hydro/saturation_profil.dat'
         if i == 0 : # Ecriture dans un fichier du profile de sat permanent
             if not os.path.exists(path_sat_static):
                 os.makedirs(os.path.dirname(path_sat_static), exist_ok=True)
@@ -749,14 +753,24 @@ if elec_static:
             rho_vrai = a_archie*rho_water_T*pow(phi_soil,-m_archie)*pow(sat_profil_array,-n_archie)
 
 
+        # if i == 0 : # Ecriture rho vrai permanent
+        #     if not os.path.exists('/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_vrai_static_temperature.dat'):
+        #         os.makedirs(os.path.dirname('/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_vrai_static_temperature.dat'), exist_ok=True)
+        #     with open(f'/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_vrai_static_temperature.dat','w') as f:
+        #         for z_value,rho_vrai_value in zip(zs,rho_vrai):
+        #             f.write(f"{temps_ginette} {z_value} {rho_vrai_value}\n")
+        # else :
+        #      with open(f'/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_vrai_static_temperature.dat','a') as f:
+        #         for z_value,rho_vrai_value in zip(zs,rho_vrai):
+        #             f.write(f"{temps_ginette} {z_value} {rho_vrai_value}\n")  
         if i == 0 : # Ecriture rho vrai permanent
-            if not os.path.exists('/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_vrai_static_temperature.dat'):
-                os.makedirs(os.path.dirname('/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_vrai_static_temperature.dat'), exist_ok=True)
-            with open(f'/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_vrai_static_temperature.dat','w') as f:
+            if not os.path.exists('hydrostatic_model/elec/rho_vrai_static_temperature.dat'):
+                os.makedirs(os.path.dirname('hydrostatic_model/elec/rho_vrai_static_temperature.dat'), exist_ok=True)
+            with open(f'hydrostatic_model/elec/rho_vrai_static_temperature.dat','w') as f:
                 for z_value,rho_vrai_value in zip(zs,rho_vrai):
                     f.write(f"{temps_ginette} {z_value} {rho_vrai_value}\n")
         else :
-             with open(f'/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_vrai_static_temperature.dat','a') as f:
+             with open(f'hydrostatic_model/elec/rho_vrai_static_temperature.dat','a') as f:
                 for z_value,rho_vrai_value in zip(zs,rho_vrai):
                     f.write(f"{temps_ginette} {z_value} {rho_vrai_value}\n")  
     
@@ -770,14 +784,24 @@ if elec_static:
         ves = VESManager()
         ra = ves.simulate(synthModel, ab2=ab2, mn2=mn2)
 
+        # if i == 0 : # Ecriture rho mesuré permanent
+        #     if not os.path.exists('/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_app_AB2_static_temperature.dat'):
+        #         os.makedirs(os.path.dirname('/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_app_AB2_static_temperature.dat'), exist_ok=True)
+        #     with open(f'/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_app_AB2_static_temperature.dat','w') as f:
+        #         for ab2_value,ra_value in zip(ab2,ra):
+        #             f.write(f"{temps_ginette} {ab2_value} {ra_value}\n")
+        # else :
+        #      with open(f'/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_app_AB2_static_temperature.dat','a') as f:
+        #         for ab2_value,ra_value in zip(ab2,ra):
+        #             f.write(f"{temps_ginette} {ab2_value} {ra_value}\n")
         if i == 0 : # Ecriture rho mesuré permanent
-            if not os.path.exists('/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_app_AB2_static_temperature.dat'):
-                os.makedirs(os.path.dirname('/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_app_AB2_static_temperature.dat'), exist_ok=True)
-            with open(f'/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_app_AB2_static_temperature.dat','w') as f:
+            if not os.path.exists('hydrostatic_model/elec/rho_app_AB2_static_temperature.dat'):
+                os.makedirs(os.path.dirname('hydrostatic_model/elec/rho_app_AB2_static_temperature.dat'), exist_ok=True)
+            with open(f'hydrostatic_model/elec/rho_app_AB2_static_temperature.dat','w') as f:
                 for ab2_value,ra_value in zip(ab2,ra):
                     f.write(f"{temps_ginette} {ab2_value} {ra_value}\n")
         else :
-             with open(f'/home/nradic/Documents/ginette/application/model_dharrma/save_data/resultat_static/elec/rho_app_AB2_static_temperature.dat','a') as f:
+             with open(f'hydrostatic_model/elec/rho_app_AB2_static_temperature.dat','a') as f:
                 for ab2_value,ra_value in zip(ab2,ra):
                     f.write(f"{temps_ginette} {ab2_value} {ra_value}\n")
 
@@ -816,8 +840,5 @@ if visualisation :
 
     if comparaison_wt_piezo:
         fct.plot_comparaison_wt_piezo(dossier_actuel,path_xlsx,cote_ngf_piezo,pas_jour_x=10)
-    
-    if False :
-        fct.plot_only_sat(dossier_actuel,86400*8,86400*11,900*4*12,lim_depth=-3)
 
     plt.show()
