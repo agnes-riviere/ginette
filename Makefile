@@ -62,10 +62,17 @@ init_dharrma : $(DHARRMA_VENV)/bin/python3
 	cd $(DHARRMA_PATH) && $(DHARRMA_PYTHON) setup.py build_ext --inplace && touch lib/__init__.py
 
 run_dharrma : $(DHARRMA_VENV)/bin/python3
-	cd $(DHARRMA_PATH) && $(DHARRMA_PYTHON) main_DHARRMA.py
+	cd $(DHARRMA_PATH) && if [ -n "$$DISPLAY" ]; then \
+		$(DHARRMA_PYTHON) main_DHARRMA.py; \
+	else \
+		QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg $(DHARRMA_PYTHON) main_DHARRMA.py; \
+	fi
 
 sup_run_dharrma : $(DHARRMA_VENV)/bin/python3
 	cd $(DHARRMA_PATH)/input_ginette && rm -f $(EXECUTABLE) S_* Sim* *.gcno *.gcda *.html *.css
-	cd $(DHARRMA_PATH) && $(DHARRMA_PYTHON) main_DHARRMA.py
-
+	cd $(DHARRMA_PATH) && if [ -n "$$DISPLAY" ]; then \
+		$(DHARRMA_PYTHON) main_DHARRMA.py; \
+	else \
+		QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg $(DHARRMA_PYTHON) main_DHARRMA.py; \
+	fi
 

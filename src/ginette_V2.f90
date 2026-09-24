@@ -31,6 +31,9 @@ program pression_ecoulement_transport_thermique
 !ccc....ou l'historique des residus n'est pas encore exploitable.
    double precision :: omega_aitken, aitken_num, aitken_den, aitken_dr
    double precision :: hlat_cell, cap_k, dh_cell, smax_ice, hs_ice, hl_ice, a_ice
+!ccc....re-projection enthalpique EXPON (TH2/TH3) : bornes et residu de la bissection
+   double precision :: tproj_lo, tproj_hi, tproj_mid, fproj_lo, fproj_hi, fproj_mid, sice_proj
+   integer :: nbis_proj, nexp_proj
    integer :: aitken_fresh
    double precision, parameter :: omega_aitken_min = 0.05d0
    integer nc, nr, n, iec, irp, ith, nitt, ixy, ii
@@ -3766,6 +3769,27 @@ program pression_ecoulement_transport_thermique
 !CC....Regime permanant
             if (irp == 0) dswdp(i) = 0D+00
          end do
+!ccc....2026-09-17 : capacite apparente "corde" pour EXPON, cas InterFrost
+!ccc....TH2/TH3 UNIQUEMENT (icesatperm n'est pas modifiee : elle sert a
+!ccc....toutes les applications). Meme principe que la corde LINEA de
+!ccc....icesatperm : la tangente (1-Sres)*(2T/W^2)*exp(-(T/W)^2) est ~nulle
+!ccc....a 0 C et sous -1.5 C ; une maille qui traverse la fenetre de gel en
+!ccc....un pas ne paie qu'une fraction de la chaleur latente et gele/degele
+!ccc....trop vite (TH3 : fermeture du talik ~3x trop tot a 3 et 6 %, alors
+!ccc....que 9 et 15 % - talik qui s'ouvre lentement - sont dans l'enveloppe
+!ccc....des 13 codes). La corde (sice-siceo)/(temp-tempo) rend le bilan
+!ccc....latent exact au point fixe, et fixe au passage dsidtemp=0 pour
+!ccc....temp>0 (icesatperm y laisse la valeur de l'iteration precedente).
+!ccc....Indissociable de la re-projection enthalpique EXPON plus bas.
+         if ((ytest == "TH2" .or. ytest == "TH3") .and. ytypsice == "EXPON") then
+            do i = 1, nm
+               if (abs(temp(i) - tempo(i)) > 1.D-12) then
+                  dsidtemp(i) = (sice(i) - siceo(i))/(temp(i) - tempo(i))
+               else if (temp(i) > 0.D0) then
+                  dsidtemp(i) = 0.D0
+               end if
+            end do
+         end if
          else
 !cc fin icycle=1
 !cc debut icycle=0
@@ -4192,6 +4216,76 @@ program pression_ecoulement_transport_thermique
                      temp(i) = (dh_cell + cap_k*tempo(i) - hlat_cell*siceo(i) - hlat_cell*a_ice*tl) &
                                /(cap_k - hlat_cell*a_ice)
                   end if
+               end do
+            end if
+!ccc....2026-09-17 : RE-PROJECTION ENTHALPIQUE pour EXPON, cas InterFrost
+!ccc....TH2/TH3 UNIQUEMENT (meme perimetre que la corde EXPON ajoutee apres
+!ccc....icesatperm, dont elle est indissociable ; aucune autre application
+!ccc....n'est concernee). Meme principe que le bloc LINEA ci-dessus :
+!ccc....l'energie injectee par le systeme lineaire,
+!ccc....   dH = (C_k + L*|dsidtemp_k|) * (temp_solveur - tempo),
+!ccc....est inversee a travers
+!ccc....   H(T) - H(tempo) = C_k*(T - tempo) + L*(siceo - sice(T)).
+!ccc....Avec EXPON, sice(T) = (1-Sres)*(1 - exp(-(T/W)^2)) pour T<0, 0 sinon
+!ccc....(formule de icesatperm, W=cimp, liquidus a 0 C) : H(T) reste
+!ccc....strictement croissante (C_k > 0, sice decroissante en T) donc la
+!ccc....racine est unique, mais H n'est plus affine par morceaux -> inversion
+!ccc....par BISSECTION encadree (convergence garantie, ~60 iterations pour
+!ccc....la precision machine, cout negligeable devant le solveur lineaire).
+!ccc....Pas de Newton : sa derivee est la tangente, qui s'annule a 0 C -
+!ccc....exactement la ou il faut projeter.
+            if ((ytest == "TH2" .or. ytest == "TH3") .and. ytypsice == "EXPON" &
+                .and. icycle == 1 .and. ith == 1 .and. irpth == 1 .and. igelzns == 0 &
+                .and. igel .ne. 0) then
+               do i = 1, nm
+                  if (igel == 2) then
+                     hlat_cell = rhoi(i)*om(i)*chlat
+                  else
+                     hlat_cell = rho(i)*om(i)*chlat
+                  end if
+                  cap_k = om(i)*sw(i)*rho(i)*cpe + om(i)*sice(i)*rhoi(i)*cpice + &
+                          om(i)*(1.D0 - sw(i) - sice(i))*rhog*cpg + (1.D0 - om(i))*rhos(i)*cps(i)
+                  dh_cell = (cap_k + hlat_cell*abs(dsidtemp(i)))*(temp(i) - tempo(i))
+!ccc....encadrement de la racine de F(T) = C_k*(T-tempo) + L*(siceo-sice(T)) - dH
+                  tproj_lo = min(temp(i), tempo(i)) - 1.D0
+                  tproj_hi = max(temp(i), tempo(i)) + 1.D0
+                  do nexp_proj = 1, 20
+                     if (tproj_lo > 0.D0) then
+                        sice_proj = 0.D0
+                     else
+                        sice_proj = (1.D0 - swressi)*(1.D0 - DEXP(-(tproj_lo/cimp)**2))
+                     end if
+                     fproj_lo = cap_k*(tproj_lo - tempo(i)) + hlat_cell*(siceo(i) - sice_proj) - dh_cell
+                     if (fproj_lo <= 0.D0) exit
+                     tproj_lo = tproj_lo - 5.D0
+                  end do
+                  do nexp_proj = 1, 20
+                     if (tproj_hi > 0.D0) then
+                        sice_proj = 0.D0
+                     else
+                        sice_proj = (1.D0 - swressi)*(1.D0 - DEXP(-(tproj_hi/cimp)**2))
+                     end if
+                     fproj_hi = cap_k*(tproj_hi - tempo(i)) + hlat_cell*(siceo(i) - sice_proj) - dh_cell
+                     if (fproj_hi >= 0.D0) exit
+                     tproj_hi = tproj_hi + 5.D0
+                  end do
+!ccc....bissection
+                  do nbis_proj = 1, 60
+                     tproj_mid = 0.5D0*(tproj_lo + tproj_hi)
+                     if (tproj_mid > 0.D0) then
+                        sice_proj = 0.D0
+                     else
+                        sice_proj = (1.D0 - swressi)*(1.D0 - DEXP(-(tproj_mid/cimp)**2))
+                     end if
+                     fproj_mid = cap_k*(tproj_mid - tempo(i)) + hlat_cell*(siceo(i) - sice_proj) - dh_cell
+                     if (fproj_mid < 0.D0) then
+                        tproj_lo = tproj_mid
+                     else
+                        tproj_hi = tproj_mid
+                     end if
+                     if (tproj_hi - tproj_lo < 1.D-10) exit
+                  end do
+                  temp(i) = 0.5D0*(tproj_lo + tproj_hi)
                end do
             end if
 !            print*,'DEBUG: temp(1) AFTER solving =',temp(1)

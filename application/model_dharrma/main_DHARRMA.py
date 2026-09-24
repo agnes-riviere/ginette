@@ -32,6 +32,11 @@ Constitué de 6 partie :
 
 ##################### PART 0 : Running code section #########################################
 
+# MUST set matplotlib backend BEFORE importing pyplot
+# Use Agg for non-interactive rendering (most robust in all environments)
+import matplotlib
+matplotlib.use("Agg")
+
 import fonction_DHARRMA as fct
 import Direct_model as Dm
 import Init_folders as Info
@@ -41,6 +46,7 @@ import sys
 from matplotlib.cm import copper
 import pandas as pd
 import numpy as np
+
 import matplotlib.pyplot as plt
 from pathlib import Path
 from io import StringIO
@@ -67,7 +73,7 @@ visualisation = True
 # General Parameters
 
 nbr_jour =  120 # total number of days to simulate
-facies = 'silt' # Facies for the homogeneus simulation (cf Carsel and Parish (1986)) 
+facies = 'silt' # Facies for the homogeneus simulation (cf Carsel and Parish (1986))
 
 
 ###### GINETTE Hydro Simulation Parameters -----------------------------------------------------------------------------------------------------------------------
@@ -357,8 +363,14 @@ visualisation_wt = False
 #Comparaison WT simulé avec un vrai piezomètre (work in progress)
 
 comparaison_wt_piezo = False
-path_xlsx = '' #Chemin où se trouve le CSV du piezo à comparer
+date_debut_simulation = "01/01/2025 00:00"  # Format: JJ/MM/AAAA HH:MM
 cote_ngf_piezo = 80.02 # Cote en mNGF du piezo que l'on va comparer
+piezo_data_dir = "/home/ariviere/Documents/Bassin_Orgeval/Hydro_data/processed_data/AvAv2"  # Chemin du repertoire piezometre
+piezo_name = "pzps16"  # Nom du piezometre (sans extension)
+
+path_piezo = None
+if comparaison_wt_piezo:
+    path_piezo = fct.select_piezometer_file(piezo_data_dir, piezo_name)
 
 DEBUG = False
 
@@ -808,30 +820,52 @@ if elec_static:
 ################### PARTIE V : VISUALISATION DES DONNÉES #####################################
 
 if visualisation :
+    # Create output directory for figures
+    from datetime import datetime
+    output_dir = dossier_actuel / f"output_figures_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    output_dir.mkdir(exist_ok=True)
+    print(f"Figures will be saved to: {output_dir}")
+    
+    if homogeneite:
+        geophy_folder = facies
+    else:
+        geophy_folder = f"{facies1}_{facies2}"
+    required_vp_vs_file = dossier_actuel / "sismique" / geophy_folder / f"output_SL_kk{kk}_Vp_Vs.dat"
+
     if visualisation_temp :
         fct.plot_temp_scenario(f'{dossier_actuel}/input_ginette/E_temp_t.dat')
     if visualisation_pluie:
         fct.plot_graphe_pluie(f'{dossier_actuel}/input_ginette/E_debit_haut_t.dat',nbr_jour, pas_hydro,path_pluie_B = None, 
-                              liste_mesure = jour_profil, hauteur_WT_A = None, hauteur_WT_B = None, barre_vertical = [],path_fig =None, max_cumul=1E-3)
+                              liste_mesure = jour_profil, hauteur_WT_A = None, hauteur_WT_B = None, barre_vertical = [],path_fig =str(output_dir / "plot_pluie.png"), max_cumul=1E-3)
     if visualisation_output_ginette:
         fct.three_plot_output_ginette_dharrma(dossier_actuel,debut_representation,fin_representation,pas_representation,
-                                                 path_save_fig=None, lim_depth=abs(lim_depth),barre_vertical = [])
+                                                 path_save_fig=str(output_dir / "three_plot_output_ginette.png"), lim_depth=abs(lim_depth),barre_vertical = [])
     if visualisation_propriete_geophy_2D:
         fct.three_plot_propriete_geophy_dharrma(dossier_actuel,debut_representation,fin_representation,pas_representation, facies,
-                                                 barre_vertical=[25.5,35.4],lim_depth=abs(lim_depth),path_save_fig =None)
+                                                 barre_vertical=[25.5,35.4],lim_depth=abs(lim_depth),path_save_fig =str(output_dir / "three_plot_propriete_geophy.png"))
     if visualisation_observable_geophy_2D:
         fct.three_plot_observable_geophy_dharrma(dossier_actuel,debut_representation,fin_representation,pas_representation, facies, 
-                                                 barre_vertical=[25.5,35.4],lim_depth=abs(lim_depth),path_save_fig =None)
+                                                 barre_vertical=[25.5,35.4],lim_depth=abs(lim_depth),path_save_fig =str(output_dir / "three_plot_observable_geophy.png"))
     if visualisation_observable_geophy_profil:
-        if homogeneite:
-            fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies,representation = representation ,path_fig = None)
+        if not required_vp_vs_file.exists():
+            print(
+                f"Fichier manquant: {required_vp_vs_file} -> relancer avec sismic=True "
+                "ou desactiver visualisation_observable_geophy_profil"
+            )
+        elif homogeneite:
+            fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies,representation = representation ,path_fig = str(output_dir / "plot_profil_observable.png"))
         else:
-            fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies1,representation = representation ,path_fig = None,facies2 = facies2)
+            fct.plot_profil_observable_dharrma(dossier_actuel,jour_profil,facies1,representation = representation ,path_fig = str(output_dir / "plot_profil_observable.png"),facies2 = facies2)
     if visualisation_propriete_geophy_profil:
-        if homogeneite:
-            fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies,representation = representation,path_fig = None,facies2 = None)
+        if not required_vp_vs_file.exists():
+            print(
+                f"Fichier manquant: {required_vp_vs_file} -> relancer avec sismic=True "
+                "ou desactiver visualisation_propriete_geophy_profil"
+            )
+        elif homogeneite:
+            fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies,representation = representation,path_fig = str(output_dir / "plot_profil_propriete.png"),facies2 = None)
         else:
-            fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies1,representation = representation,path_fig = None,facies2 = facies2)
+            fct.plot_profil_propriete_dharrma(dossier_actuel,jour_profil,facies1,representation = representation,path_fig = str(output_dir / "plot_profil_propriete.png"),facies2 = facies2)
     if visualisation_propriete_hydro_profil:
         fct.plot_sat_jours(dossier_actuel,jour_profil,lim_depth = -2.1)
 
@@ -839,6 +873,14 @@ if visualisation :
         fct.plot_wt_time(dossier_actuel,pas_jour_x=10)
 
     if comparaison_wt_piezo:
-        fct.plot_comparaison_wt_piezo(dossier_actuel,path_xlsx,cote_ngf_piezo,pas_jour_x=10)
+        fct.plot_comparaison_wt_piezo(
+            dossier_actuel,
+            path_piezo,
+            cote_ngf_piezo,
+            date_debut_simulation,
+            nbr_jour,
+            pas_jour_x=10,
+        )
 
-    plt.show()
+    # Agg backend: figures are generated and saved to disk by plotting functions
+    # They are not displayed interactively but are available for review
