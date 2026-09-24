@@ -103,20 +103,20 @@ Userguide available in [User_guide.md](User_guide.md)
 
 ## Message:
 "If you use this software, please cite it as below."
-Rivière, A., Gonçalvès, J., Jost, A., Ginette,   [![DOI](https://zenodo.org/badge/242535776.svg)](https://zenodo.org/badge/latestdoi/242535776)
+Radic, N., Rivière, A., Gonçalvès, J., Jost, A., Ginette,   [![DOI](https://zenodo.org/badge/242535776.svg)](https://zenodo.org/badge/latestdoi/242535776)
 
 
 authors:
+  - Radic Nicolas
+    orcid: https://orcid.org/0009-0009-9275-294X
   - Rivière Agnès
     orcid: https://orcid.org/0000-0002-6002-3189
   - Gonçalvès Julio
     orcid: https://orcid.org/0000-0003-0047-4233
   - Jost Anne
     orcid: https://orcid.org/0000-0002-0925-3376
-  - Radic Nicolas
-    
-    
-title: agnes-riviere/ginette: Ginette-2020-09
-version: 2020-09
-date-released: 2017-12-18
+
+title: agnes-riviere/ginette: Ginette-application-Dharrma-2026-09
+version: 2026-09
+date-released: 2026-09-23
 
