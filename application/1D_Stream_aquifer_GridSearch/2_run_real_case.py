@@ -290,10 +290,8 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
         "E_charge_t.dat",
         "E_pression_initiale.dat",
         "E_temp_t.dat",
-        "E_colonne.dat", 
         "E_coordonnee.dat",
-          "E_def_maille.dat",
-          "E_temperature_initiale.dat",
+            "E_temperature_initiale.dat",
             "E_zone.dat"
     ]:
         _copy_from_app(fname)
