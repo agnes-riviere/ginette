@@ -315,7 +315,7 @@ c = [C_SOLID]        # capacité thermique spécifique de la fraction solide [J/
 # plus grossière (proche des pas d'origine) : 8x6x7x1 = 336 combinaisons.
 PARAM_STEP = {
     "log_k": (0.25, 2),
-    "lam": (1, 1),
+    "lam": (0.5, 2),
     "n": (0.1, 3),
 }
 
@@ -392,4 +392,4 @@ RUN_NB_DAY = NB_DAY + SPIN_UP_RUN_DAYS
 # Erreur totale estimée sur la température (mesure + representativite du
 # modele 1D), utilisée pour pondérer misfit_L2/misfit_L1 - pas juste la
 # precision instrumentale (0.25 degC).
-ERR_MISFIT = 5
+ERR_MISFIT = 2
