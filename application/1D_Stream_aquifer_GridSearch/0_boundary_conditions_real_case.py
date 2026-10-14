@@ -425,6 +425,7 @@ print(f"- Observation depths: {z_obs} m")
 # modèle/observations plutôt que de modifier l'état initial lui-même.
 initial_conditions(obs_temp, z_top, z_bottom, dz, z_obs)
 # (Voir src/src_python/Direct_model.py pour le détail de la fonction)
+shutil.copyfile("E_cdt_initiale_bck.dat", "E_cdt_initiale.dat")
 
 # === CONDITIONS AUX LIMITES ===
 # Cette étape crée les fichiers de conditions aux limites (hydrauliques et thermiques) pour la simulation transitoire :

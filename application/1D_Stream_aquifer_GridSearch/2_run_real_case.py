@@ -288,11 +288,9 @@ def run_ginette(ID, k, n,lam,c,date_simul_bg,dt,nb_day,state,z_top ,z_bottom ,az
         "E_charge_initiale.dat",
         "E_cdt_aux_limites.dat",
         "E_charge_t.dat",
-        "E_pression_initiale.dat",
         "E_temp_t.dat",
         "E_coordonnee.dat",
-            "E_temperature_initiale.dat",
-            "E_zone.dat"
+        "E_temperature_initiale.dat",
     ]:
         _copy_from_app(fname)
 

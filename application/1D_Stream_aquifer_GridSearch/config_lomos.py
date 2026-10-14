@@ -276,31 +276,28 @@ LAM_BY_POINT = {
     "lomos231": [2.5, 4.0],  # granite fracturé
 }
 N_BY_POINT = {
-    "lomos230": [0.15, 0.65],  # sable gréseux : porosité totale plausible [-]
+    "lomos230": [0.05, 0.45],  # grès (consolidé à peu consolidé) : porosité totale [-]
     "lomos231": [0.20, 0.40],  # granite fracturé
 }
 log_k = LOG_K_BY_POINT.get(POINT_NAME, LOG_K_BY_POINT["lomos230"])
 lam = LAM_BY_POINT.get(POINT_NAME, LAM_BY_POINT["lomos230"])
 n = N_BY_POINT.get(POINT_NAME, N_BY_POINT["lomos230"])
 # c = capacité calorifique SPÉCIFIQUE (pas volumique) du solide [J/kg/K],
-# combinée à rhosi (E_p_therm.dat, fixe) via CASE('ZHZ'). rhosi a été baissé à
-# 1180 kg/m3 (sédiment riche en matière organique, pas du quartz pur) pour que
-# c=2000, mélangé à l'eau selon la porosité (Cv = n*Cw_vol + (1-n)*rhos*c),
-# donne une capacité volumique du milieu SATURÉ cohérente avec la littérature
-# streambed (~2-3.5 MJ/m3/K, Stallman/Lapham/Constantz) - voir E_p_therm_bck.dat.
+# combinée à rhosi (E_p_therm.dat, fixe) via CASE('ZHZ'), et mélangée à l'eau
+# selon la porosité (Cv = n*Cw_vol + (1-n)*rhos*c) pour une capacité volumique
+# du milieu SATURÉ dans la plage streambed (~2-3.5 MJ/m3/K, Stallman/Lapham/
+# Constantz) - voir E_p_therm_bck.dat.
 
 # Propriétés du solide, définies au même endroit que les bornes de calibration.
-# lomos230 : sable gréseux riche en matière organique -> rhosi=1180 et c=2000
-# J/kg/K déjà retenus lors du calage précédent (donnent une capacité volumique
-# du milieu saturé cohérente avec la littérature streambed, ~2-3.5 MJ/m3/K,
-# Stallman/Lapham/Constantz - voir E_p_therm_bck.dat). lomos231 : hypothèse
-# d'un lit granitique fracturé.
+# lomos230 : sable gréseux à densité de quartz (2650 kg/m3, c=800 J/kg/K) ; la
+# capacité volumique reste dans la plage streambed (~2-3.5 MJ/m3/K) pour une
+# porosité de grès. lomos231 : hypothèse d'un lit granitique fracturé.
 RHO_SOLID_BY_POINT = {
-    "lomos230": 1180.0,  # sable gréseux [kg/m3]
+    "lomos230": 2650.0,  # sable gréseux (quartz) [kg/m3]
     "lomos231": 2650.0,  # granite [kg/m3]
 }
 C_SOLID_BY_POINT = {
-    "lomos230": 2000.0,  # sable gréseux [J/kg/K]
+    "lomos230": 800.0,   # sable gréseux (quartz) [J/kg/K]
     "lomos231": 800.0,   # granite [J/kg/K]
 }
 RHO_SOLID = RHO_SOLID_BY_POINT.get(POINT_NAME, RHO_SOLID_BY_POINT["lomos230"])
