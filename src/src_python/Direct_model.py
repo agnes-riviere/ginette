@@ -67,6 +67,11 @@ import numpy as np
 import shutil
 import re
 
+
+def ginette_exe():
+    """Chemin de l'executable Ginette dans le dossier courant (ginette.exe sous Windows)."""
+    return './ginette.exe' if os.name == 'nt' else './ginette'
+
 def format_value(value):
     """
     Formats a floating-point value into Fortran-style scientific notation (00000000d+00).
@@ -1007,7 +1012,7 @@ def run_direct_model(date_simul_bg,z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n,
     generate_zone_parameters(z_bottom, dz, nb_zone, alt_thk, REF_k, REF_n, REF_l, REF_r, REF_k2, REF_n2, REF_l2, REF_r2)
 
     # run ginette
-    subprocess.call(["./ginette"])
+    subprocess.call([ginette_exe()])
     # Colonnes pour les températures
     column_names = ['Temp_1', 'Temp_2', 'Temp_3']
 
@@ -1072,7 +1077,7 @@ def run_direct_model_2D(dir_ginette):
     import os
     t0 = time.time()
     subprocess.run(['gfortran', '-g', '-fcheck=all', '-o', 'ginette', dir_ginette + '/src/ginette_V2.f90'])
-    subprocess.call(['./ginette'])
+    subprocess.call([ginette_exe()])
     print(f"Step 2 (steady-state Ginette) executed in {time.time() - t0:.2f} seconds.")
 
 
@@ -1106,7 +1111,7 @@ def run_direct_model_2D(dir_ginette):
     print("Running Ginette (transient)...")
     t1 = time.time()
 
-    subprocess.call(['./ginette'])
+    subprocess.call([ginette_exe()])
     print(f"Step 4 (transient Ginette) executed in {time.time() - t1:.2f} seconds.")
 
     print(f"Total run_direct_model_2D execution time: {time.time() - start_time:.2f} seconds.")
@@ -1439,7 +1444,7 @@ def Direct_model_stallman(GINETTE_SENSI, REPO_ROOT, dt, nb_day, z_top, z_bottom,
     boundary_conditions(obs_temp, dt)
     generate_zone_parameters(z_bottom, dz, 1, -0.05, log_k, poro, lam, cs_specific)
 
-    ret = subprocess.call(["./ginette"])
+    ret = subprocess.call([ginette_exe()])
     if ret != 0:
         raise RuntimeError(f"ginette a échoué (code retour {ret}) - voir sortie ci-dessus.")
 
@@ -1449,3 +1454,72 @@ def Direct_model_stallman(GINETTE_SENSI, REPO_ROOT, dt, nb_day, z_top, z_bottom,
                           names=["Time", f"Temp{i}"])
         sim = df if sim is None else sim.merge(df, on="Time")
     return sim
+
+
+def generate_hydraulic_head_bc(df_BC, az, dt, nb_day, base_head=5.0, head_amplitude=0.5,
+                                reduced_period_weeks=3, verbose=True, plot=True):
+    """
+    Genere la charge hydraulique aux limites haute et basse (onde carree lissee),
+    l'ajoute a df_BC, puis affiche un resume et le graphique du sens d'ecoulement.
+
+    Parameters:
+    - df_BC (DataFrame): doit contenir les colonnes 'times' et 'days'.
+    - az (float): hauteur de la colonne [m].
+    - dt (float): pas de temps [s].
+    - nb_day (int): duree de la simulation [jours].
+    - base_head (float): charge hydraulique de base [m].
+    - head_amplitude (float): amplitude de variation autour de base_head [m].
+    - reduced_period_weeks (float): periode de l'onde, en semaines.
+    - verbose (bool): affiche un resume des conditions aux limites.
+    - plot (bool): affiche le graphique de la difference de charge.
+
+    Returns:
+    - DataFrame: df_BC complete avec les colonnes 'h_top', 'h_bottom', 'head_gradient'.
+    """
+    two_pi = 2 * np.pi
+    seconds_per_day = 24 * 60 * 60
+    seconds_per_week = 7 * seconds_per_day
+    reduced_period = reduced_period_weeks * seconds_per_week
+
+    def smooth_square_wave(x, period):
+        return 2 / (1 + np.exp(-5 * np.sin(two_pi * x / period))) - 1
+
+    df_BC['h_top'] = head_amplitude * smooth_square_wave(df_BC['times'], reduced_period) + base_head
+    df_BC['h_bottom'] = base_head * np.ones_like(df_BC['times'])
+    df_BC['head_gradient'] = (df_BC['h_top'] - df_BC['h_bottom']) / az
+
+    if verbose:
+        print("=== Conditions aux limites de charge hydraulique ===")
+        print(f"Plage de charge en limite haute : {df_BC['h_top'].min():.3f} a {df_BC['h_top'].max():.3f} m")
+        print(f"Variation totale : {df_BC['h_top'].max() - df_BC['h_top'].min():.3f} m")
+        print(f"Charge en limite basse : {df_BC['h_bottom'].iloc[0]:.1f} m (constante)")
+        print(f"Plage de difference de charge : {(df_BC['h_top'] - df_BC['h_bottom']).min():.3f} a {(df_BC['h_top'] - df_BC['h_bottom']).max():.3f} m")
+        print(f"Hauteur de colonne : {az:.1f} m")
+        print(f"Plage de gradient hydraulique : {df_BC['head_gradient'].min():.4f} a {df_BC['head_gradient'].max():.4f} m/m")
+
+        losing_time = np.sum(df_BC['head_gradient'] > 0) * dt / seconds_per_day
+        gaining_time = np.sum(df_BC['head_gradient'] < 0) * dt / seconds_per_day
+        neutral_time = np.sum(df_BC['head_gradient'] == 0) * dt / seconds_per_day
+        print("\n=== Analyse du sens de l'ecoulement ===")
+        print(f"Duree en infiltration (ecoulement vers le bas, h_top > h_bottom) : {losing_time:.1f} jours ({losing_time/nb_day*100:.1f}%)")
+        print(f"Duree en exfiltration (ecoulement vers le haut, h_top < h_bottom) : {gaining_time:.1f} jours ({gaining_time/nb_day*100:.1f}%)")
+        print(f"Duree en condition neutre : {neutral_time:.1f} jours ({neutral_time/nb_day*100:.1f}%)")
+
+    if plot:
+        fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+        head_diff = df_BC['h_top'] - df_BC['h_bottom']
+        ax.plot(df_BC['days'], head_diff, label='Difference de charge (h_top - h_bottom)', color='purple', linewidth=2)
+        ax.axhline(y=0, color='black', linestyle='-', alpha=0.5, label='Pas de gradient')
+        ax.set_xlabel('Temps [jours]', fontsize=12)
+        ax.set_ylabel('Difference de charge [m]', fontsize=12)
+        ax.set_title('Difference de charge entre les limites haute et basse', fontsize=14, fontweight='bold')
+        ax.legend(fontsize=10)
+        ax.grid(True, alpha=0.3)
+        ax.fill_between(df_BC['days'], 0, head_diff, where=(head_diff > 0),
+                         alpha=0.3, color='red', label='Condition perdante')
+        ax.fill_between(df_BC['days'], 0, head_diff, where=(head_diff < 0),
+                         alpha=0.3, color='blue', label='Condition gagnante')
+        plt.tight_layout()
+        plt.show()
+
+    return df_BC

@@ -13,6 +13,7 @@ import subprocess
 import os
 import glob
 import platform
+from pathlib import Path
 
 # Magic numbers (premiers octets du fichier) identifiant le format natif de
 # chaque plateforme - sert à détecter un binaire ginette compilé pour une
@@ -99,13 +100,12 @@ def prepare_ginette_directories(base_path, subdirectories=['SENSI', 'OUTPUT']):
         os.remove(f)
         print("file deleted",f)        
             
-def compile_ginette():
+def compile_ginette(source='../../src/ginette_V2.f90'):
     """
     (Re)compile Ginette si l'exécutable est absent, incompatible avec la
     plateforme hôte, ou plus ancien que ginette_V2.f90 (voir
     _ginette_binary_is_fresh).
     """
-    source = '../../src/ginette_V2.f90'
     if _ginette_binary_is_fresh('ginette', source):
         print("ginette exists")
     else:
@@ -137,3 +137,27 @@ def compile_ginette_src(dir_ginette, flags=()):
             raise RuntimeError(f"gfortran compilation of ginette failed (exit code {result.returncode})")
         print("ginette compiled")
 
+
+
+def setup_lab_environment():
+    """
+    Prépare l'environnement du TD : localise le dossier SYNTHETIC_CASES à côté du
+    notebook, y prépare le dossier de travail, et compile l'exécutable 'ginette'
+    s'il n'existe pas déjà.
+
+    À appeler juste après avoir ajouté 'src_python' au sys.path.
+    Peut être appelée plusieurs fois de suite dans le même kernel (idempotent) :
+    comme elle change le répertoire de travail courant vers SYNTHETIC_CASES,
+    un ré-appel ne duplique pas ce chemin.
+
+    Returns:
+        (Path, Path): (dossier du TD, dossier SYNTHETIC_CASES)
+    """
+    cwd = Path.cwd().resolve()
+    td_dir = cwd.parent if cwd.name == 'SYNTHETIC_CASES' else cwd
+    synthetic_cases_dir = td_dir / 'SYNTHETIC_CASES'
+
+    prepare_ginette_directories(str(synthetic_cases_dir), subdirectories=[])
+    compile_ginette(source='../../../src/ginette_V2.f90')
+
+    return td_dir, synthetic_cases_dir

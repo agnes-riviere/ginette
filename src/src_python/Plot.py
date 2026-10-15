@@ -728,3 +728,103 @@ def plot_initial_conditions(fontsize=15):
     except Exception as e:
         print(f"Error reading initial conditions: {e}")
 
+
+
+def plot_domain_schema(nb_zone, alt_thk, z_top, z_bottom, z_obs=None, zoom_depth=0.4):
+    """
+    Schema pedagogique et compact du domaine de modelisation : une colonne fine
+    representant le profil complet (avec les fleches de conditions aux limites en
+    haut et en bas), accompagnee d'un zoom sur les 'zoom_depth' premiers metres
+    pres de la surface (par defaut 40 cm), la ou se trouvent les capteurs de
+    temperature. Pense pour rester lisible et ludique face a un domaine profond
+    (ex : 250 mailles / 5 m), contrairement a plot_domain() qui dessine chaque
+    maille individuellement.
+
+    Parameters:
+    - nb_zone (int): nombre de zones. Si nb_zone=1, milieu poreux homogene.
+    - alt_thk (float): altitude de l'interface entre zones (utilise si nb_zone=2).
+    - z_top (float): altitude du sommet du domaine.
+    - z_bottom (float): altitude du bas du domaine.
+    - z_obs (list, optional): profondeurs des capteurs de temperature.
+    - zoom_depth (float): profondeur (m) affichee dans le panneau de zoom.
+    """
+    coord = pd.read_csv('E_coordonnee.dat', sep=r'\s+', header=None, names=['x', 'z'])
+    x_unique = np.sort(np.unique(coord['x'].values))
+    cell_width = np.diff(x_unique).mean() if len(x_unique) > 1 else 1.0
+    x_center = np.mean(x_unique) if len(x_unique) > 1 else x_unique[0]
+
+    zone1_color, zone2_color, homog_color = '#f4a3a4', '#8fd694', '#8fc4de'
+
+    def draw_column(ax, z_low, z_high):
+        if nb_zone == 1:
+            ax.add_patch(plt.Rectangle((x_center - cell_width / 2, z_low), cell_width, z_high - z_low,
+                                        facecolor=homog_color, edgecolor='black', linewidth=1.2, zorder=1))
+        else:
+            interface = min(max(alt_thk, z_low), z_high)
+            if z_high > interface:
+                ax.add_patch(plt.Rectangle((x_center - cell_width / 2, interface), cell_width, z_high - interface,
+                                            facecolor=zone1_color, edgecolor='black', linewidth=1.2, zorder=1))
+            if interface > z_low:
+                ax.add_patch(plt.Rectangle((x_center - cell_width / 2, z_low), cell_width, interface - z_low,
+                                            facecolor=zone2_color, edgecolor='black', linewidth=1.2, zorder=1))
+
+        # petites vaguelettes en haut de colonne pour evoquer l'eau de la riviere
+        wave_x = np.linspace(x_center - cell_width / 2, x_center + cell_width / 2, 40)
+        wave_y = z_high - 0.02 * cell_width * (1 + np.sin(wave_x / cell_width * 4 * np.pi))
+        ax.plot(wave_x, wave_y, color='#1f6fb2', linewidth=1.5, zorder=2)
+
+        if z_obs is not None:
+            for i, zo in enumerate(z_obs):
+                if z_low <= zo <= z_high:
+                    ax.scatter(x_center, zo, s=220, marker='o', c='gold',
+                               edgecolor='black', linewidth=1.5, zorder=5)
+                    ax.annotate(f'T{i + 1}', (x_center, zo), xytext=(10, 0), textcoords='offset points',
+                                va='center', fontsize=11, fontweight='bold', zorder=6)
+
+    fig, (ax_full, ax_zoom) = plt.subplots(1, 2, figsize=(6, 7), gridspec_kw={'width_ratios': [1, 1.4]})
+
+    # --- Colonne complete ---
+    draw_column(ax_full, z_bottom, z_top)
+
+    margin = max(0.15 * abs(z_top - z_bottom), 0.4)
+    bc_arrow = dict(arrowstyle='-|>', mutation_scale=18, linewidth=2.5)
+    ax_full.annotate('', xy=(x_center, z_top), xytext=(x_center, z_top + margin * 0.8),
+                      arrowprops=dict(bc_arrow, color='crimson'), zorder=4)
+    ax_full.text(x_center, z_top + margin * 0.9, 'CL haute\n(T, charge)',
+                 ha='center', va='bottom', fontsize=9, color='crimson', fontweight='bold')
+    ax_full.annotate('', xy=(x_center, z_bottom), xytext=(x_center, z_bottom - margin * 0.8),
+                      arrowprops=dict(bc_arrow, color='darkorange'), zorder=4)
+    ax_full.text(x_center, z_bottom - margin * 0.9, 'CL basse\n(flux geo.)',
+                 ha='center', va='top', fontsize=9, color='darkorange', fontweight='bold')
+
+    # cadre pointille indiquant la zone de zoom
+    ax_full.add_patch(plt.Rectangle((x_center - cell_width * 0.7, z_top - zoom_depth),
+                                     cell_width * 1.4, zoom_depth,
+                                     fill=False, edgecolor='purple', linestyle='--', linewidth=1.5, zorder=3))
+
+    ax_full.set_xlim(x_center - cell_width * 2, x_center + cell_width * 2)
+    ax_full.set_ylim(z_bottom - margin * 1.3, z_top + margin * 1.3)
+    ax_full.set_xticks([])
+    ax_full.set_ylabel('z (m)', fontsize=11)
+    ax_full.set_title('Colonne complete', fontsize=11)
+
+    # --- Zoom pres de la surface ---
+    draw_column(ax_zoom, z_top - zoom_depth, z_top)
+    ax_zoom.set_xlim(x_center - cell_width * 2, x_center + cell_width * 2)
+    ax_zoom.set_ylim(z_top - zoom_depth, z_top + 0.02 * zoom_depth)
+    ax_zoom.set_xticks([])
+    ax_zoom.yaxis.tick_right()
+    ax_zoom.yaxis.set_label_position('right')
+    ax_zoom.set_ylabel('z (m)', fontsize=11)
+    ax_zoom.set_title(f'Zoom : {zoom_depth * 100:.0f} premiers cm', fontsize=11)
+
+    if nb_zone != 1:
+        legend_elements = [
+            plt.Rectangle((0, 0), 1, 1, facecolor=zone1_color, edgecolor='black', label=f'Zone 1 (z ≥ {alt_thk} m)'),
+            plt.Rectangle((0, 0), 1, 1, facecolor=zone2_color, edgecolor='black', label=f'Zone 2 (z < {alt_thk} m)'),
+        ]
+        fig.legend(handles=legend_elements, loc='lower center', ncol=2, fontsize=9, bbox_to_anchor=(0.5, -0.02))
+
+    fig.suptitle('Domaine de modelisation', fontsize=13, fontweight='bold')
+    plt.tight_layout()
+    plt.show()
