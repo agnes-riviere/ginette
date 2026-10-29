@@ -6,9 +6,10 @@ Ce guide explique comment récupérer la branche du TD, compiler le solveur
 Fortran Ginette et installer l'environnement Python. Suivez les étapes dans
 l'ordre.
 
-ÉTAT DES TESTS : la procédure complète (clonage, compilation et lancement du
-notebook) a été testée sur macOS uniquement. Linux et Windows n'ont pas
-encore été testés.
+ÉTAT DES TESTS : l'installation (pip et conda) et l'exécution complète du
+notebook ont été testées sur des machines virtuelles GitHub Actions sous
+Ubuntu, macOS et Windows. Ces tests ne remplacent pas un essai sur votre
+propre machine. La voie WSL décrite à l'étape 2 n'a pas encore été testée.
 
 
 Ce qu'il faut avant de commencer
