@@ -1,0 +1,28 @@
+# Ginette Python dependencies.
+#
+# This list reflects the packages actually imported by src/src_python,
+# src/src_gmsh and the application/ scripts (verified by grepping all
+# top-level import/from statements across the codebase).
+#
+# Core: needed to run the Fortran-driving Python layer and most
+# applications (grid search, boundary conditions, analytical validation...).
+numpy==2.5.3
+pandas==3.0.5
+scipy==1.18.1
+matplotlib==3.11.1
+seaborn==0.13.2
+scikit-learn==1.9.0
+ipython==9.17.1
+Cython==3.3.0
+tqdm==4.70.0
+filterpy==1.4.5
+shapely==2.1.2
+fortranformat==2.0.3
+
+# Optional: only needed by specific applications.
+pygimli==1.5.5       # application/model_dharrma (geophysics inversion)
+rpy2==3.6.7           # mini-LOMOS, sauer, Selun plotting scripts (needs R installed on the system)
+pyvista==0.49.0       # src/src_gmsh/mesh_generator*.py (3D mesh visualization)
+gmsh==4.15.2          # src/src_gmsh, application/Tougou, application/Destin, METIS mesh functions
+gmshparser==0.4.0     # src/src_gmsh mesh generators
+meshio==5.3.5         # src/src_gmsh, METIS mesh functions

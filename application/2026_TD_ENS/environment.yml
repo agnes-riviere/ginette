@@ -1,0 +1,9 @@
+name: ginette-td
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - gfortran
+  - pip:
+      - -e .
