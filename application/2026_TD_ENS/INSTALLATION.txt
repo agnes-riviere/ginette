@@ -49,6 +49,11 @@ Si vous installez avec pip (étape 3b), installez gfortran vous-même :
                               Ajoutez ensuite le dossier mingw64\bin de MSYS2
                               au PATH de Windows (par défaut C:\msys64\mingw64\bin).
 
+Option WSL (Windows) : si vous avez WSL avec Ubuntu, vous pouvez travailler
+dans ce terminal Ubuntu et suivre les instructions Linux ci-dessus. Ubuntu
+24.04 fournit Python 3.12 ; sur une version plus ancienne, utilisez conda
+(étape 3a). Cette option n'a pas encore été testée.
+
 Vérifiez l'installation :
 
     gfortran --version
