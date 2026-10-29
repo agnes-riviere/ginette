@@ -1,4 +1,3 @@
-# filepath: /home/ariviere/Programmes/ginette/src/src_python/__main__.py
 
 # Import necessary modules or functions
 from .Direct_model import *
