@@ -1,0 +1,156 @@
+INSTALLATION DU TD GINETTE (MASTER 2)
+Modèle direct de transport de chaleur en zone hyporheïque
+==========================================================
+
+Ce guide explique comment récupérer la branche du TD, compiler le solveur
+Fortran Ginette et installer l'environnement Python. Suivez les étapes dans
+l'ordre.
+
+ÉTAT DES TESTS : la procédure complète (clonage, compilation et lancement du
+notebook) a été testée sur macOS uniquement. Linux et Windows n'ont pas
+encore été testés.
+
+
+Ce qu'il faut avant de commencer
+--------------------------------
+
+Il vous faut git, Python 3.12 (ou conda), le compilateur Fortran gfortran,
+et au moins 2 Go d'espace disque libre.
+
+
+Étape 1 : cloner la branche du TD
+---------------------------------
+
+Ouvrez un terminal. Sous macOS, utilisez Terminal. Sous Linux, utilisez votre
+shell habituel. Sous Windows, utilisez PowerShell ou Git Bash.
+
+Tapez les deux lignes suivantes :
+
+    git clone --single-branch --branch td-m2-direct-model https://github.com/agnes-riviere/ginette.git
+    cd ginette/application/2026_TD_ENS
+
+Toutes les commandes suivantes se lancent depuis le dossier 2026_TD_ENS, sauf
+indication contraire.
+
+
+Étape 2 : installer gfortran
+----------------------------
+
+Si vous installez l'environnement avec conda (étape 3a), gfortran est déjà
+inclus. Passez à l'étape 3a.
+
+Si vous installez avec pip (étape 3b), installez gfortran vous-même :
+
+    Linux (Debian, Ubuntu) :  sudo apt install gfortran
+    macOS :                   brew install gcc
+    Windows :                 installez MSYS2 depuis https://www.msys2.org/
+                              puis, dans le terminal MSYS2 :
+                              pacman -S mingw-w64-x86_64-gcc-fortran
+                              Ajoutez ensuite le dossier mingw64\bin de MSYS2
+                              au PATH de Windows (par défaut C:\msys64\mingw64\bin).
+
+Vérifiez l'installation :
+
+    gfortran --version
+
+
+Étape 3 : installer l'environnement Python
+-----------------------------------------
+
+Il y a deux méthodes. Choisissez-en une. La méthode conda est recommandée.
+Le projet demande Python 3.12 exactement (pas 3.11, pas 3.13).
+
+3a. Avec conda (recommandé)
+
+    conda env create -f environment.yml
+    conda activate ginette-td
+
+Ce fichier installe Python 3.12, pip et gfortran depuis conda-forge, puis
+installe le projet.
+
+3b. Avec pip
+
+    python3.12 -m venv .venv
+
+Activez ensuite l'environnement.
+
+Sous macOS ou Linux :
+
+    source .venv/bin/activate
+
+Sous Windows (PowerShell) :
+
+    .venv\Scripts\activate
+
+Si PowerShell refuse d'activer l'environnement, lancez une seule fois :
+
+    Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+Installez enfin le projet :
+
+    pip install -e .
+
+
+Étape 4 : compiler Ginette
+--------------------------
+
+Vous n'avez normalement rien à faire. Le notebook compile l'exécutable
+ginette automatiquement la première fois qu'il tourne.
+
+Si vous voulez le compiler vous-même, lancez :
+
+    cd SYNTHETIC_CASES
+    gfortran -o ginette ../../../src/ginette_V2.f90
+    cd ..
+
+Sous Windows, le fichier produit peut s'appeler ginette.exe. Le notebook
+cherche ce nom sous Windows.
+
+
+Étape 5 : lancer le notebook
+----------------------------
+
+Lancez Jupyter depuis le dossier 2026_TD_ENS. C'est important, sinon les
+chemins relatifs du notebook ne fonctionnent pas.
+
+    jupyter notebook TD_M2_direct_model.ipynb
+
+Exécutez ensuite les cellules dans l'ordre. Le notebook lance plusieurs
+simulations, et leur durée dépend de votre machine. Chaque simulation couvre
+40 jours : 10 jours de mise en route, puis 30 jours analysés.
+
+
+Espace disque
+-------------
+
+Les trois fichiers de sortie suivants sont écrits dans le dossier
+SYNTHETIC_CASES :
+
+    Sim_temperature_profil_t.dat
+    Sim_velocity_profil_t.dat
+    Sim_heat_flux_profil_t.dat
+
+Ils occupent environ 0,8 Go au total. Ils sont réécrits à chaque simulation.
+Gardez au moins 2 Go d'espace libre sur votre disque.
+
+
+Dépannage
+---------
+
+Problème : gfortran est introuvable.
+Solution : installez gfortran (étape 2). Fermez puis rouvrez le terminal.
+Vérifiez ensuite avec la commande gfortran --version.
+
+Problème : python3.12 est introuvable.
+Solution : installez Python 3.12. Vous pouvez aussi utiliser la méthode
+conda (étape 3a), qui installe Python 3.12 pour vous.
+
+Problème : le notebook indique qu'un fichier est introuvable.
+Solution : vérifiez que Jupyter a été lancé depuis le dossier 2026_TD_ENS.
+Affichez le dossier courant avec la commande pwd (macOS, Linux) ou
+Get-Location (Windows PowerShell). Il doit se terminer par 2026_TD_ENS.
+
+Problème : ginette.exe ou ginette est introuvable.
+Solution : compilez Ginette à la main (étape 4). Vérifiez ensuite que le
+fichier ginette (ou ginette.exe sous Windows) se trouve dans le dossier
+SYNTHETIC_CASES.
