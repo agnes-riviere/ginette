@@ -76,7 +76,8 @@ installe le projet.
 
 3b. Avec pip
 
-    python3.12 -m venv .venv
+    macOS / Linux :          python3.12 -m venv .venv
+    Windows (PowerShell) :   py -3.12 -m venv .venv
 
 Activez ensuite l'environnement.
 
