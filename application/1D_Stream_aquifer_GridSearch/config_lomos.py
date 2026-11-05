@@ -62,7 +62,13 @@ DELTAP_DEPTH = SENSOR_DEPTHS[DELTAP_SENSOR] * np.cos(np.radians(DELTAP_TUBE_ANGL
 # Par point : les autres points (ex: lomos230, tube vertical) restent à 0 -
 # le même balayage sur lomos230 (3 périodes) ne réclame aucun offset et
 # rejette celui du 231 (misfit dégradé dès -4 cm).
-DELTAP_OFFSET_CM = {'lomos231': -3.8}
+# 2026-11-05 : -3.8 -> -2.65 cm, dérivé de Stallman (stallman_diffusivity.py) au lieu
+# d'être calé sur les températures. Sur les 2 fenêtres où Gamma_ampl et Gamma_phase
+# s'accordent à ~1 % (11-31/03 : uz=-1120 mm/an, dh brut +2.44 cm ; 20/04-10/05 :
+# uz=+1402 mm/an, dh brut +2.91 cm), uz = K*(dh+offset)/0.4 avec le MÊME K donne
+# offset = -2.65 cm et K = 6.8e-6 m/s (log_k ~ -12.0). L'ancien -3.8 cm imposait une
+# exfiltration sur 20/04-30/05 alors que dp brut et Stallman y indiquent l'infiltration.
+DELTAP_OFFSET_CM = {'lomos231': -2.65}
 DELTAP_OFFSET = DELTAP_OFFSET_CM.get(POINT_NAME, 0.0) / 100.0
 # Surcharge temporaire par 5_offset_sweep.py (balayage de l'offset, lance le
 # pipeline une fois par valeur) - ne rien changer ici pour un balayage.
@@ -156,7 +162,10 @@ FORCE_DATE_SIMUL_BG = True
 # simuler un point avec la période calée pour l'autre quand on change
 # POINT_NAME. Un point absent du dict retombe sur DEFAULT_PERIOD.
 PERIODS = {
-    'lomos231': ("2026/03/12 00:00:00", 79),   # étiage + réchauffement, offset dp calé dessus
+    # 2026-11-05 : 12/03 +79 j -> 20/04 13:00 +40 j = période recommandée par Stallman
+    # (stallman_recommended_period.txt) : dp brut, thermique et Stallman s'y accordent
+    # (infiltration). Avec offset -2.65 cm : misfit 13.5 contre 27.6 sur l'ancienne fenêtre.
+    'lomos231': ("2026/04/20 13:00:00", 40),
     'lomos230': ("2026/04/30 04:00:00", 69),   # 30/04 -> 08/07 (fin des données)
 }
 DEFAULT_PERIOD = ("2026/04/30 04:00:00", 42)
@@ -265,19 +274,19 @@ Name_parameters = ["log_k", "lam", "n", "c"]
 
 # Bornes [min, max] par point - large par défaut (>= 4 ordres de grandeur sur
 # log_k) pour ne pas présupposer la valeur calée et pouvoir estimer
-# l'incertitude. lomos230 : sable gréseux. lomos231 : hypothèse d'un lit
-# granitique fracturé (bornes plus resserrées).
+# l'incertitude. lomos230 : sable gréseux. lomos231 : lit minéral saturé,
+# bornes resserrées autour du calage (voir NOTE_calage_lomos231.md).
 LOG_K_BY_POINT = {
     "lomos230": [-13, -11],  # sable gréseux : log10(perméabilité intrinsèque k [m2])
-    "lomos231": [-15, -11],  # granite fracturé
+    "lomos231": [-13.0, -11.0],  # K ~ 1e-5 à 1e-4 m/s ; optimum -11.3 (voir NOTE_calage_lomos231.md)
 }
 LAM_BY_POINT = {
     "lomos230": [2, 6],      # sable gréseux : conductivité de la fraction solide [W/m/K]
-    "lomos231": [2.5, 4.0],  # granite fracturé
+    "lomos231": [2.0, 4.0],  # diffusivité de Stallman compatible pour 2.25-3.5 ; misfit dégradé au-delà
 }
 N_BY_POINT = {
     "lomos230": [0.05, 0.45],  # grès (consolidé à peu consolidé) : porosité totale [-]
-    "lomos231": [0.20, 0.40],  # granite fracturé
+    "lomos231": [0.20, 0.40],  # sédiment minéral saturé ; non identifiable
 }
 log_k = LOG_K_BY_POINT.get(POINT_NAME, LOG_K_BY_POINT["lomos230"])
 lam = LAM_BY_POINT.get(POINT_NAME, LAM_BY_POINT["lomos230"])
@@ -291,14 +300,15 @@ n = N_BY_POINT.get(POINT_NAME, N_BY_POINT["lomos230"])
 # Propriétés du solide, définies au même endroit que les bornes de calibration.
 # lomos230 : sable gréseux à densité de quartz (2650 kg/m3, c=800 J/kg/K) ; la
 # capacité volumique reste dans la plage streambed (~2-3.5 MJ/m3/K) pour une
-# porosité de grès. lomos231 : hypothèse d'un lit granitique fracturé.
+# porosité de grès. lomos231 : mêmes propriétés minérales (le jeu organique 1180/2000 a été
+# testé et rejeté : incompatible avec la diffusivité de Stallman).
 RHO_SOLID_BY_POINT = {
     "lomos230": 2650.0,  # sable gréseux (quartz) [kg/m3]
-    "lomos231": 2650.0,  # granite [kg/m3]
+    "lomos231": 2650.0,  # minéral (granite/quartz) [kg/m3] - test organique 1180/2000 (2026-11-05) rejeté : aucun point compatible avec Gamma de Stallman
 }
 C_SOLID_BY_POINT = {
     "lomos230": 800.0,   # sable gréseux (quartz) [J/kg/K]
-    "lomos231": 800.0,   # granite [J/kg/K]
+    "lomos231": 800.0,   # minéral [J/kg/K]
 }
 RHO_SOLID = RHO_SOLID_BY_POINT.get(POINT_NAME, RHO_SOLID_BY_POINT["lomos230"])
 C_SOLID = C_SOLID_BY_POINT.get(POINT_NAME, C_SOLID_BY_POINT["lomos230"])
@@ -310,11 +320,16 @@ c = [C_SOLID]        # capacité thermique spécifique de la fraction solide [J/
 # totale -> 9180 combinaisons, très au-dessus de la limite de 500 sur ce
 # poste (voir mémoire feedback_grid_search_cpu_limit). Remis à une résolution
 # plus grossière (proche des pas d'origine) : 8x6x7x1 = 336 combinaisons.
-PARAM_STEP = {
+# Pas par point : les autres points gardent les pas d'origine (grilles inchangées).
+PARAM_STEP_DEFAULT = {
     "log_k": (0.25, 2),
     "lam": (0.5, 2),
     "n": (0.1, 3),
 }
+PARAM_STEP_BY_POINT = {
+    "lomos231": {"log_k": (0.05, 2), "lam": (0.25, 2), "n": (0.05, 3)},  # 42 x 9 x 5 = 1890
+}
+PARAM_STEP = PARAM_STEP_BY_POINT.get(POINT_NAME, PARAM_STEP_DEFAULT)
 
 # =============================================================================
 # MISFIT (3_misfit.py)
