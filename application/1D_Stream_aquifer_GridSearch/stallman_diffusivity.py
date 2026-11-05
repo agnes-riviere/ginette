@@ -129,7 +129,7 @@ sys.path.insert(0, str(APP_DIR))
 # POINT_NAME/SENSOR_DEPTHS/DELTAP_SENSOR partagés via config_lomos.py avec les
 # autres scripts (0_/2_/3_/4_) - ce script analyse donc le même point et la
 # même géométrie de capteurs que le reste du pipeline, pas toujours lomos230.
-from config_lomos import POINT_NAME, SENSOR_DEPTHS, DELTAP_SENSOR
+from config_lomos import POINT_NAME, SENSOR_DEPTHS, DELTAP_SENSOR, RHO_SOLID, C_SOLID
 
 # =============================================================================
 # PARAMÈTRES UTILISATEUR
@@ -178,8 +178,9 @@ POROSITY_RANGE = (0.05, 0.5)  # même plage que n dans le grid search
 #                         cohérence avec ce qui est réellement simulé)
 RHO_WATER = 1000.0
 CW_WATER = 4185.0 * RHO_WATER   # chaleur volumique de l'eau [J/m3/K] (cpe * rho_eau)
-RHO_SOLID = 1180.0
-CS_SOLID = 2000.0 * RHO_SOLID   # chaleur volumique de la fraction solide [J/m3/K] (cpm * rhosi)
+# RHO_SOLID [kg/m3] et C_SOLID [J/kg/K] viennent de config_lomos.py (par point) :
+# plus de valeurs en dur ici, pour que Stallman et le calage Ginette restent cohérents.
+CS_SOLID = C_SOLID * RHO_SOLID   # chaleur volumique de la fraction solide [J/m3/K] (cpm * rhosi)
 KW_WATER = 0.598                # conductivité thermique de l'eau [W/m/K] (alandae)
 
 # Chaleur volumique du milieu saturé, dérivée de la porosité (mélange linéaire
